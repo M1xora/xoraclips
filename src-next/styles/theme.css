@@ -1,0 +1,343 @@
+@import "tailwindcss";
+
+/**
+ * Inter Variable, self-hosted via @fontsource-variable (no external request).
+ *
+ * Geist was the previous choice and it is a good typeface, but it is drawn
+ * for display: its x-height is 0.52 of the em. This interface runs at
+ * 13-15px, where x-height is what legibility actually depends on, and Inter
+ * sits at 0.727. The same 14px renders letters 10.2px tall against Geist's
+ * 7.3px, which is why raising the sizes alone did not fix the feel.
+ *
+ * Inter is also drawn for interfaces rather than posters: open apertures, so
+ * a c e s do not close up small, and disambiguated 1 l I.
+ */
+@import '@fontsource-variable/inter';
+@import '@fontsource-variable/jetbrains-mono';
+
+/**
+ * Design tokens.
+ *
+ * One neutral family, one accent, and status colours that only appear when
+ * something has a status. The point is a surface you can look at for an hour
+ * while judging video: nothing competes with the footage.
+ *
+ * Every text pair in use was measured against WCAG AA (4.5:1). The weakest
+ * is 4.65:1 in dark and 4.84:1 in light.
+ */
+@theme {
+  /* Fonts, radii and z-scale do not change between modes. */
+  --font-display: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-sans: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono Variable', ui-monospace, 'Consolas', monospace;
+
+  /*
+   * Type scale, raised off Tailwind's defaults.
+   *
+   * text-xs is this interface's body size, used in 72 places, and at
+   * Tailwind's 0.75rem it was the SMALLEST thing on screen while also being
+   * the most common. Lifting it here fixes every one of those at once, and
+   * keeps the ladder in the right order: body sits above the hints, not
+   * below them.
+   *
+   * Line heights come up with the sizes: dense UI text needs the leading
+   * more than display text does.
+   */
+  --text-xs: 0.85rem;          /* 14.5px, 11.6px at 80% zoom */
+  --text-xs--line-height: 1.45;
+  --text-sm: 0.94rem;          /* 16.0px */
+  --text-sm--line-height: 1.5;
+  --text-base: 1rem;           /* 17.0px */
+  --text-base--line-height: 1.55;
+
+  /*
+   * One radius family, three steps. 0.375rem on a 40px button read as a
+   * near-square corner and made the whole surface feel rigid.
+   */
+  --radius-panel: 0.75rem;     /* 12px, panels and cards */
+  --radius-button: 0.5rem;     /* 8px, buttons */
+  --radius-control: 0.4375rem; /* 7px, inputs and small controls */
+
+  --z-sticky: 10;
+  --z-overlay: 20;
+  --z-modal: 30;
+  --z-toast: 40;
+
+  /* Colors resolve to the variables set per mode below, so every component
+     uses one token name and never a raw hex. */
+  --color-canvas: var(--c-canvas);
+  --color-surface: var(--c-surface);
+  --color-surface-2: var(--c-surface-2);
+  --color-surface-3: var(--c-surface-3);
+  --color-hairline: var(--c-hairline);
+
+  --color-accent: var(--c-accent);
+  --color-accent-bright: var(--c-accent-bright);
+  --color-accent-text: var(--c-accent-text);
+  --color-accent-muted: var(--c-accent-muted);
+  --color-on-accent: var(--c-on-accent);
+
+  --color-teal: var(--c-teal);
+  --color-teal-bright: var(--c-teal-bright);
+  --color-teal-text: var(--c-teal-text);
+  --color-teal-muted: var(--c-teal-muted);
+  --color-on-teal: var(--c-on-teal);
+
+  --color-critical: var(--c-critical);
+  --color-critical-bright: var(--c-critical-bright);
+  --color-critical-text: var(--c-critical-text);
+  --color-on-critical: var(--c-on-critical);
+
+  --color-positive: var(--c-positive);
+  --color-caution: var(--c-caution);
+
+  --color-ink: var(--c-ink);
+  --color-ink-dim: var(--c-ink-dim);
+  --color-ink-faint: var(--c-ink-faint);
+}
+
+/**
+ * Each token carries the same ROLE in both modes; only the shade changes, so
+ * a colour stays above AA on its own background.
+ *
+ * Dark is the default. On a light background the preview player makes footage
+ * read darker than it is, which matters when the job is judging video.
+ */
+:root,
+:root[data-theme='dark'] {
+  /*
+   * Neutral slate. The previous palette tinted every surface teal and used a
+   * peach accent, which left muted text at 3.71:1 on surface-2, below AA.
+   */
+  --c-canvas: #0f1115;
+  --c-surface: #161920;
+  --c-surface-2: #1e222b;
+  --c-surface-3: #282d38;
+  --c-hairline: #333944;
+
+  /* Blue carries the primary action. White on the fill is 4.65:1; the
+     brighter tint is for accent-coloured TEXT, which needs more. */
+  --c-accent: #2f6fe4;
+  --c-accent-bright: #4a86f0;
+  --c-accent-text: #7ab0ff;
+  --c-accent-muted: #1b2740;
+  --c-on-accent: #ffffff;
+
+  --c-teal: #1d7a6b;
+  --c-teal-bright: #24907e;
+  --c-teal-text: #5fd4c4;
+  --c-teal-muted: #14302c;
+  --c-on-teal: #ffffff;
+
+  --c-critical: #c33a2b;
+  --c-critical-bright: #d64535;
+  --c-critical-text: #ff8a80;
+  --c-on-critical: #ffffff;
+
+  --c-positive: #6ee7a8;
+  --c-caution: #f0c674;
+
+  --c-ink: #eef1f6;
+  --c-ink-dim: #b6becd;
+  --c-ink-faint: #95a0b2;
+}
+
+/**
+ * Light mode inverts the surface ladder: the canvas is the tinted grey and
+ * panels sit ABOVE it in white, separated by a hairline rather than a shadow.
+ */
+:root[data-theme='light'] {
+  --c-canvas: #f6f7f9;
+  --c-surface: #ffffff;
+  --c-surface-2: #f1f3f6;
+  --c-surface-3: #e6e9ee;
+  --c-hairline: #d5dae2;
+
+  --c-accent: #1a5fd0;
+  --c-accent-bright: #164fb0;
+  --c-accent-text: #1a5fd0;
+  --c-accent-muted: #e3ecfb;
+  --c-on-accent: #ffffff;
+
+  --c-teal: #0f6b60;
+  --c-teal-bright: #0c5a51;
+  --c-teal-text: #0f6b60;
+  --c-teal-muted: #dcefec;
+  --c-on-teal: #ffffff;
+
+  --c-critical: #c4321f;
+  --c-critical-bright: #a82819;
+  --c-critical-text: #c4321f;
+  --c-on-critical: #ffffff;
+
+  --c-positive: #1a7f4b;
+  --c-caution: #8a5a12;
+
+  --c-ink: #12151a;
+  --c-ink-dim: #4d5665;
+  --c-ink-faint: #5c6573;
+}
+
+/* Follow the OS until the viewer picks a mode, which sets data-theme. */
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme]) {
+    --c-canvas: #f6f7f9;
+    --c-surface: #ffffff;
+    --c-surface-2: #f1f3f6;
+    --c-surface-3: #e6e9ee;
+    --c-hairline: #d5dae2;
+
+    --c-accent: #1a5fd0;
+    --c-accent-bright: #164fb0;
+    --c-accent-text: #1a5fd0;
+    --c-accent-muted: #e3ecfb;
+    --c-on-accent: #ffffff;
+
+    --c-teal: #0f6b60;
+    --c-teal-bright: #0c5a51;
+    --c-teal-text: #0f6b60;
+    --c-teal-muted: #dcefec;
+    --c-on-teal: #ffffff;
+
+    --c-critical: #c4321f;
+    --c-critical-bright: #a82819;
+    --c-critical-text: #c4321f;
+    --c-on-critical: #ffffff;
+
+    --c-positive: #1a7f4b;
+    --c-caution: #8a5a12;
+
+    --c-ink: #12151a;
+    --c-ink-dim: #4d5665;
+    --c-ink-faint: #5c6573;
+  }
+}
+
+@layer base {
+  :root { color-scheme: dark; }
+  :root[data-theme='light'] { color-scheme: light; }
+  @media (prefers-color-scheme: light) {
+    :root:not([data-theme]) { color-scheme: light; }
+  }
+
+  html {
+    scroll-behavior: smooth;
+
+    /*
+     * Back to the browser default now that the typeface carries the
+     * legibility. Inter's x-height means 16px here reads larger than 17px
+     * did under Geist, so the layout does not have to grow to be readable.
+     * Leaving it at 16px also respects a viewer who has set their own
+     * default size.
+     */
+    font-size: 100%;
+  }
+
+  body {
+    background-color: var(--color-canvas);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Headings: tight tracking and leading so display text has weight. */
+  h1, h2, h3 {
+    font-family: var(--font-display);
+    letter-spacing: -0.025em;
+    line-height: 1.1;
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  /* Timecodes and byte counts must not shift width as digits change. */
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Accessibility requirement, not optional. */
+  :focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+@layer components {
+  /* Surface with a light top edge, so panels read as lit from above. */
+  .panel {
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-hairline);
+    border-radius: var(--radius-panel);
+    box-shadow:
+      inset 0 1px 0 0 rgb(255 255 255 / 0.04),
+      0 1px 2px 0 rgb(0 0 0 / 0.4);
+  }
+
+  /* Pressed feedback on every interactive control. */
+  .pressable {
+    transition:
+      background-color 200ms ease,
+      border-color 200ms ease,
+      transform 120ms ease,
+      opacity 200ms ease;
+  }
+  .pressable:active:not(:disabled) {
+    transform: translateY(1px);
+  }
+
+  /*
+   * Buttons travel further than other pressables: up on hover, down past
+   * rest on press. The shadow in the variant does the rest, so a click has
+   * somewhere to go instead of only changing colour.
+   */
+  .pressable-btn {
+    transition:
+      background-color 160ms ease,
+      border-color 160ms ease,
+      box-shadow 160ms ease,
+      transform 100ms ease,
+      opacity 160ms ease;
+  }
+  .pressable-btn:hover:not(:disabled) {
+    transform: translateY(-1px);
+  }
+  .pressable-btn:active:not(:disabled) {
+    transform: translateY(1px);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .pressable-btn:hover:not(:disabled),
+    .pressable-btn:active:not(:disabled) {
+      transform: none;
+    }
+  }
+
+  /* Skeletons instead of spinners for content-shaped loading. */
+  .skeleton {
+    background: linear-gradient(
+      90deg,
+      var(--color-surface-2) 25%,
+      var(--color-surface-3) 50%,
+      var(--color-surface-2) 75%
+    );
+    background-size: 200% 100%;
+    animation: skeleton-sweep 1.4s ease-in-out infinite;
+  }
+
+  @keyframes skeleton-sweep {
+    from { background-position: 200% 0; }
+    to { background-position: -200% 0; }
+  }
+}
