@@ -11,6 +11,8 @@ import { useYouTubePlayer, type ClipBounds } from '../../hooks/useYouTubePlayer'
 import { faceOffsetPercent, useFaceBox } from '../../hooks/useFaceBox';
 import { usePreviewAudio } from '../../hooks/usePreviewAudio';
 import { CaptionOverlay } from '../studio/CaptionOverlay';
+import { useCaptionChunks } from '../../hooks/useCaptionChunks';
+import { useLanguage } from '../../i18n';
 import { formatTimecode } from '../../lib/format';
 import { api } from '../../api/client';
 import {
@@ -179,6 +181,22 @@ export function ClipPreview({
   const tracks =
     streamerPreset !== 'none' || (enableFaceTracking && aspectRatio === '9:16');
   const { box } = useFaceBox(videoId, sampleAt, tracks);
+
+  // Captions come from the backend so they match the export exactly.
+  const { t } = useLanguage();
+  const captions = useCaptionChunks(
+    transcript,
+    clip.start_time,
+    clip.end_time,
+    textCase,
+    captionStyle !== 'none',
+  );
+  const captionNote =
+    captions.status === 'renderOnly'
+      ? t.studio.captionsRenderOnly
+      : captions.status === 'error'
+        ? t.studio.captionsUnavailable
+        : null;
   const offsetPct = faceOffsetPercent(box, videoW, cover.width);
 
   useEffect(() => {
@@ -328,20 +346,27 @@ export function ClipPreview({
         )}
 
         <CaptionOverlay
-          transcript={transcript}
-          fallbackText={clip.transcript}
-          clipStart={clip.start_time}
-          clipEnd={clip.end_time}
+          chunks={captions.chunks}
           currentTime={currentTime}
           style={captionStyle}
           font={captionFont}
           fontSize={fontSize}
-          textCase={textCase}
           positionMode={subtitlePositionMode}
           bottomPercent={subtitleYPercent}
           centerPercent={subtitleCenterYPercent}
           scale={1}
         />
+
+        {captionNote && (
+          <div
+            className="pointer-events-none absolute inset-x-0 px-3 text-center"
+            style={{ bottom: `${subtitleYPercent}%` }}
+          >
+            <span className="rounded bg-black/70 px-2 py-1 text-[0.7rem] font-medium text-white">
+              {captionNote}
+            </span>
+          </div>
+        )}
 
         {/* Watermark. x and y are the centre point, matching the renderer. */}
         {watermarkEnabled && (watermarkType === 'text' ? watermarkText : watermarkUrl) && (

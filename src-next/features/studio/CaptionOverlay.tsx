@@ -1,19 +1,10 @@
-import { useMemo } from 'react';
-import {
-  activeWordIndex,
-  buildCaptionChunks,
-  CAPTION_THEMES,
-  chunkAt,
-  renderWord,
-} from './captions';
+import { activeWordIndex, CAPTION_THEMES, chunkAt, type CaptionChunk } from './captions';
 import { subtitleFontPx } from './derive';
 import type {
   CaptionFont,
   CaptionStyle,
   FontSizeOption,
   SubtitlePositionMode,
-  TextCaseOption,
-  TranscriptLine,
 } from '../../lib/types';
 
 /** Web-safe stacks for the eight caption fonts the renderer offers. */
@@ -29,17 +20,14 @@ const FONT_STACKS: Record<CaptionFont, string> = {
 };
 
 interface CaptionOverlayProps {
-  transcript?: TranscriptLine[];
-  fallbackText?: string;
-  clipStart: number;
-  clipEnd: number;
+  /** Chunks from the backend, in absolute source-video time. */
+  chunks: CaptionChunk[];
   /** Absolute time in the source video. */
   currentTime: number;
 
   style: CaptionStyle;
   font: CaptionFont;
   fontSize: FontSizeOption;
-  textCase: TextCaseOption;
   positionMode: SubtitlePositionMode;
   /** Percent from the bottom, for bottom mode. */
   bottomPercent: number;
@@ -52,30 +40,22 @@ interface CaptionOverlayProps {
 /**
  * Word-level captions drawn over the preview.
  *
+ * Draws the backend's chunks verbatim: the text is already cleaned and
+ * cased, and each word's highlight window is the one the .ass file uses.
  * The spoken word is lifted in the style's accent colour while the rest of
  * the chunk stays white, which is the effect the ASS renderer produces.
- * Unlike the old preview, the words are the clip's own.
  */
 export function CaptionOverlay({
-  transcript,
-  fallbackText,
-  clipStart,
-  clipEnd,
+  chunks,
   currentTime,
   style,
   font,
   fontSize,
-  textCase,
   positionMode,
   bottomPercent,
   centerPercent,
   scale = 1,
 }: CaptionOverlayProps) {
-  const chunks = useMemo(
-    () => buildCaptionChunks(transcript, clipStart, clipEnd, fallbackText),
-    [transcript, clipStart, clipEnd, fallbackText],
-  );
-
   if (style === 'none' || chunks.length === 0) return null;
 
   const chunk = chunkAt(chunks, currentTime);
@@ -118,6 +98,7 @@ export function CaptionOverlay({
         {chunk.words.map((word, i) => (
           <span
             key={`${word.start}-${i}`}
+            data-active={i === activeIdx ? 'true' : undefined}
             style={{
               color: i === activeIdx ? theme.accent : theme.base,
               // A slight lift on the spoken word, the way the karaoke
@@ -127,8 +108,8 @@ export function CaptionOverlay({
               transition: 'transform 90ms ease, color 90ms ease',
             }}
           >
-            {renderWord(word.text, textCase)}
-            {i < chunk.words.length - 1 ? ' ' : ''}
+            {word.text}
+            {i < chunk.words.length - 1 ? ' ' : ''}
           </span>
         ))}
       </span>
