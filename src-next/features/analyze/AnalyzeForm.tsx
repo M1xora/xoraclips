@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { EyeIcon, EyeSlashIcon, SparkleIcon, UploadSimpleIcon } from '@phosphor-icons/react';
+import { FlaskIcon, SparkleIcon, UploadSimpleIcon, WarningIcon } from '@phosphor-icons/react';
 import { Button } from '../../components/ui/Button';
 import { Field } from '../../components/ui/Field';
 import { Panel } from '../../components/ui/Panel';
@@ -9,6 +9,7 @@ import { useLocalStorage, useLocalStorageString } from '../../hooks/useLocalStor
 import { api } from '../../api/client';
 import type { AnalyzeRequest } from '../../hooks/useAnalyze';
 import { useLanguage } from '../../i18n';
+import { useServerAiStatus } from '../../hooks/useServerAiStatus';
 
 const FALLBACK_MODELS = [
   'gemini-2.5-flash',
@@ -42,8 +43,9 @@ interface AnalyzeFormProps {
 export function AnalyzeForm({ onSubmit, busy }: AnalyzeFormProps) {
   const { t } = useLanguage();
   const [url, setUrl] = useState('');
-  const [apiKey, setApiKey] = useLocalStorageString('cheat_clip_gemini_api_key');
-  const [showKey, setShowKey] = useState(false);
+  // The Gemini key lives only on the server (issue #8); ask whether it is set.
+  const aiStatus = useServerAiStatus();
+  const aiBlocked = aiStatus === 'notConfigured';
   const [model, setModel] = useLocalStorageString(
     'cheat_clip_selected_model',
     'gemini-2.5-flash',
@@ -63,22 +65,18 @@ export function AnalyzeForm({ onSubmit, busy }: AnalyzeFormProps) {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const fileRef = useRef<HTMLInputElement>(null);
 
-  // Fetch the model list once the key looks complete. Debounced so it does
-  // not fire on every keystroke.
+  // The server's key decides which models exist; ask once it is known to be set.
   useEffect(() => {
-    const key = apiKey.trim();
-    if (key.length < 20 || key.toLowerCase() === 'mock') {
-      setModels([]);
-      return;
-    }
-    const timer = setTimeout(() => {
-      api
-        .listModels(key)
-        .then((res) => setModels(res.models ?? []))
-        .catch(() => setModels([]));
-    }, 600);
-    return () => clearTimeout(timer);
-  }, [apiKey]);
+    if (aiStatus !== 'ready') return;
+    const controller = new AbortController();
+    api
+      .listModels(controller.signal)
+      .then((res) => setModels(res.models ?? []))
+      .catch(() => {
+        // Keep the fallback list.
+      });
+    return () => controller.abort();
+  }, [aiStatus]);
 
   const handleFile = (file: File) => {
     const reader = new FileReader();
@@ -96,7 +94,6 @@ export function AnalyzeForm({ onSubmit, busy }: AnalyzeFormProps) {
     const next: Record<string, string> = {};
 
     if (!url.trim()) next.url = t.form.urlRequired;
-    if (!apiKey.trim()) next.apiKey = t.form.apiKeyRequired;
 
     let startSecs: number | undefined;
     let endSecs: number | undefined;
@@ -120,7 +117,6 @@ export function AnalyzeForm({ onSubmit, busy }: AnalyzeFormProps) {
     onSubmit({
       url: url.trim(),
       duration,
-      api_key: apiKey.trim() || undefined,
       model,
       custom_prompt: prompt.trim() || undefined,
       range_start: startSecs,
@@ -167,6 +163,7 @@ export function AnalyzeForm({ onSubmit, busy }: AnalyzeFormProps) {
             type="submit"
             size="lg"
             loading={busy}
+            disabled={aiBlocked}
             icon={<SparkleIcon size={16} weight="fill" />}
             className="sm:mt-6"
           >
@@ -178,42 +175,25 @@ export function AnalyzeForm({ onSubmit, busy }: AnalyzeFormProps) {
       <div className="grid gap-4 lg:grid-cols-2">
         <Panel title={t.form.engine}>
           <div className="grid gap-4">
-            <Field
-              label={t.form.apiKeyLabel}
-              required
-              type={showKey ? 'text' : 'password'}
-              autoComplete="off"
-              spellCheck={false}
-              placeholder="AIzaSy..."
-              value={apiKey}
-              onChange={(e) => setApiKey(e.target.value)}
-              error={errors.apiKey}
-              hint={
-                <>
-                  {t.form.apiKeyFree}{' '}
-                  <a
-                    href="https://aistudio.google.com/"
-                    target="_blank"
-                    rel="noreferrer"
-                    className="text-teal-text underline underline-offset-2"
-                  >
-                    Google AI Studio
-                  </a>
-                  . {t.form.apiKeyMock}
-                </>
-              }
-              disabled={busy}
-              trailing={
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setShowKey((v) => !v)}
-                  icon={showKey ? <EyeSlashIcon size={14} /> : <EyeIcon size={14} />}
-                  aria-label={showKey ? t.form.apiKeyHide : t.form.apiKeyShow}
-                />
-              }
-            />
+            {aiStatus === 'notConfigured' && (
+              <div
+                role="alert"
+                className="flex items-start gap-2 rounded-[--radius-control] border border-hairline
+                  bg-surface-2 p-3 text-sm text-critical-text"
+              >
+                <WarningIcon size={16} className="mt-0.5 shrink-0" />
+                <span>{t.form.aiNotConfigured}</span>
+              </div>
+            )}
+            {aiStatus === 'mock' && (
+              <div className="flex items-start gap-2 rounded-[--radius-control] border border-hairline bg-surface-2 p-3 text-sm">
+                <FlaskIcon size={16} className="mt-0.5 shrink-0 text-teal-text" />
+                <span>
+                  <strong className="font-semibold">{t.form.mockMode}</strong>{' '}
+                  <span className="text-ink-dim">{t.form.mockModeHint}</span>
+                </span>
+              </div>
+            )}
 
             <div>
               <label htmlFor="model-select" className="text-xs font-medium text-ink-dim">

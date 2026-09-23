@@ -12,7 +12,6 @@ export interface AnalyzeProgress {
 export interface AnalyzeRequest {
   url: string;
   duration: string;
-  api_key?: string;
   model?: string;
   custom_prompt?: string;
   range_start?: number;
