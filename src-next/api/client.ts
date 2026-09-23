@@ -6,32 +6,50 @@
  * checking and payload shapes live in exactly one place.
  */
 
-/** Error carrying the HTTP status and the backend's `detail` message. */
+/** Error carrying the HTTP status, the backend's message and, when given, an error code. */
 export class ApiError extends Error {
   readonly status: number;
   readonly detail: string;
+  /** e.g. `key_invalid`, `key_quota` (backend ai_errors.py). */
+  readonly code?: string;
 
-  constructor(status: number, detail: string) {
+  constructor(status: number, detail: string, code?: string) {
     super(detail);
     this.name = 'ApiError';
     this.status = status;
     this.detail = detail;
+    this.code = code;
   }
+}
+
+/** The request header that carries the user's Gemini key (issue #12). */
+export const GEMINI_KEY_HEADER = 'X-Gemini-Api-Key';
+
+/** Headers for a request that uses the user's key; none when there is no key. */
+export function geminiKeyHeaders(apiKey?: string): Record<string, string> {
+  const key = apiKey?.trim();
+  return key ? { [GEMINI_KEY_HEADER]: key } : {};
 }
 
 /**
  * Reads the backend's error body and turns it into an ApiError.
- * FastAPI reports problems as `{ "detail": "..." }`.
+ * FastAPI reports problems as `{ "detail": "..." }`, or as
+ * `{ "detail": { "code": "...", "message": "..." } }` for coded errors.
  */
 async function toApiError(res: Response): Promise<ApiError> {
   let detail = `Request failed with status ${res.status}`;
+  let code: string | undefined;
   try {
     const body = await res.json();
     if (body && typeof body.detail === 'string') detail = body.detail;
+    else if (body?.detail && typeof body.detail === 'object') {
+      if (typeof body.detail.message === 'string') detail = body.detail.message;
+      if (typeof body.detail.code === 'string') code = body.detail.code;
+    }
   } catch {
     // Body was not JSON - keep the status-based message.
   }
-  return new ApiError(res.status, detail);
+  return new ApiError(res.status, detail, code);
 }
 
 /**
@@ -181,12 +199,14 @@ export interface BatchStart {
 
 export const api = {
   /**
-   * Gemini models available to the server's key. The key lives only in
-   * backend/.env; the browser never sends one (issue #8).
+   * Gemini models available to the user's key, sent only in the header.
+   * Also a key check: a key Google rejects throws ApiError with code
+   * `key_invalid` (or `key_quota`).
    */
-  listModels: (signal?: AbortSignal) => request<{ models: string[] }>('/api/models', { signal }),
+  listModels: (apiKey?: string, signal?: AbortSignal) =>
+    request<{ models: string[] }>('/api/models', { signal, headers: geminiKeyHeaders(apiKey) }),
 
-  /** Server configuration, e.g. whether the AI key is set or mock mode is on. */
+  /** Server configuration, e.g. whether mock mode is on. */
   health: (signal?: AbortSignal) =>
     request<import('../features/analyze/serverStatus').HealthInfo>('/api/health', { signal }),
 

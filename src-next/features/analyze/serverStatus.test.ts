@@ -1,49 +1,17 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import {
-  aiStatusFromHealth,
-  LEGACY_API_KEY_STORAGE,
-  purgeLegacyApiKey,
-} from './serverStatus';
-import { api } from '../../api/client';
+import { aiStatusFromHealth } from './serverStatus';
+import { analyzeErrorView } from './analyzeErrors';
+import { api, ApiError, GEMINI_KEY_HEADER } from '../../api/client';
+import { buildAnalyzeInit } from '../../hooks/useAnalyze';
+import { id } from '../../i18n/id';
 
-function memoryStorage(initial: Record<string, string> = {}) {
-  const data = new Map(Object.entries(initial));
-  return {
-    getItem: (k: string) => data.get(k) ?? null,
-    removeItem: (k: string) => void data.delete(k),
-    data,
-  };
-}
-
-describe('purgeLegacyApiKey', () => {
-  it('removes a key an older version left in the browser', () => {
-    const storage = memoryStorage({ [LEGACY_API_KEY_STORAGE]: 'AIzaSyOLD', other: 'keep' });
-    expect(purgeLegacyApiKey(() => storage)).toBe(true);
-    expect(storage.data.has(LEGACY_API_KEY_STORAGE)).toBe(false);
-    expect(storage.data.get('other')).toBe('keep');
-  });
-
-  it('does nothing when there is no old key', () => {
-    expect(purgeLegacyApiKey(() => memoryStorage())).toBe(false);
-  });
-
-  it('never throws when storage is blocked', () => {
-    expect(
-      purgeLegacyApiKey(() => {
-        throw new DOMException('blocked', 'SecurityError');
-      }),
-    ).toBe(false);
-    expect(purgeLegacyApiKey(() => undefined)).toBe(false);
-  });
-});
+const KEY = 'AIzaSyFAKE_USER_KEY_0123456789abcdefgh';
 
 describe('aiStatusFromHealth', () => {
-  it('maps the server configuration to what the form shows', () => {
-    expect(aiStatusFromHealth({ gemini_env_configured: true, mock_mode: false })).toBe('ready');
-    expect(aiStatusFromHealth({ gemini_env_configured: false, mock_mode: false })).toBe('notConfigured');
-    expect(aiStatusFromHealth({ gemini_env_configured: false, mock_mode: true })).toBe('mock');
-    expect(aiStatusFromHealth({ gemini_env_configured: true, mock_mode: true })).toBe('mock');
-    expect(aiStatusFromHealth({})).toBe('notConfigured');
+  it('only mock mode changes the form', () => {
+    expect(aiStatusFromHealth({ mock_mode: true })).toBe('mock');
+    expect(aiStatusFromHealth({ mock_mode: false })).toBe('normal');
+    expect(aiStatusFromHealth({})).toBe('normal');
   });
 
   it('does not block the form when the backend cannot be reached', () => {
@@ -51,21 +19,78 @@ describe('aiStatusFromHealth', () => {
   });
 });
 
-describe('api client', () => {
+describe('the key travels only in a header', () => {
   afterEach(() => vi.unstubAllGlobals());
 
-  it('asks for the model list without any key', async () => {
-    const fetchMock = vi.fn(async () => new Response(JSON.stringify({ models: ['m'] })));
+  function stubFetch(response: Response) {
+    const fetchMock = vi.fn(async () => response);
     vi.stubGlobal('fetch', fetchMock);
-    await api.listModels();
-    const [url] = fetchMock.mock.calls[0] as unknown as [string];
+    return fetchMock;
+  }
+
+  it('model list: header, never the URL', async () => {
+    const fetchMock = stubFetch(new Response(JSON.stringify({ models: ['m'] })));
+    await api.listModels(`  ${KEY}  `);
+    const [url, init] = fetchMock.mock.calls[0] as unknown as [string, RequestInit];
     expect(url).toBe('/api/models');
+    expect(init.headers).toEqual({ [GEMINI_KEY_HEADER]: KEY });
+  });
+
+  it('model list without a key sends no key header', async () => {
+    const fetchMock = stubFetch(new Response(JSON.stringify({ models: [] })));
+    await api.listModels('   ');
+    const [, init] = fetchMock.mock.calls[0] as unknown as [string, RequestInit];
+    expect(init.headers).toEqual({});
+  });
+
+  it('analysis: header, never the body', () => {
+    const init = buildAnalyzeInit({ url: 'https://youtu.be/x', duration: '30s' }, KEY);
+    expect((init.headers as Record<string, string>)[GEMINI_KEY_HEADER]).toBe(KEY);
+    expect(String(init.body)).not.toContain(KEY);
+    expect(JSON.parse(String(init.body))).toEqual({ url: 'https://youtu.be/x', duration: '30s' });
+  });
+
+  it('a rejected key comes back as ApiError with its code', async () => {
+    stubFetch(
+      new Response(JSON.stringify({ detail: { code: 'key_invalid', message: 'Google rejected your key' } }), {
+        status: 401,
+      }),
+    );
+    const err = await api.listModels(KEY).catch((e) => e);
+    expect(err).toBeInstanceOf(ApiError);
+    expect(err.code).toBe('key_invalid');
+    expect(err.status).toBe(401);
+    expect(err.message).toBe('Google rejected your key');
   });
 });
 
-describe('no API key leaves the browser', () => {
-  // Every source file, as text. Guards against a key field or parameter
-  // creeping back in (issue #8).
+describe('analyzeErrorView', () => {
+  it.each([
+    ['key_missing', id.errors.keyMissing, true],
+    ['key_invalid', id.errors.keyInvalid, true],
+    ['key_quota', id.errors.keyQuota, true],
+    ['model_unavailable', id.errors.modelUnavailable, false],
+    ['ai_busy', id.errors.aiBusy, false],
+    ['ai_failed', id.errors.aiFailed, false],
+  ])('%s', (code, message, keyProblem) => {
+    expect(analyzeErrorView(code, 'raw', id)).toEqual({ message, keyProblem });
+  });
+
+  it('shows the server text for non-AI failures', () => {
+    expect(analyzeErrorView(null, 'Invalid YouTube URL.', id)).toEqual({
+      message: 'Invalid YouTube URL.',
+      keyProblem: false,
+    });
+  });
+
+  it('tells the user a busy service is not their key', () => {
+    expect(id.errors.aiBusy).toMatch(/tidak bermasalah/);
+  });
+});
+
+describe('no key in a URL or a request body', () => {
+  // Every source file, as text: guards against the old `?api_key=` URL
+  // parameter or `api_key` body field coming back (issues #8, #12).
   const sources = import.meta.glob(['../../**/*.{ts,tsx}', '!../../**/*.test.{ts,tsx}'], {
     query: '?raw',
     import: 'default',
@@ -76,11 +101,11 @@ describe('no API key leaves the browser', () => {
     expect(Object.keys(sources).length).toBeGreaterThan(30);
   });
 
-  it('never sends or asks for api_key', () => {
+  it('never uses the api_key parameter name', () => {
     const offenders = Object.entries(sources)
-      .filter(([path]) => !path.endsWith('/serverStatus.ts'))
-      // Whole identifiers only: api_key, apiKey, api-key (not purgeLegacyApiKey).
-      .filter(([, text]) => /\bapi[_-]?key\b/i.test(text))
+      // `api_key` as its own name (`?api_key=`, `api_key:`), not inside a
+      // longer identifier such as the storage slot `cheat_clip_gemini_api_key`.
+      .filter(([, text]) => /(^|[^\w])api_key\b/m.test(text))
       .map(([path]) => path);
     expect(offenders).toEqual([]);
   });

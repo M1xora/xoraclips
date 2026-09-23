@@ -1,6 +1,14 @@
 import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
-import { CookieIcon, FilmStripIcon, WarningCircleIcon } from '@phosphor-icons/react';
-import { AnalyzeForm } from '../features/analyze/AnalyzeForm';
+import {
+  ArrowSquareOutIcon,
+  CookieIcon,
+  FilmStripIcon,
+  KeyIcon,
+  WarningCircleIcon,
+} from '@phosphor-icons/react';
+import { AnalyzeForm, API_KEY_INPUT_NAME } from '../features/analyze/AnalyzeForm';
+import { analyzeErrorView, focusApiKeyField } from '../features/analyze/analyzeErrors';
+import { AI_STUDIO_KEY_URL, currentApiKey } from '../features/analyze/apiKeyStore';
 import { AnalyzeProgress } from '../features/analyze/AnalyzeProgress';
 import { cacheKey, readCache, writeCache } from '../features/analyze/analysisCache';
 import { HistoryPanel } from '../features/analyze/HistoryPanel';
@@ -45,7 +53,7 @@ import type { AnalyzeResponse, ViralClip } from '../lib/types';
 export function App() {
   const { theme, toggle } = useTheme();
   const { language, setLanguage, t } = useLanguage();
-  const { analyze, status, progress, error } = useAnalyze();
+  const { analyze, status, progress, error, errorCode } = useAnalyze();
   const { toast, show, dismiss } = useToast();
 
   // The result lives here rather than in useAnalyze so a cache hit and a
@@ -133,7 +141,8 @@ export function App() {
         return;
       }
 
-      const fresh = await analyze(payload);
+      // The user's key travels as a header, never inside the payload or the cache.
+      const fresh = await analyze(payload, currentApiKey());
       if (!fresh) return;
 
       const withIds = withClipIds(fresh);
@@ -269,6 +278,8 @@ export function App() {
     [show, t.render.recover, t.studio.uploadFailed, startRender],
   );
 
+  const errorView = error ? analyzeErrorView(errorCode, error, t) : null;
+
   return (
     <div className="min-h-[100dvh] bg-canvas">
       <header className="sticky top-0 z-[--z-sticky] border-b border-hairline bg-canvas/90 backdrop-blur">
@@ -304,7 +315,11 @@ export function App() {
 
       <main className="mx-auto max-w-[1400px] px-4 py-6">
         <ErrorBoundary section={t.form.urlLabel}>
-          <AnalyzeForm onSubmit={runAnalysis} busy={busy} />
+          <AnalyzeForm
+            onSubmit={runAnalysis}
+            busy={busy}
+            onKeyCleared={() => show(t.form.apiKeyCleared)}
+          />
         </ErrorBoundary>
 
         {busy && (
@@ -336,18 +351,39 @@ export function App() {
                     {t.errors.analysisFailed}
                   </h2>
                   <p className="mt-1 whitespace-pre-wrap text-xs leading-relaxed text-ink-dim">
-                    {error}
+                    {errorView?.message}
                   </p>
-                  {lastRequest && (
-                    <Button
-                      variant="secondary"
-                      size="sm"
-                      className="mt-3"
-                      onClick={() => void runAnalysis(lastRequest)}
-                    >
-                      {t.errors.tryAgain}
-                    </Button>
-                  )}
+                  <div className="mt-3 flex flex-wrap items-center gap-2">
+                    {errorView?.keyProblem && (
+                      <Button
+                        size="sm"
+                        icon={<KeyIcon size={14} />}
+                        onClick={() => focusApiKeyField(API_KEY_INPUT_NAME)}
+                      >
+                        {t.errors.changeKey}
+                      </Button>
+                    )}
+                    {lastRequest && (
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        onClick={() => void runAnalysis(lastRequest)}
+                      >
+                        {t.errors.tryAgain}
+                      </Button>
+                    )}
+                    {errorView?.keyProblem && (
+                      <a
+                        href={AI_STUDIO_KEY_URL}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center gap-1 text-xs font-medium text-teal-text underline underline-offset-2"
+                      >
+                        {t.errors.getKey}
+                        <ArrowSquareOutIcon size={12} />
+                      </a>
+                    )}
+                  </div>
                 </div>
               </div>
             </Panel>
