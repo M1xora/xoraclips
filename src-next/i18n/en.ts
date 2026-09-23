@@ -298,6 +298,10 @@ export const en: Translations = {
     lostContactHint:
       'It may still be running in the background. Try reconnecting to see its progress.',
     reconnect: 'Reconnect',
+    downloadRetry: (method: number, methods: number) =>
+      `YouTube only sent audio. Trying again (method ${method} of ${methods})...`,
+    downloadNextMethod: (method: number, methods: number) =>
+      `Trying download method ${method} of ${methods}...`,
     recover: {
       cookies: 'Open cookies manager',
       encoder: 'Switch to CPU encoder',
@@ -314,6 +318,7 @@ export const en: Translations = {
       diskFull: 'Storage is full. Clear the temporary files first.',
       transcription: 'Transcription failed. Check the audio or turn captions off.',
       ffmpeg: 'FFmpeg could not compose the video. See the technical detail below.',
+      audioOnly: 'YouTube only sent audio for this clip. Try rendering again in a little while.',
     },
   },
 

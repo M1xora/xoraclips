@@ -2457,13 +2457,19 @@ async def process_batch_rendering(batch_id: str, request: RenderBatchRequest):
             end_t = float(clip.get("end_time", start_t + 30.0))
             seg_filename = f"{batch_id}_clip_{idx}_raw.mp4"
 
+            # Retries and method changes show on screen while downloading (#10).
+            def download_status(event, clip_status=clip_status):
+                clip_status["download_note"] = event
+
             raw_path = await asyncio.to_thread(
                 download_clip_segment,
                 target_url,
                 start_t,
                 end_t,
-                seg_filename
+                seg_filename,
+                download_status,
             )
+            clip_status.pop("download_note", None)
 
             # 2. Transcribe & Generate Subtitles / Title (.ass)
             clip_status["status"] = "transcribing"
@@ -2604,6 +2610,7 @@ async def process_batch_rendering(batch_id: str, request: RenderBatchRequest):
             clip_status["status"] = "error"
             clip_status["error_message"] = str(e)
             clip_status["error"] = str(e)
+            clip_status.pop("download_note", None)
 
         batch["current_clip_index"] = idx + 1
 

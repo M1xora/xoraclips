@@ -297,6 +297,10 @@ export const id = {
     lostContactHint:
       'Render mungkin masih berjalan di latar belakang. Coba sambung ulang untuk melihat kemajuannya.',
     reconnect: 'Sambung ulang',
+    downloadRetry: (method: number, methods: number) =>
+      `YouTube hanya mengirim audio. Mencoba lagi (cara ${method} dari ${methods})...`,
+    downloadNextMethod: (method: number, methods: number) =>
+      `Mencoba cara download ${method} dari ${methods}...`,
     recover: {
       cookies: 'Buka pengelola cookies',
       encoder: 'Ganti ke encoder CPU',
@@ -313,6 +317,7 @@ export const id = {
       diskFull: 'Penyimpanan penuh. Bersihkan berkas sementara dulu.',
       transcription: 'Transkripsi gagal. Periksa audio atau matikan subtitle.',
       ffmpeg: 'FFmpeg gagal menyusun video. Lihat detail teknis di bawah.',
+      audioOnly: 'YouTube hanya mengirim audio untuk klip ini. Coba render lagi beberapa saat lagi.',
     },
   },
 

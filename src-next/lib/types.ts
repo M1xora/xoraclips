@@ -151,6 +151,15 @@ export interface RenderClipStatus {
   download_url?: string;
   error_message?: string;
   error?: string;
+  /** While downloading: a retry or a switch to another method (#10). */
+  download_note?: DownloadNote;
+}
+
+export interface DownloadNote {
+  code: 'audio_only_retry' | 'next_method' | (string & {});
+  /** Which download method (1-based), out of how many. */
+  method: number;
+  methods: number;
 }
 
 export interface BatchRenderProgress {

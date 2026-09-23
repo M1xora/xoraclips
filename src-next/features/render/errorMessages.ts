@@ -32,9 +32,17 @@ export interface FriendlyErrorStrings {
   diskFull: string;
   transcription: string;
   ffmpeg: string;
+  audioOnly: string;
 }
 
 const RULES: Rule[] = [
+  {
+    // backend/video_engine.py AUDIO_ONLY_MESSAGE (#10). Before the ffmpeg
+    // rule: a retry later usually works, the ffmpeg text would not help.
+    match: (s) => s.includes('only sent audio'),
+    action: 'retry',
+    key: 'audioOnly',
+  },
   {
     match: (s) =>
       s.includes('bot verification') ||

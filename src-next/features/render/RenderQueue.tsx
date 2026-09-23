@@ -11,6 +11,7 @@ import {
 import { Button } from '../../components/ui/Button';
 import { Panel } from '../../components/ui/Panel';
 import { friendlyError, type RecoveryAction } from './errorMessages';
+import { downloadNoteText } from './downloadNote';
 import { outputFileName } from './renderPayload';
 import { useLanguage } from '../../i18n';
 import type { BatchRenderProgress } from '../../lib/types';
@@ -123,6 +124,7 @@ export function RenderQueue({
             clip.status === 'error'
               ? friendlyError(clip.error_message || clip.error || '', t.render.errors)
               : null;
+          const note = clip.status === 'downloading' ? downloadNoteText(clip.download_note, t) : null;
 
           return (
             <li key={`${clip.clip_index}-${clip.title}`} className="py-2.5">
@@ -155,6 +157,12 @@ export function RenderQueue({
                   </span>
                 )}
               </div>
+
+              {note && (
+                <p className="mt-1 pl-[25px] text-[0.8rem] text-ink-faint" role="status">
+                  {note}
+                </p>
+              )}
 
               {err && (
                 <div className="mt-1.5 pl-[25px]">
