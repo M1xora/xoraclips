@@ -9,10 +9,18 @@ const S: FriendlyErrorStrings = {
   diskFull: 'DISK',
   transcription: 'WHISPER',
   ffmpeg: 'FFMPEG',
+  audioOnly: 'AUDIO_ONLY',
 };
 
 describe('friendlyError', () => {
   it.each([
+    // The backend's own message for an audio-only download (#10), even
+    // with ffmpeg's text after it: retrying later is what helps.
+    [
+      'YouTube only sent audio for this clip (no video track). Please try rendering again in a little while.',
+      'AUDIO_ONLY',
+      'retry',
+    ],
     ["Sign in to confirm you're not a bot", 'COOKIES', 'cookies'],
     ['Bot verification required', 'COOKIES', 'cookies'],
     ['Download timed out after 300s', 'TIMEOUT', 'retry'],

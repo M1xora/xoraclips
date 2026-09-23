@@ -1,0 +1,19 @@
+{
+    "programs": [
+
+    ],
+    "stream_groups": [
+
+    ],
+    "streams": [
+        {
+            "index": 0,
+            "codec_name": "aac",
+            "codec_type": "audio"
+        }
+    ],
+    "format": {
+        "duration": "25.000000",
+        "size": "415304"
+    }
+}
