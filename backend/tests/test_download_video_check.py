@@ -48,10 +48,17 @@ def test_every_format_choice_demands_a_video_codec():
 
 
 def test_worst_case_wait_is_bounded():
-    # 60s clip: the three methods' timeouts (unchanged), plus one audio-only
-    # retry: a quick rejection (60) + pause (8) + stream URLs (45) + short retry (90).
-    assert worst_case_download_seconds(60) == {"before": 915, "after": 915 + 203}
-    assert worst_case_download_seconds(15) == {"before": 645, "after": 645 + 203}
+    # 15s clip: the three methods' timeouts (unchanged), plus 4 ffprobe checks
+    # (80) and one audio-only retry: quick rejection (60) + pause (8) +
+    # stream URLs (45) + retry (90).
+    assert worst_case_download_seconds(15) == {"before": 645, "after": 645 + 283}
+    # 60s clip: the retry may take 2 x 60 + 30 = 150s.
+    assert worst_case_download_seconds(60) == {"before": 915, "after": 915 + 343}
+
+
+def test_cover_art_is_not_a_video_track():
+    art = '{"streams": [{"codec_type": "video", "disposition": {"attached_pic": 1}}]}'
+    assert streams_have_video(art) is False
 
 
 class FakeTools:
@@ -79,6 +86,8 @@ class FakeTools:
         tool = cmd[0]
         if tool == "ffprobe":
             data = Path(cmd[-1]).read_bytes()[:5]
+            if data == b"BROKE":
+                return subprocess.CompletedProcess(cmd, 1, "", "moov atom not found")
             out = VIDEO_AUDIO if data == b"VIDEO" else AUDIO_ONLY
             return subprocess.CompletedProcess(cmd, 0, out, "")
         if tool == "yt-dlp" and "-g" in cmd:
@@ -218,3 +227,53 @@ def test_audio_without_a_stated_video_codec_is_no_longer_chosen():
     assert picks(OLD_FORMAT, formats) == ["141"]
     assert picks(FORMAT_1080, formats) == []
     assert picks(FORMAT_720, formats) == []
+
+
+def test_a_damaged_file_is_not_called_audio_only(tools):
+    fake = tools(["broke", "broke", "broke"])
+    with pytest.raises(RuntimeError) as caught:
+        download(fake)
+    assert "only sent audio" not in str(caught.value)
+    assert "could not be read" in str(caught.value)
+
+
+def test_the_last_real_error_stays_next_to_the_audio_only_message(tools, monkeypatch):
+    fake = tools(["audio", "audio"])
+    real_run = fake.run
+
+    def forbidden_later(cmd, **kwargs):
+        res = real_run(cmd, **kwargs)
+        if cmd[0] == "yt-dlp" and FORMAT_720 in cmd:
+            res.stderr = "ERROR: HTTP Error 403: Forbidden"
+        return res
+
+    monkeypatch.setattr(video_engine.subprocess, "run", forbidden_later)
+    with pytest.raises(RuntimeError) as caught:
+        download(fake)
+    assert str(caught.value).startswith(AUDIO_ONLY_MESSAGE)
+    assert "403" in str(caught.value)
+
+
+def test_a_partial_file_from_a_timed_out_method_is_never_used(tools, monkeypatch, tmp_path):
+    fake = tools([])
+    real_run = fake.run
+
+    def timeout_leaves_file(cmd, **kwargs):
+        if cmd[0] == "yt-dlp" and "-g" not in cmd and FORMAT_720 not in cmd:
+            (tmp_path / "clip.mp4").write_bytes(b"VIDEO" * 5000)  # left behind
+            raise subprocess.TimeoutExpired(cmd, kwargs.get("timeout"))
+        if cmd[0] == "yt-dlp" and "-g" in cmd:
+            return subprocess.CompletedProcess(cmd, 1, "", "no urls")
+        return real_run(cmd, **kwargs)
+
+    monkeypatch.setattr(video_engine.subprocess, "run", timeout_leaves_file)
+    with pytest.raises(RuntimeError):
+        download(fake)
+    assert not (tmp_path / "clip.mp4").exists()
+
+
+def test_the_retry_gets_enough_time_for_a_long_clip(tools):
+    fake = tools(["audio", "video"])
+    download_clip_segment("dQw4w9WgXcQ", 0.0, 90.0, "clip.mp4", sleep=lambda s: None, clock=fake.clock)
+    assert fake.calls[1][1] == 2 * 90 + 30
+

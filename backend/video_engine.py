@@ -244,69 +244,94 @@ AUDIO_ONLY_RETRY_DELAY = 8
 QUICK_REJECTION_SECONDS = 60
 RETRY_TIMEOUT_SECONDS = 90
 STREAM_URL_TIMEOUT = 45
+PROBE_TIMEOUT = 20
 DOWNLOAD_METHODS = 3
 
 
+def download_timeouts(clip_duration: float) -> dict:
+    """Per-method timeouts, shared by the download and its worst-case bound."""
+    d = max(1.0, clip_duration)
+    return {
+        # Minimum 300s, plus 5s per clip second: slow HLS/DASH on 60-90s clips.
+        "hd": max(300, int(d * 5) + 120),
+        "trim": max(120, int(d * 3) + 30),
+        "720p": max(180, int(d * 3) + 60),
+        # The one audio-only retry: short, but long enough for a long clip.
+        "retry": max(RETRY_TIMEOUT_SECONDS, int(d * 2) + 30),
+    }
+
+
 def streams_have_video(ffprobe_json: str) -> bool:
-    """True if ffprobe's JSON lists at least one video stream."""
+    """True if ffprobe's JSON lists a real video stream (cover art does not count)."""
     try:
         data = json.loads(ffprobe_json or "{}")
     except ValueError:
         return False
-    return any(st.get("codec_type") == "video" for st in data.get("streams") or [])
+    return any(
+        st.get("codec_type") == "video" and not (st.get("disposition") or {}).get("attached_pic")
+        for st in data.get("streams") or []
+    )
 
 
-def has_video_stream(path) -> Optional[bool]:
+def probe_video(path) -> str:
     """
-    Whether the file has a video track: True, False, or None when ffprobe
-    itself cannot run (then the caller keeps the file, as before).
+    'video', 'no_video', 'unreadable' (ffprobe could not read the file, e.g.
+    truncated) or 'unchecked' (ffprobe itself cannot run: the file is kept).
     """
     try:
         res = subprocess.run(
             ["ffprobe", "-v", "error", "-select_streams", "v",
-             "-show_entries", "stream=codec_type", "-of", "json", str(path)],
-            capture_output=True, text=True, timeout=20,
+             "-show_entries", "stream=codec_type:stream_disposition=attached_pic",
+             "-of", "json", str(path)],
+            capture_output=True, text=True, timeout=PROBE_TIMEOUT,
         )
     except (FileNotFoundError, OSError, subprocess.TimeoutExpired) as e:
         logger.warning(f"Could not check the downloaded file for a video track ({e}); keeping it.")
-        return None
+        return "unchecked"
     if res.returncode != 0:
         logger.warning(f"ffprobe could not read {path}: {(res.stderr or '').strip()[:200]}")
-        return False
-    return streams_have_video(res.stdout)
+        return "unreadable"
+    return "video" if streams_have_video(res.stdout) else "no_video"
+
+
+def _remove(path: Path) -> None:
+    try:
+        path.unlink()
+    except Exception:
+        pass
 
 
 def _check_download(path: Path, label: str) -> str:
-    """'ok', 'audio_only' (deleted) or 'missing' for a finished download attempt."""
+    """'ok', 'audio_only', 'unreadable' or 'missing' for a finished download attempt."""
     if not path.exists() or path.stat().st_size <= 10000:
         return "missing"
     size = path.stat().st_size
-    verdict = has_video_stream(path)
-    if verdict is False:
+    verdict = probe_video(path)
+    if verdict == "no_video":
         logger.warning(f"{label}: rejected, the file has no video track ({size} bytes, audio only)")
-        try:
-            path.unlink()
-        except Exception:
-            pass
+        _remove(path)
         return "audio_only"
+    if verdict == "unreadable":
+        logger.warning(f"{label}: rejected, the downloaded file cannot be read ({size} bytes)")
+        _remove(path)
+        return "unreadable"
     logger.info(f"{label}: downloaded {path} ({size} bytes)")
     return "ok"
 
 
 def worst_case_download_seconds(clip_duration: float) -> dict:
     """
-    Longest a clip download can take (issue #10): every method runs to its
-    timeout ("before", unchanged by this issue), plus the one audio-only
-    retry: a quick rejection, the pause and a short retry (method 2 also
-    fetches stream URLs again).
+    An upper bound on a clip download (issue #10). "before": every method
+    runs to its timeout, as before this issue. "after" adds an ffprobe check
+    per attempt (4 at most: 3 methods + 1 retry) and the one audio-only
+    retry: a quick rejection, the pause, stream URLs again (method 2) and
+    the retry itself.
     """
-    d = max(1.0, clip_duration)
-    t1 = max(300, int(d * 5) + 120)
-    t2 = STREAM_URL_TIMEOUT + max(120, int(d * 3) + 30)
-    t3 = max(180, int(d * 3) + 60)
-    before = t1 + t2 + t3
-    retry = QUICK_REJECTION_SECONDS + AUDIO_ONLY_RETRY_DELAY + STREAM_URL_TIMEOUT + RETRY_TIMEOUT_SECONDS
-    return {"before": before, "after": before + retry}
+    t = download_timeouts(clip_duration)
+    before = t["hd"] + (STREAM_URL_TIMEOUT + t["trim"]) + t["720p"]
+    retry = QUICK_REJECTION_SECONDS + AUDIO_ONLY_RETRY_DELAY + STREAM_URL_TIMEOUT + t["retry"]
+    probes = (DOWNLOAD_METHODS + 1) * PROBE_TIMEOUT
+    return {"before": before, "after": before + retry + probes}
 
 
 def download_clip_segment(
@@ -351,9 +376,8 @@ def download_clip_segment(
     t_end_fmt = format_section_time(end_time)
     base_cmd = get_yt_dlp_base_cmd()
 
-    # Dynamic timeout: Minimum 300s (5m), plus 5s per second of clip duration.
-    # Prevents killing slow HLS/DASH downloads on 60-90s clips.
-    timeout_sec = max(300, int(clip_duration * 5) + 120)
+    timeouts = download_timeouts(clip_duration)
+    timeout_sec = timeouts["hd"]
 
     state = {"err": "unknown", "audio_only": False, "retried": False}
 
@@ -361,6 +385,9 @@ def download_clip_segment(
         """Runs one method; after a quick audio-only rejection, once more (once per clip)."""
         cap: Optional[int] = None
         for try_no in (1, 2):
+            # A timed-out run can leave a partial file: never let the next try use it.
+            _remove(output_path)
+            state["err"] = f"{label}: no usable file"
             started = clock()
             try:
                 run(cap)
@@ -372,16 +399,18 @@ def download_clip_segment(
                 logger.warning(f"{label} failed ({e})")
                 state["err"] = str(e)
                 return False
+            took = clock() - started
             verdict = _check_download(output_path, label)
             if verdict == "ok":
                 return True
+            if verdict == "unreadable":
+                state["err"] = f"{label}: the downloaded file could not be read"
             if verdict != "audio_only":
                 return False
             state["audio_only"] = True
-            quick = clock() - started < QUICK_REJECTION_SECONDS
-            if try_no == 1 and quick and not state["retried"]:
+            if try_no == 1 and took < QUICK_REJECTION_SECONDS and not state["retried"]:
                 state["retried"] = True
-                cap = RETRY_TIMEOUT_SECONDS
+                cap = timeouts["retry"]
                 notify({"code": "audio_only_retry", "method": method, "methods": DOWNLOAD_METHODS,
                         "wait": AUDIO_ONLY_RETRY_DELAY})
                 logger.info(f"{label}: retrying once in {AUDIO_ONLY_RETRY_DELAY}s")
@@ -422,7 +451,7 @@ def download_clip_segment(
         video_stream = urls[0]
         audio_stream = urls[1] if len(urls) > 1 else urls[0]
 
-        trim_timeout = max(120, int(clip_duration * 3) + 30)
+        trim_timeout = timeouts["trim"]
         trim_cmd = [
             "ffmpeg", "-y", "-hide_banner", "-loglevel", "error",
             "-ss", str(start_time),
@@ -455,7 +484,7 @@ def download_clip_segment(
             "--no-warnings",
             clean_url
         ]
-        timeout_720p = max(180, int(clip_duration * 3) + 60)
+        timeout_720p = timeouts["720p"]
         res_720p = subprocess.run(cmd_720p, capture_output=True, text=True, timeout=min(timeout_720p, cap or timeout_720p))
         if res_720p and res_720p.stderr:
             state["err"] = res_720p.stderr[:300]
@@ -476,7 +505,10 @@ def download_clip_segment(
     if "confirm you're not a bot" in err_lower or "sign in" in err_lower or "login" in err_lower:
         raise RuntimeError("YouTube blocked video download (Bot verification). Please import/save your YouTube cookies using the 🍪 Cookies Manager button in the top navbar.")
     if state["audio_only"]:
-        raise RuntimeError(AUDIO_ONLY_MESSAGE)
+        # A real error from the last method stays visible in the technical details.
+        if state["err"].endswith("no usable file"):
+            raise RuntimeError(AUDIO_ONLY_MESSAGE)
+        raise RuntimeError(f"{AUDIO_ONLY_MESSAGE} Last error: {state['err'][:200]}")
     raise RuntimeError(f"Failed to download video clip segment from YouTube ({state['err']}). Please try again or check your network/cookies.")
 
 
@@ -551,6 +583,8 @@ def download_full_raw_video(video_url: str, output_path: str, progress_callback=
         return str(output_path)
     if verdict == "audio_only":
         raise RuntimeError(AUDIO_ONLY_MESSAGE)
+    if verdict == "unreadable":
+        raise RuntimeError("The downloaded video file is damaged and cannot be read. Please try again.")
 
     raise RuntimeError(f"Failed to download raw video. Process exited with code: {returncode}")
 
