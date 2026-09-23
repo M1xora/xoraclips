@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import {
   ArrowsOutSimpleIcon,
   PauseIcon,
@@ -12,6 +12,7 @@ import { faceOffsetPercent, useFaceBox } from '../../hooks/useFaceBox';
 import { usePreviewAudio } from '../../hooks/usePreviewAudio';
 import { CaptionOverlay } from '../studio/CaptionOverlay';
 import { PreviewTitle } from './PreviewTitle';
+import { SUBTITLE_FRAME_W, useFrameWidth } from './useFrameWidth';
 import { useCaptionChunks } from '../../hooks/useCaptionChunks';
 import { useLanguage } from '../../i18n';
 import { formatTimecode } from '../../lib/format';
@@ -38,12 +39,6 @@ import type {
   ViralClip,
 } from '../../lib/types';
 
-/** Preview canvas width in px; the frame is always this shape. */
-const FRAME_W = 288;
-const FRAME_H = Math.round((FRAME_W * CANVAS_H) / CANVAS_W);
-
-/** Export pixels to preview pixels. */
-const SCALE = FRAME_W / CANVAS_W;
 
 /** Size the 16:9 source needs so it covers a box in both directions. */
 function coverSize(boxW: number, boxH: number) {
@@ -149,6 +144,13 @@ export function ClipPreview({
   label,
   faceTrackingLabel,
 }: ClipPreviewProps) {
+  // The frame is MAX_FRAME_W wide, or narrower when the column is (phones).
+  // Everything drawn on it is in export pixels times `scale` (issue #20).
+  const rootRef = useRef<HTMLDivElement>(null);
+  const frameW = useFrameWidth(rootRef);
+  const frameH = Math.round((frameW * CANVAS_H) / CANVAS_W);
+  const scale = frameW / CANVAS_W;
+
   // The canvas never changes shape; the video box inside it does.
   //
   // split_top_cam is the exception: it stacks two boxes and ignores the plain
@@ -158,10 +160,10 @@ export function ClipPreview({
   const layout = SPLIT_LAYOUT[aspectRatio];
 
   const videoBox = VIDEO_BOX[aspectRatio];
-  const videoW = split ? Math.round(layout.w * SCALE) : FRAME_W;
-  const videoH = split ? Math.round(layout.h * SCALE) : Math.round(videoBox.h * SCALE);
-  const videoX = split ? Math.round(layout.x * SCALE) : 0;
-  const videoY = split ? Math.round(layout.y * SCALE) : Math.round(videoBox.y * SCALE);
+  const videoW = split ? Math.round(layout.w * scale) : frameW;
+  const videoH = split ? Math.round(layout.h * scale) : Math.round(videoBox.h * scale);
+  const videoX = split ? Math.round(layout.x * scale) : 0;
+  const videoY = split ? Math.round(layout.y * scale) : Math.round(videoBox.y * scale);
   const cover = coverSize(videoW, videoH);
 
   const bounds: ClipBounds = useMemo(
@@ -248,11 +250,11 @@ export function ClipPreview({
   };
 
   return (
-    <div className="flex flex-col items-center gap-2">
+    <div ref={rootRef} className="flex w-full flex-col items-center gap-2">
       {/* The canvas: always 9:16, whatever the video ratio is. */}
       <div
         className="relative shrink-0 overflow-hidden rounded-xl border border-hairline bg-black"
-        style={{ width: FRAME_W, height: FRAME_H }}
+        style={{ width: frameW, height: frameH }}
       >
         {/* Blurred backdrop fills the bars the padding leaves behind. The
             renderer blurs the clip's own frames, so this samples a frame from
@@ -313,10 +315,10 @@ export function ClipPreview({
           <div
             className="absolute overflow-hidden rounded-[2px] border border-white/25 shadow-lg"
             style={{
-              left: Math.round(PIP_POS[aspectRatio].x * SCALE),
-              top: Math.round(PIP_POS[aspectRatio].y * SCALE),
-              width: Math.round(PIP_SIZE.w * SCALE),
-              height: Math.round(PIP_SIZE.h * SCALE),
+              left: Math.round(PIP_POS[aspectRatio].x * scale),
+              top: Math.round(PIP_POS[aspectRatio].y * scale),
+              width: Math.round(PIP_SIZE.w * scale),
+              height: Math.round(PIP_SIZE.h * scale),
             }}
           >
             <div
@@ -340,7 +342,7 @@ export function ClipPreview({
             text={title}
             sizePreset={titleFontSize}
             font={captionFont}
-            scale={SCALE}
+            scale={scale}
             topPercent={titleYPercent}
           />
         )}
@@ -354,7 +356,7 @@ export function ClipPreview({
           positionMode={subtitlePositionMode}
           bottomPercent={subtitleYPercent}
           centerPercent={subtitleCenterYPercent}
-          scale={1}
+          scale={frameW / SUBTITLE_FRAME_W}
         />
 
         {captionNote && (
@@ -387,17 +389,17 @@ export function ClipPreview({
               <img
                 src={watermarkUrl}
                 alt=""
-                style={{ width: `${Math.round((FRAME_W * watermarkSize) / 100)}px`, height: 'auto' }}
+                style={{ width: `${Math.round((frameW * watermarkSize) / 100)}px`, height: 'auto' }}
               />
             ) : (
               <span
                 className="whitespace-nowrap rounded bg-black/45 px-1.5 py-0.5 font-semibold text-white"
                 // Backend: font = 180 * (size/100) on a 1080-wide canvas
-                // (video_engine.py:1657). Scaling that by SCALE keeps the
+                // (video_engine.py:1657). Scaling that by the preview scale keeps the
                 // preview on the same curve; the old 56 * (FRAME_W/320)
                 // constant ran about 5% large at every size.
                 style={{
-                  fontSize: `${Math.max(7, Math.round(180 * (watermarkSize / 100) * SCALE))}px`,
+                  fontSize: `${Math.max(7, Math.round(180 * (watermarkSize / 100) * scale))}px`,
                 }}
               >
                 {watermarkText}
@@ -425,7 +427,7 @@ export function ClipPreview({
         </div>
       </div>
 
-      <div className="flex items-center justify-between gap-2" style={{ width: FRAME_W }}>
+      <div className="flex items-center justify-between gap-2" style={{ width: frameW }}>
         <span className="flex items-center gap-1.5 text-[0.8rem] text-ink-faint">
           <ArrowsOutSimpleIcon size={12} />
           {aspectRatio}

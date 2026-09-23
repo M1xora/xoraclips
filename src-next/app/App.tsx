@@ -459,7 +459,7 @@ export function App() {
             <section className="mt-6">
               <h2 className="mb-3 font-display text-sm font-semibold">{t.studio.title}</h2>
 
-              <div className="grid items-start gap-5 xl:grid-cols-[1fr_356px]">
+              <div className="grid items-start gap-5 xl:grid-cols-[1fr_400px]">
                 <div className="min-w-0">
                   <StudioPanel
                     state={studio}
