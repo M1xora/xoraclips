@@ -5,18 +5,18 @@ The key comes ONLY from the user, in the `X-Gemini-Api-Key` request header
 (issue #12): users pay for their own AI usage. There is no server key in
 .env. Keys in URLs or request bodies are ignored.
 
-While a request is using a key, that exact key is registered here so every
-log line and every message to the browser has it scrubbed, whatever its
-shape. Known Google key shapes are scrubbed at all times as a backstop.
+While a request is using a key, that exact key is registered for THAT
+request only (a context variable), so its log lines and messages have it
+scrubbed whatever its shape, and no other user's output is touched.
+Known Google key shapes are scrubbed at all times as a backstop.
 
 Kept free of heavy imports so it can be tested in CI on its own.
 """
 import logging
 import os
 import re
-import threading
-from collections import Counter
 from contextlib import contextmanager
+from contextvars import ContextVar
 from typing import Any, Iterator, Optional
 
 REDACTED = "[REDACTED]"
@@ -34,21 +34,13 @@ _PATTERNS = [
     re.compile(r"(?i)((?:x-goog-api-key|x-gemini-api-key)[\"']?\s*[:=]\s*[\"']?)[^\"'\s,}]+"),
 ]
 
-# Keys in use right now, reference-counted so overlapping requests with the
-# same key keep it registered until the last one finishes.
-#
-# Kept on the logging module so there is exactly one registry per process,
-# even if this file is imported twice under different names
-# (`backend.secrets_guard` by the app, `secrets_guard` by tests or scripts).
-# Otherwise a key tracked through one copy would be unknown to the log
-# scrubber installed by the other.
-_STATE = logging.__dict__.setdefault(
-    "_cheat_clip_secret_state", {"active": Counter(), "lock": threading.Lock()}
-)
-_active = _STATE["active"]
-_active_lock = _STATE["lock"]
-# Shorter strings are too likely to appear in ordinary text.
-_MIN_SECRET_LEN = 8
+# Keys in use by the CURRENT request. A context variable follows the request
+# through its awaits and into asyncio.to_thread workers, and never leaks into
+# another request, so one user cannot make the app scrub text in someone
+# else's results (e.g. by sending "https://" as their "key").
+_request_secrets: ContextVar[tuple] = ContextVar("gemini_request_secrets", default=())
+# Anything shorter is not a key; scrubbing it would only garble the user's own output.
+_MIN_SECRET_LEN = 4
 
 
 def user_key_from_header(value: Optional[str]) -> Optional[str]:
@@ -64,28 +56,27 @@ def is_mock_mode() -> bool:
 
 @contextmanager
 def tracked_secret(key: Optional[str]) -> Iterator[None]:
-    """Scrub this exact key from logs and payloads while the block runs."""
+    """Scrub this exact key from this request's logs and payloads while the block runs."""
     if not key or len(key) < _MIN_SECRET_LEN:
         yield
         return
-    with _active_lock:
-        _active[key] += 1
+    token = _request_secrets.set(_request_secrets.get() + (key,))
     try:
         yield
     finally:
-        with _active_lock:
-            _active[key] -= 1
-            if _active[key] <= 0:
-                del _active[key]
+        try:
+            _request_secrets.reset(token)
+        except ValueError:
+            # A streaming response closed from another context (client
+            # disconnected); that context never saw the key anyway.
+            pass
 
 
 def redact(text: str) -> str:
-    """Replaces every key in use and anything shaped like a key."""
+    """Replaces the current request's keys and anything shaped like a key."""
     if not text:
         return text
-    with _active_lock:
-        secrets = sorted(_active, key=len, reverse=True)
-    for secret in secrets:
+    for secret in sorted(_request_secrets.get(), key=len, reverse=True):
         text = text.replace(secret, REDACTED)
     for pattern in _PATTERNS:
         text = pattern.sub(lambda m: (m.group(1) if m.groups() else "") + REDACTED, text)

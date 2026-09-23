@@ -365,6 +365,7 @@ export const id = {
     keyMissing: 'Kunci API Gemini belum diisi. Buat kunci gratis di Google AI Studio, lalu tempel di kolom kunci.',
     keyInvalid: 'Kunci API kamu ditolak Google. Pastikan tersalin lengkap, atau buat kunci baru.',
     keyQuota: 'Kuota kunci API kamu habis. Tunggu sekitar satu menit, atau ganti dengan kunci lain.',
+    regionUnsupported: 'Gemini API belum tersedia di wilayah kamu, jadi kunci ini tidak bisa dipakai dari sini.',
     modelUnavailable: 'Model yang dipilih tidak tersedia untuk kunci kamu. Pilih model lain, lalu coba lagi.',
     aiBusy: 'Layanan AI Google sedang sibuk. Kunci kamu tidak bermasalah, coba lagi sebentar lagi.',
     aiFailed: 'Analisis AI gagal. Coba lagi sebentar lagi.',

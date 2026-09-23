@@ -15,27 +15,36 @@ USER_KEY = "AIzaSyFAKE_USER_KEY_0123456789abcdefgh"
 ODD_KEY = "user-pasted-key-without-google-shape-777"
 URL_KEY = "AIzaSyURL_KEY_SHOULD_BE_IGNORED_zzzzzzz"
 HEADER = "X-Gemini-Api-Key"
+BAD_KEY = "400 INVALID_ARGUMENT. API key not valid. Please pass a valid API key. [API_KEY_INVALID] {key}"
 
 
 class FakeGemini:
-    """Stands in for google.genai.Client; records keys and fails as configured."""
+    """
+    Stands in for google.genai.Client. `list_failure` makes models.list()
+    fail (the up-front key check and /api/models); `failure` / `per_model`
+    make generate_content fail. Every message can quote the key via {key}.
+    """
 
     created_with = []
-    failure = "403 PERMISSION_DENIED: API key {key} not valid. key={key}"
+    generate_calls = []
+    list_failure = None
+    failure = "503 UNAVAILABLE. The model is overloaded."
+    per_model = {}
 
     def __init__(self, api_key=None, **kwargs):
         FakeGemini.created_with.append(api_key)
         self.api_key = api_key
         self.models = self
 
-    def _fail(self):
-        raise RuntimeError(FakeGemini.failure.format(key=self.api_key))
-
     def list(self, *args, **kwargs):
-        self._fail()
+        if FakeGemini.list_failure:
+            raise RuntimeError(FakeGemini.list_failure.format(key=self.api_key))
+        return []
 
-    def generate_content(self, *args, **kwargs):
-        self._fail()
+    def generate_content(self, *args, model=None, **kwargs):
+        FakeGemini.generate_calls.append(model)
+        failure = FakeGemini.per_model.get(model, FakeGemini.failure)
+        raise RuntimeError(failure.format(key=self.api_key))
 
 
 def no_youtube(*args, **kwargs):
@@ -59,7 +68,10 @@ main_asyncio = main.asyncio
 @pytest.fixture
 def client(monkeypatch):
     FakeGemini.created_with = []
-    FakeGemini.failure = "403 PERMISSION_DENIED: API key {key} not valid. key={key}"
+    FakeGemini.generate_calls = []
+    FakeGemini.list_failure = None
+    FakeGemini.failure = "503 UNAVAILABLE. The model is overloaded."
+    FakeGemini.per_model = {}
     monkeypatch.setattr(main.genai, "Client", FakeGemini)
     monkeypatch.setattr(main, "fetch_video_metadata", no_youtube)
     monkeypatch.setattr(main, "fetch_transcript", no_youtube)
@@ -91,7 +103,7 @@ def errors(response):
 
 
 def analyze(client, key=None, **extra):
-    body = {"url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ", **extra}
+    body = {"url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ", "model": "gemini-2.5-flash", **extra}
     headers = {HEADER: key} if key is not None else {}
     return client.post("/api/analyze", json=body, headers=headers)
 
@@ -115,7 +127,6 @@ def test_blank_header_counts_as_missing(client):
 
 
 def test_model_list_uses_the_header_key_and_ignores_the_url(client):
-    FakeGemini.failure = "503 UNAVAILABLE"
     res = client.get(f"/api/models?api_key={URL_KEY}", headers={HEADER: USER_KEY})
     assert res.status_code == 200
     assert FakeGemini.created_with == [USER_KEY]
@@ -146,7 +157,7 @@ def test_health_has_no_server_key_field(client, monkeypatch):
 # --- clear errors when the key is the problem ---------------------------------
 
 @pytest.mark.parametrize("failure, code", [
-    ("400 INVALID_ARGUMENT. API key not valid. Please pass a valid API key. [API_KEY_INVALID] {key}", "key_invalid"),
+    (BAD_KEY, "key_invalid"),
     ("429 RESOURCE_EXHAUSTED. You exceeded your current quota.", "key_quota"),
     ("503 UNAVAILABLE. The model is overloaded.", "ai_busy"),
 ])
@@ -156,19 +167,48 @@ def test_analysis_errors_carry_a_code(client, youtube_ok, failure, code):
     assert errs and errs[-1]["code"] == code
 
 
-def test_rejected_key_stops_after_the_first_model(client, youtube_ok):
-    FakeGemini.failure = "400 API key not valid. [API_KEY_INVALID]"
+def test_a_bad_key_fails_before_any_youtube_work(client):
+    """The key is checked first: no metadata/transcript (Supadata/proxy) spent on it."""
+    FakeGemini.list_failure = BAD_KEY
+    errs = errors(analyze(client, key=USER_KEY))  # no_youtube would raise if reached
+    assert [e["code"] for e in errs] == ["key_invalid"]
+    assert FakeGemini.generate_calls == []
+
+
+def test_rejected_key_is_not_retried_on_every_model(client, youtube_ok):
+    FakeGemini.failure = BAD_KEY
     analyze(client, key=USER_KEY)
-    # One client per model tried; a rejected key must not be retried on every model.
-    assert len(FakeGemini.created_with) <= 2
+    assert len(FakeGemini.generate_calls) == 1
+
+
+def test_busy_models_are_not_hidden_by_a_retired_one(client, youtube_ok):
+    """Busy flash models, then 404 from a retired model at the end: report busy."""
+    FakeGemini.failure = "404 NOT_FOUND. models/{key} is not found for API version v1beta"
+    FakeGemini.per_model = {
+        "gemini-2.5-flash": "503 UNAVAILABLE. The model is overloaded.",
+        "gemini-2.5-flash-lite": "503 UNAVAILABLE. The model is overloaded.",
+    }
+    errs = errors(analyze(client, key=USER_KEY))
+    assert errs[-1]["code"] == "ai_busy"
+
+
+def test_one_locked_model_does_not_stop_the_others(client, youtube_ok):
+    FakeGemini.failure = "503 UNAVAILABLE. The model is overloaded."
+    FakeGemini.per_model = {"gemini-2.5-flash": "403 PERMISSION_DENIED. No access to this model."}
+    errs = errors(analyze(client, key=USER_KEY))
+    assert len(set(FakeGemini.generate_calls)) > 1  # moved on to other models
+    assert errs[-1]["code"] == "ai_busy"            # not "your key was rejected"
 
 
 @pytest.mark.parametrize("failure, status, code", [
-    ("400 API key not valid. [API_KEY_INVALID]", 401, "key_invalid"),
+    (BAD_KEY, 401, "key_invalid"),
     ("429 RESOURCE_EXHAUSTED quota", 429, "key_quota"),
+    ("503 UNAVAILABLE", 503, "ai_busy"),
+    ("something unexpected", 500, "ai_failed"),
 ])
-def test_model_list_reports_a_bad_key(client, failure, status, code):
-    FakeGemini.failure = failure
+def test_model_list_never_pretends_a_key_is_valid(client, failure, status, code):
+    """Any failure is an error; only a real listing is a 200 ("key is valid")."""
+    FakeGemini.list_failure = failure
     res = client.get("/api/models", headers={HEADER: USER_KEY})
     assert res.status_code == status
     assert res.json()["detail"]["code"] == code
@@ -178,14 +218,18 @@ def test_model_list_reports_a_bad_key(client, failure, status, code):
 
 @pytest.mark.parametrize("key", [USER_KEY, ODD_KEY])
 def test_key_never_reaches_logs_or_the_user(client, youtube_ok, caplog, key):
-    """Gemini fails with an error quoting the key, in Google shape or not."""
+    """Gemini fails with errors quoting the key, in Google shape or not."""
+    FakeGemini.list_failure = "403 PERMISSION_DENIED: API key {key} not valid. key={key}"
     main.install_log_redaction()
     with caplog.at_level(logging.DEBUG):
         res = analyze(client, key=key)
         models = client.get("/api/models", headers={HEADER: key})
+        FakeGemini.list_failure = None
+        FakeGemini.failure = "500 INTERNAL for key={key}: {key}"
+        res2 = analyze(client, key=key)
     assert FakeGemini.created_with and set(FakeGemini.created_with) == {key}
-    assert errors(res)
-    for text in (res.text, models.text, caplog.text):
+    assert errors(res) and errors(res2)
+    for text in (res.text, res2.text, models.text, caplog.text):
         assert key not in text
 
 
@@ -197,3 +241,33 @@ def test_scrubbed_errors_are_still_valid_json(client, monkeypatch):
     errs = errors(res)  # json.loads on every frame: raises if any frame is invalid
     assert errs and errs[-1]["error"].endswith('" blocked')
     assert USER_KEY not in res.text
+
+
+class ClosingGemini:
+    """
+    Behaves like the real google-genai Client: when the Client object is
+    garbage-collected it closes its HTTP connection, and later requests fail.
+    """
+
+    def __init__(self, api_key=None, **kwargs):
+        self._closed = [False]
+        self.models = _ClosingModels(self._closed)
+
+    def __del__(self):
+        self._closed[0] = True
+
+
+class _ClosingModels:
+    def __init__(self, closed):
+        self._closed = closed
+
+    def list(self, *args, **kwargs):
+        if self._closed[0]:
+            raise RuntimeError("Cannot send a request, as the client has been closed.")
+        raise RuntimeError(BAD_KEY.format(key="x"))
+
+
+def test_key_check_keeps_the_client_alive(monkeypatch):
+    """Found in live testing: a temporary Client closed itself before the request."""
+    monkeypatch.setattr(main.genai, "Client", ClosingGemini)
+    assert main._gemini_key_problem(USER_KEY) == "key_invalid"

@@ -38,3 +38,37 @@ def test_key_problems_point_to_ai_studio_or_changing_the_key():
     assert "AI Studio" in e.MESSAGES[e.KEY_MISSING]
     assert "AI Studio" in e.MESSAGES[e.KEY_INVALID]
     assert "different key" in e.MESSAGES[e.KEY_QUOTA]
+
+
+# --- Review findings ---------------------------------------------------------
+
+@pytest.mark.parametrize("text, code", [
+    ("400 FAILED_PRECONDITION. User location is not supported for the API use.", e.REGION_UNSUPPORTED),
+    # Digits inside the text are not a status code.
+    ("Response parse error at offset 1403 of 4011 bytes", e.AI_FAILED),
+    ("Request id 40312345 timed out", e.AI_FAILED),
+    ("400 INVALID_ARGUMENT. Request payload size exceeds the limit.", e.AI_FAILED),
+])
+def test_only_the_leading_status_counts(text, code):
+    assert e.classify_gemini_error(RuntimeError(text)) == code
+
+
+def test_a_plain_403_does_not_stop_the_other_models():
+    preview_denied = RuntimeError("403 PERMISSION_DENIED. You do not have access to gemini-3.0-flash-preview.")
+    bad_key = RuntimeError("400 INVALID_ARGUMENT. API key not valid. [API_KEY_INVALID]")
+    assert e.classify_gemini_error(preview_denied) == e.KEY_INVALID
+    assert e.is_definitely_bad_key(preview_denied) is False
+    assert e.is_definitely_bad_key(bad_key) is True
+    assert e.is_definitely_bad_key(RuntimeError("401 UNAUTHENTICATED")) is True
+
+
+@pytest.mark.parametrize("codes, expected", [
+    # Busy flash models, then a retired model returning 404: report "busy".
+    ([e.AI_BUSY, e.AI_BUSY, e.MODEL_UNAVAILABLE], e.AI_BUSY),
+    ([e.MODEL_UNAVAILABLE, e.KEY_QUOTA], e.KEY_QUOTA),
+    ([e.AI_FAILED, e.KEY_INVALID, e.AI_BUSY], e.KEY_INVALID),
+    ([e.MODEL_UNAVAILABLE, e.MODEL_UNAVAILABLE], e.MODEL_UNAVAILABLE),
+    ([], e.AI_FAILED),
+])
+def test_most_relevant_error_wins(codes, expected):
+    assert e.most_relevant(codes) == expected

@@ -70,6 +70,9 @@ export function AnalyzeForm({ onSubmit, busy, onKeyCleared }: AnalyzeFormProps) 
   // Mock mode (server .env) needs no key; otherwise the user's own key is required.
   const aiStatus = useServerAiStatus();
   const isMock = aiStatus === 'mock';
+  // Only demand a key once the server is known not to be in mock mode; a
+  // quick submit while /api/health is still loading is judged by the server.
+  const keyRequired = aiStatus === 'normal';
 
   // The user's Gemini key (issue #12): typed here, sent only as a header.
   const [initialKey] = useState(() => loadApiKey());
@@ -166,7 +169,9 @@ export function AnalyzeForm({ onSubmit, busy, onKeyCleared }: AnalyzeFormProps) 
     const next: Record<string, string> = {};
 
     if (!url.trim()) next.url = t.form.urlRequired;
-    if (!isMock && !trimmedKey) next.apiKey = t.form.apiKeyRequired;
+    if (keyRequired && !trimmedKey) next.apiKey = t.form.apiKeyRequired;
+    // Google already said no to this key: don't spend a run (and YouTube quota) on it.
+    else if (keyStatus === 'invalid') next.apiKey = t.form.apiKeyInvalid;
 
     let startSecs: number | undefined;
     let endSecs: number | undefined;

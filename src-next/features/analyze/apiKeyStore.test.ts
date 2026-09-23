@@ -27,31 +27,31 @@ beforeEach(() => {
 describe('apiKeyStore', () => {
   it('remembers the key across browser restarts when "remember" is on', () => {
     saveApiKey(KEY, true, storages);
-    expect(local.data.get('cheat_clip_gemini_api_key')).toBe(KEY);
-    expect(session.data.has('cheat_clip_gemini_api_key')).toBe(false);
+    expect(local.data.get('xoraclips_gemini_key')).toBe(KEY);
+    expect(session.data.has('xoraclips_gemini_key')).toBe(false);
     expect(loadApiKey(storages)).toEqual({ key: KEY, remember: true });
   });
 
   it('keeps the key only for this tab when "remember" is off', () => {
     saveApiKey(KEY, false, storages);
-    expect(session.data.get('cheat_clip_gemini_api_key')).toBe(KEY);
-    expect(local.data.has('cheat_clip_gemini_api_key')).toBe(false);
+    expect(session.data.get('xoraclips_gemini_key')).toBe(KEY);
+    expect(local.data.has('xoraclips_gemini_key')).toBe(false);
     expect(loadApiKey(storages)).toEqual({ key: KEY, remember: false });
   });
 
   it('switching "remember" off moves the key out of long-term storage', () => {
     saveApiKey(KEY, true, storages);
     saveApiKey(KEY, false, storages);
-    expect(local.data.has('cheat_clip_gemini_api_key')).toBe(false);
-    expect(session.data.get('cheat_clip_gemini_api_key')).toBe(KEY);
+    expect(local.data.has('xoraclips_gemini_key')).toBe(false);
+    expect(session.data.get('xoraclips_gemini_key')).toBe(KEY);
   });
 
   it('"Delete saved key" removes it everywhere', () => {
     saveApiKey(KEY, true, storages);
-    session.setItem('cheat_clip_gemini_api_key', KEY);
+    session.setItem('xoraclips_gemini_key', KEY);
     clearApiKey(storages);
-    expect(local.data.has('cheat_clip_gemini_api_key')).toBe(false);
-    expect(session.data.has('cheat_clip_gemini_api_key')).toBe(false);
+    expect(local.data.has('xoraclips_gemini_key')).toBe(false);
+    expect(session.data.has('xoraclips_gemini_key')).toBe(false);
     expect(currentApiKey()).toBe('');
     expect(loadApiKey(storages).key).toBe('');
   });
@@ -59,13 +59,13 @@ describe('apiKeyStore', () => {
   it('an emptied field removes the stored key', () => {
     saveApiKey(KEY, true, storages);
     saveApiKey('', true, storages);
-    expect(local.data.has('cheat_clip_gemini_api_key')).toBe(false);
+    expect(local.data.has('xoraclips_gemini_key')).toBe(false);
   });
 
   it('sends the trimmed key', () => {
     saveApiKey(`  ${KEY}\n`, true, storages);
     expect(currentApiKey()).toBe(KEY);
-    expect(local.data.get('cheat_clip_gemini_api_key')).toBe(KEY);
+    expect(local.data.get('xoraclips_gemini_key')).toBe(KEY);
   });
 
   it('keeps working in memory when storage is blocked', () => {
@@ -82,5 +82,20 @@ describe('apiKeyStore', () => {
     expect(loadApiKey(blocked)).toEqual({ key: KEY, remember: true });
     expect(() => clearApiKey(blocked)).not.toThrow();
     expect(currentApiKey()).toBe('');
+  });
+});
+
+describe('old UI slot', () => {
+  it('is never written, so the old UI (same origin) cannot pick the key up', () => {
+    saveApiKey(KEY, true, storages);
+    saveApiKey(KEY, false, storages);
+    expect(local.data.has('cheat_clip_gemini_api_key')).toBe(false);
+    expect(session.data.has('cheat_clip_gemini_api_key')).toBe(false);
+  });
+
+  it('keys left there by older versions are removed on load', () => {
+    local.setItem('cheat_clip_gemini_api_key', 'AIzaSyOLD_PLAINTEXT_KEY_FROM_OLD_UI_xx');
+    loadApiKey(storages);
+    expect(local.data.has('cheat_clip_gemini_api_key')).toBe(false);
   });
 });

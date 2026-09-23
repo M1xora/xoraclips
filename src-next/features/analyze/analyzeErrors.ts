@@ -23,6 +23,8 @@ export function analyzeErrorView(
       return { message: t.errors.keyInvalid, keyProblem: true };
     case 'key_quota':
       return { message: t.errors.keyQuota, keyProblem: true };
+    case 'region_unsupported':
+      return { message: t.errors.regionUnsupported, keyProblem: false };
     case 'model_unavailable':
       return { message: t.errors.modelUnavailable, keyProblem: false };
     case 'ai_busy':

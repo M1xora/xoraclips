@@ -69,6 +69,7 @@ describe('analyzeErrorView', () => {
     ['key_missing', id.errors.keyMissing, true],
     ['key_invalid', id.errors.keyInvalid, true],
     ['key_quota', id.errors.keyQuota, true],
+    ['region_unsupported', id.errors.regionUnsupported, false],
     ['model_unavailable', id.errors.modelUnavailable, false],
     ['ai_busy', id.errors.aiBusy, false],
     ['ai_failed', id.errors.aiFailed, false],

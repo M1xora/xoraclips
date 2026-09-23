@@ -10,8 +10,12 @@
  * browser storage is blocked (private mode, blocked site data).
  */
 
-const KEY_STORAGE = 'cheat_clip_gemini_api_key';
-const REMEMBER_STORAGE = 'cheat_clip_remember_api_key';
+// Not the old UI's slot ('cheat_clip_gemini_api_key'): the old UI in src/ is
+// served on the same origin and sends whatever it finds there in the URL.
+const KEY_STORAGE = 'xoraclips_gemini_key';
+const REMEMBER_STORAGE = 'xoraclips_remember_gemini_key';
+/** Plain-text keys left by older versions; removed on load. */
+export const LEGACY_KEY_STORAGE = 'cheat_clip_gemini_api_key';
 
 type StorageLike = Pick<Storage, 'getItem' | 'setItem' | 'removeItem'>;
 
@@ -45,6 +49,7 @@ function read(get: () => StorageLike | undefined, name: string): string | null {
 }
 
 export function loadApiKey(storages: KeyStorages = browserStorages): { key: string; remember: boolean } {
+  attempt(() => storages.local()?.removeItem(LEGACY_KEY_STORAGE));
   const remember = read(storages.local, REMEMBER_STORAGE) !== 'false';
   const stored = read(storages.session, KEY_STORAGE) ?? read(storages.local, KEY_STORAGE);
   if (stored !== null) memory = stored;

@@ -366,6 +366,7 @@ export const en: Translations = {
     keyMissing: 'Your Gemini API key is missing. Create a free key in Google AI Studio and paste it into the key field.',
     keyInvalid: 'Google rejected your API key. Make sure it was copied completely, or create a new key.',
     keyQuota: 'Your API key is out of quota. Wait about a minute, or switch to another key.',
+    regionUnsupported: 'The Gemini API is not available in your region, so this key cannot be used from here.',
     modelUnavailable: 'The selected model is not available for your key. Pick another model and try again.',
     aiBusy: "Google's AI service is busy. Your key is fine; please try again shortly.",
     aiFailed: 'The AI analysis failed. Please try again shortly.',

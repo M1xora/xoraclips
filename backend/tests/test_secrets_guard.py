@@ -68,16 +68,28 @@ def test_tracked_key_of_any_shape_is_scrubbed_only_while_in_use():
     assert redact(f"x {ODD_KEY} y") == f"x {ODD_KEY} y"  # nothing kept after the request
 
 
-def test_overlapping_requests_with_the_same_key():
+def test_a_key_is_scrubbed_only_in_its_own_request():
+    """One user's "key" (even "https://") must never garble another user's output."""
+    import contextvars
+
+    other_request = contextvars.copy_context()  # a request that started earlier
+    with tracked_secret("https://"):
+        assert redact("see https://example.com") == f"see {REDACTED}example.com"
+        assert other_request.run(redact, "see https://example.com") == "see https://example.com"
+
+
+def test_nested_use_of_the_same_key():
     with tracked_secret(ODD_KEY):
         with tracked_secret(ODD_KEY):
             pass
-        assert ODD_KEY not in redact(ODD_KEY)  # still in use by the outer request
+        assert ODD_KEY not in redact(ODD_KEY)  # still in use by the outer block
 
 
-def test_short_values_are_not_tracked():
+def test_short_values_are_tracked_from_four_characters():
     with tracked_secret("abc"):
         assert redact("abcabc") == "abcabc"
+    with tracked_secret("AIza123"):  # a truncated key is still scrubbed
+        assert redact("key AIza123 not valid") == f"key {REDACTED} not valid"
 
 
 def test_redact_leaves_ordinary_text_alone():
