@@ -21,19 +21,22 @@ export function migrateStorage(storage: StorageLike): void {
   }
 
   for (const oldName of oldNames) {
-    if (oldName !== OLD_KEY_SLOT) {
-      const newName = NEW_PREFIX + oldName.slice(OLD_PREFIX.length);
-      const value = storage.getItem(oldName);
-      // Something already saved under the new name is newer: keep it.
-      if (value !== null && storage.getItem(newName) === null) {
-        try {
-          storage.setItem(newName, value);
-        } catch {
-          // Storage full: skip this entry (it is only a cache or a setting).
-        }
+    const newName = NEW_PREFIX + oldName.slice(OLD_PREFIX.length);
+    const value = storage.getItem(oldName);
+    storage.removeItem(oldName);
+    // Something already saved under the new name is newer: keep it.
+    if (oldName === OLD_KEY_SLOT || value === null || storage.getItem(newName) !== null) continue;
+    // Removed first, so a big cache entry does not need twice its size.
+    try {
+      storage.setItem(newName, value);
+    } catch {
+      // Still no room: put it back under the old name rather than lose it.
+      try {
+        storage.setItem(oldName, value);
+      } catch {
+        // Nothing more we can do; it was only a cache or a setting.
       }
     }
-    storage.removeItem(oldName);
   }
 }
 

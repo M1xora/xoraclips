@@ -55,12 +55,28 @@ describe('migrateStorage (issue #14 rename)', () => {
     expect(Object.fromEntries(s.data)).toEqual({ xoraclips_theme: 'dark' });
   });
 
-  it('still removes the old entry when the storage is full', () => {
-    const s = memoryStorage({ cheat_clip_cache_big: 'x' });
-    s.setItem = () => {
-      throw new DOMException('full', 'QuotaExceededError');
+  it('frees the old copy first, so a big entry fits without twice the room', () => {
+    const big = 'x'.repeat(60);
+    const s = memoryStorage({ cheat_clip_cache_big: big });
+    const room = 100;
+    const used = () => [...s.data.values()].reduce((n, v) => n + v.length, 0);
+    const set = s.setItem;
+    s.setItem = (k, v) => {
+      if (used() + v.length > room) throw new DOMException('full', 'QuotaExceededError');
+      set(k, v);
     };
     migrateStorage(s);
-    expect(s.data.has('cheat_clip_cache_big')).toBe(false);
+    expect(Object.fromEntries(s.data)).toEqual({ xoraclips_cache_big: big });
+  });
+
+  it('keeps the entry under the old name when it still does not fit', () => {
+    const s = memoryStorage({ cheat_clip_cache_big: 'x' });
+    const set = s.setItem;
+    s.setItem = (k, v) => {
+      if (k.startsWith('xoraclips_')) throw new DOMException('full', 'QuotaExceededError');
+      set(k, v);
+    };
+    migrateStorage(s);
+    expect(Object.fromEntries(s.data)).toEqual({ cheat_clip_cache_big: 'x' });
   });
 });
