@@ -13,6 +13,7 @@
     "dev-next": "vite --config vite.preview.config.ts",
     "build-next": "vite build --config vite.preview.config.ts",
     "typecheck-next": "tsc -p tsconfig.next.json --noEmit",
+    "lint-next": "eslint src-next",
     "test": "vitest run",
     "test-watch": "vitest"
   },
