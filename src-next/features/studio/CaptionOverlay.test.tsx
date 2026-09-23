@@ -39,6 +39,21 @@ describe('CaptionOverlay', () => {
     }
   });
 
+  it('puts a visible space between words, outside the word boxes (#17)', () => {
+    for (const api of apiChunks) {
+      if (api.words.length < 2) continue;
+      const { html } = render(ted.clip_start + (api.start + api.end) / 2);
+      // A trailing space inside an inline-block word box is dropped by the
+      // browser, so no word box may end with one.
+      expect(html).not.toMatch(/ <\/span>/);
+      // What the browser lays out, tags removed, reads as the chunk text.
+      const shown = html
+        .match(/<span class="inline-block[^>]*>(.*)<\/span><\/div>$/)?.[1]
+        .replace(/<[^>]+>/g, '');
+      expect(shown).toBe(api.text);
+    }
+  });
+
   it('highlights the word the export highlights', () => {
     for (const api of apiChunks) {
       api.words.forEach((w, i) => {

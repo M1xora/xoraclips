@@ -1,3 +1,4 @@
+import { Fragment } from 'react';
 import { activeWordIndex, CAPTION_THEMES, chunkAt, type CaptionChunk } from './captions';
 import { subtitleFontPx } from './derive';
 import type {
@@ -96,21 +97,24 @@ export function CaptionOverlay({
         }}
       >
         {chunk.words.map((word, i) => (
-          <span
-            key={`${word.start}-${i}`}
-            data-active={i === activeIdx ? 'true' : undefined}
-            style={{
-              color: i === activeIdx ? theme.accent : theme.base,
-              // A slight lift on the spoken word, the way the karaoke
-              // effect reads in the export.
-              display: 'inline-block',
-              transform: i === activeIdx ? 'scale(1.08)' : 'none',
-              transition: 'transform 90ms ease, color 90ms ease',
-            }}
-          >
-            {word.text}
-            {i < chunk.words.length - 1 ? ' ' : ''}
-          </span>
+          <Fragment key={`${word.start}-${i}`}>
+            {/* The space sits between the word boxes: inside an inline-block
+                a trailing space is dropped, and the words run together (#17). */}
+            {i > 0 && ' '}
+            <span
+              data-active={i === activeIdx ? 'true' : undefined}
+              style={{
+                color: i === activeIdx ? theme.accent : theme.base,
+                // A slight lift on the spoken word, the way the karaoke
+                // effect reads in the export.
+                display: 'inline-block',
+                transform: i === activeIdx ? 'scale(1.08)' : 'none',
+                transition: 'transform 90ms ease, color 90ms ease',
+              }}
+            >
+              {word.text}
+            </span>
+          </Fragment>
         ))}
       </span>
     </div>
