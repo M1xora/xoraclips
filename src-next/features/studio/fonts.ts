@@ -36,6 +36,8 @@ export const LIBASS_EM_PER_FONTSIZE: Record<CaptionFont, number> = {
  * is_emoji_char): a title with any of these is drawn as a PNG by PIL
  * instead of by libass.
  */
+const SYMBOL = /^[\p{So}\p{Sk}]$/u;
+
 function isEmojiCodePoint(ch: string): boolean {
   const c = ch.codePointAt(0) ?? 0;
   return (
@@ -46,7 +48,7 @@ function isEmojiCodePoint(ch: string): boolean {
     c === 0x200d ||
     (c >= 0xfe00 && c <= 0xfe0f) ||
     c === 0x20e3 ||
-    /^[\p{So}\p{Sk}]$/u.test(ch)
+    SYMBOL.test(ch)
   );
 }
 

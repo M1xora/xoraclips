@@ -184,10 +184,13 @@ export function App() {
 
   // Title wrapping decides the line count, which drives the default
   // positions and the font size. Derived, never stored.
+  // Prefix and suffix are part of the title the renderer draws, wraps and
+  // checks for emoji (main.py:2480-2484), so they are here too.
   const titleRender = useMemo(() => {
-    const raw = activeClip ? effectiveTitle(activeClip, customTitles) : '';
+    const base = activeClip ? effectiveTitle(activeClip, customTitles) : '';
+    const raw = base ? `${studio.titlePrefix}${base}${studio.titleSuffix}`.trim() : '';
     return formatTitleSmart(raw, studio.textCase, studio.titleFontSize);
-  }, [activeClip, customTitles, studio.textCase, studio.titleFontSize]);
+  }, [activeClip, customTitles, studio.titlePrefix, studio.titleSuffix, studio.textCase, studio.titleFontSize]);
 
   // Re-apply the default title position when the line count changes, unless
   // the user has moved it themselves.

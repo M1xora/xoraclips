@@ -15,27 +15,57 @@ interface PreviewTitleProps {
   topPercent: number;
 }
 
+type Layout = ReturnType<typeof titleLayout>;
+
+function sizeStyles(layout: Layout, scale: number) {
+  const outline = layout.outlinePx * scale;
+  const shadow = layout.shadowPx * scale;
+  return {
+    paddingTop: `${layout.topShiftPx * scale}px`,
+    fontSize: `${layout.emPx * scale}px`,
+    lineHeight: `${layout.lineStepPx * scale}px`,
+    // A centred stroke of twice the width leaves the outline's width outside.
+    stroke: `${outline * 2}px #000`,
+    shadow: `${shadow}px ${shadow}px 0 #000`,
+  };
+}
+
 /**
  * The hook title over the preview, drawn the way the export draws it: the
  * renderer's size for the preset, font and line count, its line breaks,
  * its outline, and a shrink to fit only where the renderer shrinks (emoji
- * titles). A plain title that is too wide overflows here as it is cut off
- * in the video.
+ * titles). A plain title that is too wide overflows both edges here, as it
+ * is cut off on both sides in the video.
  */
 export function PreviewTitle({ text, sizePreset, font, scale, topPercent }: PreviewTitleProps) {
-  const ref = useRef<HTMLSpanElement>(null);
+  const boxRef = useRef<HTMLDivElement>(null);
+  const textRef = useRef<HTMLSpanElement>(null);
   const layout = titleLayout(text, sizePreset, font);
-  const basePx = layout.emPx * scale;
+  const styles = sizeStyles(layout, scale);
 
-  // Emoji titles: measure at the full size and shrink if too wide, before
-  // paint. Measured again once web fonts load, since widths change then.
+  // Emoji titles: measure at the full size and, if too wide, shrink the way
+  // PIL does, in export pixels, recomputing line step, stroke and shadow
+  // from the new size. Written to the DOM before paint, so every value is
+  // set on each run (React leaves unchanged props alone). Measured again
+  // once web fonts have loaded, since widths change then.
   useLayoutEffect(() => {
-    const el = ref.current;
-    if (!el || !layout.png) return;
+    const box = boxRef.current;
+    const span = textRef.current;
+    if (!box || !span) return;
+    const apply = (s: ReturnType<typeof sizeStyles>) => {
+      box.style.paddingTop = s.paddingTop;
+      span.style.fontSize = s.fontSize;
+      span.style.lineHeight = s.lineHeight;
+      span.style.setProperty('-webkit-text-stroke', s.stroke);
+      span.style.textShadow = s.shadow;
+    };
+    const full = titleLayout(text, sizePreset, font);
     const fit = () => {
-      el.style.fontSize = `${basePx}px`;
-      const widest = el.getBoundingClientRect().width;
-      el.style.fontSize = `${fitTitlePx(basePx, widest, TITLE_SAFE_WIDTH * scale, TITLE_MIN_PX * scale)}px`;
+      apply(sizeStyles(full, scale));
+      if (!full.png) return;
+      const widestExport = span.getBoundingClientRect().width / scale;
+      const size = fitTitlePx(full.size, widestExport, TITLE_SAFE_WIDTH, TITLE_MIN_PX);
+      if (size !== full.size) apply(sizeStyles(titleLayout(text, sizePreset, font, size), scale));
     };
     fit();
     let live = true;
@@ -43,29 +73,27 @@ export function PreviewTitle({ text, sizePreset, font, scale, topPercent }: Prev
     return () => {
       live = false;
     };
-  }, [text, basePx, scale, layout.png]);
-
-  const outline = layout.outlinePx * scale;
-  const shadow = layout.shadowPx * scale;
+  }, [text, sizePreset, font, scale]);
 
   return (
     <div
-      className="pointer-events-none absolute inset-x-0 text-center"
-      style={{ top: `${topPercent}%`, paddingTop: layout.topShiftPx * scale }}
+      ref={boxRef}
+      // Flex centring overflows both edges; text-align would overflow right.
+      className="pointer-events-none absolute inset-x-0 flex justify-center"
+      style={{ top: `${topPercent}%`, paddingTop: styles.paddingTop }}
     >
       <span
-        ref={ref}
-        className="inline-block font-extrabold text-white"
+        ref={textRef}
+        className="shrink-0 text-center font-extrabold text-white"
         style={{
           fontFamily: FONT_STACKS[font],
-          fontSize: `${basePx}px`,
-          lineHeight: `${layout.lineStepPx * scale}px`,
+          fontSize: styles.fontSize,
+          lineHeight: styles.lineHeight,
           // The renderer's line breaks, and no others.
           whiteSpace: 'pre',
-          // A centred stroke of twice the width leaves the outline's width outside.
-          WebkitTextStroke: `${outline * 2}px #000`,
+          WebkitTextStroke: styles.stroke,
           paintOrder: 'stroke fill',
-          textShadow: `${shadow}px ${shadow}px 0 #000`,
+          textShadow: styles.shadow,
         }}
       >
         {text}

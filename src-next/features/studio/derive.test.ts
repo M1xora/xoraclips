@@ -194,6 +194,11 @@ describe('preview font sizes', () => {
     expect(sizes).toEqual([...sizes].sort((a, b) => a - b));
   });
 
+  it('counts an emoji as one character when wrapping, like Python len()', () => {
+    // 18 code points (21 UTF-16 units): the renderer keeps it on one line.
+    expect(formatTitleSmart('KAGET BANGET 😱😱😱', 'uppercase', 'medium').lineCount).toBe(1);
+  });
+
   it('shrinks a title that is too wide, like the renderer', () => {
     // 94px title whose widest line measures 1212px: 94 * 1010 / 1212 = 78.3
     expect(fitTitlePx(94, 1212, 1010, 40)).toBe(78);

@@ -124,12 +124,18 @@ export function applyLetterCase(text: string, style: TextCaseOption): string {
   return text.toLowerCase().replace(/(?:^|\s|\b)\w/g, (c) => c.toUpperCase());
 }
 
+/** Characters as Python's len() counts them: an emoji is one, not two. */
+function charCount(text: string): number {
+  return Array.from(text).length;
+}
+
 /**
  * Wraps a title across up to four lines.
  *
  * Copied verbatim, including two things that look like slips and are load
- * bearing: the check reads `currentLen + w.length` while the accumulator
- * adds `w.length + 1`, and the threshold is scaled by 1.15. The returned
+ * bearing: the check reads `currentLen + wLen` while the accumulator
+ * adds `wLen + 1`, and the threshold is scaled by 1.15. Lengths are code
+ * points, like Python's len(), so an emoji counts once (#19). The returned
  * lineCount feeds back into title position and font size, so a different
  * split moves the whole layout.
  *
@@ -160,11 +166,11 @@ export function formatTitleSmart(
 
   const words = cased.split(/\s+/).filter(Boolean);
   const maxSingleLen = sizePreset === 'small' ? 24 : sizePreset === 'big' ? 13 : 19;
-  if (words.length <= 1 || cased.length <= maxSingleLen) {
+  if (words.length <= 1 || charCount(cased) <= maxSingleLen) {
     return { formatted: cased, lineCount: 1 };
   }
 
-  const totalLen = cased.length;
+  const totalLen = charCount(cased);
   const targetLines = Math.min(4, Math.max(2, Math.ceil(totalLen / maxSingleLen)));
   const targetPerLine = totalLen / targetLines;
 
@@ -174,20 +180,21 @@ export function formatTitleSmart(
 
   for (let i = 0; i < words.length; i++) {
     const w = words[i];
+    const wLen = charCount(w);
     const remainingWords = words.length - i;
     const remainingLines = targetLines - lines.length;
 
     if (
       remainingLines > 1 &&
       currentLine.length > 0 &&
-      (currentLen + w.length > targetPerLine * 1.15 || remainingWords <= remainingLines - 1)
+      (currentLen + wLen > targetPerLine * 1.15 || remainingWords <= remainingLines - 1)
     ) {
       lines.push(currentLine.join(' '));
       currentLine = [w];
-      currentLen = w.length;
+      currentLen = wLen;
     } else {
       currentLine.push(w);
-      currentLen += w.length + 1;
+      currentLen += wLen + 1;
     }
   }
 

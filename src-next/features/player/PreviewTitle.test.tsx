@@ -42,6 +42,20 @@ describe('titleLayout (#19): what the renderer does with a title', () => {
     expect(titleLayout('KAGET', 'medium', 'Outfit').outlinePx).toBe(4.4);
   });
 
+  it('a shrunk PNG title recomputes line step, stroke and shadow from the new size', () => {
+    const shrunk = titleLayout('A 😱\nB', 'medium', 'Outfit', 67);
+    expect(shrunk.emPx).toBe(67);
+    expect(shrunk.lineStepPx).toBe(57); // int(67 * 0.86)
+    expect(shrunk.outlinePx).toBe(3); // max(3, int(67 * 0.055))
+  });
+
+  it('the font box sits at the anchor: libass box = size, PIL box = size / em ratio', () => {
+    const ass = titleLayout('KAGET', 'medium', 'Outfit');
+    expect(ass.topShiftPx).toBeCloseTo((94 - 80) / 2, 5);
+    const png = titleLayout('KAGET 😱', 'medium', 'Outfit');
+    expect(png.topShiftPx).toBeCloseTo((94 / 0.794 - 80) / 2, 5);
+  });
+
   it('recognises emoji the way the renderer does', () => {
     expect(hasEmoji('HEBAT 🔥')).toBe(true);
     expect(hasEmoji('TOP ★')).toBe(true); // So
