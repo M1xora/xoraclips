@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { CAPTION_FONT_FACES, captionFontCss, captionFontUrl } from './captionFonts';
+import { CAPTION_FONT_FACES, captionFontCss, captionFontUrl, installCaptionFonts } from './captionFonts';
 import { FONT_STACKS } from './fonts';
 
 // Fonts libass takes from the system, not from backend/fonts.
@@ -37,5 +37,19 @@ describe('caption fonts in the preview (#22)', () => {
     expect(weight['Anton.ttf']).toBe('400');
     expect(weight['Bebas Neue.ttf']).toBe('400');
     expect(weight['Outfit.ttf']).toBe('100 900');
+  });
+
+  it('installs the faces once, in the document head', () => {
+    const added: { id: string; textContent: string }[] = [];
+    const doc = {
+      getElementById: (id: string) => added.find((el) => el.id === id) ?? null,
+      createElement: () => ({ id: '', textContent: '' }),
+      head: { appendChild: (el: { id: string; textContent: string }) => added.push(el) },
+    } as unknown as Parameters<typeof installCaptionFonts>[0];
+    installCaptionFonts(doc);
+    installCaptionFonts(doc);
+    expect(added).toHaveLength(1);
+    expect(added[0].id).toBe('caption-fonts');
+    expect(added[0].textContent).toContain("font-family:'XC Outfit'");
   });
 });

@@ -13,6 +13,7 @@ import { usePreviewAudio } from '../../hooks/usePreviewAudio';
 import { CaptionOverlay } from '../studio/CaptionOverlay';
 import { PreviewTitle } from './PreviewTitle';
 import { useFrameWidth } from './useFrameWidth';
+import { preloadCaptionFont } from '../studio/captionFonts';
 import { useCaptionChunks } from '../../hooks/useCaptionChunks';
 import { useLanguage } from '../../i18n';
 import { formatTimecode } from '../../lib/format';
@@ -147,6 +148,9 @@ export function ClipPreview({
   // Everything drawn on it is in export pixels times `scale` (issue #20).
   const rootRef = useRef<HTMLDivElement>(null);
   const frameW = useFrameWidth(rootRef);
+
+  // Fetch the chosen caption font right away rather than on first draw (#22).
+  useEffect(() => preloadCaptionFont(captionFont), [captionFont]);
   const frameH = Math.round((frameW * CANVAS_H) / CANVAS_W);
   const scale = frameW / CANVAS_W;
 

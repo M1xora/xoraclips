@@ -13,6 +13,13 @@
  * synthesised, as libass synthesises it for Bold=-1.
  */
 
+import type { CaptionFont } from '../../lib/types';
+
+/** The CSS family a caption font's own file is declared under. */
+export function captionFamily(font: CaptionFont): string {
+  return `XC ${font}`;
+}
+
 export interface CaptionFontFace {
   family: string;
   file: string;
@@ -20,12 +27,12 @@ export interface CaptionFontFace {
 }
 
 export const CAPTION_FONT_FACES: CaptionFontFace[] = [
-  { family: 'XC Outfit', file: 'Outfit.ttf', weight: '100 900' },
-  { family: 'XC Montserrat', file: 'Montserrat.ttf', weight: '100 900' },
-  { family: 'XC Inter', file: 'Inter.ttf', weight: '100 900' },
-  { family: 'XC Poppins', file: 'Poppins.ttf', weight: '100 900' },
-  { family: 'XC Anton', file: 'Anton.ttf', weight: '400' },
-  { family: 'XC Bebas Neue', file: 'Bebas Neue.ttf', weight: '400' },
+  { family: captionFamily('Outfit'), file: 'Outfit.ttf', weight: '100 900' },
+  { family: captionFamily('Montserrat'), file: 'Montserrat.ttf', weight: '100 900' },
+  { family: captionFamily('Inter'), file: 'Inter.ttf', weight: '100 900' },
+  { family: captionFamily('Poppins'), file: 'Poppins.ttf', weight: '100 900' },
+  { family: captionFamily('Anton'), file: 'Anton.ttf', weight: '400' },
+  { family: captionFamily('Bebas Neue'), file: 'Bebas Neue.ttf', weight: '400' },
 ];
 
 // Listed by name, not *.ttf: the folder also holds a 13 MB emoji font the
@@ -58,8 +65,19 @@ export function captionFontCss(): string {
   }).join('\n');
 }
 
+/**
+ * Starts downloading the chosen font now, so captions do not show a
+ * fallback first (the faces are otherwise fetched on first use).
+ */
+export function preloadCaptionFont(font: CaptionFont, doc: Document = document): void {
+  if (!CAPTION_FONT_FACES.some((f) => f.family === captionFamily(font))) return;
+  doc.fonts?.load(`800 32px "${captionFamily(font)}"`).catch(() => undefined);
+}
+
+type MinimalDocument = Pick<Document, 'getElementById' | 'createElement' | 'head'>;
+
 /** Declares the faces once, at start-up. */
-export function installCaptionFonts(doc: Document = document): void {
+export function installCaptionFonts(doc: MinimalDocument = document): void {
   if (doc.getElementById('caption-fonts')) return;
   const style = doc.createElement('style');
   style.id = 'caption-fonts';

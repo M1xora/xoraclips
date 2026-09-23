@@ -72,18 +72,19 @@ export function CaptionOverlay({
 
   return (
     <div
-      className="pointer-events-none absolute inset-x-0 px-2 text-center"
+      // One line, never wrapped, like libass with WrapStyle 2 and \q2: a
+      // chunk too wide overflows both edges, as it is cut off in the video.
+      className="pointer-events-none absolute inset-x-0 flex justify-center"
       style={position}
       aria-hidden="true"
     >
       <span
-        className="inline-block font-extrabold leading-tight"
+        className="shrink-0 whitespace-nowrap font-extrabold leading-tight"
         style={{
           fontFamily: FONT_STACKS[font],
           fontSize: `${sizePx}px`,
           // No extra letter spacing: SubStyle has Spacing 0 (#22).
           textShadow: shadow,
-          maxWidth: '96%',
         }}
       >
         {chunk.words.map((word, i) => (

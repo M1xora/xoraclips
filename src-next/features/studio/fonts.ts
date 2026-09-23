@@ -1,4 +1,5 @@
 import type { CaptionFont } from '../../lib/types';
+import { captionFamily } from './captionFonts';
 
 /**
  * The eight caption fonts, drawn with the renderer's own files (declared by
@@ -6,13 +7,13 @@ import type { CaptionFont } from '../../lib/types';
  * backend/fonts: libass takes them from the system, and so does the browser.
  */
 export const FONT_STACKS: Record<CaptionFont, string> = {
-  Outfit: "'XC Outfit', system-ui, sans-serif",
-  Montserrat: "'XC Montserrat', system-ui, sans-serif",
-  Inter: "'XC Inter', system-ui, sans-serif",
+  Outfit: `'${captionFamily('Outfit')}', system-ui, sans-serif`,
+  Montserrat: `'${captionFamily('Montserrat')}', system-ui, sans-serif`,
+  Inter: `'${captionFamily('Inter')}', system-ui, sans-serif`,
   Impact: "Impact, 'Arial Black', sans-serif",
-  'Bebas Neue': "'XC Bebas Neue', 'Arial Narrow', sans-serif",
-  Anton: "'XC Anton', 'Arial Narrow', sans-serif",
-  Poppins: "'XC Poppins', system-ui, sans-serif",
+  'Bebas Neue': `'${captionFamily('Bebas Neue')}', 'Arial Narrow', sans-serif`,
+  Anton: `'${captionFamily('Anton')}', 'Arial Narrow', sans-serif`,
+  Poppins: `'${captionFamily('Poppins')}', system-ui, sans-serif`,
   'Arial Black': "'Arial Black', sans-serif",
 };
 
