@@ -22,10 +22,22 @@ function render(time: number) {
     />,
   );
   // Word spans are the innermost spans; the wrapper span has a class.
+  // Not trimmed: a space inside a word span is exactly the #17 bug.
   const words = [...html.matchAll(/<span([^>]*)>([^<]*)<\/span>/g)]
     .filter((m) => !m[1].includes('class='))
-    .map((m) => ({ text: m[2].trim(), active: m[1].includes('data-active="true"') }));
-  return { html, words };
+    .map((m) => ({ text: decode(m[2]), active: m[1].includes('data-active="true"') }));
+  // The overlay holds nothing but the caption, so its text is what shows.
+  const shown = decode(html.replace(/<[^>]+>/g, ''));
+  return { html, words, shown };
+}
+
+function decode(text: string) {
+  return text
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#x27;/g, "'")
+    .replace(/&amp;/g, '&');
 }
 
 describe('CaptionOverlay', () => {
@@ -39,19 +51,19 @@ describe('CaptionOverlay', () => {
     }
   });
 
-  it('puts a visible space between words, outside the word boxes (#17)', () => {
+  it('puts the spaces between words, never inside a word (#17)', () => {
     for (const api of apiChunks) {
-      if (api.words.length < 2) continue;
-      const { html } = render(ted.clip_start + (api.start + api.end) / 2);
-      // A trailing space inside an inline-block word box is dropped by the
-      // browser, so no word box may end with one.
-      expect(html).not.toMatch(/ <\/span>/);
-      // What the browser lays out, tags removed, reads as the chunk text.
-      const shown = html
-        .match(/<span class="inline-block[^>]*>(.*)<\/span><\/div>$/)?.[1]
-        .replace(/<[^>]+>/g, '');
+      const { words, shown } = render(ted.clip_start + (api.start + api.end) / 2);
       expect(shown).toBe(api.text);
+      for (const { text } of words) expect(text).toBe(text.trim());
     }
+  });
+
+  it('marks the spoken word by colour only, as the export does (#17)', () => {
+    // A scaled word grew over the spaces beside it and looked glued on.
+    const { html } = render(ted.clip_start + (apiChunks[0].start + apiChunks[0].end) / 2);
+    expect(html).toContain('data-active="true"');
+    expect(html).not.toMatch(/scale\(/);
   });
 
   it('highlights the word the export highlights', () => {

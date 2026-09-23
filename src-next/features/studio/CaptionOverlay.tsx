@@ -43,8 +43,8 @@ interface CaptionOverlayProps {
  *
  * Draws the backend's chunks verbatim: the text is already cleaned and
  * cased, and each word's highlight window is the one the .ass file uses.
- * The spoken word is lifted in the style's accent colour while the rest of
- * the chunk stays white, which is the effect the ASS renderer produces.
+ * The spoken word takes the style's accent colour while the rest of the
+ * chunk stays white, which is the effect the ASS renderer produces.
  */
 export function CaptionOverlay({
   chunks,
@@ -98,18 +98,15 @@ export function CaptionOverlay({
       >
         {chunk.words.map((word, i) => (
           <Fragment key={`${word.start}-${i}`}>
-            {/* The space sits between the word boxes: inside an inline-block
-                a trailing space is dropped, and the words run together (#17). */}
+            {/* The space sits between the word spans, never inside one (#17). */}
             {i > 0 && ' '}
             <span
               data-active={i === activeIdx ? 'true' : undefined}
               style={{
+                // Colour only, like the export: a scaled word grew over the
+                // spaces beside it and looked glued to its neighbours (#17).
                 color: i === activeIdx ? theme.accent : theme.base,
-                // A slight lift on the spoken word, the way the karaoke
-                // effect reads in the export.
-                display: 'inline-block',
-                transform: i === activeIdx ? 'scale(1.08)' : 'none',
-                transition: 'transform 90ms ease, color 90ms ease',
+                transition: 'color 90ms ease',
               }}
             >
               {word.text}
