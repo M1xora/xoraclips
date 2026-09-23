@@ -264,7 +264,45 @@ def test_caption_candidates_order():
     subtitles = {"ja": [{"ext": "json3", "url": "u-ja"}], "en-US": [{"ext": "json3", "url": "u-en-man"}]}
     auto = many_languages(20)["automatic_captions"]
     picked = main.ytdlp_caption_candidates(subtitles, auto)
-    assert [(lang, is_auto) for lang, is_auto, _ in picked] == [("en-US", False), ("id-orig", True), ("id", True)]
+    assert [(lang, is_auto) for lang, is_auto, _ in picked] == [("en-US", False), ("ja", False), ("id-orig", True)]
+
+
+def test_a_human_track_in_another_language_is_still_tried():
+    subtitles = {"ja": [{"ext": "json3", "url": "u-ja"}]}
+    picked = main.ytdlp_caption_candidates(subtitles, {})
+    assert [(lang, is_auto) for lang, is_auto, _ in picked] == [("ja", False)]
+
+
+def test_proxy_wording_of_the_block_is_recognised():
+    text = "YouTube is blocking your requests, despite you using proxies. Keep in mind..."
+    assert youtube_errors.is_blocked_text(text)
+
+
+def test_a_users_own_proxy_being_refused_does_not_lock_everyone_out(script):
+    script.api_fetch_error = IpBlocked(VIDEO)
+    with pytest.raises(YouTubeBlocked) as caught:
+        main.fetch_transcript(VIDEO, custom_proxy="http://user-proxy:8080")
+    assert caught.value.retry_after == 0
+    assert youtube_errors.block_memory.remaining() == 0
+
+
+def test_a_block_found_by_another_analysis_stops_this_one_between_tiers(script):
+    # Tier 5 fails normally, but meanwhile another analysis was refused.
+    def list_then_block(video_id):
+        script.calls.append("api.list")
+        youtube_errors.block_memory.remember()
+        raise Exception("No transcripts were found")
+    main.YouTubeTranscriptApi.list = lambda self, video_id: list_then_block(video_id)
+    with pytest.raises(YouTubeBlocked):
+        main.fetch_transcript(VIDEO)
+    assert "cli" not in script.calls and "ytdlp.info" not in script.calls
+
+
+def test_a_block_seen_while_reading_video_details_is_remembered(script, monkeypatch):
+    script.ydl_error = Exception("ERROR: [youtube] x: Sign in to confirm you're not a bot.")
+    monkeypatch.setattr(main, "get_youtube_oembed_title", lambda *a, **k: None)
+    main.fetch_video_metadata(f"https://www.youtube.com/watch?v={VIDEO}")
+    assert youtube_errors.block_memory.remaining() == 600
 
 
 def test_a_block_is_remembered_and_youtube_is_left_alone(script, clock):
@@ -381,6 +419,13 @@ def test_remembered_block_answers_before_touching_youtube(api, monkeypatch, cloc
     monkeypatch.setattr(main, "fetch_transcript", no_youtube)
     errors, _ = analyze(api)
     assert [(e["code"], e["retry_after"]) for e in errors] == [("youtube_blocked", 500)]
+
+
+def test_an_invalid_link_is_still_called_invalid_during_a_block(api):
+    youtube_errors.block_memory.remember()
+    errors, _ = analyze(api, url="https://example.com/foo")
+    assert errors[0].get("code") != "youtube_blocked"
+    assert "Invalid YouTube URL" in errors[0]["error"]
 
 
 def test_manual_subtitles_still_work_during_a_remembered_block(api, monkeypatch):

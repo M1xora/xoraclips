@@ -65,7 +65,7 @@ _BLOCK_EXCEPTION_NAMES = {"IpBlocked", "RequestBlocked"}
 
 # Phrases YouTube, youtube-transcript-api and yt-dlp use for a refusal.
 _BLOCK_TEXT = re.compile(
-    r"YouTube is blocking requests from your IP"
+    r"YouTube is blocking (?:your )?requests"
     r"|\bIpBlocked\b|\bRequestBlocked\b"
     r"|<title>Sorry\.\.\.</title>"
     r"|sending automated queries"
@@ -122,10 +122,6 @@ class BlockMemory:
         with self._lock:
             left = self._until - self.clock()
         return math.ceil(left) if left > 0 else 0
-
-    def forget(self) -> None:
-        with self._lock:
-            self._until = 0.0
 
 
 block_memory = BlockMemory()

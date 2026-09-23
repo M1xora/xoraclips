@@ -572,8 +572,7 @@ def fetch_transcript_cli(
             try:
                 raw = json.loads(proc.stdout)
             except ValueError:
-                # The CLI prints its errors to stdout with exit code 0 (issue #9).
-                raw = None
+                pass  # The CLI prints its errors to stdout with exit code 0 (issue #9).
         if raw is not None:
             items = raw[0] if isinstance(raw, list) and len(raw) > 0 and isinstance(raw[0], list) else raw
             result = normalize_transcript(items)
@@ -684,6 +683,8 @@ def fetch_video_metadata(url: str, custom_proxy: Optional[str] = None):
                 }
         except Exception as e:
             logger.warning(f"yt-dlp metadata extraction failed (proxy={'yes' if attempt_proxy else 'no'}): {e}")
+            if not attempt_proxy and youtube_errors.is_blocked_exception(e):
+                youtube_errors.block_memory.remember()  # issue #9
 
     # Fallback: parse video ID and retrieve title from oEmbed API directly
     if video_id:
@@ -929,7 +930,9 @@ def fetch_transcript_ytdlp(video_id: str, proxy: Optional[str] = None) -> List[d
             except Exception as e:
                 logger.warning(f"yt-dlp caption request failed (lang={lang}): {e}")
                 continue
-            if youtube_errors.is_blocked_response(r.status_code, r.headers.get('content-type', ''), r.text):
+            content_type = r.headers.get('content-type', '')
+            body = r.text if 'html' in content_type.lower() else ''
+            if youtube_errors.is_blocked_response(r.status_code, content_type, body):
                 raise YouTubeBlocked(f"yt-dlp caption {lang}: HTTP {r.status_code}")
             if r.status_code != 200:
                 logger.warning(f"yt-dlp caption {lang} answered HTTP {r.status_code}")
@@ -959,8 +962,9 @@ YTDLP_MAX_CAPTION_REQUESTS = 3
 def ytdlp_caption_candidates(subtitles: dict, auto_captions: dict, limit: int = YTDLP_MAX_CAPTION_REQUESTS) -> List[tuple]:
     """
     At most `limit` caption tracks to download, as (lang, is_auto, json3 url).
-    Order: human-made id, en; then auto-captions in the video's own language
-    (`*-orig`), id, en. Not every translated language (a video can list 159),
+    Order: human-made id, en, then one human-made track in any other language;
+    then auto-captions in the video's own language (`*-orig`), id, en. Not
+    every translated language (a video can list 159),
     because each one is a request and requests prolong a block (issue #9).
     """
     def base(lang: str) -> str:
@@ -972,6 +976,7 @@ def ytdlp_caption_candidates(subtitles: dict, auto_captions: dict, limit: int = 
     wanted = []
     for target in ('id', 'en'):
         wanted += [(lang, False) for lang in subtitles if base(lang) == target]
+    wanted += [(lang, False) for lang in subtitles if base(lang) not in ('id', 'en', 'live_chat')][:1]
     wanted += [(lang, True) for lang in auto_captions if lang.endswith('-orig')][:1]
     for target in ('id', 'en'):
         wanted += [(lang, True) for lang in auto_captions if lang == target]
@@ -1005,14 +1010,25 @@ def fetch_transcript(
     except YouTubeBlocked as blocked:
         if blocked.retry_after:
             logger.info(f"YouTube block remembered: not contacting YouTube for another {blocked.retry_after}s")
-        else:
+            raise
+        attempt_history.append(f"BLOCKED -> {blocked.detail}")
+        # A proxy the user sent with this request says nothing about the
+        # server's own address: stop this analysis, but do not lock everyone out.
+        if not custom_proxy:
             blocked.retry_after = youtube_errors.block_memory.remember()
-            attempt_history.append(f"BLOCKED -> {blocked.detail}")
-            logger.warning(
-                f"YouTube is refusing caption requests for {video_id}. Stopped the remaining tiers; "
-                f"staying away for {blocked.retry_after}s.\n  " + "\n  ".join(attempt_history)
-            )
+        logger.warning(
+            f"YouTube is refusing caption requests for {video_id}. Stopped the remaining tiers"
+            + (f"; staying away for {blocked.retry_after}s." if blocked.retry_after else " (user proxy: not remembered).")
+            + "\n  " + "\n  ".join(attempt_history)
+        )
         raise
+
+
+def _stop_if_remembered() -> None:
+    """Raises YouTubeBlocked while a block is remembered, before any YouTube request."""
+    remaining = youtube_errors.block_memory.remaining()
+    if remaining:
+        raise YouTubeBlocked("remembered block", retry_after=remaining)
 
 
 def _stop_if_blocked(error: BaseException, tier: str) -> None:
@@ -1063,9 +1079,7 @@ def _fetch_transcript_tiers(
         attempt_history.append("Tier 1 (Supadata API): Not configured (no keys in SUPADATA_API_KEYS)")
 
     # ── Remembered block: YouTube refused us recently, do not knock again ──
-    remaining = youtube_errors.block_memory.remaining()
-    if remaining:
-        raise YouTubeBlocked("remembered block", retry_after=remaining)
+    _stop_if_remembered()
 
     # ── Proxy Tiers (Tier 2 - 4) ──────────────────────────────────────────────
     if proxy_cfg or proxy_url:
@@ -1135,6 +1149,7 @@ def _fetch_transcript_tiers(
             attempt_history.append(f"Tier 2 (Proxy Python API setup): {type(init_err).__name__} ({init_err})")
 
         # ── Tier 3: YouTubeTranscriptApi CLI Subprocess with Proxy ───────────────
+        _stop_if_remembered()
         notify("Tier 3/7: Proxy CLI Subprocess", "Trying Method 3/7: Isolated CLI subprocess via proxy...", 60)
         try:
             cli_data = fetch_transcript_cli(
@@ -1152,6 +1167,7 @@ def _fetch_transcript_tiers(
             attempt_history.append(f"Tier 3 (Proxy CLI Subprocess): {type(cli_err).__name__} ({str(cli_err)[:150]})")
 
         # ── Tier 4: yt-dlp Native Extraction with Proxy ──────────────────────────
+        _stop_if_remembered()
         notify("Tier 4/7: Proxy yt-dlp Native", "Trying Method 4/7: yt-dlp native caption extraction via proxy...", 70)
         try:
             ytdlp_proxy_data = fetch_transcript_ytdlp(video_id, proxy=proxy_url)
@@ -1172,6 +1188,7 @@ def _fetch_transcript_tiers(
     logger.info("[Tier 5-7] Attempting direct YouTube retrieval (no proxy)...")
 
     # ── Tier 5: Direct YouTubeTranscriptApi Python API ────────────────────────
+    _stop_if_remembered()
     notify("Tier 5/7: Direct YouTube API", "Trying Method 5/7: Direct YouTubeTranscriptApi (localhost / residential)...", 80)
     try:
         direct_client = create_http_client(timeout=10.0)
@@ -1231,6 +1248,7 @@ def _fetch_transcript_tiers(
         attempt_history.append(f"Tier 5 (Direct Python API setup): {type(api_err).__name__} ({str(api_err)[:150]})")
 
     # ── Tier 6: Direct YouTubeTranscriptApi CLI Subprocess ────────────────────
+    _stop_if_remembered()
     notify("Tier 6/7: Direct CLI Subprocess", "Trying Method 6/7: Direct isolated CLI subprocess...", 88)
     try:
         direct_cli_data = fetch_transcript_cli(video_id, priority_langs, proxy_url=None, timeout=15)
@@ -1242,6 +1260,7 @@ def _fetch_transcript_tiers(
         attempt_history.append(f"Tier 6 (Direct CLI Subprocess): {type(cli_err).__name__} ({str(cli_err)[:150]})")
 
     # ── Tier 7: Direct yt-dlp Native Extraction ──────────────────────────────
+    _stop_if_remembered()
     notify("Tier 7/7: Direct yt-dlp Native", "Trying Method 7/7: Direct yt-dlp native caption extraction...", 94)
     try:
         direct_ytdlp_data = fetch_transcript_ytdlp(video_id, proxy=None)
@@ -1630,14 +1649,6 @@ async def analyze_video(
                 yield _sse(ai_errors.error_event(key_problem))
                 return
 
-        # YouTube refused us recently: answer now instead of knocking again
-        # (issue #9). Manual subtitles and Supadata (not YouTube) still go on.
-        if not is_mock and not request.subtitles and not get_supadata_keys():
-            remaining = youtube_errors.block_memory.remaining()
-            if remaining:
-                yield _sse(youtube_errors.error_event(youtube_errors.YOUTUBE_BLOCKED, remaining))
-                return
-
         # ── Step 1: Extract video ID & metadata ─────────────────────────────
         video_id = extract_video_id(request.url)
         if not video_id:
@@ -1645,6 +1656,14 @@ async def analyze_video(
                 yield _sse({"error": "Invalid YouTube URL. Please check the link and try again.", "status": 400})
                 return
             video_id = "dQw4w9WgXcQ"
+
+        # YouTube refused us recently: answer now instead of knocking again
+        # (issue #9). Manual subtitles and Supadata (not YouTube) still go on.
+        if not is_mock and not request.subtitles and not get_supadata_keys():
+            remaining = youtube_errors.block_memory.remaining()
+            if remaining:
+                yield _sse(youtube_errors.error_event(youtube_errors.YOUTUBE_BLOCKED, remaining))
+                return
 
         canonical_url = f"https://www.youtube.com/watch?v={video_id}"
 
