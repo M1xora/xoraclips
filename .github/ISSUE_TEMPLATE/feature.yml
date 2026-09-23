@@ -1,0 +1,28 @@
+name: Fitur / perubahan
+description: Fitur baru, revisi UI, atau perbaikan non-bug
+labels: [enhancement]
+body:
+  - type: textarea
+    id: tujuan
+    attributes:
+      label: Tujuan
+      description: Apa yang mau dicapai, dan kenapa?
+    validations:
+      required: true
+  - type: textarea
+    id: detail
+    attributes:
+      label: Detail
+      description: Gambaran perilaku yang diinginkan. Screenshot atau referensi boleh.
+  - type: textarea
+    id: selesai
+    attributes:
+      label: Kriteria selesai
+      placeholder: "- [ ] ..."
+    validations:
+      required: true
+  - type: textarea
+    id: luar
+    attributes:
+      label: Di luar cakupan
+      description: Opsional. Hal yang sengaja tidak dikerjakan di issue ini.

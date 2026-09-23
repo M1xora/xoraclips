@@ -1,0 +1,40 @@
+name: Bug
+description: Ada yang tidak berjalan sebagaimana mestinya
+labels: [bug]
+body:
+  - type: textarea
+    id: masalah
+    attributes:
+      label: Masalah
+      description: Apa yang terjadi?
+    validations:
+      required: true
+  - type: textarea
+    id: langkah
+    attributes:
+      label: Langkah memunculkan
+      placeholder: |
+        1. Buka ...
+        2. Klik ...
+        3. Muncul ...
+    validations:
+      required: true
+  - type: textarea
+    id: harapan
+    attributes:
+      label: Yang seharusnya terjadi
+    validations:
+      required: true
+  - type: textarea
+    id: bukti
+    attributes:
+      label: Screenshot / log error
+      description: Opsional, tapi sangat membantu.
+  - type: textarea
+    id: selesai
+    attributes:
+      label: Kriteria selesai
+      description: Kapan bug ini dianggap beres?
+      placeholder: "- [ ] ..."
+    validations:
+      required: true
