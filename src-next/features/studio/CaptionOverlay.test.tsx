@@ -22,10 +22,22 @@ function render(time: number) {
     />,
   );
   // Word spans are the innermost spans; the wrapper span has a class.
+  // Not trimmed: a space inside a word span is exactly the #17 bug.
   const words = [...html.matchAll(/<span([^>]*)>([^<]*)<\/span>/g)]
     .filter((m) => !m[1].includes('class='))
-    .map((m) => ({ text: m[2].trim(), active: m[1].includes('data-active="true"') }));
-  return { html, words };
+    .map((m) => ({ text: decode(m[2]), active: m[1].includes('data-active="true"') }));
+  // The overlay holds nothing but the caption, so its text is what shows.
+  const shown = decode(html.replace(/<[^>]+>/g, ''));
+  return { html, words, shown };
+}
+
+function decode(text: string) {
+  return text
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#x27;/g, "'")
+    .replace(/&amp;/g, '&');
 }
 
 describe('CaptionOverlay', () => {
@@ -37,6 +49,21 @@ describe('CaptionOverlay', () => {
         expect(words.map((x) => x.text).join(' ')).toBe(api.text);
       }
     }
+  });
+
+  it('puts the spaces between words, never inside a word (#17)', () => {
+    for (const api of apiChunks) {
+      const { words, shown } = render(ted.clip_start + (api.start + api.end) / 2);
+      expect(shown).toBe(api.text);
+      for (const { text } of words) expect(text).toBe(text.trim());
+    }
+  });
+
+  it('marks the spoken word by colour only, as the export does (#17)', () => {
+    // A scaled word grew over the spaces beside it and looked glued on.
+    const { html } = render(ted.clip_start + (apiChunks[0].start + apiChunks[0].end) / 2);
+    expect(html).toContain('data-active="true"');
+    expect(html).not.toMatch(/scale\(/);
   });
 
   it('highlights the word the export highlights', () => {
