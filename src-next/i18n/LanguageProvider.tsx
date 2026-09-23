@@ -1,27 +1,10 @@
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-  type ReactNode,
-} from 'react';
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { id, type Translations } from './id';
 import { en } from './en';
-
-export type Language = 'id' | 'en';
+import { LanguageContext, type Language } from './context';
 
 const STORAGE_KEY = 'xoraclips_language';
 const DICTIONARIES: Record<Language, Translations> = { id, en };
-
-interface LanguageContextValue {
-  language: Language;
-  setLanguage: (next: Language) => void;
-  t: Translations;
-}
-
-const LanguageContext = createContext<LanguageContextValue | null>(null);
 
 /** Stored choice, else the browser's preference, else Indonesian. */
 function initialLanguage(): Language {
@@ -67,10 +50,4 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   );
 
   return <LanguageContext.Provider value={value}>{children}</LanguageContext.Provider>;
-}
-
-export function useLanguage(): LanguageContextValue {
-  const ctx = useContext(LanguageContext);
-  if (!ctx) throw new Error('useLanguage must be used inside LanguageProvider');
-  return ctx;
 }

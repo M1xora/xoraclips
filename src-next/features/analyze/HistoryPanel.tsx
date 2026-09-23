@@ -20,10 +20,15 @@ interface HistoryPanelProps {
 export function HistoryPanel({ refreshToken, onOpen }: HistoryPanelProps) {
   const { t } = useLanguage();
   const [query, setQuery] = useState('');
-  const [removed, setRemoved] = useState(0);
+  const [entries, setEntries] = useState(listHistory);
 
-  // Re-read when an analysis finishes or an entry is dropped.
-  const entries = useMemo(() => listHistory(), [refreshToken, removed]);
+  // Re-read when an analysis finishes (a new token, checked while rendering)
+  // or an entry is dropped (in the handler).
+  const [seenToken, setSeenToken] = useState(refreshToken);
+  if (refreshToken !== seenToken) {
+    setSeenToken(refreshToken);
+    setEntries(listHistory());
+  }
 
   const shown = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -35,7 +40,7 @@ export function HistoryPanel({ refreshToken, onOpen }: HistoryPanelProps) {
 
   const drop = useCallback((key: string) => {
     removeFromHistory(key);
-    setRemoved((n) => n + 1);
+    setEntries(listHistory());
   }, []);
 
   if (entries.length === 0) {

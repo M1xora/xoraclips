@@ -17,17 +17,17 @@ export function useFaceBox(
   timestamp: number,
   enabled: boolean,
 ): { box: FaceBox | null; loading: boolean } {
-  const [box, setBox] = useState<FaceBox | null>(null);
-  const [loading, setLoading] = useState(false);
+  // The last answer, and which request it answers. The box and the loading
+  // flag follow from it, so nothing is reset synchronously in the effect (#2).
+  const request = enabled && videoId ? `${videoId}@${timestamp}` : null;
+  const [answer, setAnswer] = useState<{ request: string; box: FaceBox | null } | null>(null);
+
+  // Tracking off forgets the last box, as before; done while rendering.
+  if (request === null && answer !== null) setAnswer(null);
 
   useEffect(() => {
-    if (!enabled || !videoId) {
-      setBox(null);
-      return;
-    }
-
+    if (!request) return;
     const controller = new AbortController();
-    setLoading(true);
 
     api
       .detectFace(videoId, timestamp, undefined, controller.signal)
@@ -35,18 +35,18 @@ export function useFaceBox(
         if (controller.signal.aborted) return;
         // `found` false means the detector ran and saw nothing, which is
         // different from an error: keep the centre crop.
-        setBox(res.found ? res : null);
+        setAnswer({ request, box: res.found ? res : null });
       })
       .catch(() => {
-        if (!controller.signal.aborted) setBox(null);
-      })
-      .finally(() => {
-        if (!controller.signal.aborted) setLoading(false);
+        if (!controller.signal.aborted) setAnswer({ request, box: null });
       });
 
     return () => controller.abort();
-  }, [videoId, timestamp, enabled]);
+  }, [request, videoId, timestamp]);
 
+  // While a new request loads, the last box stays, as before.
+  const box = request ? (answer?.box ?? null) : null;
+  const loading = request !== null && answer?.request !== request;
   return { box, loading };
 }
 

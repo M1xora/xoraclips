@@ -225,6 +225,10 @@ describe('safeFileName', () => {
     expect(safeFileName('a/b:c*d?e"f<g>h|i')).toBe('abcdefghi');
   });
 
+  it('strips the backslash too, as the backend rule does', () => {
+    expect(safeFileName('Q&A \\ Part 2')).toBe('Q&A  Part 2');
+  });
+
   it('falls back when nothing is left', () => {
     expect(safeFileName('///')).toBe('export');
     expect(safeFileName('   ', 'klip')).toBe('klip');

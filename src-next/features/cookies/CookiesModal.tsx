@@ -29,22 +29,32 @@ export function CookiesModal({ open, onClose, onChanged }: CookiesModalProps) {
   const [message, setMessage] = useState<{ text: string; ok: boolean } | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
-  const refresh = useCallback(async () => {
-    try {
-      const res = await api.cookies.status();
-      setStatus(res);
-      onChanged(res.exists);
-    } catch {
-      setStatus(null);
-    }
-  }, [onChanged]);
+  // State is set only in the promise callbacks, so the open effect below may
+  // call this (#2). The answer is always reported, even after closing.
+  const refresh = useCallback(
+    () =>
+      api.cookies
+        .status()
+        .then((res) => {
+          setStatus(res);
+          onChanged(res.exists);
+        })
+        .catch(() => setStatus(null)),
+    [onChanged],
+  );
 
-  useEffect(() => {
+  // Opening starts clean: reset while rendering when `open` flips (#2).
+  const [wasOpen, setWasOpen] = useState(open);
+  if (open !== wasOpen) {
+    setWasOpen(open);
     if (open) {
-      void refresh();
       setMessage(null);
       setConfirmDelete(false);
     }
+  }
+
+  useEffect(() => {
+    if (open) void refresh();
   }, [open, refresh]);
 
   const save = async () => {

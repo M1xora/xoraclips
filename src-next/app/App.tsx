@@ -43,7 +43,8 @@ import { Button } from '../components/ui/Button';
 import { ErrorBoundary } from '../components/ErrorBoundary';
 import { Panel } from '../components/ui/Panel';
 import { ThemeToggle } from '../components/ui/ThemeToggle';
-import { Toast, useToast } from '../components/ui/Toast';
+import { Toast } from '../components/ui/Toast';
+import { useToast } from '../components/ui/useToast';
 import { api } from '../api/client';
 import { useAnalyze, type AnalyzeRequest } from '../hooks/useAnalyze';
 import { useTheme } from '../hooks/useTheme';
@@ -81,34 +82,42 @@ export function App() {
 
   const busy = status === 'running';
 
+  // A new run starts the clock from zero. Reset while rendering when `busy`
+  // flips, rather than in the effect (#2); the effect only ticks.
+  const [wasBusy, setWasBusy] = useState(busy);
+  if (busy !== wasBusy) {
+    setWasBusy(busy);
+    if (busy) setElapsed(0);
+  }
+
   useEffect(() => {
     if (!busy) return;
-    setElapsed(0);
     const id = setInterval(() => setElapsed((n) => n + 1), 1000);
     return () => clearInterval(id);
   }, [busy]);
 
   // Marks are per video and migrate off the old start_end keys on read.
-  useEffect(() => {
-    if (!result?.video_id) {
-      setMarked({});
-      return;
-    }
-    setMarked(loadMarks(result.video_id, result.clips));
-  }, [result?.video_id, result?.clips]);
+  // Reloaded while rendering when the video or its clips change (#2).
+  const videoId = result?.video_id;
+  const clips = result?.clips;
+  const [marksSource, setMarksSource] = useState<{ videoId?: string; clips?: ViralClip[] }>({});
+  if (marksSource.videoId !== videoId || marksSource.clips !== clips) {
+    setMarksSource({ videoId, clips });
+    setMarked(videoId && clips ? loadMarks(videoId, clips) : {});
+  }
 
   const toggleMark = useCallback(
     (clip: ViralClip) => {
-      if (!result?.video_id) return;
+      if (!videoId) return;
       setMarked((prev) => {
         const next = { ...prev };
         if (next[clip.id]) delete next[clip.id];
         else next[clip.id] = true;
-        saveMarks(result.video_id, next);
+        saveMarks(videoId, next);
         return next;
       });
     },
-    [result?.video_id],
+    [videoId],
   );
 
   const copy = useCallback(

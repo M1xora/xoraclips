@@ -24,9 +24,11 @@ export function VideoPlayer({
 }: VideoPlayerProps) {
   // A new object each render would re-seek constantly, so bounds are memoised
   // on the values that actually matter.
+  const clipStart = activeClip?.start_time;
+  const clipEnd = activeClip?.end_time;
   const bounds: ClipBounds | null = useMemo(
-    () => (activeClip ? { start: activeClip.start_time, end: activeClip.end_time } : null),
-    [activeClip?.start_time, activeClip?.end_time],
+    () => (clipStart !== undefined && clipEnd !== undefined ? { start: clipStart, end: clipEnd } : null),
+    [clipStart, clipEnd],
   );
 
   const { hostRef, ready, playing, currentTime, error, seek, toggle } = useYouTubePlayer({
