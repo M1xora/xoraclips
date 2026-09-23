@@ -191,7 +191,7 @@ export const id = {
 
     captions: 'Subtitle',
     captionsOn: 'Tampilkan subtitle',
-    captionsRenderOnly: 'Video ini tanpa transkrip. Subtitle dibuat saat render.',
+    captionsRenderOnly: 'Tidak ada caption YouTube di bagian ini. Subtitle dibuat saat render.',
     captionsUnavailable: 'Subtitle tidak bisa dimuat. Pastikan backend menyala.',
     captionStyle: 'Gaya',
     captionFont: 'Huruf',

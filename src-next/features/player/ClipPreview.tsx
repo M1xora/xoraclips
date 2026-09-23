@@ -360,7 +360,11 @@ export function ClipPreview({
         {captionNote && (
           <div
             className="pointer-events-none absolute inset-x-0 px-3 text-center"
-            style={{ bottom: `${subtitleYPercent}%` }}
+            style={
+              subtitlePositionMode === 'center'
+                ? { top: `${subtitleCenterYPercent}%`, transform: 'translateY(-50%)' }
+                : { bottom: `${subtitleYPercent}%` }
+            }
           >
             <span className="rounded bg-black/70 px-2 py-1 text-[0.7rem] font-medium text-white">
               {captionNote}

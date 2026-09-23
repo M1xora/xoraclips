@@ -2466,8 +2466,9 @@ def get_caption_chunks(request: CaptionChunksRequest):
     """
     The caption chunks a clip's export will burn in, for the browser preview.
     Uses the same function as generate_ass_file(), so preview == render.
-    Times are relative to clip_start. Empty when there is no transcript, in
-    which case the render falls back to Whisper and the preview cannot match.
+    Times are relative to clip_start. Empty when the transcript has no words
+    in this clip (or there is no transcript): the render then falls back to
+    Whisper, which the preview cannot match.
     """
     chunks = caption_chunks_for_clip(
         request.transcript, request.clip_start, request.clip_end, request.text_case

@@ -1039,7 +1039,7 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
                         line_parts.append(w_txt)
 
                 styled_line = " ".join(line_parts)
-                # Lock position to sub_y with \q2n{sub_align}\pos(540, sub_y) (zero vertical jump / collision)
+                # Lock position to sub_y with \q2\an{sub_align}\pos(540, sub_y) (zero vertical jump / collision)
                 events.append(
                     f"Dialogue: 0,{format_ass_timestamp(w_start)},{format_ass_timestamp(w_end)},SubStyle,,0,0,0,,{{\\q2\\an{sub_align}\\pos(540,{sub_y})}}{styled_line}"
                 )

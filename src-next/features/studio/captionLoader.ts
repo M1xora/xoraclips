@@ -19,6 +19,9 @@ export interface CaptionQuery {
 
 /** Wait before asking, so dragging a trim handle sends one request, not dozens. */
 export const CAPTION_DEBOUNCE_MS = 150;
+/** After a failure (e.g. the backend is still starting), try again this often. */
+export const CAPTION_RETRY_MS = 2000;
+export const CAPTION_MAX_RETRIES = 5;
 const MAX_CACHE_ENTRIES = 50;
 
 // Transcripts are large; key them by identity instead of by content. The
@@ -55,6 +58,7 @@ export function createCaptionLoader(
   fetcher: CaptionFetcher,
   cache: CaptionCache,
   debounceMs = CAPTION_DEBOUNCE_MS,
+  retryMs = CAPTION_RETRY_MS,
 ) {
   let timer: ReturnType<typeof setTimeout> | undefined;
   let controller: AbortController | undefined;
@@ -76,16 +80,17 @@ export function createCaptionLoader(
       return;
     }
 
-    timer = setTimeout(() => {
+    const body: CaptionChunksRequest = {
+      transcript: query.transcript,
+      clip_start: query.clipStart,
+      clip_end: query.clipEnd,
+      text_case: query.textCase,
+    };
+
+    const attempt = (retriesLeft: number) => {
       timer = undefined;
       const current = new AbortController();
       controller = current;
-      const body: CaptionChunksRequest = {
-        transcript: query.transcript,
-        clip_start: query.clipStart,
-        clip_end: query.clipEnd,
-        text_case: query.textCase,
-      };
       fetcher(body, current.signal)
         .then((response) => {
           cache.set(key, response);
@@ -96,9 +101,15 @@ export function createCaptionLoader(
           if (!current.signal.aborted) onResult({ status: 'ready', response });
         })
         .catch(() => {
-          if (!current.signal.aborted) onResult({ status: 'error' });
+          if (current.signal.aborted) return;
+          onResult({ status: 'error' });
+          if (retriesLeft > 0) {
+            timer = setTimeout(() => attempt(retriesLeft - 1), retryMs);
+          }
         });
-    }, debounceMs);
+    };
+
+    timer = setTimeout(() => attempt(CAPTION_MAX_RETRIES), debounceMs);
   }
 
   return { load, cancel };

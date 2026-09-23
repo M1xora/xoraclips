@@ -1,6 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   CAPTION_DEBOUNCE_MS,
+  CAPTION_MAX_RETRIES,
+  CAPTION_RETRY_MS,
   captionQueryKey,
   createCaptionCache,
   createCaptionLoader,
@@ -93,6 +95,51 @@ describe('createCaptionLoader', () => {
     loader.load(query(10), (r) => results.push(r));
     await vi.advanceTimersByTimeAsync(CAPTION_DEBOUNCE_MS);
     expect(results).toEqual([{ status: 'error' }]);
+  });
+
+  it('keeps retrying until the backend answers', async () => {
+    let calls = 0;
+    const fetcher = vi.fn<CaptionFetcher>(async () => {
+      calls += 1;
+      if (calls < 3) throw new Error('backend still starting');
+      return response('late');
+    });
+    const loader = createCaptionLoader(fetcher, createCaptionCache());
+    const results: CaptionLoadResult[] = [];
+
+    loader.load(query(10), (r) => results.push(r));
+    await vi.advanceTimersByTimeAsync(CAPTION_DEBOUNCE_MS);
+    await vi.advanceTimersByTimeAsync(CAPTION_RETRY_MS * 2);
+
+    expect(fetcher).toHaveBeenCalledTimes(3);
+    expect(results).toEqual([
+      { status: 'error' },
+      { status: 'error' },
+      { status: 'ready', response: response('late') },
+    ]);
+  });
+
+  it('gives up after the retry limit', async () => {
+    const fetcher = vi.fn<CaptionFetcher>(async () => {
+      throw new Error('offline');
+    });
+    const loader = createCaptionLoader(fetcher, createCaptionCache());
+    loader.load(query(10), () => {});
+    await vi.advanceTimersByTimeAsync(CAPTION_DEBOUNCE_MS + CAPTION_RETRY_MS * (CAPTION_MAX_RETRIES + 3));
+    expect(fetcher).toHaveBeenCalledTimes(1 + CAPTION_MAX_RETRIES);
+  });
+
+  it('stops retrying once a new trim replaces the request', async () => {
+    const fetcher = vi.fn<CaptionFetcher>(async (body) => {
+      if (body.clip_start === 10) throw new Error('offline');
+      return response('new');
+    });
+    const loader = createCaptionLoader(fetcher, createCaptionCache());
+    loader.load(query(10), () => {});
+    await vi.advanceTimersByTimeAsync(CAPTION_DEBOUNCE_MS);
+    loader.load(query(11), () => {});
+    await vi.advanceTimersByTimeAsync(CAPTION_RETRY_MS * 5);
+    expect(fetcher.mock.calls.filter(([b]) => b.clip_start === 10)).toHaveLength(1);
   });
 
   it('cancel stops a pending request', async () => {

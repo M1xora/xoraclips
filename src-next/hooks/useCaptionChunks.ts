@@ -14,7 +14,10 @@ export type CaptionChunksStatus =
   | 'off'
   | 'loading'
   | 'ready'
-  /** No transcript: the render will use Whisper, which the preview cannot run. */
+  /**
+   * No transcript words for this clip (no transcript at all, or none in this
+   * stretch): the render falls back to Whisper, which the preview cannot run.
+   */
   | 'renderOnly'
   | 'error';
 
@@ -46,7 +49,8 @@ export function useCaptionChunks(
     if (!active || !transcript || key === null) return;
     loader.load({ transcript, clipStart, clipEnd, textCase }, (result) => {
       if (result.status === 'error') {
-        setLoaded((prev) => ({ key, chunks: prev?.chunks ?? [], status: 'error' }));
+        // Never show chunks from a different trim; the loader keeps retrying.
+        setLoaded({ key, chunks: [], status: 'error' });
         return;
       }
       const { chunks, source } = result.response;

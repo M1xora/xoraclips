@@ -54,7 +54,11 @@ describe('CaptionOverlay', () => {
     for (const api of apiChunks) {
       const { words } = render(ted.clip_start + (api.start + api.end) / 2);
       for (const { text } of words) {
-        expect(text).toMatch(/^(?:[\p{L}\p{N}\p{M}]|(?<=[\p{L}\p{N}])-(?=[\p{L}\p{N}])|(?<=\d)[.,](?=\d)|(?<=\d)%)+$/u);
+        // Letters/digits, a hyphen inside a word, and marks that belong to a
+        // number (3,5 10:30 24/7 50% $5 -5), the same rule as the backend.
+        expect(text).toMatch(
+          /^(?:[$€£¥-](?=\d))?(?:[\p{L}\p{N}\p{M}]|(?<=[\p{L}\p{N}])-(?=[\p{L}\p{N}])|(?<=\d)[.,:/](?=\d)|(?<=\d)%)+$/u,
+        );
       }
     }
   });

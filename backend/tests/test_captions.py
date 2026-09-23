@@ -22,8 +22,11 @@ FIXTURE = json.loads(
 )
 
 # What may remain after cleaning: letters/digits, a hyphen between word
-# characters, "." or "," between digits, "%" after a digit.
-ALLOWED_WORD = re.compile(r"^(?:[^\W_]|(?<=[^\W_])-(?=[^\W_])|(?<=\d)[.,](?=\d)|(?<=\d)%)+$")
+# characters, and marks that belong to a number (3,5 10:30 24/7 50% $5 -5).
+ALLOWED_WORD = re.compile(
+    r"^(?:[$€£¥-](?=\d))?"
+    r"(?:[^\W_]|(?<=[^\W_])-(?=[^\W_])|(?<=\d)[.,:/](?=\d)|(?<=\d)%)+$"
+)
 
 
 @pytest.mark.parametrize("raw, expected", [
@@ -52,6 +55,19 @@ ALLOWED_WORD = re.compile(r"^(?:[^\W_]|(?<=[^\W_])-(?=[^\W_])|(?<=\d)[.,](?=\d)|
     ("50%", "50%"),
     ("50%.", "50%"),
     ("Rp10.000,", "Rp10.000"),
+    ("10:30", "10:30"),
+    ("24/7,", "24/7"),
+    ("1/2", "1/2"),
+    ("$5", "$5"),
+    ("($5)", "$5"),
+    ("-5", "-5"),
+    ("20-30", "20-30"),
+    # Symbols that are not part of a number still go
+    ("Q&A", "QA"),
+    ("dan/atau", "danatau"),
+    ("jam:", "jam"),
+    ("$", ""),
+    ("-", ""),
 ])
 def test_clean_display_word(raw, expected):
     assert clean_display_word(raw) == expected
@@ -67,6 +83,15 @@ def test_punctuation_marks_break_points():
     breaks = [w["word"] for w in words if w["break_after"]]
     # comma, standalone dash, full stop, and the end of the caption line
     assert breaks == ["lalu", "mendobrak", "sendiri", "Lalu"]
+
+
+def test_abbreviations_do_not_end_a_phrase():
+    chunks = caption_chunks_for_clip(
+        [{"start": 0.0, "end": 4.0, "text": "Mr. Smith went to the U.S. today"}], 0.0, 4.0
+    )
+    assert [c["text"] for c in chunks] == ["MR SMITH WENT", "TO THE US", "TODAY"]
+    words = tokenize_caption_text("Kata Dr. Budi di Jl. Sudirman, e.g. besok.")
+    assert [w["word"] for w in words if w["break_after"]] == ["Sudirman", "besok"]
 
 
 def test_chunk_never_crosses_a_punctuation_break():

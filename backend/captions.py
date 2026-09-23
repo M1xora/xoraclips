@@ -42,7 +42,17 @@ _DASHES = set("-‐‑‒–—―")
 _CLOSERS = set("\"'”’»)]}")
 _APOSTROPHES = set("'’‘`´")
 _HYPHENS = set("-‐‑")  # kept between letters/digits: anak-anak
-_NUMBER_SEPARATORS = set(".,")  # kept between digits: 3,5 10.000 10.30
+# Kept between digits: 3,5  10.000  10.30  10:30  24/7
+_NUMBER_SEPARATORS = set(".,:/")
+_CURRENCY = set("$€£¥")  # kept right before a digit: $5
+_MINUS = set("-−")  # kept as a sign right before a digit: -5
+
+# A trailing "." on these does not end a phrase: "Mr. Smith", "Jl. Sudirman".
+_ABBREVIATIONS = {
+    "mr", "mrs", "ms", "dr", "prof", "st", "jr", "sr", "vs", "no",
+    "hlm", "yth", "sdr", "drs", "ir", "jl", "bpk",
+}
+_DOTTED_ACRONYM = re.compile(r"^(?:[^\W\d_]\.){2,}$")  # U.S.  e.g.  a.m.
 
 _TAG_RE = re.compile(r"\[.*?\]|\(.*?\)|\*.*?\*")
 
@@ -62,8 +72,8 @@ def clean_display_word(token: str) -> str:
     Returns a token as it may appear on screen: every punctuation mark and
     symbol removed, except
       - a hyphen between two letters/digits: "anak-anak"
-      - "." or "," between two digits: "3,5", "10.000", "10.30"
-      - "%" right after a digit: "50%"
+      - marks that are part of a number, so its meaning does not change:
+        "3,5", "10.000", "10.30", "10:30", "24/7", "50%", "$5", "-5"
     Apostrophes are dropped so the word joins up: "don't" -> "dont".
     """
     t = unicodedata.normalize("NFC", token or "")
@@ -80,16 +90,25 @@ def clean_display_word(token: str) -> str:
             out.append(ch)
         elif ch == "%" and prev.isdigit():
             out.append(ch)
+        elif (ch in _CURRENCY or ch in _MINUS) and nxt.isdigit() and not (prev and _is_word_char(prev)):
+            out.append("-" if ch in _MINUS else ch)
     return "".join(out)
 
 
 def ends_phrase(token: str) -> bool:
-    """True when the token closes a phrase: "lalu," "sendiri." "keduanya--"."""
+    """
+    True when the token closes a phrase: "lalu," "sendiri." "keduanya--".
+    A full stop after an abbreviation ("Mr." "U.S.") does not count.
+    """
     t = (token or "").rstrip()
     while t and t[-1] in _CLOSERS:
         t = t[:-1]
     if not t:
         return False
+    if t[-1] == ".":
+        core = t.lstrip("\"'“‘«([{")
+        if core[:-1].lower() in _ABBREVIATIONS or _DOTTED_ACRONYM.match(core):
+            return False
     return t[-1] in _PHRASE_END or t[-1] in _DASHES
 
 
@@ -182,7 +201,8 @@ def _resolve_line_times(
             line["end"] = next_start
             trimmed += 1
     if trimmed:
-        logger.info(f"Trimmed {trimmed} overlapping transcript line(s) to the next line's start.")
+        # Routine for auto captions and logged on every preview request, so debug only.
+        logger.debug(f"Trimmed {trimmed} overlapping transcript line(s) to the next line's start.")
 
     return parsed
 
@@ -198,10 +218,6 @@ def words_from_transcript(
     """
     words = []
     for line in _resolve_line_times(transcript or [], clip_end_time):
-        line_words = tokenize_caption_text(line["text"])
-        if not line_words:
-            continue
-
         l_start = line["start"]
         l_end = line["end"]
 
@@ -215,6 +231,11 @@ def words_from_transcript(
         else:
             rel_start = max(0.0, l_start)
             rel_end = max(rel_start + 0.15, l_end)
+
+        # Tokenize only lines inside the clip: the preview asks on every trim.
+        line_words = tokenize_caption_text(line["text"])
+        if not line_words:
+            continue
 
         w_duration = max(0.12, (rel_end - rel_start) / len(line_words))
         for i, w in enumerate(line_words):

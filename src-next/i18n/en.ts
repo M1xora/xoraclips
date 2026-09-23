@@ -192,7 +192,7 @@ export const en: Translations = {
 
     captions: 'Captions',
     captionsOn: 'Show captions',
-    captionsRenderOnly: 'No transcript for this video. Captions are made during render.',
+    captionsRenderOnly: 'No YouTube captions for this part. Captions are made during render.',
     captionsUnavailable: 'Captions could not load. Check that the backend is running.',
     captionStyle: 'Style',
     captionFont: 'Font',
