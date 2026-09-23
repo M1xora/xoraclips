@@ -37,3 +37,21 @@ jobs:
       - name: Lint
         run: npm run lint-next
         continue-on-error: true
+
+  backend-tests:
+    name: Backend tests (pytest)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+          cache: pip
+          cache-dependency-path: backend/requirements-dev.txt
+
+      - run: pip install -r backend/requirements-dev.txt
+
+      - name: Test
+        run: python -m pytest backend/tests -q

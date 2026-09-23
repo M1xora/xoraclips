@@ -437,6 +437,79 @@ def clean_caption_text(text: str) -> str:
     return t
 
 
+def _to_float(value: Any) -> Optional[float]:
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return None
+
+
+def _resolve_line_times(
+    lines: List[Dict[str, Any]],
+    clip_end_time: float = 0.0
+) -> List[Dict[str, Any]]:
+    """
+    Normalizes transcript lines into sorted {text, start, end} entries.
+
+    - `end` wins when present; legacy `duration` is still accepted.
+    - Lines with neither (or an end not after start) are incomplete: they end
+      at the next line's start, else the clip end, else start + 2s. This is
+      always logged as a warning, never applied silently.
+    - A line that runs past the start of the next later line is trimmed to
+      it. YouTube auto captions overlap like this routinely.
+    """
+    parsed = []
+    for line in lines:
+        text = str(line.get("text") or "").strip()
+        if not text:
+            continue
+        start = _to_float(line.get("start")) or 0.0
+        end = _to_float(line.get("end"))
+        if end is None or end <= start:
+            duration = _to_float(line.get("duration"))
+            end = start + duration if duration is not None and duration > 0 else None
+        parsed.append({"text": text, "start": start, "end": end})
+
+    parsed.sort(key=lambda l: l["start"])
+
+    # next_later[i]: start of the first following line that begins strictly
+    # after line i. Lines sharing a start look past each other to it.
+    next_later: List[Optional[float]] = [None] * len(parsed)
+    for i in range(len(parsed) - 2, -1, -1):
+        nxt = parsed[i + 1]["start"]
+        next_later[i] = nxt if nxt > parsed[i]["start"] else next_later[i + 1]
+
+    incomplete = []
+    for i, line in enumerate(parsed):
+        if line["end"] is not None:
+            continue
+        next_start = next_later[i]
+        if next_start is not None:
+            line["end"] = next_start
+        elif clip_end_time > line["start"]:
+            line["end"] = clip_end_time
+        else:
+            line["end"] = line["start"] + 2.0
+        incomplete.append(line)
+
+    if incomplete:
+        sample = ", ".join(f"{l['start']:.2f}s '{l['text'][:30]}'" for l in incomplete[:3])
+        logger.warning(
+            f"Transcript has {len(incomplete)} line(s) without a usable end/duration; "
+            f"end times were estimated. Examples: {sample}"
+        )
+
+    trimmed = 0
+    for line, next_start in zip(parsed, next_later):
+        if next_start is not None and line["end"] > next_start:
+            line["end"] = next_start
+            trimmed += 1
+    if trimmed:
+        logger.info(f"Trimmed {trimmed} overlapping transcript line(s) to the next line's start.")
+
+    return parsed
+
+
 def transcribe_clip_words(
     video_path: str,
     fallback_transcript: Optional[List[Dict[str, Any]]] = None,
@@ -447,23 +520,19 @@ def transcribe_clip_words(
     Extracts word-level timestamps using the analyzed video transcript.
     This guarantees 100% fidelity with the analyzed speech (no mis-speech or Whisper hallucinations).
     Timestamps are mapped relative to the sliced clip audio (0.0s = clip_start_time).
+    Line timing comes from `_resolve_line_times`; words are spread evenly within each line.
     Whisper is only used as a fallback if no video transcript is available.
     """
     # 1. Primary: Use the analyzed video transcript (exact matches from YouTube)
     if fallback_transcript:
         words = []
-        for line in fallback_transcript:
-            line_text = line.get("text", "").strip()
-            if not line_text:
-                continue
-
-            cleaned_line = clean_caption_text(line_text)
+        for line in _resolve_line_times(fallback_transcript, clip_end_time):
+            cleaned_line = clean_caption_text(line["text"])
             if not cleaned_line:
                 continue
 
-            l_start = float(line.get("start", 0.0))
-            l_dur = float(line.get("duration", 2.0))
-            l_end = l_start + l_dur
+            l_start = line["start"]
+            l_end = line["end"]
 
             # If clip range is defined, filter lines overlapping the clip
             if clip_end_time > clip_start_time:
