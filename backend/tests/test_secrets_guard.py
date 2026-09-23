@@ -122,3 +122,76 @@ def test_app_loggers_are_scrubbed_at_the_source():
         app_logger.removeHandler(late_handler)
     assert SERVER_KEY not in stream.getvalue()
     assert REDACTED in stream.getvalue()
+
+
+# --- Review findings ---------------------------------------------------------
+
+def test_payload_redaction_keeps_json_valid():
+    """Redacting serialized JSON could cut an escaped quote; redact the values first."""
+    import json
+    from secrets_guard import redact_data
+
+    payload = {"error": f'403 for "https://www.youtube.com/youtubei/v1/player?key={SERVER_KEY}" blocked',
+               "nested": [{"t": f"key={OTHER_KEY}"}], "n": 3}
+    text = json.dumps(redact_data(payload), ensure_ascii=False)
+    parsed = json.loads(text)
+    assert SERVER_KEY not in text and OTHER_KEY not in text
+    assert parsed["n"] == 3 and parsed["error"].endswith('" blocked')
+
+
+def test_placeholders_and_arguments_stay_in_step(capsys):
+    """A template containing '?key=%s' must not lose its placeholder."""
+    install_log_redaction()
+    stream = io.StringIO()
+    handler = logging.StreamHandler(stream)
+    lg = logging.getLogger("test.placeholders")
+    lg.addHandler(handler)
+    try:
+        lg.warning("calling %s?key=%s", "https://example.com/v1", "plain-secret-value")
+    finally:
+        lg.removeHandler(handler)
+    assert "Logging error" not in capsys.readouterr().err
+    out = stream.getvalue()
+    assert "https://example.com/v1?key=[REDACTED]" in out
+    assert "plain-secret-value" not in out
+
+
+def test_message_that_is_an_exception_object_is_scrubbed():
+    install_log_redaction()
+    stream = io.StringIO()
+    handler = logging.StreamHandler(stream)
+    lg = logging.getLogger("test.objmsg")
+    lg.addHandler(handler)
+    try:
+        lg.error(RuntimeError(f"403 PERMISSION_DENIED: API key {SERVER_KEY} not valid"))
+    finally:
+        lg.removeHandler(handler)
+    assert SERVER_KEY not in stream.getvalue()
+    assert REDACTED in stream.getvalue()
+
+
+def test_library_child_logger_with_a_late_handler_is_scrubbed():
+    """Records from e.g. google_genai._api_client reach handlers added after install."""
+    install_log_redaction()
+    stream = io.StringIO()
+    late = logging.StreamHandler(stream)  # no filter attached
+    root = logging.getLogger()
+    root.addHandler(late)
+    old_level = root.level
+    root.setLevel(logging.DEBUG)
+    try:
+        logging.getLogger("google_genai._api_client").warning(f"request failed for key {OTHER_KEY}")
+        logging.getLogger("httpx").info(f"HTTP Request: GET https://x.googleapis.com/v1?key={SERVER_KEY}")
+    finally:
+        root.removeHandler(late)
+        root.setLevel(old_level)
+    out = stream.getvalue()
+    assert SERVER_KEY not in out and OTHER_KEY not in out
+    assert out.count(REDACTED) == 2
+
+
+def test_install_is_idempotent():
+    install_log_redaction()
+    factory = logging.getLogRecordFactory()
+    install_log_redaction()
+    assert logging.getLogRecordFactory() is factory

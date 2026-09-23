@@ -33,8 +33,8 @@ export const en: Translations = {
     mockModeHint: 'Analysis uses sample data, without AI or YouTube.',
 
     modelLabel: 'Model',
-    modelLive: (n: number) => `${n} models available for this key.`,
-    modelFallback: 'Enter a key to load the live model list.',
+    modelLive: (n: number) => `${n} models available on the server.`,
+    modelFallback: 'Default model list. The full list appears once the server AI service is ready.',
 
     clipSettings: 'Clip settings',
     durationLabel: 'Target length',

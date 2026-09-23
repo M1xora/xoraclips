@@ -57,52 +57,81 @@ def _redact_arg(arg: Any) -> Any:
     return cleaned if cleaned != text else arg
 
 
-class RedactingFilter(logging.Filter):
+def redact_data(value: Any) -> Any:
     """
-    Scrubs keys from every log record: the message, each argument, and the
-    exception text.
+    Scrubs every string inside a JSON-like value. Used on API payloads
+    BEFORE serialising: redacting the serialised text could cut through an
+    escaped quote and leave invalid JSON.
+    """
+    if isinstance(value, str):
+        return redact(value)
+    if isinstance(value, dict):
+        return {k: redact_data(v) for k, v in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [redact_data(v) for v in value]
+    return value
 
-    Arguments are redacted one by one rather than merged into the message,
-    because uvicorn's access formatter unpacks its five arguments
-    (client, method, path, version, status) itself.
+
+def scrub_record(record: logging.LogRecord) -> None:
     """
+    Removes keys from a log record in place: arguments, message, exception
+    and stack text.
+
+    Arguments are scrubbed one by one and kept as arguments, because
+    uvicorn's access formatter unpacks its five (client, method, path,
+    version, status) itself. The message template is only rewritten when
+    it leaks a key on its own; if it also has arguments, the message is
+    rendered first so placeholders and arguments cannot fall out of step.
+    """
+    if isinstance(record.args, tuple):
+        record.args = tuple(_redact_arg(a) for a in record.args)
+    elif isinstance(record.args, dict):
+        record.args = {k: _redact_arg(v) for k, v in record.args.items()}
+
+    msg = record.msg
+    text = msg if isinstance(msg, str) else str(msg)
+    if redact(text) != text:
+        if record.args:
+            try:
+                rendered = record.getMessage()
+            except Exception:
+                rendered = text
+            record.msg, record.args = redact(rendered), None
+        else:
+            record.msg = redact(text)
+
+    if record.exc_info and not record.exc_text:
+        record.exc_text = logging.Formatter().formatException(record.exc_info)
+    if record.exc_text:
+        record.exc_text = redact(record.exc_text)
+    if record.stack_info:
+        record.stack_info = redact(record.stack_info)
+
+
+class RedactingFilter(logging.Filter):
+    """A logging filter that runs scrub_record, for handlers set up by hand."""
 
     def filter(self, record: logging.LogRecord) -> bool:
-        if isinstance(record.msg, str):
-            record.msg = redact(record.msg)
-        if isinstance(record.args, tuple):
-            record.args = tuple(_redact_arg(a) for a in record.args)
-        elif isinstance(record.args, dict):
-            record.args = {k: _redact_arg(v) for k, v in record.args.items()}
-        if record.exc_info and not record.exc_text:
-            record.exc_text = logging.Formatter().formatException(record.exc_info)
-        if record.exc_text:
-            record.exc_text = redact(record.exc_text)
-        if record.stack_info:
-            record.stack_info = redact(record.stack_info)
+        scrub_record(record)
         return True
-
-
-_FILTER = RedactingFilter()
-_LOGGERS = (
-    "", "uvicorn", "uvicorn.error", "uvicorn.access", "httpx", "google_genai", "google",
-    # The app's own loggers: filtered at the source, so even a handler added
-    # later (a log file, a test capture) only ever sees scrubbed records.
-    "cheat-clip-pro", "cheat-clip-pro.video-engine",
-)
 
 
 def install_log_redaction() -> None:
     """
-    Attaches the filter to the relevant loggers and all of their handlers.
-    A logger's own filter only sees records created on that logger, so the
-    handlers are covered too, for records propagating up from libraries.
-    Safe to call repeatedly; call again after uvicorn configures logging.
+    Scrubs every log record at the moment it is created, whatever logger or
+    handler it goes to: the app, uvicorn's access log, libraries such as
+    httpx or google-genai, and handlers added later (a log file, a test
+    capture). Done by wrapping the process-wide log record factory.
+    Safe to call repeatedly.
     """
-    for name in _LOGGERS:
-        lg = logging.getLogger(name)
-        if _FILTER not in lg.filters:
-            lg.addFilter(_FILTER)
-        for handler in lg.handlers:
-            if _FILTER not in handler.filters:
-                handler.addFilter(_FILTER)
+    current = logging.getLogRecordFactory()
+    if getattr(current, "_redacting", False):
+        return
+
+    def factory(*args: Any, **kwargs: Any) -> logging.LogRecord:
+        record = current(*args, **kwargs)
+        scrub_record(record)
+        return record
+
+    factory._redacting = True  # type: ignore[attr-defined]
+    logging.setLogRecordFactory(factory)

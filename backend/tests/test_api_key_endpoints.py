@@ -117,3 +117,25 @@ def test_key_never_reaches_logs_or_the_user(client, monkeypatch, caplog):
     assert SERVER_KEY not in res.text
     assert SERVER_KEY not in caplog.text
     assert "aistudio" not in res.text and "change your" not in res.text.lower()
+
+
+# --- Review findings ---------------------------------------------------------
+
+def test_scrubbed_errors_are_still_valid_json(client, monkeypatch):
+    """A YouTube error quoting '...?key=..." blocked' must not break the SSE frame."""
+    def blocked(*args, **kwargs):
+        raise RuntimeError(f'403 for "https://www.youtube.com/youtubei/v1/player?key={SERVER_KEY}" blocked')
+    monkeypatch.setattr(main, "fetch_video_metadata", blocked)
+
+    res = analyze(client)
+    evs = events(res)  # json.loads on every frame: raises if any frame is invalid
+    errors = [e["error"] for e in evs if "error" in e]
+    assert errors and errors[-1].endswith('" blocked')
+    assert SERVER_KEY not in res.text
+
+
+def test_whitespace_key_counts_as_not_configured(client, monkeypatch):
+    monkeypatch.setenv("GEMINI_API_KEY", "   ")
+    assert client.get("/api/health").json()["gemini_env_configured"] is False
+    errors = [e["error"] for e in events(analyze(client)) if "error" in e]
+    assert errors == ["The AI service is not configured on the server yet. Please contact the administrator."]

@@ -32,8 +32,8 @@ export const id = {
     mockModeHint: 'Analisis memakai data contoh, tanpa AI dan tanpa YouTube.',
 
     modelLabel: 'Model',
-    modelLive: (n: number) => `${n} model tersedia untuk kunci ini.`,
-    modelFallback: 'Masukkan kunci untuk memuat daftar model.',
+    modelLive: (n: number) => `${n} model tersedia di server.`,
+    modelFallback: 'Daftar model bawaan. Daftar lengkap tampil saat layanan AI server siap.',
 
     clipSettings: 'Pengaturan klip',
     durationLabel: 'Panjang target',

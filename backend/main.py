@@ -82,9 +82,9 @@ except ImportError:
         render_title_overlay_png
     )
 try:
-    from backend.secrets_guard import get_gemini_key, install_log_redaction, is_mock_mode, redact
+    from backend.secrets_guard import get_gemini_key, install_log_redaction, is_mock_mode, redact_data
 except ImportError:
-    from secrets_guard import get_gemini_key, install_log_redaction, is_mock_mode, redact
+    from secrets_guard import get_gemini_key, install_log_redaction, is_mock_mode, redact_data
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
@@ -1259,15 +1259,16 @@ def get_average_heatmap_value(start: float, end: float, heatmap: List[dict]) -> 
 # ----------------------------------------------------------------
 
 def _sse(data: dict) -> str:
-    """Format a dict as a Server-Sent Event string. Keys are scrubbed on the way out."""
-    return f"data: {redact(json.dumps(data, ensure_ascii=False))}\n\n"
+    """Format a dict as a Server-Sent Event string. Keys are scrubbed on the way out,
+    from the values before serialising, so the JSON always stays valid."""
+    return f"data: {json.dumps(redact_data(data), ensure_ascii=False)}\n\n"
 
 @app.get("/api/health")
 def health_check(refresh: bool = False):
     is_vercel = bool(os.environ.get("VERCEL") or os.environ.get("AWS_LAMBDA_FUNCTION_NAME"))
     keys = get_supadata_keys()
     proxy = get_proxy_url()
-    has_gemini = bool(os.environ.get("GEMINI_API_KEY"))
+    has_gemini = bool(get_gemini_key())
     supadata_info = get_supadata_usage_data(force=refresh) if keys else {
         "total_keys": 0,
         "total_limit": 0,
@@ -1423,6 +1424,29 @@ def list_available_models():
         logger.error(f"Error listing models: {e}")
         return {"models": default_models}
 
+# Sample data for MOCK_MODE (backend/.env). Mock analyses never contact
+# YouTube or Gemini.
+MOCK_METADATA = {
+    "title": "Mock YouTube Video",
+    "channel": "Cheat Clip Pro",
+    "duration": 212.0,
+    "heatmap": [],
+    "is_live": False,
+    "live_status": "not_live",
+}
+MOCK_TRANSCRIPT = [
+    {"text": "Hello and welcome to this video.",            "start":  0.0, "duration": 3.0},
+    {"text": "Today we are looking at how this app works.",  "start":  3.0, "duration": 4.0},
+    {"text": "It finds viral hotspots and highlights them.",  "start":  7.0, "duration": 4.0},
+    {"text": "Most people think it's magic.",               "start": 11.0, "duration": 3.0},
+    {"text": "But it uses YouTube player heatmaps.",         "start": 14.0, "duration": 4.0},
+    {"text": "And processes them with Gemini AI models.",    "start": 18.0, "duration": 4.0},
+    {"text": "This is changing how editors crop videos.",    "start": 22.0, "duration": 5.0},
+    {"text": "If you want to grow on TikTok, try it.",      "start": 27.0, "duration": 5.0},
+    {"text": "We will explore the code next.",               "start": 32.0, "duration": 3.0},
+]
+
+
 @app.post("/api/analyze")
 async def analyze_video(request: AnalyzeRequest):
     """Stream real-time progress via Server-Sent Events, then deliver the final result."""
@@ -1459,9 +1483,10 @@ async def analyze_video(request: AnalyzeRequest):
         channel = ""
         try:
             if is_mock:
-                # MOCK_MODE never contacts YouTube: go straight to the sample metadata below.
-                raise RuntimeError("MOCK_MODE: using sample metadata")
-            metadata = await asyncio.to_thread(fetch_video_metadata, canonical_url, request.proxy)
+                # MOCK_MODE never contacts YouTube: use the sample metadata.
+                metadata = dict(MOCK_METADATA)
+            else:
+                metadata = await asyncio.to_thread(fetch_video_metadata, canonical_url, request.proxy)
             title    = metadata["title"]
             channel  = metadata.get("channel", "")
             duration = metadata["duration"]
@@ -1477,25 +1502,9 @@ async def analyze_video(request: AnalyzeRequest):
                 "message": f"Connected — \"{title[:45]}\" ({int(duration)}s)"
             })
         except Exception as e:
-            if is_mock:
-                title = "Mock YouTube Video"
-                channel = "Cheat Clip Pro"
-                duration = 212.0
-                heatmap = []
-                is_live = False
-                live_status = "not_live"
-                yield _sse({
-                    "step": 1,
-                    "step_progress": 100,
-                    "overall_progress": 25,
-                    "stage": "Video Verified",
-                    "detail": "Loaded mock video metadata (212s)",
-                    "message": "Mock video metadata loaded"
-                })
-            else:
-                msg = e.detail if isinstance(e, HTTPException) else str(e)
-                yield _sse({"error": f"Failed to fetch video details: {msg}", "status": 500})
-                return
+            msg = e.detail if isinstance(e, HTTPException) else str(e)
+            yield _sse({"error": f"Failed to fetch video details: {msg}", "status": 500})
+            return
 
         logger.info(f"Metadata fetched: title='{title}', duration={duration}s, heatmap_pts={len(heatmap)}")
 
@@ -1578,23 +1587,24 @@ async def analyze_video(request: AnalyzeRequest):
 
             try:
                 if is_mock:
-                    # MOCK_MODE never contacts YouTube: use the sample transcript below.
-                    raise RuntimeError("MOCK_MODE: using sample transcript")
-                task = asyncio.create_task(
-                    asyncio.to_thread(fetch_transcript, video_id, request.proxy, progress_callback)
-                )
+                    # MOCK_MODE never contacts YouTube: use the sample transcript.
+                    transcript_lines = [dict(line) for line in MOCK_TRANSCRIPT]
+                else:
+                    task = asyncio.create_task(
+                        asyncio.to_thread(fetch_transcript, video_id, request.proxy, progress_callback)
+                    )
 
-                while not task.done():
-                    try:
-                        evt = await asyncio.wait_for(progress_queue.get(), timeout=0.2)
-                        yield _sse(evt)
-                    except asyncio.TimeoutError:
-                        pass
+                    while not task.done():
+                        try:
+                            evt = await asyncio.wait_for(progress_queue.get(), timeout=0.2)
+                            yield _sse(evt)
+                        except asyncio.TimeoutError:
+                            pass
 
-                while not progress_queue.empty():
-                    yield _sse(progress_queue.get_nowait())
+                    while not progress_queue.empty():
+                        yield _sse(progress_queue.get_nowait())
 
-                transcript_lines = await task
+                    transcript_lines = await task
                 yield _sse({
                     "step": 3,
                     "step_progress": 100,
@@ -1604,42 +1614,21 @@ async def analyze_video(request: AnalyzeRequest):
                     "message": f"Subtitles loaded — {len(transcript_lines)} lines parsed successfully."
                 })
             except Exception as e:
-                if is_mock:
-                    transcript_lines = [
-                        {"text": "Hello and welcome to this video.",            "start":  0.0, "duration": 3.0},
-                        {"text": "Today we are looking at how this app works.",  "start":  3.0, "duration": 4.0},
-                        {"text": "It finds viral hotspots and highlights them.",  "start":  7.0, "duration": 4.0},
-                        {"text": "Most people think it's magic.",               "start": 11.0, "duration": 3.0},
-                        {"text": "But it uses YouTube player heatmaps.",         "start": 14.0, "duration": 4.0},
-                        {"text": "And processes them with Gemini AI models.",    "start": 18.0, "duration": 4.0},
-                        {"text": "This is changing how editors crop videos.",    "start": 22.0, "duration": 5.0},
-                        {"text": "If you want to grow on TikTok, try it.",      "start": 27.0, "duration": 5.0},
-                        {"text": "We will explore the code next.",               "start": 32.0, "duration": 3.0},
-                    ]
+                # Provide a helpful error message if the video is live or recently completed
+                if is_live or live_status in ('is_live', 'is_upcoming', 'post_live'):
                     yield _sse({
-                        "step": 3,
-                        "step_progress": 100,
-                        "overall_progress": 70,
-                        "stage": "Subtitles Ready",
-                        "detail": "Mock mode — 9 sample dialogue lines loaded.",
-                        "message": "Mock mode — using sample transcript."
+                        "error": (
+                            "No subtitles could be retrieved because this video is currently live, "
+                            "upcoming, or recently completed (post-live processing). Subtitles are only "
+                            "available once the live stream ends and YouTube finishes processing the video. "
+                            "You can upload custom subtitles manually to analyze this video."
+                        ),
+                        "status": 400
                     })
                 else:
-                    # Provide a helpful error message if the video is live or recently completed
-                    if is_live or live_status in ('is_live', 'is_upcoming', 'post_live'):
-                        yield _sse({
-                            "error": (
-                                "No subtitles could be retrieved because this video is currently live, "
-                                "upcoming, or recently completed (post-live processing). Subtitles are only "
-                                "available once the live stream ends and YouTube finishes processing the video. "
-                                "You can upload custom subtitles manually to analyze this video."
-                            ),
-                            "status": 400
-                        })
-                    else:
-                        msg = e.detail if isinstance(e, HTTPException) else str(e)
-                        yield _sse({"error": msg, "status": 400})
-                    return
+                    msg = e.detail if isinstance(e, HTTPException) else str(e)
+                    yield _sse({"error": msg, "status": 400})
+                return
 
         # Estimate duration from transcript if missing
         if duration == 0.0 and transcript_lines:
