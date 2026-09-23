@@ -30,6 +30,7 @@ import subprocess
 import shutil
 import html
 from concurrent.futures import ThreadPoolExecutor
+from contextlib import asynccontextmanager
 from urllib.parse import quote, urlsplit
 from typing import List, Optional, Dict, Any, Tuple, Callable
 from fastapi import FastAPI, HTTPException, BackgroundTasks, UploadFile, File
@@ -80,14 +81,37 @@ except ImportError:
         has_emoji,
         render_title_overlay_png
     )
+try:
+    from backend.secrets_guard import get_gemini_key, install_log_redaction, is_mock_mode, redact
+except ImportError:
+    from secrets_guard import get_gemini_key, install_log_redaction, is_mock_mode, redact
+
 # Setup logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("cheat-clip-pro")
+# Scrub API keys from every log line (issue #8). Installed again at startup,
+# after uvicorn has set up its own handlers.
+install_log_redaction()
 
 UPLOADS_DIR = TEMP_DIR / "uploads"
 UPLOADS_DIR.mkdir(parents=True, exist_ok=True)
 
-app = FastAPI(title="CHEAT CLIP PRO API", description="AI Powered YouTube Auto Clipper")
+@asynccontextmanager
+async def _lifespan(_app):
+    # uvicorn has configured its log handlers by now; make sure they scrub keys too.
+    install_log_redaction()
+    if is_mock_mode():
+        logger.warning("MOCK_MODE is on: analysis returns sample data and never calls Gemini or YouTube.")
+    elif not get_gemini_key():
+        logger.warning("GEMINI_API_KEY is not set in backend/.env: analysis is disabled until it is.")
+    yield
+
+
+app = FastAPI(
+    title="CHEAT CLIP PRO API",
+    description="AI Powered YouTube Auto Clipper",
+    lifespan=_lifespan,
+)
 
 # Configure CORS
 app.add_middleware(
@@ -136,7 +160,6 @@ class VideoAnalysis(BaseModel):
 class AnalyzeRequest(BaseModel):
     url: str = Field(..., description="YouTube video URL")
     duration: str = Field("30s", description="Target clip duration: '15s', '30s', or '60s'")
-    api_key: Optional[str] = Field(None, description="Optional custom Gemini API key provided by the user")
     model: Optional[str] = Field("gemini-2.5-flash", description="Preferred Gemini model name")
     custom_prompt: Optional[str] = Field(None, description="Optional custom focus prompt for clips search")
     range_start: Optional[float] = Field(None, description="Search range start in seconds")
@@ -1236,8 +1259,8 @@ def get_average_heatmap_value(start: float, end: float, heatmap: List[dict]) -> 
 # ----------------------------------------------------------------
 
 def _sse(data: dict) -> str:
-    """Format a dict as a Server-Sent Event string."""
-    return f"data: {json.dumps(data, ensure_ascii=False)}\n\n"
+    """Format a dict as a Server-Sent Event string. Keys are scrubbed on the way out."""
+    return f"data: {redact(json.dumps(data, ensure_ascii=False))}\n\n"
 
 @app.get("/api/health")
 def health_check(refresh: bool = False):
@@ -1262,6 +1285,7 @@ def health_check(refresh: bool = False):
         "is_vercel": is_vercel,
         "proxy_configured": bool(proxy),
         "gemini_env_configured": has_gemini,
+        "mock_mode": is_mock_mode(),
         "supadata_keys_count": len(keys),
         "supadata": supadata_info
     }
@@ -1335,8 +1359,9 @@ def get_flash_models_for_key(client: genai.Client) -> List[str]:
 
 
 @app.get("/api/models")
-def list_available_models(api_key: str = ""):
-    """Fetches list of available Gemini models using the user's API key, prioritizing Flash models (newest first)."""
+def list_available_models():
+    """Lists available Gemini models for the server's key, prioritizing Flash models (newest first).
+    The key comes only from backend/.env; a key sent by a client is ignored (issue #8)."""
     default_models = [
         'gemini-2.5-flash',
         'gemini-2.5-flash-lite',
@@ -1345,8 +1370,8 @@ def list_available_models(api_key: str = ""):
         'gemini-1.5-flash',
         'gemini-2.5-pro'
     ]
-    key_to_use = (api_key or os.environ.get("GEMINI_API_KEY") or "").strip()
-    if not key_to_use or key_to_use.lower() == "mock":
+    key_to_use = get_gemini_key()
+    if not key_to_use or is_mock_mode():
         return {"models": default_models}
     try:
         client = genai.Client(api_key=key_to_use)
@@ -1403,11 +1428,13 @@ async def analyze_video(request: AnalyzeRequest):
     """Stream real-time progress via Server-Sent Events, then deliver the final result."""
 
     async def stream():
-        gemini_key = (request.api_key or os.environ.get("GEMINI_API_KEY") or '').strip()
-        is_mock = gemini_key.lower() == "mock"
+        # The key comes only from backend/.env; the browser never sends it (issue #8).
+        gemini_key = get_gemini_key()
+        is_mock = is_mock_mode()
 
-        if not gemini_key:
-            yield _sse({"error": "Gemini API Key is required. Enter it in the web interface.", "status": 400})
+        if not gemini_key and not is_mock:
+            logger.error("Analysis refused: GEMINI_API_KEY is not set in backend/.env.")
+            yield _sse({"error": "The AI service is not configured on the server yet. Please contact the administrator.", "status": 503})
             return
 
         # ── Step 1: Extract video ID & metadata ─────────────────────────────
@@ -1431,6 +1458,9 @@ async def analyze_video(request: AnalyzeRequest):
 
         channel = ""
         try:
+            if is_mock:
+                # MOCK_MODE never contacts YouTube: go straight to the sample metadata below.
+                raise RuntimeError("MOCK_MODE: using sample metadata")
             metadata = await asyncio.to_thread(fetch_video_metadata, canonical_url, request.proxy)
             title    = metadata["title"]
             channel  = metadata.get("channel", "")
@@ -1547,6 +1577,9 @@ async def analyze_video(request: AnalyzeRequest):
             })
 
             try:
+                if is_mock:
+                    # MOCK_MODE never contacts YouTube: use the sample transcript below.
+                    raise RuntimeError("MOCK_MODE: using sample transcript")
                 task = asyncio.create_task(
                     asyncio.to_thread(fetch_transcript, video_id, request.proxy, progress_callback)
                 )
@@ -2015,34 +2048,35 @@ async def analyze_video(request: AnalyzeRequest):
                 err_str = str(error_to_report).lower()
                 if any(x in err_str for x in ('429', 'quota', 'resource exhausted', 'rate limit')):
                     yield _sse({
-                        "error": "Quota limit reached across all available Gemini Flash models for this API key. Free keys have a request limit per minute. Please change your API key, generate a fresh free key at aistudio.google.com, or wait 30–60 seconds before trying again.",
+                        "error": "The AI service is busy right now. Please wait a minute and try again.",
                         "status": 429
                     })
                 elif any(x in err_str for x in ('503', 'unavailable', 'overloaded')):
                     yield _sse({
-                        "error": "Google Gemini servers are currently experiencing high demand across all Flash models. Please change to a different Gemini API key or wait a few moments and try again.",
+                        "error": "The AI service is under heavy load right now. Please try again in a few moments.",
                         "status": 503
                     })
                 elif any(x in err_str for x in ('401', '403', 'api_key', 'invalid', 'permission')):
                     yield _sse({
-                        "error": "Invalid or restricted Gemini API key. Please change your API key or generate a new free key at aistudio.google.com.",
+                        "error": "The AI service is not available right now. Please contact the administrator.",
                         "status": 401
                     })
                 elif any(x in err_str for x in ('404', 'not found', 'not supported')):
                     models_preview = ', '.join(models_to_try[:3])
+                    logger.error(f"No usable Gemini model for the server key (tried {models_preview}...)")
                     yield _sse({
-                        "error": f"All tested Gemini Flash models ({models_preview}...) were unavailable or not supported for this API key. Please change your Gemini API key or generate a new one at aistudio.google.com.",
+                        "error": "The AI service is not available right now. Please contact the administrator.",
                         "status": 404
                     })
                 else:
                     logger.error(f"Gemini error after all fallback models: {error_to_report}")
                     yield _sse({
-                        "error": f"AI analysis failed across all available Flash models ({str(error_to_report)}). Please change your Gemini API key or try again in a few moments.",
+                        "error": "AI analysis failed. Please try again in a few moments.",
                         "status": 500
                     })
             else:
                 yield _sse({
-                    "error": "No response received after trying all available Gemini Flash models. Please change your Gemini API key or try again in a few moments.",
+                    "error": "The AI service did not respond. Please try again in a few moments.",
                     "status": 500
                 })
             return
