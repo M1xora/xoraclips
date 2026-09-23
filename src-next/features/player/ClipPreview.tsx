@@ -12,7 +12,7 @@ import { faceOffsetPercent, useFaceBox } from '../../hooks/useFaceBox';
 import { usePreviewAudio } from '../../hooks/usePreviewAudio';
 import { CaptionOverlay } from '../studio/CaptionOverlay';
 import { PreviewTitle } from './PreviewTitle';
-import { SUBTITLE_FRAME_W, useFrameWidth } from './useFrameWidth';
+import { useFrameWidth } from './useFrameWidth';
 import { useCaptionChunks } from '../../hooks/useCaptionChunks';
 import { useLanguage } from '../../i18n';
 import { formatTimecode } from '../../lib/format';
@@ -355,7 +355,7 @@ export function ClipPreview({
           positionMode={subtitlePositionMode}
           bottomPercent={subtitleYPercent}
           centerPercent={subtitleCenterYPercent}
-          scale={frameW / SUBTITLE_FRAME_W}
+          scale={scale}
         />
 
         {captionNote && (

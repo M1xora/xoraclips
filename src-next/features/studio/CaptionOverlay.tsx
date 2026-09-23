@@ -1,7 +1,7 @@
 import { Fragment } from 'react';
 import { activeWordIndex, CAPTION_THEMES, chunkAt, type CaptionChunk } from './captions';
-import { subtitleFontPx } from './derive';
-import { FONT_STACKS } from './fonts';
+import { subtitleExportPx } from './derive';
+import { FONT_STACKS, LIBASS_EM_PER_FONTSIZE } from './fonts';
 import type {
   CaptionFont,
   CaptionStyle,
@@ -23,7 +23,7 @@ interface CaptionOverlayProps {
   bottomPercent: number;
   /** Percent from the top, for centre mode. */
   centerPercent: number;
-  /** Preview frames are smaller than the 1080x1920 export. */
+  /** Export pixels to preview pixels (preview width / 1080). */
   scale?: number;
 }
 
@@ -53,7 +53,8 @@ export function CaptionOverlay({
 
   const theme = CAPTION_THEMES[style];
   const activeIdx = activeWordIndex(chunk, currentTime);
-  const sizePx = subtitleFontPx(fontSize) * scale;
+  // The em libass really draws for this font and preset, in preview px (#22).
+  const sizePx = subtitleExportPx(fontSize) * LIBASS_EM_PER_FONTSIZE[font] * scale;
 
   const position =
     positionMode === 'center'
@@ -80,7 +81,7 @@ export function CaptionOverlay({
         style={{
           fontFamily: FONT_STACKS[font],
           fontSize: `${sizePx}px`,
-          letterSpacing: '0.03em',
+          // No extra letter spacing: SubStyle has Spacing 0 (#22).
           textShadow: shadow,
           maxWidth: '96%',
         }}

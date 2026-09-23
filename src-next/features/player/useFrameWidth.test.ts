@@ -1,10 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { frameWidthFor, MAX_FRAME_W, SUBTITLE_FRAME_W } from './useFrameWidth';
+import { frameWidthFor, MAX_FRAME_W } from './useFrameWidth';
 
 describe('preview frame width (#20)', () => {
   it('is 15% larger than the old 288px frame', () => {
     expect(MAX_FRAME_W).toBe(Math.round(288 * 1.15));
-    expect(SUBTITLE_FRAME_W).toBe(288);
   });
 
   it('uses the full size when the column has room', () => {

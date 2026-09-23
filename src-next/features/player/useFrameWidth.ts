@@ -2,8 +2,6 @@ import { useLayoutEffect, useState, type RefObject } from 'react';
 
 /** Widest the preview frame gets: the old 288px, 15% larger (issue #20). */
 export const MAX_FRAME_W = 331;
-/** The frame width subtitleFontPx's sizes were tuned for. */
-export const SUBTITLE_FRAME_W = 288;
 
 /** The frame for a column `available` px wide: never wider than the column. */
 export function frameWidthFor(available: number): number {
