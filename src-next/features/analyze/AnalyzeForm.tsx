@@ -31,7 +31,7 @@ const FALLBACK_MODELS = [
 ];
 
 /** Accepts raw seconds, MM:SS or HH:MM:SS. Returns null when unparseable. */
-export function parseTimeToSeconds(input: string): number | null {
+function parseTimeToSeconds(input: string): number | null {
   const raw = input.trim();
   if (!raw) return null;
   if (/^\d+(\.\d+)?$/.test(raw)) return Number(raw);

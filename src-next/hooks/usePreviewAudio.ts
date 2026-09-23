@@ -86,7 +86,11 @@ export function usePreviewAudio({
   // Keep the latest elapsed time without making the play effect depend on it,
   // which would restart the track on every poll tick.
   const elapsedRef = useRef(elapsed);
-  elapsedRef.current = elapsed;
+  // Written after render (refs are not written during render, #2). Declared
+  // before the play effects, so they read this commit's value.
+  useEffect(() => {
+    elapsedRef.current = elapsed;
+  }, [elapsed]);
 
   const bgmOn = enabled && bgmEnabled && !!bgmUrl;
   const sfxOn = enabled && sfxEnabled && !!sfxUrl;

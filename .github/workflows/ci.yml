@@ -33,10 +33,9 @@ jobs:
       - name: Build
         run: npm run build-next
 
-      # Non-blocking until issue #2 fixes the existing errors.
+      # Required since #2: src-next has no lint errors or warnings left.
       - name: Lint
         run: npm run lint-next
-        continue-on-error: true
 
   backend-tests:
     name: Backend tests (pytest)

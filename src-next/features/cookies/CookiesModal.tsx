@@ -39,13 +39,33 @@ export function CookiesModal({ open, onClose, onChanged }: CookiesModalProps) {
     }
   }, [onChanged]);
 
-  useEffect(() => {
+  // Opening starts clean: reset while rendering when `open` flips (#2).
+  const [wasOpen, setWasOpen] = useState(open);
+  if (open !== wasOpen) {
+    setWasOpen(open);
     if (open) {
-      void refresh();
       setMessage(null);
       setConfirmDelete(false);
     }
-  }, [open, refresh]);
+  }
+
+  useEffect(() => {
+    if (!open) return;
+    let live = true;
+    api.cookies
+      .status()
+      .then((res) => {
+        if (!live) return;
+        setStatus(res);
+        onChanged(res.exists);
+      })
+      .catch(() => {
+        if (live) setStatus(null);
+      });
+    return () => {
+      live = false;
+    };
+  }, [open, onChanged]);
 
   const save = async () => {
     if (!text.trim()) return;

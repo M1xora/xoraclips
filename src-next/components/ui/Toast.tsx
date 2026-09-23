@@ -1,4 +1,3 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
 import { CheckCircleIcon, InfoIcon, WarningCircleIcon, XIcon } from '@phosphor-icons/react';
 
 export type ToastKind = 'success' | 'error' | 'info';
@@ -8,34 +7,6 @@ export interface ToastState {
   kind: ToastKind;
   /** Changes on every show() so repeat messages restart the timer. */
   id: number;
-}
-
-/** Transient notice. One at a time, auto-dismissed. */
-export function useToast(timeoutMs = 4000) {
-  const [toast, setToast] = useState<ToastState | null>(null);
-  const timer = useRef<number | null>(null);
-
-  const dismiss = useCallback(() => {
-    if (timer.current) window.clearTimeout(timer.current);
-    timer.current = null;
-    setToast(null);
-  }, []);
-
-  const show = useCallback(
-    (message: string, kind: ToastKind = 'success') => {
-      if (timer.current) window.clearTimeout(timer.current);
-      setToast({ message, kind, id: Date.now() });
-      timer.current = window.setTimeout(() => setToast(null), timeoutMs);
-    },
-    [timeoutMs],
-  );
-
-  // Clear the pending timer if the owner unmounts first.
-  useEffect(() => () => {
-    if (timer.current) window.clearTimeout(timer.current);
-  }, []);
-
-  return { toast, show, dismiss };
 }
 
 const ICONS = {
