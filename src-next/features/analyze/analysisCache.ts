@@ -11,8 +11,8 @@ import type { AnalyzeRequest } from '../../hooks/useAnalyze';
  * every input that changes the result, so changing any setting re-analyses.
  */
 
-const CACHE_PREFIX = 'cheat_clip_cache_';
-const TIME_PREFIX = 'cheat_clip_ts_';
+const CACHE_PREFIX = 'xoraclips_cache_';
+const TIME_PREFIX = 'xoraclips_ts_';
 
 /** Trims a value into something safe to embed in a storage key. */
 function slug(value: string, max = 24): string {

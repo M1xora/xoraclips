@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 
 export type Theme = 'dark' | 'light';
 
-const STORAGE_KEY = 'cheat_clip_theme';
+const STORAGE_KEY = 'xoraclips_theme';
 
 /** Reads the stored choice, falling back to the OS preference. */
 function initialTheme(): Theme {

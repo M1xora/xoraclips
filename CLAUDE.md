@@ -1,4 +1,4 @@
-# Cheat Clip Pro (xoraclips)
+# Xoraclips
 
 Auto-clipper: analisis video YouTube dengan Gemini, pilih klip viral, edit di Studio, render ke MP4 vertikal 1080x1920.
 

@@ -10,12 +10,12 @@
  * browser storage is blocked (private mode, blocked site data).
  */
 
-// Not the old UI's slot ('cheat_clip_gemini_api_key'): the old UI in src/ is
+// Not the old UI's slot ('xoraclips_gemini_api_key'): the old UI in src/ is
 // served on the same origin and sends whatever it finds there in the URL.
 const KEY_STORAGE = 'xoraclips_gemini_key';
 const REMEMBER_STORAGE = 'xoraclips_remember_gemini_key';
-/** Plain-text keys left by older versions; removed on load. */
-export const LEGACY_KEY_STORAGE = 'cheat_clip_gemini_api_key';
+/** The old UI's plain-text slot; removed on load. */
+export const LEGACY_KEY_STORAGE = 'xoraclips_gemini_api_key';
 
 type StorageLike = Pick<Storage, 'getItem' | 'setItem' | 'removeItem'>;
 

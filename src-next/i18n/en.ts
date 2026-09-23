@@ -7,7 +7,7 @@ import type { Translations } from './id';
  */
 export const en: Translations = {
   app: {
-    name: 'Cheat Clip',
+    name: 'Xoraclips',
     tagline: 'Turn long videos into vertical clips',
   },
 

@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { api } from '../../api/client';
 import type { BatchRenderProgress } from '../../lib/types';
 
-const LAST_BATCH_KEY = 'cheat_clip_last_batch';
+const LAST_BATCH_KEY = 'xoraclips_last_batch';
 
 type Status = 'idle' | 'starting' | 'running' | 'done' | 'error';
 

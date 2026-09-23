@@ -6,7 +6,7 @@
  */
 export const id = {
   app: {
-    name: 'Cheat Clip',
+    name: 'Xoraclips',
     tagline: 'Ubah video panjang jadi klip vertikal',
   },
 

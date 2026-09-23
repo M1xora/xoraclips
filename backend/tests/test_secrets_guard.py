@@ -192,7 +192,7 @@ def test_any_logger_and_late_handler_is_scrubbed_including_tracked_keys():
     try:
         with tracked_secret(ODD_KEY):
             logging.getLogger("google_genai._api_client").warning(f"request failed for key {ODD_KEY}")
-            logging.getLogger("cheat-clip-pro").error(f"calling Gemini with {USER_KEY}")
+            logging.getLogger("xoraclips").error(f"calling Gemini with {USER_KEY}")
     finally:
         root.removeHandler(late)
         root.setLevel(old_level)

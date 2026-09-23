@@ -105,7 +105,7 @@ describe('no key in a URL or a request body', () => {
   it('never uses the api_key parameter name', () => {
     const offenders = Object.entries(sources)
       // `api_key` as its own name (`?api_key=`, `api_key:`), not inside a
-      // longer identifier such as the storage slot `cheat_clip_gemini_api_key`.
+      // longer identifier such as the storage slot `xoraclips_gemini_api_key`.
       .filter(([, text]) => /(^|[^\w])api_key\b/m.test(text))
       .map(([path]) => path);
     expect(offenders).toEqual([]);

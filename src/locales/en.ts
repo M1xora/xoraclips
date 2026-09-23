@@ -34,7 +34,7 @@ export const en = {
     aiModelLabel: "AI Model Selection",
     fetchingModels: "Fetching available...",
     resilienceTip: "Free Tier Resilience:",
-    resilienceDesc: "If a model encounters quota limits or errors, Cheat Clip Pro automatically tries all newer and older Flash models (3.x, 2.5, 2.0, 1.5) fetched from your API key until clips are successfully found!",
+    resilienceDesc: "If a model encounters quota limits or errors, Xoraclips automatically tries all newer and older Flash models (3.x, 2.5, 2.0, 1.5) fetched from your API key until clips are successfully found!",
     
     // Customization
     clipCustomizationTitle: "Clip Customization",
@@ -258,7 +258,7 @@ export const en = {
     hardwareEncodingHint: "FastAPI & FFmpeg hardware encoding in progress. You can keep this open or minimize.",
   },
   studio: {
-    heading: "Cheat Clip Auto Clipper",
+    heading: "Xoraclips Auto Clipper",
     subtext: "Real-time video layout framing, dynamic subtitle typography, and batch GPU-accelerated 1080x1920 export",
     previewClip: "👁️ Previewing Clip:",
     canvasTitle: "📐 Canvas & Inner Aspect Ratio",

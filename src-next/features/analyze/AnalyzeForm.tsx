@@ -81,10 +81,10 @@ export function AnalyzeForm({ onSubmit, busy, onKeyCleared }: AnalyzeFormProps) 
   const [showKey, setShowKey] = useState(false);
   const [keyCheck, setKeyCheck] = useState<KeyCheck | null>(null);
   const [model, setModel] = useLocalStorageString(
-    'cheat_clip_selected_model',
+    'xoraclips_selected_model',
     'gemini-2.5-flash',
   );
-  const [clipCount, setClipCount] = useLocalStorage('cheat_clip_target_clip_count', 10);
+  const [clipCount, setClipCount] = useLocalStorage('xoraclips_target_clip_count', 10);
 
   const [duration, setDuration] = useState<'15s' | '30s' | '60s'>('30s');
   const [prompt, setPrompt] = useState('');

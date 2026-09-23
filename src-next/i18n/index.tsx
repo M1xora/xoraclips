@@ -12,7 +12,7 @@ import { en } from './en';
 
 export type Language = 'id' | 'en';
 
-const STORAGE_KEY = 'cheat_clip_language';
+const STORAGE_KEY = 'xoraclips_language';
 const DICTIONARIES: Record<Language, Translations> = { id, en };
 
 interface LanguageContextValue {

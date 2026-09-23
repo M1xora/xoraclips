@@ -10,7 +10,7 @@ interface LanguageContextType {
   t: Translations;
 }
 
-const STORAGE_KEY = 'cheat_clip_language';
+const STORAGE_KEY = 'xoraclips_language';
 
 const getInitialLanguage = (): Language => {
   if (typeof window === 'undefined') return 'en';
