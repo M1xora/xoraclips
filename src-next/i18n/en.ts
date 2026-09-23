@@ -370,6 +370,16 @@ export const en: Translations = {
     modelUnavailable: 'The selected model is not available for your key. Pick another model and try again.',
     aiBusy: "Google's AI service is busy. Your key is fine; please try again shortly.",
     aiFailed: 'The AI analysis failed. Please try again shortly.',
+    youtubeBlocked: (time: string, minutes: number) =>
+      `YouTube is limiting access from this network. Try again after ${time} (about ${minutes} min from now), or upload subtitles manually.`,
+    youtubeBlockedLater:
+      'YouTube is limiting access from this network. Try again in a while, or upload subtitles manually.',
+    captionsDisabled: 'The creator turned subtitles off for this video. Upload subtitles manually to analyze it.',
+    videoUnavailable: 'This video is private or unavailable.',
+    ageRestricted: 'This video is age-restricted, so its subtitles cannot be fetched. Upload subtitles manually.',
+    videoLive:
+      'This video is live or just ended, so it has no subtitles yet. Try again later, or upload subtitles manually.',
+    captionsUnavailable: 'No subtitles could be fetched for this video. Upload subtitles manually.',
     changeKey: 'Change key',
     getKey: 'Create a key in Google AI Studio',
     tryAgain: 'Try again',

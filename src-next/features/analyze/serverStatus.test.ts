@@ -87,6 +87,39 @@ describe('analyzeErrorView', () => {
   it('tells the user a busy service is not their key', () => {
     expect(id.errors.aiBusy).toMatch(/tidak bermasalah/);
   });
+
+  // Issue #9: caption failures are one short line, never the server's tier dump.
+  it.each([
+    ['captions_disabled', id.errors.captionsDisabled],
+    ['video_unavailable', id.errors.videoUnavailable],
+    ['age_restricted', id.errors.ageRestricted],
+    ['video_live', id.errors.videoLive],
+    ['captions_unavailable', id.errors.captionsUnavailable],
+  ])('%s', (code, message) => {
+    expect(analyzeErrorView(code, 'Tier 5 (Direct Python API): ...', id)).toEqual({ message, keyProblem: false });
+  });
+
+  it('a YouTube block says when to try again', () => {
+    const now = new Date(2026, 8, 23, 14, 25, 0).getTime();
+    const view = analyzeErrorView('youtube_blocked', 'raw', id, {
+      retryAt: now + 600_000,
+      now,
+      locale: 'id-ID',
+    });
+    expect(view.keyProblem).toBe(false);
+    expect(view.message).toMatch(/membatasi akses/);
+    expect(view.message).toMatch(/14[.:]35/);
+    expect(view.message).toMatch(/sekitar 10 menit lagi/);
+    expect(view.message).toMatch(/upload subtitle manual/);
+  });
+
+  it('a YouTube block without a time still gives advice', () => {
+    expect(analyzeErrorView('youtube_blocked', 'raw', id).message).toBe(id.errors.youtubeBlockedLater);
+    const now = Date.now();
+    expect(analyzeErrorView('youtube_blocked', 'raw', id, { retryAt: now - 1, now }).message).toBe(
+      id.errors.youtubeBlockedLater,
+    );
+  });
 });
 
 describe('no key in a URL or a request body', () => {

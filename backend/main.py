@@ -93,12 +93,16 @@ try:
         tracked_secret, user_key_from_header,
     )
     from backend import ai_errors
+    from backend import youtube_errors
+    from backend.youtube_errors import CaptionUnavailable, YouTubeBlocked
 except ImportError:
     from secrets_guard import (
         GEMINI_KEY_HEADER, install_log_redaction, is_mock_mode, redact_data,
         tracked_secret, user_key_from_header,
     )
     import ai_errors
+    import youtube_errors
+    from youtube_errors import CaptionUnavailable, YouTubeBlocked
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
@@ -562,19 +566,30 @@ def fetch_transcript_cli(
     logger.info(f"Executing CLI transcript extraction for {video_id}...")
     try:
         proc = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout)
+        output = f"{proc.stdout or ''}\n{proc.stderr or ''}"
+        raw = None
         if proc.returncode == 0 and proc.stdout.strip():
-            raw = json.loads(proc.stdout)
+            try:
+                raw = json.loads(proc.stdout)
+            except ValueError:
+                pass  # The CLI prints its errors to stdout with exit code 0 (issue #9).
+        if raw is not None:
             items = raw[0] if isinstance(raw, list) and len(raw) > 0 and isinstance(raw[0], list) else raw
             result = normalize_transcript(items)
             if result:
                 logger.info(f"Transcript fetched via CLI fallback: {len(result)} lines")
                 return result
-        stderr_snippet = (proc.stderr or proc.stdout or "").strip()
-        first_err_line = stderr_snippet.split("\n")[0] if stderr_snippet else f"exit code {proc.returncode}"
-        raise Exception(f"CLI returned {proc.returncode}: {first_err_line}")
+        elif youtube_errors.is_blocked_text(output):
+            raise YouTubeBlocked(f"CLI: {_first_line(output)}")
+        raise Exception(f"CLI returned {proc.returncode}: {_first_line(output) or 'no output'}")
     except Exception as e:
         logger.warning(f"CLI transcript extraction failed: {e}")
         raise
+
+
+def _first_line(text: str) -> str:
+    """The first non-empty line, for logs (CLI output starts with a blank line)."""
+    return next((line.strip() for line in (text or "").splitlines() if line.strip()), "")
 
 def get_youtube_oembed_title(video_id_or_url: str) -> Optional[str]:
     """Fetches video title directly from YouTube's public oEmbed API.
@@ -668,6 +683,8 @@ def fetch_video_metadata(url: str, custom_proxy: Optional[str] = None):
                 }
         except Exception as e:
             logger.warning(f"yt-dlp metadata extraction failed (proxy={'yes' if attempt_proxy else 'no'}): {e}")
+            if not attempt_proxy and youtube_errors.is_blocked_exception(e):
+                youtube_errors.block_memory.remember()  # issue #9
 
     # Fallback: parse video ID and retrieve title from oEmbed API directly
     if video_id:
@@ -895,47 +912,138 @@ def fetch_transcript_ytdlp(video_id: str, proxy: Optional[str] = None) -> List[d
     try:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(f"https://www.youtube.com/watch?v={video_id}", download=False)
-            if not info:
-                return []
-            
-            subtitles = info.get('subtitles') or {}
-            auto_subtitles = info.get('automatic_captions') or {}
-            
-            priority_langs = ['id', 'en', 'es', 'pt', 'fr', 'de', 'ja', 'ko', 'zh-Hans', 'zh-Hant', 'ar', 'hi', 'ru']
-            for lang_dict, is_auto in [(subtitles, False), (auto_subtitles, True)]:
-                langs_to_try = [l for l in priority_langs if l in lang_dict] + [l for l in lang_dict if l not in priority_langs]
-                for lang in langs_to_try:
-                    formats = lang_dict.get(lang) or []
-                    json3_entry = next((f['url'] for f in formats if f.get('ext') == 'json3'), None)
-                    if json3_entry:
-                        proxies_dict = {'http': proxy, 'https': proxy} if proxy else None
-                        attempts = [proxies_dict, None] if proxy else [None]
-                        for p in attempts:
-                            try:
-                                r = requests.get(json3_entry, proxies=p, timeout=8)
-                                if r.status_code == 200:
-                                    events = r.json().get('events', [])
-                                    result = []
-                                    for ev in events:
-                                        segs = ev.get('segs', [])
-                                        text = ''.join(s.get('utf8', '') for s in segs).strip()
-                                        if text:
-                                            start = ev.get('tStartMs', 0) / 1000.0
-                                            dur = ev.get('dDurationMs', 0) / 1000.0
-                                            result.append({'text': text, 'start': start, 'duration': dur})
-                                    if result:
-                                        logger.info(f"Transcript fetched via yt-dlp (lang={lang}, auto={is_auto}, proxy={'yes' if p else 'no'})")
-                                        return result
-                            except Exception:
-                                continue
     except Exception as e:
+        if youtube_errors.is_blocked_exception(e):
+            raise YouTubeBlocked(f"yt-dlp: {_first_line(str(e))}")
         logger.warning(f"yt-dlp subtitle extraction failed (proxy={'yes' if proxy else 'no'}): {e}")
+        return []
+    if not info:
+        return []
+
+    candidates = ytdlp_caption_candidates(info.get('subtitles') or {}, info.get('automatic_captions') or {})
+    proxies_dict = {'http': proxy, 'https': proxy} if proxy else None
+    attempts = [proxies_dict, None] if proxy else [None]
+    for lang, is_auto, url in candidates:
+        for p in attempts:
+            try:
+                r = requests.get(url, proxies=p, timeout=8)
+            except Exception as e:
+                logger.warning(f"yt-dlp caption request failed (lang={lang}): {e}")
+                continue
+            content_type = r.headers.get('content-type', '')
+            body = r.text if 'html' in content_type.lower() else ''
+            if youtube_errors.is_blocked_response(r.status_code, content_type, body):
+                raise YouTubeBlocked(f"yt-dlp caption {lang}: HTTP {r.status_code}")
+            if r.status_code != 200:
+                logger.warning(f"yt-dlp caption {lang} answered HTTP {r.status_code}")
+                continue
+            try:
+                events = r.json().get('events', [])
+            except ValueError:
+                logger.warning(f"yt-dlp caption {lang} was not JSON")
+                continue
+            result = []
+            for ev in events:
+                segs = ev.get('segs', [])
+                text = ''.join(s.get('utf8', '') for s in segs).strip()
+                if text:
+                    start = ev.get('tStartMs', 0) / 1000.0
+                    dur = ev.get('dDurationMs', 0) / 1000.0
+                    result.append({'text': text, 'start': start, 'duration': dur})
+            if result:
+                logger.info(f"Transcript fetched via yt-dlp (lang={lang}, auto={is_auto}, proxy={'yes' if p else 'no'})")
+                return result
     return []
+
+
+YTDLP_MAX_CAPTION_REQUESTS = 3
+
+
+def ytdlp_caption_candidates(subtitles: dict, auto_captions: dict, limit: int = YTDLP_MAX_CAPTION_REQUESTS) -> List[tuple]:
+    """
+    At most `limit` caption tracks to download, as (lang, is_auto, json3 url).
+    Order: human-made id, en, then one human-made track in any other language;
+    then auto-captions in the video's own language (`*-orig`), id, en. Not
+    every translated language (a video can list 159),
+    because each one is a request and requests prolong a block (issue #9).
+    """
+    def base(lang: str) -> str:
+        return lang.split('-')[0].lower()
+
+    def json3(formats) -> Optional[str]:
+        return next((f.get('url') for f in (formats or []) if f.get('ext') == 'json3' and f.get('url')), None)
+
+    wanted = []
+    for target in ('id', 'en'):
+        wanted += [(lang, False) for lang in subtitles if base(lang) == target]
+    wanted += [(lang, False) for lang in subtitles if base(lang) not in ('id', 'en', 'live_chat')][:1]
+    wanted += [(lang, True) for lang in auto_captions if lang.endswith('-orig')][:1]
+    for target in ('id', 'en'):
+        wanted += [(lang, True) for lang in auto_captions if lang == target]
+
+    picked, seen_urls = [], set()
+    for lang, is_auto in wanted:
+        url = json3((auto_captions if is_auto else subtitles).get(lang))
+        if url and url not in seen_urls:
+            seen_urls.add(url)
+            picked.append((lang, is_auto, url))
+        if len(picked) >= limit:
+            break
+    return picked
 
 def fetch_transcript(
     video_id: str,
     custom_proxy: Optional[str] = None,
     on_progress: Optional[Callable[[str, str, int], None]] = None
+) -> List[dict]:
+    """
+    Fetches captions through the tiers below. Raises CaptionUnavailable with a
+    short code when there are none; the per-tier details go to the log.
+
+    The first sign that YouTube is refusing us stops every remaining tier and
+    is remembered for a while (youtube_errors.block_memory), because each
+    further request makes the block last longer (issue #9).
+    """
+    attempt_history: List[str] = []
+    try:
+        return _fetch_transcript_tiers(video_id, custom_proxy, on_progress, attempt_history)
+    except YouTubeBlocked as blocked:
+        if blocked.retry_after:
+            logger.info(f"YouTube block remembered: not contacting YouTube for another {blocked.retry_after}s")
+            raise
+        attempt_history.append(f"BLOCKED -> {blocked.detail}")
+        # A proxy the user sent with this request says nothing about the
+        # server's own address: stop this analysis, but do not lock everyone out.
+        if not custom_proxy:
+            blocked.retry_after = youtube_errors.block_memory.remember()
+        logger.warning(
+            f"YouTube is refusing caption requests for {video_id}. Stopped the remaining tiers"
+            + (f"; staying away for {blocked.retry_after}s." if blocked.retry_after else " (user proxy: not remembered).")
+            + "\n  " + "\n  ".join(attempt_history)
+        )
+        raise
+
+
+def _stop_if_remembered() -> None:
+    """Raises YouTubeBlocked while a block is remembered, before any YouTube request."""
+    remaining = youtube_errors.block_memory.remaining()
+    if remaining:
+        raise YouTubeBlocked("remembered block", retry_after=remaining)
+
+
+def _stop_if_blocked(error: BaseException, tier: str) -> None:
+    """Re-raises a block as YouTubeBlocked so no further tier runs; ignores other errors."""
+    if isinstance(error, YouTubeBlocked):
+        raise error
+    if youtube_errors.is_blocked_exception(error):
+        raise YouTubeBlocked(f"{tier}: {type(error).__name__} ({_first_line(str(error))[:150]})") from error
+
+
+def _fetch_transcript_tiers(
+    video_id: str,
+    custom_proxy: Optional[str],
+    on_progress: Optional[Callable[[str, str, int], None]],
+    attempt_history: List[str],
 ) -> List[dict]:
     """Retrieves subtitles using a comprehensive multi-tier fallback pipeline:
       Tier 1: Supadata API (if keys configured) — cloud residential rotation
@@ -945,7 +1053,7 @@ def fetch_transcript(
       Tier 5: Direct YouTubeTranscriptApi Python API (Direct, Shared Session + Browser Headers)
       Tier 6: Direct YouTubeTranscriptApi CLI Subprocess (Direct)
       Tier 7: Direct yt-dlp Native Extraction (Direct)
-    If all tiers fail, raises detailed HTTPException with full diagnostics and solutions.
+    If all tiers fail, raises CaptionUnavailable with full diagnostics for the log.
     """
     def notify(stage: str, detail: str, pct: int):
         if on_progress:
@@ -958,7 +1066,6 @@ def fetch_transcript(
     keys = get_supadata_keys()
     proxy_url = custom_proxy or get_proxy_url()
     proxy_cfg = get_youtube_transcript_proxy_config(custom_proxy)
-    attempt_history: List[str] = []
 
     # ── Tier 1: Supadata API (if keys configured) ─────────────────────────────
     if keys:
@@ -970,6 +1077,9 @@ def fetch_transcript(
         logger.info("[Tier 1] Supadata API unsuccessful — proceeding to proxy fallback tiers...")
     else:
         attempt_history.append("Tier 1 (Supadata API): Not configured (no keys in SUPADATA_API_KEYS)")
+
+    # ── Remembered block: YouTube refused us recently, do not knock again ──
+    _stop_if_remembered()
 
     # ── Proxy Tiers (Tier 2 - 4) ──────────────────────────────────────────────
     if proxy_cfg or proxy_url:
@@ -991,6 +1101,7 @@ def fetch_transcript(
                     logger.info(f"[Tier 2a] Transcript fetched via proxy Python API direct: {len(res)} lines")
                     return res
             except Exception as direct_err:
+                _stop_if_blocked(direct_err, "Tier 2a")
                 logger.info(f"[Tier 2a] Proxy direct language fetch missed: {direct_err}")
 
             # 2b. List all transcripts & try fetching manual, then auto
@@ -1006,7 +1117,8 @@ def fetch_transcript(
                             _shared_cookie_jar.update(client.cookies)
                             logger.info(f"[Tier 2b] Transcript fetched via proxy Python API list ({t.language}): {len(res)} lines")
                             return res
-                    except Exception:
+                    except Exception as track_err:
+                        _stop_if_blocked(track_err, "Tier 2b")
                         continue
 
                 # 2c. Translation fallback: translate any translatable track to 'id' or 'en'
@@ -1022,18 +1134,22 @@ def fetch_transcript(
                                     _shared_cookie_jar.update(client.cookies)
                                     logger.info(f"[Tier 2c] Transcript translated via proxy Python API ({t.language} -> {target_lang}): {len(res)} lines")
                                     return res
-                            except Exception:
+                            except Exception as tr_err:
+                                _stop_if_blocked(tr_err, "Tier 2c")
                                 continue
 
                 attempt_history.append(f"Tier 2 (Proxy Python API): No accessible track in {len(transcripts)} tracks")
             except Exception as list_err:
+                _stop_if_blocked(list_err, "Tier 2")
                 err_type = type(list_err).__name__
                 err_msg = str(list_err).strip().split('\n')[0]
                 attempt_history.append(f"Tier 2 (Proxy Python API): {err_type} ({err_msg})")
         except Exception as init_err:
+            _stop_if_blocked(init_err, "Tier 2")
             attempt_history.append(f"Tier 2 (Proxy Python API setup): {type(init_err).__name__} ({init_err})")
 
         # ── Tier 3: YouTubeTranscriptApi CLI Subprocess with Proxy ───────────────
+        _stop_if_remembered()
         notify("Tier 3/7: Proxy CLI Subprocess", "Trying Method 3/7: Isolated CLI subprocess via proxy...", 60)
         try:
             cli_data = fetch_transcript_cli(
@@ -1047,9 +1163,11 @@ def fetch_transcript(
                 logger.info(f"[Tier 3] Transcript fetched via proxy CLI subprocess: {len(cli_data)} lines")
                 return cli_data
         except Exception as cli_err:
+            _stop_if_blocked(cli_err, "Tier 3")
             attempt_history.append(f"Tier 3 (Proxy CLI Subprocess): {type(cli_err).__name__} ({str(cli_err)[:150]})")
 
         # ── Tier 4: yt-dlp Native Extraction with Proxy ──────────────────────────
+        _stop_if_remembered()
         notify("Tier 4/7: Proxy yt-dlp Native", "Trying Method 4/7: yt-dlp native caption extraction via proxy...", 70)
         try:
             ytdlp_proxy_data = fetch_transcript_ytdlp(video_id, proxy=proxy_url)
@@ -1060,6 +1178,7 @@ def fetch_transcript(
                     return res
             attempt_history.append("Tier 4 (Proxy yt-dlp): No subtitle streams found or extraction empty")
         except Exception as ytdlp_err:
+            _stop_if_blocked(ytdlp_err, "Tier 4")
             attempt_history.append(f"Tier 4 (Proxy yt-dlp): {type(ytdlp_err).__name__} ({str(ytdlp_err)[:150]})")
 
     else:
@@ -1069,6 +1188,7 @@ def fetch_transcript(
     logger.info("[Tier 5-7] Attempting direct YouTube retrieval (no proxy)...")
 
     # ── Tier 5: Direct YouTubeTranscriptApi Python API ────────────────────────
+    _stop_if_remembered()
     notify("Tier 5/7: Direct YouTube API", "Trying Method 5/7: Direct YouTubeTranscriptApi (localhost / residential)...", 80)
     try:
         direct_client = create_http_client(timeout=10.0)
@@ -1081,8 +1201,8 @@ def fetch_transcript(
                 _shared_cookie_jar.update(direct_client.cookies)
                 logger.info(f"[Tier 5a] Transcript fetched via direct Python API: {len(res)} lines")
                 return res
-        except Exception:
-            pass
+        except Exception as direct_err:
+            _stop_if_blocked(direct_err, "Tier 5a")
 
         try:
             all_transcripts = list(direct_api.list(video_id))
@@ -1096,7 +1216,8 @@ def fetch_transcript(
                         _shared_cookie_jar.update(direct_client.cookies)
                         logger.info(f"[Tier 5b] Transcript fetched via direct list ({transcript.language}): {len(res)} lines")
                         return res
-                except Exception:
+                except Exception as track_err:
+                    _stop_if_blocked(track_err, "Tier 5b")
                     continue
 
             # Direct translation fallback
@@ -1112,18 +1233,22 @@ def fetch_transcript(
                                 _shared_cookie_jar.update(direct_client.cookies)
                                 logger.info(f"[Tier 5c] Transcript translated via direct list ({t.language} -> {target_lang}): {len(res)} lines")
                                 return res
-                        except Exception:
+                        except Exception as tr_err:
+                            _stop_if_blocked(tr_err, "Tier 5c")
                             continue
 
             attempt_history.append(f"Tier 5 (Direct Python API): No accessible track in {len(all_transcripts)} tracks")
         except Exception as list_err:
+            _stop_if_blocked(list_err, "Tier 5")
             err_type = type(list_err).__name__
             err_msg = str(list_err).strip().split('\n')[0]
             attempt_history.append(f"Tier 5 (Direct Python API): {err_type} ({err_msg})")
     except Exception as api_err:
+        _stop_if_blocked(api_err, "Tier 5")
         attempt_history.append(f"Tier 5 (Direct Python API setup): {type(api_err).__name__} ({str(api_err)[:150]})")
 
     # ── Tier 6: Direct YouTubeTranscriptApi CLI Subprocess ────────────────────
+    _stop_if_remembered()
     notify("Tier 6/7: Direct CLI Subprocess", "Trying Method 6/7: Direct isolated CLI subprocess...", 88)
     try:
         direct_cli_data = fetch_transcript_cli(video_id, priority_langs, proxy_url=None, timeout=15)
@@ -1131,9 +1256,11 @@ def fetch_transcript(
             logger.info(f"[Tier 6] Transcript fetched via direct CLI subprocess: {len(direct_cli_data)} lines")
             return direct_cli_data
     except Exception as cli_err:
+        _stop_if_blocked(cli_err, "Tier 6")
         attempt_history.append(f"Tier 6 (Direct CLI Subprocess): {type(cli_err).__name__} ({str(cli_err)[:150]})")
 
     # ── Tier 7: Direct yt-dlp Native Extraction ──────────────────────────────
+    _stop_if_remembered()
     notify("Tier 7/7: Direct yt-dlp Native", "Trying Method 7/7: Direct yt-dlp native caption extraction...", 94)
     try:
         direct_ytdlp_data = fetch_transcript_ytdlp(video_id, proxy=None)
@@ -1144,19 +1271,22 @@ def fetch_transcript(
                 return res
         attempt_history.append("Tier 7 (Direct yt-dlp): No subtitle streams found")
     except Exception as ytdlp_err:
+        _stop_if_blocked(ytdlp_err, "Tier 7")
         attempt_history.append(f"Tier 7 (Direct yt-dlp): {type(ytdlp_err).__name__} ({str(ytdlp_err)[:150]})")
 
     # ── All Tiers Exhausted: Construct Comprehensive Diagnostic Error ─────────
     combined_history = " ".join(attempt_history)
     root_cause = []
+    code = youtube_errors.CAPTIONS_UNAVAILABLE
     if "TranscriptsDisabled" in combined_history:
         root_cause.append("Subtitles are disabled for this video by the creator.")
+        code = youtube_errors.CAPTIONS_DISABLED
     elif "AgeRestricted" in combined_history:
         root_cause.append("Video is age-restricted and requires YouTube authentication.")
+        code = youtube_errors.AGE_RESTRICTED
     elif "VideoUnavailable" in combined_history:
         root_cause.append("Video is private or unavailable.")
-    elif "IpBlocked" in combined_history or "RequestBlocked" in combined_history:
-        root_cause.append("YouTube blocked the IP address (datacenter IP ban / RequestBlocked).")
+        code = youtube_errors.VIDEO_UNAVAILABLE
 
     error_lines = [
         f"Unable to retrieve subtitles for YouTube video ID '{video_id}'."
@@ -1178,7 +1308,7 @@ def fetch_transcript(
 
     full_error_detail = "\n".join(error_lines)
     logger.error(f"Subtitle retrieval exhausted all {len(attempt_history)} methods:\n{full_error_detail}")
-    raise HTTPException(status_code=400, detail=full_error_detail)
+    raise CaptionUnavailable(code, full_error_detail)
 
 
 
@@ -1527,6 +1657,14 @@ async def analyze_video(
                 return
             video_id = "dQw4w9WgXcQ"
 
+        # YouTube refused us recently: answer now instead of knocking again
+        # (issue #9). Manual subtitles and Supadata (not YouTube) still go on.
+        if not is_mock and not request.subtitles and not get_supadata_keys():
+            remaining = youtube_errors.block_memory.remaining()
+            if remaining:
+                yield _sse(youtube_errors.error_event(youtube_errors.YOUTUBE_BLOCKED, remaining))
+                return
+
         canonical_url = f"https://www.youtube.com/watch?v={video_id}"
 
         yield _sse({
@@ -1672,20 +1810,16 @@ async def analyze_video(
                     "message": f"Subtitles loaded — {len(transcript_lines)} lines parsed successfully."
                 })
             except Exception as e:
-                # Provide a helpful error message if the video is live or recently completed
-                if is_live or live_status in ('is_live', 'is_upcoming', 'post_live'):
-                    yield _sse({
-                        "error": (
-                            "No subtitles could be retrieved because this video is currently live, "
-                            "upcoming, or recently completed (post-live processing). Subtitles are only "
-                            "available once the live stream ends and YouTube finishes processing the video. "
-                            "You can upload custom subtitles manually to analyze this video."
-                        ),
-                        "status": 400
-                    })
+                # A short message per cause; the details are already in the log.
+                if isinstance(e, YouTubeBlocked):
+                    yield _sse(youtube_errors.error_event(e.code, e.retry_after))
+                elif is_live or live_status in ('is_live', 'is_upcoming', 'post_live'):
+                    yield _sse(youtube_errors.error_event(youtube_errors.VIDEO_LIVE))
+                elif isinstance(e, CaptionUnavailable):
+                    yield _sse(youtube_errors.error_event(e.code))
                 else:
-                    msg = e.detail if isinstance(e, HTTPException) else str(e)
-                    yield _sse({"error": msg, "status": 400})
+                    logger.exception(f"Subtitle retrieval failed unexpectedly for {video_id}")
+                    yield _sse(youtube_errors.error_event(youtube_errors.CAPTIONS_UNAVAILABLE))
                 return
 
         # Estimate duration from transcript if missing
