@@ -17,10 +17,10 @@ function fakeStorage() {
   };
 }
 
-const PREFIX = 'cheat_clip_cache_';
+const PREFIX = 'xoraclips_cache_';
 // timeKey() swaps the cache prefix for this one, so the timestamp key is
-// `cheat_clip_ts_<id>`, not the time prefix plus the whole cache key.
-const TIME = 'cheat_clip_ts_';
+// `xoraclips_ts_<id>`, not the time prefix plus the whole cache key.
+const TIME = 'xoraclips_ts_';
 
 function seed(store: ReturnType<typeof fakeStorage>, id: string, over: Record<string, unknown> = {}) {
   store.setItem(
@@ -60,7 +60,7 @@ describe('listHistory', () => {
 
   it('ignores keys that are not analysis caches', () => {
     seed(store, 'abc');
-    store.setItem('cheat_clip_language', 'id');
+    store.setItem('xoraclips_language', 'id');
     store.setItem('unrelated', 'x');
     expect(listHistory()).toHaveLength(1);
   });

@@ -12,7 +12,7 @@ import unicodedata
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional
 
-logger = logging.getLogger("cheat-clip-pro.video-engine")
+logger = logging.getLogger("xoraclips.video-engine")
 
 
 @dataclass(frozen=True)

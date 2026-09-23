@@ -36,7 +36,7 @@ export const id: Translations = {
     aiModelLabel: "Pilihan Model AI",
     fetchingModels: "Mengambil daftar model...",
     resilienceTip: "Ketahanan Kuota Gratis:",
-    resilienceDesc: "Jika model mencapai batas kuota atau error, Cheat Clip Pro secara dinamis mencoba seluruh model Flash baru maupun lama (3.x, 2.5, 2.0, 1.5) dari API key Anda hingga klip berhasil ditemukan!",
+    resilienceDesc: "Jika model mencapai batas kuota atau error, Xoraclips secara dinamis mencoba seluruh model Flash baru maupun lama (3.x, 2.5, 2.0, 1.5) dari API key Anda hingga klip berhasil ditemukan!",
 
     // Customization
     clipCustomizationTitle: "Kustomisasi Klip",
@@ -260,7 +260,7 @@ export const id: Translations = {
     hardwareEncodingHint: "Hardware encoding FastAPI & FFmpeg sedang berjalan. Anda dapat membiarkan jendela ini terbuka atau diminimalkan.",
   },
   studio: {
-    heading: "Cheat Clip Auto Clipper",
+    heading: "Xoraclips Auto Clipper",
     subtext: "Tata letak video real-time, tipografi subtitle dinamis, dan ekspor 1080x1920 batch berakselerasi GPU",
     previewClip: "👁️ Pratinjau Klip:",
     canvasTitle: "📐 Kanvas & Rasio Aspek",

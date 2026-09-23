@@ -12,7 +12,7 @@ import pytest
 import video_engine
 from video_engine import transcribe_clip_words
 
-LOGGER_NAME = "cheat-clip-pro.video-engine"
+LOGGER_NAME = "xoraclips.video-engine"
 
 # The simulation from the issue: a 4s line, a 1s line, then a 4s line,
 # inside a clip that runs from 10s to 19s of the source video.

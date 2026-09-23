@@ -102,7 +102,7 @@ except ImportError:
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger("cheat-clip-pro")
+logger = logging.getLogger("xoraclips")
 # Scrub API keys from every log line (issue #8). Installed again at startup,
 # after uvicorn has set up its own handlers.
 install_log_redaction()
@@ -120,7 +120,7 @@ async def _lifespan(_app):
 
 
 app = FastAPI(
-    title="CHEAT CLIP PRO API",
+    title="XORACLIPS API",
     description="AI Powered YouTube Auto Clipper",
     lifespan=_lifespan,
 )
@@ -1293,7 +1293,7 @@ def health_check(refresh: bool = False):
     }
     return {
         "status": "ok",
-        "message": "CHEAT CLIP PRO API is active",
+        "message": "XORACLIPS API is active",
         "is_vercel": is_vercel,
         "proxy_configured": bool(proxy),
         "mock_mode": is_mock_mode(),
@@ -1450,7 +1450,7 @@ def _list_models_for_key(key_to_use: str, default_models: List[str]):
 # YouTube or Gemini.
 MOCK_METADATA = {
     "title": "Mock YouTube Video",
-    "channel": "Cheat Clip Pro",
+    "channel": "Xoraclips",
     "duration": 212.0,
     "heatmap": [],
     "is_live": False,
@@ -1774,9 +1774,9 @@ async def analyze_video(
                 ViralClip(title="Introductory overview of the tool", start_time=0.0,  end_time=11.0, hook_time=3.0, virality_score=72,
                           key_quotes=["Hello and welcome.", "Finds viral hotspots."],
                           transcript="Hello and welcome. It finds viral hotspots and highlights them.",
-                          title_suggestion="Meet Cheat Clip Pro AI",
+                          title_suggestion="Meet Xoraclips AI",
                           caption_suggestion="Say hello to your new AI co-editor. Find the absolute best parts of any video instantly.",
-                          hashtag_suggestion="#cheatclippro #aiediting #growthmindset"),
+                          hashtag_suggestion="#xoraclips #aiediting #growthmindset"),
             ]
             mock_heatmap = [
                 HeatmapPoint(start_time=i*10.0, end_time=(i+1)*10.0,
@@ -1791,7 +1791,7 @@ async def analyze_video(
             result = AnalyzeResponse(
                 video_id=video_id, title=title, channel=channel, duration=duration or 200.0,
                 heatmap=mock_heatmap,
-                summary="Mock analysis: this video explains how CHEAT CLIP PRO works. #aitools #videoediting #productivity",
+                summary="Mock analysis: this video explains how Xoraclips works. #aitools #videoediting #productivity",
                 clips=mock_clips,
                 model="Mock Gemini"
             )
@@ -2477,7 +2477,7 @@ async def process_batch_rendering(batch_id: str, request: RenderBatchRequest):
     try:
         completed_clips = [c for c in batch["clips"] if c.get("status") == "completed" and c.get("download_url")]
         if completed_clips:
-            zip_filename = f"cheat_clip_pro_{batch_id}.zip"
+            zip_filename = f"xoraclips_{batch_id}.zip"
             zip_path = EXPORTS_DIR / zip_filename
             title_counts: Dict[str, int] = {}
             with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zipf:
@@ -2617,7 +2617,7 @@ def download_rendered_file(file_name: str, title: Optional[str] = None):
 @app.get("/api/download-batch-zip/{batch_id}")
 def download_batch_zip(batch_id: str):
     clean_id = os.path.basename(batch_id)
-    safe_name = f"cheat_clip_pro_{clean_id}.zip"
+    safe_name = f"xoraclips_{clean_id}.zip"
     file_path = EXPORTS_DIR / safe_name
     if not file_path.exists():
         # Attempt to package any completed clips for this batch on the fly

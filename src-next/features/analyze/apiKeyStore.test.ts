@@ -89,13 +89,13 @@ describe('old UI slot', () => {
   it('is never written, so the old UI (same origin) cannot pick the key up', () => {
     saveApiKey(KEY, true, storages);
     saveApiKey(KEY, false, storages);
-    expect(local.data.has('cheat_clip_gemini_api_key')).toBe(false);
-    expect(session.data.has('cheat_clip_gemini_api_key')).toBe(false);
+    expect(local.data.has('xoraclips_gemini_api_key')).toBe(false);
+    expect(session.data.has('xoraclips_gemini_api_key')).toBe(false);
   });
 
   it('keys left there by older versions are removed on load', () => {
-    local.setItem('cheat_clip_gemini_api_key', 'AIzaSyOLD_PLAINTEXT_KEY_FROM_OLD_UI_xx');
+    local.setItem('xoraclips_gemini_api_key', 'AIzaSyOLD_PLAINTEXT_KEY_FROM_OLD_UI_xx');
     loadApiKey(storages);
-    expect(local.data.has('cheat_clip_gemini_api_key')).toBe(false);
+    expect(local.data.has('xoraclips_gemini_api_key')).toBe(false);
   });
 });

@@ -3338,7 +3338,7 @@ export const ClipStudioSection: React.FC<ClipStudioSectionProps> = ({
                     {(batchProgress.overall_status === 'completed' || batchProgress.clips.some(c => c.status === 'completed')) && (
                       <a
                         href={batchProgress.zip_url || `/api/download-batch-zip/${batchProgress.batch_id}`}
-                        download={`cheat_clip_pro_${batchProgress.batch_id}.zip`}
+                        download={`xoraclips_${batchProgress.batch_id}.zip`}
                         className="glowing-btn batch-zip-download-btn"
                         style={{
                           display: 'flex',

@@ -19,7 +19,7 @@ export default function App() {
   const { t } = useLanguage();
   const [url, setUrl] = useState('');
   const [durationPref, setDurationPref] = useState<'15s' | '30s' | '60s'>('30s');
-  const [apiKey, setApiKey] = useState(() => localStorage.getItem('cheat_clip_gemini_api_key') || '');
+  const [apiKey, setApiKey] = useState(() => localStorage.getItem('xoraclips_gemini_api_key') || '');
   const [showApiKey, setShowApiKey] = useState(false);
   const [isCookiesModalOpen, setIsCookiesModalOpen] = useState(false);
   const [hasCookies, setHasCookies] = useState(false);
@@ -44,10 +44,10 @@ export default function App() {
 
   // AI model selection and custom focus prompt states
   const [selectedModel, setSelectedModel] = useState<string>(() => {
-    const saved = localStorage.getItem('cheat_clip_selected_model');
+    const saved = localStorage.getItem('xoraclips_selected_model');
     // Auto-migrate outdated 1.0 models to gemini-2.5-flash
     if (saved && (saved.includes('1.0') || saved.includes('vision'))) {
-      localStorage.setItem('cheat_clip_selected_model', 'gemini-2.5-flash');
+      localStorage.setItem('xoraclips_selected_model', 'gemini-2.5-flash');
       return 'gemini-2.5-flash';
     }
     return saved || 'gemini-2.5-flash';
@@ -56,7 +56,7 @@ export default function App() {
   const [loadingModels, setLoadingModels] = useState(false);
   const [customPrompt, setCustomPrompt] = useState<string>('');
   const [targetClipCount, setTargetClipCount] = useState<number>(() => {
-    const val = localStorage.getItem('cheat_clip_target_clip_count');
+    const val = localStorage.getItem('xoraclips_target_clip_count');
     return val ? Number(val) : 10;
   });
 
@@ -438,7 +438,7 @@ export default function App() {
             if (!data.models.includes(selectedModel) || selectedModel.includes('1.5') || selectedModel.includes('1.0')) {
               const fallback = data.models.find((m: string) => m.includes('flash')) || data.models[0] || 'gemini-2.5-flash';
               setSelectedModel(fallback);
-              localStorage.setItem('cheat_clip_selected_model', fallback);
+              localStorage.setItem('xoraclips_selected_model', fallback);
             }
           }
         }
@@ -494,7 +494,7 @@ export default function App() {
     const entries: HistoryEntry[] = [];
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
-      if (key && key.startsWith('cheat_clip_cache_')) {
+      if (key && key.startsWith('xoraclips_cache_')) {
         try {
           const raw = localStorage.getItem(key);
           if (!raw) continue;
@@ -503,13 +503,13 @@ export default function App() {
           if (!data || !data.video_id) continue;
 
           const video_id = data.video_id;
-          const rest = key.substring('cheat_clip_cache_'.length);
+          const rest = key.substring('xoraclips_cache_'.length);
           const suffix = rest.substring(video_id.length + 1); // skip video_id and trailing '_'
           const duration_pref = suffix.split('_')[0];
           const range_suffix = suffix.substring(duration_pref.length);
 
           // Try reading cached timestamp stored separately
-          const tsKey = `cheat_clip_ts_${video_id}_${duration_pref}${range_suffix}`;
+          const tsKey = `xoraclips_ts_${video_id}_${duration_pref}${range_suffix}`;
           const analyzed_at = localStorage.getItem(tsKey) || new Date().toISOString();
           const clip_titles = (data.clips || []).map((c: any) => c.title || '').filter(Boolean);
           const key_quotes = (data.clips || []).flatMap((c: any) => c.key_quotes || []).filter(Boolean);
@@ -544,7 +544,7 @@ export default function App() {
 
   const loadFromHistory = (entry: HistoryEntry) => {
     const rangeSuffix = entry.range_suffix || '';
-    const cacheKey = `cheat_clip_cache_${entry.video_id}_${entry.duration_pref}${rangeSuffix}`;
+    const cacheKey = `xoraclips_cache_${entry.video_id}_${entry.duration_pref}${rangeSuffix}`;
     const raw = localStorage.getItem(cacheKey);
     if (!raw) return;
     try {
@@ -618,8 +618,8 @@ export default function App() {
   const deleteHistoryEntry = (entry: HistoryEntry, e: React.MouseEvent) => {
     e.stopPropagation();
     const rangeSuffix = entry.range_suffix || '';
-    const cacheKey = `cheat_clip_cache_${entry.video_id}_${entry.duration_pref}${rangeSuffix}`;
-    const tsKey = `cheat_clip_ts_${entry.video_id}_${entry.duration_pref}${rangeSuffix}`;
+    const cacheKey = `xoraclips_cache_${entry.video_id}_${entry.duration_pref}${rangeSuffix}`;
+    const tsKey = `xoraclips_ts_${entry.video_id}_${entry.duration_pref}${rangeSuffix}`;
     localStorage.removeItem(cacheKey);
     localStorage.removeItem(tsKey);
     refreshHistory();
@@ -631,7 +631,7 @@ export default function App() {
     const toRemove: string[] = [];
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
-      if (key && (key.startsWith('cheat_clip_cache_') || key.startsWith('cheat_clip_ts_'))) {
+      if (key && (key.startsWith('xoraclips_cache_') || key.startsWith('xoraclips_ts_'))) {
         toRemove.push(key);
       }
     }
@@ -867,7 +867,7 @@ export default function App() {
     const promptSuffix = customPrompt.trim() ? `_prompt_${customPrompt.trim().replace(/[^a-zA-Z0-9]/g, '_')}` : '';
     const modelSuffix = `_model_${selectedModel}`;
     const clipsSuffix = `_clips_${targetClipCount}`;
-    const cacheKey = videoId ? `cheat_clip_cache_${videoId}_${durationPref}${modelSuffix}${clipsSuffix}${promptSuffix}${rangeSuffix}${manualSuffix}` : null;
+    const cacheKey = videoId ? `xoraclips_cache_${videoId}_${durationPref}${modelSuffix}${clipsSuffix}${promptSuffix}${rangeSuffix}${manualSuffix}` : null;
 
     if (cacheKey) {
       const cachedData = localStorage.getItem(cacheKey);
@@ -1056,8 +1056,8 @@ export default function App() {
           const promptSuffix = customPrompt.trim() ? `_prompt_${customPrompt.trim().replace(/[^a-zA-Z0-9]/g, '_')}` : '';
           const modelSuffix = `_model_${selectedModel}`;
           const clipsSuffix = `_clips_${targetClipCount}`;
-          const targetCacheKey = `cheat_clip_cache_${resultData.video_id}_${durationPref}${modelSuffix}${clipsSuffix}${promptSuffix}${rangeSuffix}${manualSuffix}`;
-          const tsKey = `cheat_clip_ts_${resultData.video_id}_${durationPref}${modelSuffix}${clipsSuffix}${promptSuffix}${rangeSuffix}${manualSuffix}`;
+          const targetCacheKey = `xoraclips_cache_${resultData.video_id}_${durationPref}${modelSuffix}${clipsSuffix}${promptSuffix}${rangeSuffix}${manualSuffix}`;
+          const tsKey = `xoraclips_ts_${resultData.video_id}_${durationPref}${modelSuffix}${clipsSuffix}${promptSuffix}${rangeSuffix}${manualSuffix}`;
           localStorage.setItem(targetCacheKey, JSON.stringify(resultData));
           localStorage.setItem(tsKey, new Date().toISOString());
           refreshHistory();
@@ -1453,7 +1453,7 @@ Transcript:
     const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(result.clips, null, 2));
     const downloadAnchor = document.createElement('a');
     downloadAnchor.setAttribute("href", dataStr);
-    downloadAnchor.setAttribute("download", `cheat_clip_pro_${result.video_id}.json`);
+    downloadAnchor.setAttribute("download", `xoraclips_${result.video_id}.json`);
     document.body.appendChild(downloadAnchor);
     downloadAnchor.click();
     downloadAnchor.remove();
@@ -1487,7 +1487,7 @@ Transcript:
     const dataStr = "data:text/plain;charset=utf-8," + encodeURIComponent(srtText);
     const downloadAnchor = document.createElement('a');
     downloadAnchor.setAttribute("href", dataStr);
-    downloadAnchor.setAttribute("download", `cheat_clip_pro_${result.video_id}.srt`);
+    downloadAnchor.setAttribute("download", `xoraclips_${result.video_id}.srt`);
     document.body.appendChild(downloadAnchor);
     downloadAnchor.click();
     downloadAnchor.remove();
@@ -1634,8 +1634,8 @@ Transcript:
           <span className="logo-emoji">⚡</span>
           <div>
             <div className="logo-title-row">
-              <h1 className="text-gradient logo-title">CHEAT CLIP</h1>
-              <span className="pro-badge" title="Cheat Clip Pro Edition">
+              <h1 className="text-gradient logo-title">XORACLIPS</h1>
+              <span className="pro-badge" title="Xoraclips">
                 <svg className="pro-badge-icon" width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M5 16L3 5L8.5 10L12 4L15.5 10L21 5L19 16H5M19 19C19 19.6 18.6 20 18 20H6C5.4 20 5 19.6 5 19V17H19V19Z" />
                 </svg>
@@ -1798,7 +1798,7 @@ Transcript:
                   onChange={(e) => {
                     const val = e.target.value;
                     setApiKey(val);
-                    localStorage.setItem('cheat_clip_gemini_api_key', val);
+                    localStorage.setItem('xoraclips_gemini_api_key', val);
                     if (val.trim()) setError(null);
                   }}
                   disabled={loading}
@@ -1827,7 +1827,7 @@ Transcript:
                   value={selectedModel}
                   onChange={(e) => {
                     setSelectedModel(e.target.value);
-                    localStorage.setItem('cheat_clip_selected_model', e.target.value);
+                    localStorage.setItem('xoraclips_selected_model', e.target.value);
                   }}
                   disabled={loading}
                   style={{ padding: '0.6rem 1rem', fontSize: '0.875rem', height: '42px', cursor: 'pointer', appearance: 'auto', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border-color)', borderRadius: '8px' }}
@@ -1936,7 +1936,7 @@ Transcript:
                     onChange={(e) => {
                       const val = Number(e.target.value);
                       setTargetClipCount(val);
-                      localStorage.setItem('cheat_clip_target_clip_count', String(val));
+                      localStorage.setItem('xoraclips_target_clip_count', String(val));
                     }}
                     disabled={loading}
                     style={{

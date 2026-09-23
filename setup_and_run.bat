@@ -1,13 +1,13 @@
 @echo off
 setlocal EnableDelayedExpansion
-title Cheat Clip PRO - Setup and Launcher
+title Xoraclips - Setup and Launcher
 
 :: Ensure we run from the directory containing this script
 cd /d "%~dp0"
 
 echo.
 echo  ======================================================================
-echo                       CHEAT CLIP PRO - WINDOWS LAUNCHER                
+echo                       XORACLIPS - WINDOWS LAUNCHER                
 echo  ======================================================================
 echo.
 
@@ -162,28 +162,28 @@ echo [STEP 2/4] Checking repository location...
 
 if exist "package.json" (
     if exist "backend\main.py" (
-        echo [OK] Already inside Cheat Clip PRO directory. Skipping clone.
+        echo [OK] Already inside Xoraclips directory. Skipping clone.
         goto :in_repo
     )
 )
 
-if exist "cheat-clip-pro\package.json" (
-    echo [OK] Existing cheat-clip-pro folder found. Skipping clone.
-    cd "cheat-clip-pro"
+if exist "xoraclips\package.json" (
+    echo [OK] Existing xoraclips folder found. Skipping clone.
+    cd "xoraclips"
     goto :in_repo
 )
 
-echo [INFO] Cloning Cheat Clip PRO repository from GitHub...
-git clone https://github.com/galihjuansaputra/cheat-clip-pro.git
+echo [INFO] Cloning Xoraclips repository from GitHub...
+git clone https://github.com/M1xora/xoraclips.git
 if !errorlevel! neq 0 (
     echo [ERROR] Git clone failed. Please check your internet connection.
     pause
     exit /b 1
 )
 
-cd "cheat-clip-pro"
+cd "xoraclips"
 if !errorlevel! neq 0 (
-    echo [ERROR] Failed to access cheat-clip-pro directory.
+    echo [ERROR] Failed to access xoraclips directory.
     pause
     exit /b 1
 )
@@ -205,10 +205,10 @@ echo [STEP 3/4] Checking and installing project dependencies...
 
 :: Create empty environment configs if missing
 if not exist ".env" (
-    echo # CHEAT CLIP PRO root environment config > .env
+    echo # XORACLIPS root environment config > .env
 )
 if not exist "backend\.env" (
-    echo # CHEAT CLIP PRO backend environment config > backend\.env
+    echo # XORACLIPS backend environment config > backend\.env
 )
 
 :: A. Frontend Dependencies
@@ -264,7 +264,7 @@ if not exist "venv\.installed" (
 :: -------------------------------------------------------------------------
 echo.
 echo ======================================================================
-echo                     STARTING CHEAT CLIP PRO                           
+echo                     STARTING XORACLIPS                           
 echo ======================================================================
 echo.
 echo   * Web App: http://localhost:5173

@@ -1,4 +1,4 @@
-# 🎬 Cheat Clip PRO
+# 🎬 Xoraclips
 
 > **Turn long YouTube videos into viral TikToks, Shorts, and Reels with animated subtitles, face centering, and music in minutes.**
 
@@ -40,8 +40,8 @@ The script will automatically:
 ### Step 2: Clone the Repository
 Open your terminal and run:
 ```bash
-git clone https://github.com/galihjuansaputra/cheat-clip-pro.git
-cd cheat-clip-pro
+git clone https://github.com/M1xora/xoraclips.git
+cd xoraclips
 ```
 
 ### Step 3: Install Dependencies
@@ -62,7 +62,7 @@ Open **`http://localhost:5173`** in your web browser!
 
 ## 🔄 Updating to the Latest Version
 
-To update your copy of Cheat Clip PRO with the latest features and fixes, open your terminal inside the `cheat-clip-pro` folder and run:
+To update your copy of Xoraclips with the latest features and fixes, open your terminal inside the `xoraclips` folder and run:
 
 ```bash
 git pull
@@ -75,7 +75,7 @@ python -m pip install -r backend/requirements.txt
 
 ## 🔑 Free Google Gemini API Key (Takes 1 Minute)
 
-Cheat Clip PRO uses Google's AI to find the best viral moments for free:
+Xoraclips uses Google's AI to find the best viral moments for free:
 1. Go to **[Google AI Studio](https://aistudio.google.com/)** and sign in with any Google account.
 2. Click **"Get API key"** (or **"Create API key"**).
 3. Copy your key (starts with `AIzaSy...`).
@@ -122,7 +122,7 @@ Cheat Clip PRO uses Google's AI to find the best viral moments for free:
 * **Fix:** Click the 🍪 **Cookies** button in the top navigation bar, export your YouTube cookies using a free browser extension (like *Get cookies.txt locally*), and paste them into the app.
 
 ### 3. Does this work on AMD graphics cards and Mac?
-* **Yes!** Cheat Clip PRO automatically supports:
+* **Yes!** Xoraclips automatically supports:
   * **NVIDIA** (`h264_nvenc`)
   * **AMD** (`h264_amf` on Radeon GPUs & Ryzen CPUs)
   * **Intel** (`h264_qsv` on Arc & UHD Graphics)

@@ -12,7 +12,7 @@ from pathlib import Path
 from typing import List, Dict, Any, Optional, Tuple
 from PIL import Image, ImageDraw, ImageFont
 
-logger = logging.getLogger("cheat-clip-pro.video-engine")
+logger = logging.getLogger("xoraclips.video-engine")
 
 try:
     from backend.captions import (
