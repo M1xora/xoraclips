@@ -126,6 +126,34 @@ export interface RawJobStatus {
   error: string | null;
 }
 
+/** One highlighted word inside a caption chunk. Times relative to clip start. */
+export interface ApiCaptionWord {
+  text: string;
+  start: number;
+  end: number;
+}
+
+/** A caption exactly as the export burns it (backend captions.py). */
+export interface ApiCaptionChunk {
+  start: number;
+  end: number;
+  text: string;
+  words: ApiCaptionWord[];
+}
+
+export interface CaptionChunksRequest {
+  transcript: import('../lib/types').TranscriptLine[];
+  clip_start: number;
+  clip_end: number;
+  text_case: import('../lib/types').TextCaseOption;
+}
+
+export interface CaptionChunksResponse {
+  chunks: ApiCaptionChunk[];
+  /** `none`: no transcript, so the render will fall back to Whisper. */
+  source: 'transcript' | 'none';
+}
+
 export interface FaceBox {
   found: boolean;
   cx: number;
@@ -177,6 +205,10 @@ export const api = {
     if (videoUrl) params.set('video_url', videoUrl);
     return request<FaceBox>(`/api/detect-face?${params}`, { signal });
   },
+
+  /** Caption chunks for a clip, computed by the same code as the render. */
+  captionChunks: (body: CaptionChunksRequest, signal?: AbortSignal) =>
+    postJson<CaptionChunksResponse>('/api/caption-chunks', body, signal),
 
   clipFrameUrl: (videoId: string, timestamp: number) =>
     `/api/clip-frame?video_id=${encodeURIComponent(videoId)}&timestamp=${timestamp}`,

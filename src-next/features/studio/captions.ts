@@ -1,13 +1,18 @@
-import type { CaptionStyle, TextCaseOption, TranscriptLine } from '../../lib/types';
-import { applyLetterCase } from './derive';
+import type { CaptionStyle } from '../../lib/types';
+import type { ApiCaptionChunk } from '../../api/client';
 
 /**
- * Caption styling and word timing for the preview.
+ * Caption styling and timing helpers for the preview.
+ *
+ * The words, the chunking and each word's highlight timing are NOT decided
+ * here. They come from the backend (`POST /api/caption-chunks`, backend
+ * captions.py), the same code that writes the export's .ass file, so the
+ * preview shows exactly what the render burns in. Word timings are spread
+ * evenly across each YouTube caption line on both sides; neither side uses
+ * Whisper while a transcript exists.
  *
  * Colours come from ClipStudioSection.tsx:3013-3053, where each style
- * highlighted one word in an accent colour against white. The old preview
- * showed a fixed sample phrase per style; this uses the clip's own words, so
- * what the user reads is what the render will burn in.
+ * highlighted one word in an accent colour against white.
  */
 
 export interface CaptionTheme {
@@ -40,105 +45,50 @@ export const CAPTION_STYLE_LABELS: Record<CaptionStyle, string> = {
   none: 'None',
 };
 
+
 export interface CaptionWord {
   text: string;
   start: number;
   end: number;
 }
 
+/** A caption chunk in absolute source-video time. */
 export interface CaptionChunk {
   words: CaptionWord[];
   start: number;
   end: number;
 }
 
-/** Words shown at once. The renderer groups captions the same way. */
-const WORDS_PER_CHUNK = 3;
-
 /**
- * Splits a transcript line into evenly timed words.
- *
- * The backend produces real per-word timings with Whisper. The frontend has
- * only line-level timings, so words are spread across the line. The result
- * is close enough to judge style and placement, and it is labelled as a
- * preview rather than presented as frame-accurate.
+ * Moves backend chunks (relative to the clip start, like the .ass file) onto
+ * the source video's timeline, which is what the preview player reports.
  */
-function wordsFromLine(line: TranscriptLine): CaptionWord[] {
-  const words = line.text.trim().split(/\s+/).filter(Boolean);
-  if (words.length === 0) return [];
-
-  const span = Math.max(0.1, line.end - line.start);
-  const per = span / words.length;
-
-  return words.map((text, i) => ({
-    text,
-    start: line.start + i * per,
-    end: line.start + (i + 1) * per,
+export function chunksFromApi(chunks: ApiCaptionChunk[], clipStart: number): CaptionChunk[] {
+  return chunks.map((c) => ({
+    start: clipStart + c.start,
+    end: clipStart + c.end,
+    words: c.words.map((w) => ({
+      text: w.text,
+      start: clipStart + w.start,
+      end: clipStart + w.end,
+    })),
   }));
 }
 
 /**
- * Builds the caption chunks covering one clip.
- *
- * Falls back to the clip's own transcript string when no timed lines exist,
- * which is common for videos without subtitles.
+ * The chunk on screen at `time`, or null between chunks. Intervals are
+ * half-open [start, end), as ASS events are, so a boundary instant belongs
+ * to the chunk that starts there.
  */
-export function buildCaptionChunks(
-  transcript: TranscriptLine[] | undefined,
-  clipStart: number,
-  clipEnd: number,
-  fallbackText?: string,
-): CaptionChunk[] {
-  const lines = (transcript ?? []).filter(
-    (l) => l.end > clipStart && l.start < clipEnd,
-  );
-
-  let words: CaptionWord[] = [];
-
-  if (lines.length > 0) {
-    words = lines.flatMap(wordsFromLine);
-  } else if (fallbackText?.trim()) {
-    // No timings: spread the clip's transcript evenly across its duration.
-    const all = fallbackText.trim().split(/\s+/).filter(Boolean);
-    const span = Math.max(0.1, clipEnd - clipStart);
-    const per = span / Math.max(1, all.length);
-    words = all.map((text, i) => ({
-      text,
-      start: clipStart + i * per,
-      end: clipStart + (i + 1) * per,
-    }));
-  }
-
-  // Keep only what falls inside the clip.
-  words = words.filter((w) => w.end > clipStart && w.start < clipEnd);
-  if (words.length === 0) return [];
-
-  const chunks: CaptionChunk[] = [];
-  for (let i = 0; i < words.length; i += WORDS_PER_CHUNK) {
-    const group = words.slice(i, i + WORDS_PER_CHUNK);
-    chunks.push({
-      words: group,
-      start: group[0].start,
-      end: group[group.length - 1].end,
-    });
-  }
-  return chunks;
-}
-
-/** The chunk covering `time`, or null between chunks. */
 export function chunkAt(chunks: CaptionChunk[], time: number): CaptionChunk | null {
-  return chunks.find((c) => time >= c.start && time <= c.end) ?? null;
+  return chunks.find((c) => time >= c.start && time < c.end) ?? null;
 }
 
 /**
- * Which word inside the chunk is currently spoken.
- * Returns -1 before the first word starts.
+ * Which word inside the chunk is highlighted. Zero-length words are never
+ * highlighted, matching the renderer, which skips them. Returns -1 when no
+ * word is active.
  */
 export function activeWordIndex(chunk: CaptionChunk, time: number): number {
-  return chunk.words.findIndex((w) => time >= w.start && time <= w.end);
-}
-
-/** Applies the case option to a word for display. */
-export function renderWord(word: string, textCase: TextCaseOption): string {
-  return applyLetterCase(word, textCase);
+  return chunk.words.findIndex((w) => w.end > w.start && time >= w.start && time < w.end);
 }
