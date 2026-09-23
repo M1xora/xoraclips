@@ -1,0 +1,4 @@
+# Test-only dependencies. video_engine.py imports only Pillow at module level,
+# so backend tests do not need torch or Whisper.
+pytest>=8.0
+Pillow>=10.0.0
