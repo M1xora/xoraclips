@@ -455,8 +455,8 @@ def _resolve_line_times(
     - Lines with neither (or an end not after start) are incomplete: they end
       at the next line's start, else the clip end, else start + 2s. This is
       always logged as a warning, never applied silently.
-    - A line that runs past the next line's start is trimmed to it. YouTube
-      auto captions overlap like this routinely.
+    - A line that runs past the start of the next later line is trimmed to
+      it. YouTube auto captions overlap like this routinely.
     """
     parsed = []
     for line in lines:
@@ -472,11 +472,18 @@ def _resolve_line_times(
 
     parsed.sort(key=lambda l: l["start"])
 
+    # next_later[i]: start of the first following line that begins strictly
+    # after line i. Lines sharing a start look past each other to it.
+    next_later: List[Optional[float]] = [None] * len(parsed)
+    for i in range(len(parsed) - 2, -1, -1):
+        nxt = parsed[i + 1]["start"]
+        next_later[i] = nxt if nxt > parsed[i]["start"] else next_later[i + 1]
+
     incomplete = []
     for i, line in enumerate(parsed):
         if line["end"] is not None:
             continue
-        next_start = next((l["start"] for l in parsed[i + 1:] if l["start"] > line["start"]), None)
+        next_start = next_later[i]
         if next_start is not None:
             line["end"] = next_start
         elif clip_end_time > line["start"]:
@@ -493,9 +500,9 @@ def _resolve_line_times(
         )
 
     trimmed = 0
-    for cur, nxt in zip(parsed, parsed[1:]):
-        if nxt["start"] > cur["start"] and cur["end"] > nxt["start"]:
-            cur["end"] = nxt["start"]
+    for line, next_start in zip(parsed, next_later):
+        if next_start is not None and line["end"] > next_start:
+            line["end"] = next_start
             trimmed += 1
     if trimmed:
         logger.info(f"Trimmed {trimmed} overlapping transcript line(s) to the next line's start.")

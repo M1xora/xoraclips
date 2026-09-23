@@ -93,6 +93,21 @@ def test_overlapping_auto_caption_lines_are_trimmed(fmt):
     assert words[-1]["end"] == pytest.approx(7.0)
 
 
+def test_line_sharing_a_start_is_trimmed_to_next_later_line():
+    # A and B start together (e.g. a cue split into two entries); A must still
+    # stop where C begins instead of running over it.
+    lines = [
+        {"start": 10.0, "end": 14.0, "text": "a b"},
+        {"start": 10.0, "end": 11.0, "text": "c"},
+        {"start": 12.0, "end": 13.0, "text": "d"},
+    ]
+    words = {w["word"]: w for w in transcribe_clip_words("unused.mp4", lines, 10.0, 14.0)}
+
+    assert (words["a"]["start"], words["a"]["end"]) == (0.0, 1.0)
+    assert (words["b"]["start"], words["b"]["end"]) == (1.0, 2.0)
+    assert (words["d"]["start"], words["d"]["end"]) == (2.0, 3.0)
+
+
 def test_incomplete_line_uses_next_start_and_logs_warning(caplog):
     lines = [
         {"start": 10.0, "text": "tanpa akhir"},
