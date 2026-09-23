@@ -145,7 +145,7 @@ export function buildMarkdown(result: AnalyzeResponse): string {
 
 /** Strips the characters Windows rejects, matching the backend's own rule. */
 export function safeFileName(name: string, fallback = 'export'): string {
-  return name.replace(/[/*?:"<>|]/g, '').trim() || fallback;
+  return name.replace(/[\\/*?:"<>|]/g, '').trim() || fallback;
 }
 
 /** Hands the browser a string as a file download. */

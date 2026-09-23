@@ -183,26 +183,25 @@ export function useYouTubePlayer({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [videoId, startPolling, stopPolling]);
 
-  // Moving to another clip seeks the existing player. The time readout jumps
-  // to the new start while rendering (#2); the effect only seeks.
+  // Moving to another clip seeks the existing player. The readout follows
+  // only once the seek went through, as before; it is set in a microtask so
+  // the effect body itself sets no state (#2).
   const boundsStart = bounds?.start;
   const boundsEnd = bounds?.end;
-  const seekTarget = state.ready && boundsStart !== undefined ? `${boundsStart}-${boundsEnd}` : null;
-  const [lastSeekTarget, setLastSeekTarget] = useState(seekTarget);
-  if (seekTarget !== lastSeekTarget) {
-    setLastSeekTarget(seekTarget);
-    if (seekTarget !== null && boundsStart !== undefined) {
-      setState((s) => ({ ...s, currentTime: boundsStart }));
-    }
-  }
-
   useEffect(() => {
     if (!state.ready || boundsStart === undefined || !playerRef.current) return;
     try {
       playerRef.current.seekTo(boundsStart, true);
     } catch {
-      // Ignore.
+      return;
     }
+    let live = true;
+    queueMicrotask(() => {
+      if (live) setState((s) => ({ ...s, currentTime: boundsStart }));
+    });
+    return () => {
+      live = false;
+    };
   }, [boundsStart, boundsEnd, state.ready]);
 
   const seek = useCallback((seconds: number, play = false) => {
