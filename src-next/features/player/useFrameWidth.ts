@@ -19,7 +19,11 @@ export function useFrameWidth(ref: RefObject<HTMLElement | null>): number {
 
   useLayoutEffect(() => {
     const el = ref.current;
-    if (!el || typeof ResizeObserver === 'undefined') return;
+    if (!el) return;
+    // Measure now, before paint, so a narrow column never shows a frame
+    // that is too wide for a moment; then follow resizes.
+    setWidth(frameWidthFor(el.getBoundingClientRect().width));
+    if (typeof ResizeObserver === 'undefined') return;
     const observer = new ResizeObserver(([entry]) => setWidth(frameWidthFor(entry.contentRect.width)));
     observer.observe(el);
     return () => observer.disconnect();

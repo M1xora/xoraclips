@@ -12,8 +12,9 @@ describe('preview frame width (#20)', () => {
   });
 
   it('shrinks to the column on a phone instead of overflowing', () => {
-    // 360px phone: 16px page gutters and 16px panel padding on each side.
-    expect(frameWidthFor(360 - 64)).toBe(296);
+    // 360px phone: 16px page gutter, 1px panel border and 16px panel
+    // padding on each side.
+    expect(frameWidthFor(360 - 2 * (16 + 1 + 16))).toBe(294);
     expect(frameWidthFor(295.6)).toBe(295);
   });
 

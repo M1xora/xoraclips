@@ -39,7 +39,6 @@ import type {
   ViralClip,
 } from '../../lib/types';
 
-
 /** Size the 16:9 source needs so it covers a box in both directions. */
 function coverSize(boxW: number, boxH: number) {
   const width = Math.max(boxW, boxH * (16 / 9));
@@ -395,8 +394,8 @@ export function ClipPreview({
               <span
                 className="whitespace-nowrap rounded bg-black/45 px-1.5 py-0.5 font-semibold text-white"
                 // Backend: font = 180 * (size/100) on a 1080-wide canvas
-                // (video_engine.py:1657). Scaling that by the preview scale keeps the
-                // preview on the same curve; the old 56 * (FRAME_W/320)
+                // (video_engine.py:1657). Scaling that by the preview scale
+                // keeps the preview on the same curve; an older fixed
                 // constant ran about 5% large at every size.
                 style={{
                   fontSize: `${Math.max(7, Math.round(180 * (watermarkSize / 100) * scale))}px`,
