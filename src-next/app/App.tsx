@@ -459,7 +459,7 @@ export function App() {
             <section className="mt-6">
               <h2 className="mb-3 font-display text-sm font-semibold">{t.studio.title}</h2>
 
-              <div className="grid items-start gap-5 xl:grid-cols-[1fr_356px]">
+              <div className="grid items-start gap-5 xl:grid-cols-[1fr_368px]">
                 <div className="min-w-0">
                   <StudioPanel
                     state={studio}
@@ -519,7 +519,9 @@ export function App() {
 
                 {/* Sticky, so the preview stays in view while the controls
                     scroll. Without this every tweak means scrolling back up. */}
-                <aside className="top-[4.5rem] xl:sticky">
+                {/* min-w-0: a grid item is otherwise as wide as its content, so the
+                    preview could never shrink to fit a phone (#20). */}
+                <aside className="top-[4.5rem] min-w-0 xl:sticky">
                   <Panel title={t.player.clipPreview} subtitle={t.player.clipPreviewHint}>
                     {activeClip ? (
                       <ClipPreview
