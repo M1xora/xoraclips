@@ -1,17 +1,28 @@
 """
 Where the Gemini key comes from, and how it is kept out of logs.
 
-The key lives only in the backend environment (`GEMINI_API_KEY` in .env).
-The browser never sends it; the owner pays for AI usage (issue #8).
+The key comes ONLY from the user, in the `X-Gemini-Api-Key` request header
+(issue #12): users pay for their own AI usage. There is no server key in
+.env. Keys in URLs or request bodies are ignored.
+
+While a request is using a key, that exact key is registered here so every
+log line and every message to the browser has it scrubbed, whatever its
+shape. Known Google key shapes are scrubbed at all times as a backstop.
 
 Kept free of heavy imports so it can be tested in CI on its own.
 """
 import logging
 import os
 import re
-from typing import Any
+import threading
+from collections import Counter
+from contextlib import contextmanager
+from typing import Any, Iterator, Optional
 
 REDACTED = "[REDACTED]"
+
+# The request header that carries the user's key.
+GEMINI_KEY_HEADER = "X-Gemini-Api-Key"
 
 _TRUE = {"1", "true", "yes", "on"}
 
@@ -20,13 +31,30 @@ _PATTERNS = [
     re.compile(r"AIza[0-9A-Za-z_\-]{20,}"),
     re.compile(r"AQ\.[0-9A-Za-z_\-]{20,}"),
     re.compile(r"(?i)([?&](?:api_key|apikey|key)=)[^&\s\"'<>]+"),
-    re.compile(r"(?i)(x-goog-api-key[\"']?\s*[:=]\s*[\"']?)[^\"'\s,}]+"),
+    re.compile(r"(?i)((?:x-goog-api-key|x-gemini-api-key)[\"']?\s*[:=]\s*[\"']?)[^\"'\s,}]+"),
 ]
 
+# Keys in use right now, reference-counted so overlapping requests with the
+# same key keep it registered until the last one finishes.
+#
+# Kept on the logging module so there is exactly one registry per process,
+# even if this file is imported twice under different names
+# (`backend.secrets_guard` by the app, `secrets_guard` by tests or scripts).
+# Otherwise a key tracked through one copy would be unknown to the log
+# scrubber installed by the other.
+_STATE = logging.__dict__.setdefault(
+    "_cheat_clip_secret_state", {"active": Counter(), "lock": threading.Lock()}
+)
+_active = _STATE["active"]
+_active_lock = _STATE["lock"]
+# Shorter strings are too likely to appear in ordinary text.
+_MIN_SECRET_LEN = 8
 
-def get_gemini_key() -> str:
-    """The Gemini key from the backend environment; the only source."""
-    return os.environ.get("GEMINI_API_KEY", "").strip()
+
+def user_key_from_header(value: Optional[str]) -> Optional[str]:
+    """The user's key from the request header, or None when absent/blank."""
+    key = (value or "").strip()
+    return key or None
 
 
 def is_mock_mode() -> bool:
@@ -34,13 +62,31 @@ def is_mock_mode() -> bool:
     return os.environ.get("MOCK_MODE", "").strip().lower() in _TRUE
 
 
+@contextmanager
+def tracked_secret(key: Optional[str]) -> Iterator[None]:
+    """Scrub this exact key from logs and payloads while the block runs."""
+    if not key or len(key) < _MIN_SECRET_LEN:
+        yield
+        return
+    with _active_lock:
+        _active[key] += 1
+    try:
+        yield
+    finally:
+        with _active_lock:
+            _active[key] -= 1
+            if _active[key] <= 0:
+                del _active[key]
+
+
 def redact(text: str) -> str:
-    """Replaces the configured key and anything shaped like a key."""
+    """Replaces every key in use and anything shaped like a key."""
     if not text:
         return text
-    key = get_gemini_key()
-    if len(key) >= 8:
-        text = text.replace(key, REDACTED)
+    with _active_lock:
+        secrets = sorted(_active, key=len, reverse=True)
+    for secret in secrets:
+        text = text.replace(secret, REDACTED)
     for pattern in _PATTERNS:
         text = pattern.sub(lambda m: (m.group(1) if m.groups() else "") + REDACTED, text)
     return text
