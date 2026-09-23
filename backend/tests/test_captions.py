@@ -209,3 +209,75 @@ def test_frontend_fixture_matches_backend_output():
         FIXTURE["id"], fixture["clip_start"], fixture["clip_end"], fixture["text_case"]
     )
     assert fixture["chunks"] == current
+
+
+# --- Rupiah amounts (no YouTube needed) ------------------------------------
+
+@pytest.mark.parametrize("raw, expected", [
+    ("Rp10.000", "Rp10.000"),
+    ("Rp.10.000", "Rp10.000"),
+    ("Rp10.000,-", "Rp10.000"),
+    ("Rp10.000,00", "Rp10.000,00"),
+    ("Rp1.500.000,00", "Rp1.500.000,00"),
+    ("Rp1,5", "Rp1,5"),
+    ("Rp50rb", "Rp50rb"),
+    ("Rp2,5M", "Rp2,5M"),
+    ("(Rp25.000)", "Rp25.000"),
+    ("Rp10.000.", "Rp10.000"),
+    ("50.000,", "50.000"),
+    ("IDR", "IDR"),
+])
+def test_rupiah_amounts_keep_their_digits_and_separators(raw, expected):
+    assert clean_display_word(raw) == expected
+
+
+@pytest.mark.parametrize("token, breaks", [
+    ("Rp10.000", False),
+    ("10.000", False),       # the "." inside a number is not a full stop
+    ("Rp10.000,-", False),   # ",-" is the price suffix, not a dash
+    ("Rp.", False),          # abbreviation
+    ("Rp10.000,", True),
+    ("Rp10.000.", True),
+    ("rupiah!", True),
+])
+def test_rupiah_break_points(token, breaks):
+    from captions import ends_phrase
+    assert ends_phrase(token) is breaks
+
+
+@pytest.mark.parametrize("text, expected", [
+    ("harga Rp 10.000 saja", ["harga", "Rp10.000", "saja"]),
+    ("harga Rp. 10.000 saja", ["harga", "Rp10.000", "saja"]),
+    ("IDR 50.000 per bulan", ["IDR50.000", "per", "bulan"]),
+    ("hemat Rp 500.000,- sebulan", ["hemat", "Rp500.000", "sebulan"]),
+    # Not followed by a number: stays a word of its own.
+    ("bayar pakai Rp saja", ["bayar", "pakai", "Rp", "saja"]),
+])
+def test_currency_word_joins_its_amount(text, expected):
+    assert [w["word"] for w in tokenize_caption_text(text)] == expected
+
+
+def test_rupiah_is_never_split_from_its_amount_across_chunks():
+    lines = [{
+        "start": 0.0, "end": 8.0,
+        "text": "Harganya Rp 1.500.000,00 per bulan. Diskon jadi Rp1,5 juta, hemat Rp.500.000,- lho",
+    }]
+    for text_case in ["uppercase", "capitalize", "lowercase"]:
+        chunks = caption_chunks_for_clip(lines, 0.0, 8.0, text_case)
+        words = [w["text"] for c in chunks for w in c["words"]]
+        assert all(re.fullmatch(r"(?i)rp", w) is None for w in words), words
+        for w in words:
+            assert all(ALLOWED_WORD.match(part) for part in w.split(" ")), w
+    assert [c["text"] for c in caption_chunks_for_clip(lines, 0.0, 8.0)] == [
+        "HARGANYA", "RP1.500.000,00", "PER BULAN", "DISKON JADI", "RP1,5 JUTA", "HEMAT RP500.000", "LHO",
+    ]
+
+
+@pytest.mark.parametrize("text, expected", [
+    ("gajinya 10 juta, rumah 2 miliar", ["gajinya", "10 juta", "rumah", "2 miliar"]),
+    ("Rp 50 rb saja", ["Rp50 rb", "saja"]),
+    ("naik 3 persen", ["naik", "3", "persen"]),      # not an amount unit
+    ("umur 10. Juta orang", ["umur", "10", "Juta", "orang"]),  # sentence ended
+])
+def test_amount_stays_with_its_unit(text, expected):
+    assert [w["word"] for w in tokenize_caption_text(text)] == expected

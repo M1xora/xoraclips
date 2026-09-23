@@ -50,8 +50,15 @@ _MINUS = set("-−")  # kept as a sign right before a digit: -5
 # A trailing "." on these does not end a phrase: "Mr. Smith", "Jl. Sudirman".
 _ABBREVIATIONS = {
     "mr", "mrs", "ms", "dr", "prof", "st", "jr", "sr", "vs", "no",
-    "hlm", "yth", "sdr", "drs", "ir", "jl", "bpk",
+    "hlm", "yth", "sdr", "drs", "ir", "jl", "bpk", "rp",
 }
+# A currency word written apart from its amount ("Rp 10.000") is joined to it,
+# so a chunk never shows "RP" on its own and the number in the next caption.
+_CURRENCY_WORDS = {"rp", "idr"}
+# A magnitude word after a number stays with it: "Rp1,5 juta" is one word.
+_AMOUNT_UNITS = {"ribu", "rb", "juta", "jt", "miliar", "milyar", "triliun"}
+# Indonesian price suffix ",-" ("Rp10.000,-") is part of the amount, not a dash.
+_PRICE_SUFFIX = re.compile(r"\d,-$")
 _DOTTED_ACRONYM = re.compile(r"^(?:[^\W\d_]\.){2,}$")  # U.S.  e.g.  a.m.
 
 _TAG_RE = re.compile(r"\[.*?\]|\(.*?\)|\*.*?\*")
@@ -98,12 +105,13 @@ def clean_display_word(token: str) -> str:
 def ends_phrase(token: str) -> bool:
     """
     True when the token closes a phrase: "lalu," "sendiri." "keduanya--".
-    A full stop after an abbreviation ("Mr." "U.S.") does not count.
+    A full stop after an abbreviation ("Mr." "U.S." "Rp.") and the price
+    suffix ",-" ("Rp10.000,-") do not count.
     """
     t = (token or "").rstrip()
     while t and t[-1] in _CLOSERS:
         t = t[:-1]
-    if not t:
+    if not t or _PRICE_SUFFIX.search(t):
         return False
     if t[-1] == ".":
         core = t.lstrip("\"'“‘«([{")
@@ -126,6 +134,27 @@ def tokenize_caption_text(text: str, break_at_end: bool = True) -> List[Dict[str
             # Punctuation-only tokens like "--" or "..." still mark a break.
             if words and ends_phrase(token):
                 words[-1]["break_after"] = True
+            continue
+        prev = words[-1] if words else None
+        if (
+            prev is not None
+            and prev["word"].lower() in _CURRENCY_WORDS
+            and not prev["break_after"]
+            and clean[0].isdigit()
+        ):
+            # "Rp 10.000" -> one word "Rp10.000", the usual written form.
+            prev["word"] += clean
+            prev["break_after"] = ends_phrase(token)
+            continue
+        if (
+            prev is not None
+            and clean.lower() in _AMOUNT_UNITS
+            and not prev["break_after"]
+            and any(ch.isdigit() for ch in prev["word"])
+        ):
+            # "1,5 juta" stays on one caption: never "RP1,5" then "JUTA".
+            prev["word"] += " " + clean
+            prev["break_after"] = ends_phrase(token)
             continue
         words.append({"word": clean, "break_after": ends_phrase(token)})
     if words and break_at_end:
@@ -276,7 +305,9 @@ def build_caption_chunks(
     # Step A: Sanitize and sort all word timestamps
     valid_words = []
     for w in words:
-        raw_text = clean_display_word(str(w.get("word", "")).strip())
+        # A word may hold a space ("1,5 juta"); clean each part, keep the space.
+        parts = (clean_display_word(p) for p in str(w.get("word", "")).split())
+        raw_text = " ".join(p for p in parts if p)
         if not raw_text:
             continue
         w_text = apply_text_case(raw_text, text_case)
