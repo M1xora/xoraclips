@@ -181,16 +181,14 @@ export interface BatchStart {
 
 export const api = {
   /**
-   * Available Gemini models for a key.
-   *
-   * NOTE: the backend declares this as GET /api/models?api_key=... so the key
-   * travels in the query string, where it lands in browser history and server
-   * access logs. Changing that needs a backend edit (accept a POST body), which
-   * is out of scope for the frontend rewrite. Isolated here so there is exactly
-   * one place to fix once the backend accepts a body.
+   * Gemini models available to the server's key. The key lives only in
+   * backend/.env; the browser never sends one (issue #8).
    */
-  listModels: (apiKey: string, signal?: AbortSignal) =>
-    request<{ models: string[] }>(`/api/models?api_key=${encodeURIComponent(apiKey)}`, { signal }),
+  listModels: (signal?: AbortSignal) => request<{ models: string[] }>('/api/models', { signal }),
+
+  /** Server configuration, e.g. whether the AI key is set or mock mode is on. */
+  health: (signal?: AbortSignal) =>
+    request<import('../features/analyze/serverStatus').HealthInfo>('/api/health', { signal }),
 
   hardwareAccel: (signal?: AbortSignal) =>
     request<import('../lib/types').HardwareAccelInfo>('/api/hardware-accel', { signal }),

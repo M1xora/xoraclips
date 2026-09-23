@@ -27,16 +27,13 @@ export const id = {
     submitBusy: 'Menganalisis',
 
     engine: 'Mesin AI',
-    apiKeyLabel: 'Kunci API Gemini',
-    apiKeyRequired: 'Kunci API Gemini wajib diisi.',
-    apiKeyShow: 'Tampilkan kunci',
-    apiKeyHide: 'Sembunyikan kunci',
-    apiKeyFree: 'Gratis di',
-    apiKeyMock: 'Ketik "mock" untuk mencoba dengan data contoh.',
+    aiNotConfigured: 'Layanan AI belum disiapkan di server, jadi analisis belum bisa dijalankan. Hubungi admin.',
+    mockMode: 'Mode demo.',
+    mockModeHint: 'Analisis memakai data contoh, tanpa AI dan tanpa YouTube.',
 
     modelLabel: 'Model',
-    modelLive: (n: number) => `${n} model tersedia untuk kunci ini.`,
-    modelFallback: 'Masukkan kunci untuk memuat daftar model.',
+    modelLive: (n: number) => `${n} model tersedia di server.`,
+    modelFallback: 'Daftar model bawaan. Daftar lengkap tampil saat layanan AI server siap.',
 
     clipSettings: 'Pengaturan klip',
     durationLabel: 'Panjang target',

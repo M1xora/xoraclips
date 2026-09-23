@@ -28,16 +28,13 @@ export const en: Translations = {
     submitBusy: 'Analyzing',
 
     engine: 'AI engine',
-    apiKeyLabel: 'Gemini API key',
-    apiKeyRequired: 'A Gemini API key is required.',
-    apiKeyShow: 'Show key',
-    apiKeyHide: 'Hide key',
-    apiKeyFree: 'Free at',
-    apiKeyMock: 'Type "mock" to try it with sample data.',
+    aiNotConfigured: 'The AI service is not set up on the server yet, so analysis cannot run. Contact the administrator.',
+    mockMode: 'Demo mode.',
+    mockModeHint: 'Analysis uses sample data, without AI or YouTube.',
 
     modelLabel: 'Model',
-    modelLive: (n: number) => `${n} models available for this key.`,
-    modelFallback: 'Enter a key to load the live model list.',
+    modelLive: (n: number) => `${n} models available on the server.`,
+    modelFallback: 'Default model list. The full list appears once the server AI service is ready.',
 
     clipSettings: 'Clip settings',
     durationLabel: 'Target length',
