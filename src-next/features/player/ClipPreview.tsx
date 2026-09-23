@@ -78,7 +78,6 @@ interface ClipPreviewProps {
   titleYPercent?: number;
   /** Title size preset; the font size follows the renderer's (issue #19). */
   titleFontSize?: FontSizeOption;
-  titleLines?: number;
 
   watermarkEnabled?: boolean;
   watermarkType?: 'image' | 'text';
@@ -130,7 +129,6 @@ export function ClipPreview({
   title,
   titleYPercent = 17,
   titleFontSize = 'medium',
-  titleLines = 1,
   watermarkEnabled = false,
   watermarkType = 'image',
   watermarkUrl = null,
@@ -340,8 +338,8 @@ export function ClipPreview({
         {title && (
           <PreviewTitle
             text={title}
-            lineCount={titleLines}
             sizePreset={titleFontSize}
+            font={captionFont}
             scale={SCALE}
             topPercent={titleYPercent}
           />

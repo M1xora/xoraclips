@@ -1,23 +1,12 @@
 import { activeWordIndex, CAPTION_THEMES, chunkAt, type CaptionChunk } from './captions';
 import { subtitleFontPx } from './derive';
+import { FONT_STACKS } from './fonts';
 import type {
   CaptionFont,
   CaptionStyle,
   FontSizeOption,
   SubtitlePositionMode,
 } from '../../lib/types';
-
-/** Web-safe stacks for the eight caption fonts the renderer offers. */
-const FONT_STACKS: Record<CaptionFont, string> = {
-  Outfit: "'Geist', system-ui, sans-serif",
-  Montserrat: "'Geist', system-ui, sans-serif",
-  Inter: "'Geist', system-ui, sans-serif",
-  Impact: "Impact, 'Arial Black', sans-serif",
-  'Bebas Neue': "'Arial Narrow', 'Geist', sans-serif",
-  Anton: "'Arial Black', 'Geist', sans-serif",
-  Poppins: "'Geist', system-ui, sans-serif",
-  'Arial Black': "'Arial Black', sans-serif",
-};
 
 interface CaptionOverlayProps {
   /** Chunks from the backend, in absolute source-video time. */
