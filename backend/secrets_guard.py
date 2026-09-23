@@ -1,17 +1,28 @@
 """
 Where the Gemini key comes from, and how it is kept out of logs.
 
-The key lives only in the backend environment (`GEMINI_API_KEY` in .env).
-The browser never sends it; the owner pays for AI usage (issue #8).
+The key comes ONLY from the user, in the `X-Gemini-Api-Key` request header
+(issue #12): users pay for their own AI usage. There is no server key in
+.env. Keys in URLs or request bodies are ignored.
+
+While a request is using a key, that exact key is registered for THAT
+request only (a context variable), so its log lines and messages have it
+scrubbed whatever its shape, and no other user's output is touched.
+Known Google key shapes are scrubbed at all times as a backstop.
 
 Kept free of heavy imports so it can be tested in CI on its own.
 """
 import logging
 import os
 import re
-from typing import Any
+from contextlib import contextmanager
+from contextvars import ContextVar
+from typing import Any, Iterator, Optional
 
 REDACTED = "[REDACTED]"
+
+# The request header that carries the user's key.
+GEMINI_KEY_HEADER = "X-Gemini-Api-Key"
 
 _TRUE = {"1", "true", "yes", "on"}
 
@@ -20,13 +31,22 @@ _PATTERNS = [
     re.compile(r"AIza[0-9A-Za-z_\-]{20,}"),
     re.compile(r"AQ\.[0-9A-Za-z_\-]{20,}"),
     re.compile(r"(?i)([?&](?:api_key|apikey|key)=)[^&\s\"'<>]+"),
-    re.compile(r"(?i)(x-goog-api-key[\"']?\s*[:=]\s*[\"']?)[^\"'\s,}]+"),
+    re.compile(r"(?i)((?:x-goog-api-key|x-gemini-api-key)[\"']?\s*[:=]\s*[\"']?)[^\"'\s,}]+"),
 ]
 
+# Keys in use by the CURRENT request. A context variable follows the request
+# through its awaits and into asyncio.to_thread workers, and never leaks into
+# another request, so one user cannot make the app scrub text in someone
+# else's results (e.g. by sending "https://" as their "key").
+_request_secrets: ContextVar[tuple] = ContextVar("gemini_request_secrets", default=())
+# Anything shorter is not a key; scrubbing it would only garble the user's own output.
+_MIN_SECRET_LEN = 4
 
-def get_gemini_key() -> str:
-    """The Gemini key from the backend environment; the only source."""
-    return os.environ.get("GEMINI_API_KEY", "").strip()
+
+def user_key_from_header(value: Optional[str]) -> Optional[str]:
+    """The user's key from the request header, or None when absent/blank."""
+    key = (value or "").strip()
+    return key or None
 
 
 def is_mock_mode() -> bool:
@@ -34,13 +54,30 @@ def is_mock_mode() -> bool:
     return os.environ.get("MOCK_MODE", "").strip().lower() in _TRUE
 
 
+@contextmanager
+def tracked_secret(key: Optional[str]) -> Iterator[None]:
+    """Scrub this exact key from this request's logs and payloads while the block runs."""
+    if not key or len(key) < _MIN_SECRET_LEN:
+        yield
+        return
+    token = _request_secrets.set(_request_secrets.get() + (key,))
+    try:
+        yield
+    finally:
+        try:
+            _request_secrets.reset(token)
+        except ValueError:
+            # A streaming response closed from another context (client
+            # disconnected); that context never saw the key anyway.
+            pass
+
+
 def redact(text: str) -> str:
-    """Replaces the configured key and anything shaped like a key."""
+    """Replaces the current request's keys and anything shaped like a key."""
     if not text:
         return text
-    key = get_gemini_key()
-    if len(key) >= 8:
-        text = text.replace(key, REDACTED)
+    for secret in sorted(_request_secrets.get(), key=len, reverse=True):
+        text = text.replace(secret, REDACTED)
     for pattern in _PATTERNS:
         text = pattern.sub(lambda m: (m.group(1) if m.groups() else "") + REDACTED, text)
     return text

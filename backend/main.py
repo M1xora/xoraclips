@@ -33,7 +33,7 @@ from concurrent.futures import ThreadPoolExecutor
 from contextlib import asynccontextmanager
 from urllib.parse import quote, urlsplit
 from typing import List, Optional, Dict, Any, Tuple, Callable
-from fastapi import FastAPI, HTTPException, BackgroundTasks, UploadFile, File
+from fastapi import FastAPI, HTTPException, BackgroundTasks, UploadFile, File, Header
 from fastapi.responses import StreamingResponse, RedirectResponse, FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
@@ -88,9 +88,17 @@ except ImportError:
     from captions import caption_chunks_for_clip
 
 try:
-    from backend.secrets_guard import get_gemini_key, install_log_redaction, is_mock_mode, redact_data
+    from backend.secrets_guard import (
+        GEMINI_KEY_HEADER, install_log_redaction, is_mock_mode, redact_data,
+        tracked_secret, user_key_from_header,
+    )
+    from backend import ai_errors
 except ImportError:
-    from secrets_guard import get_gemini_key, install_log_redaction, is_mock_mode, redact_data
+    from secrets_guard import (
+        GEMINI_KEY_HEADER, install_log_redaction, is_mock_mode, redact_data,
+        tracked_secret, user_key_from_header,
+    )
+    import ai_errors
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
@@ -108,8 +116,6 @@ async def _lifespan(_app):
     install_log_redaction()
     if is_mock_mode():
         logger.warning("MOCK_MODE is on: analysis returns sample data and never calls Gemini or YouTube.")
-    elif not get_gemini_key():
-        logger.warning("GEMINI_API_KEY is not set in backend/.env: analysis is disabled until it is.")
     yield
 
 
@@ -1274,7 +1280,6 @@ def health_check(refresh: bool = False):
     is_vercel = bool(os.environ.get("VERCEL") or os.environ.get("AWS_LAMBDA_FUNCTION_NAME"))
     keys = get_supadata_keys()
     proxy = get_proxy_url()
-    has_gemini = bool(get_gemini_key())
     supadata_info = get_supadata_usage_data(force=refresh) if keys else {
         "total_keys": 0,
         "total_limit": 0,
@@ -1291,7 +1296,6 @@ def health_check(refresh: bool = False):
         "message": "CHEAT CLIP PRO API is active",
         "is_vercel": is_vercel,
         "proxy_configured": bool(proxy),
-        "gemini_env_configured": has_gemini,
         "mock_mode": is_mock_mode(),
         "supadata_keys_count": len(keys),
         "supadata": supadata_info
@@ -1366,9 +1370,10 @@ def get_flash_models_for_key(client: genai.Client) -> List[str]:
 
 
 @app.get("/api/models")
-def list_available_models():
-    """Lists available Gemini models for the server's key, prioritizing Flash models (newest first).
-    The key comes only from backend/.env; a key sent by a client is ignored (issue #8)."""
+def list_available_models(x_gemini_api_key: Optional[str] = Header(None, alias=GEMINI_KEY_HEADER)):
+    """Lists Gemini models available to the user's key, prioritizing Flash models (newest first).
+    The key comes only from the X-Gemini-Api-Key header (issue #12); a key in the URL is ignored.
+    Doubles as a key check: a key Google rejects gets 401 with code key_invalid."""
     default_models = [
         'gemini-2.5-flash',
         'gemini-2.5-flash-lite',
@@ -1377,9 +1382,14 @@ def list_available_models():
         'gemini-1.5-flash',
         'gemini-2.5-pro'
     ]
-    key_to_use = get_gemini_key()
+    key_to_use = user_key_from_header(x_gemini_api_key)
     if not key_to_use or is_mock_mode():
         return {"models": default_models}
+    with tracked_secret(key_to_use):
+        return _list_models_for_key(key_to_use, default_models)
+
+
+def _list_models_for_key(key_to_use: str, default_models: List[str]):
     try:
         client = genai.Client(api_key=key_to_use)
         models_page = client.models.list()
@@ -1427,8 +1437,14 @@ def list_available_models():
             
         return {"models": final_list}
     except Exception as e:
-        logger.error(f"Error listing models: {e}")
-        return {"models": default_models}
+        # Any failure is reported as an error, never as a 200 with the default
+        # list: the form treats a 200 as "key is valid".
+        code = ai_errors.classify_gemini_error(e)
+        logger.warning(f"Error listing models ({code}): {e}")
+        raise HTTPException(
+            status_code=ai_errors.STATUS[code],
+            detail={"code": code, "message": ai_errors.MESSAGES[code]},
+        )
 
 # Sample data for MOCK_MODE (backend/.env). Mock analyses never contact
 # YouTube or Gemini.
@@ -1453,19 +1469,55 @@ MOCK_TRANSCRIPT = [
 ]
 
 
+def _gemini_key_problem(key: str) -> Optional[str]:
+    """
+    A cheap key check (list one page of models). Returns the error code when
+    the key cannot work (invalid, out of quota, region), else None. A busy or
+    unclear answer returns None: the analysis goes on and reports later.
+    """
+    # Keep the client in a variable: a temporary Client is garbage-collected at
+    # once, closes its HTTP connection, and the request then fails with
+    # "Cannot send a request, as the client has been closed".
+    client = genai.Client(api_key=key)
+    try:
+        next(iter(client.models.list()), None)
+    except Exception as e:
+        code = ai_errors.classify_gemini_error(e)
+        if code in (ai_errors.KEY_INVALID, ai_errors.KEY_QUOTA, ai_errors.REGION_UNSUPPORTED):
+            logger.warning(f"Gemini key check failed ({code}): {e}")
+            return code
+    return None
+
+
 @app.post("/api/analyze")
-async def analyze_video(request: AnalyzeRequest):
-    """Stream real-time progress via Server-Sent Events, then deliver the final result."""
+async def analyze_video(
+    request: AnalyzeRequest,
+    x_gemini_api_key: Optional[str] = Header(None, alias=GEMINI_KEY_HEADER),
+):
+    """Stream real-time progress via Server-Sent Events, then deliver the final result.
+    The Gemini key comes only from the X-Gemini-Api-Key header (issue #12)."""
+    gemini_key = user_key_from_header(x_gemini_api_key)
 
     async def stream():
-        # The key comes only from backend/.env; the browser never sends it (issue #8).
-        gemini_key = get_gemini_key()
+        # Scrub this exact key from every log line and event for the whole analysis.
+        with tracked_secret(gemini_key):
+            async for event in analysis_events():
+                yield event
+
+    async def analysis_events():
         is_mock = is_mock_mode()
 
         if not gemini_key and not is_mock:
-            logger.error("Analysis refused: GEMINI_API_KEY is not set in backend/.env.")
-            yield _sse({"error": "The AI service is not configured on the server yet. Please contact the administrator.", "status": 503})
+            yield _sse(ai_errors.error_event(ai_errors.KEY_MISSING))
             return
+
+        # Check the key first: a wrong key must fail in a second, before the
+        # YouTube metadata/transcript work (which can spend Supadata/proxy quota).
+        if not is_mock:
+            key_problem = await asyncio.to_thread(_gemini_key_problem, gemini_key)
+            if key_problem:
+                yield _sse(ai_errors.error_event(key_problem))
+                return
 
         # ── Step 1: Extract video ID & metadata ─────────────────────────────
         video_id = extract_video_id(request.url)
@@ -1855,6 +1907,9 @@ async def analyze_video(request: AnalyzeRequest):
         response = None
         last_error = None
         encountered_quota_error = None
+        key_rejected = False
+        seen_codes: List[str] = []
+        last_code = ai_errors.AI_FAILED
         analysis_data = None
         successful_model = None
 
@@ -2005,27 +2060,35 @@ async def analyze_video(request: AnalyzeRequest):
                         
                 except Exception as e:
                     last_error = e
-                    err_str = str(e).lower()
-                    logger.warning(f"Error from {model_name} (attempt {attempt + 1}): {e}")
-                    
-                    if any(x in err_str for x in ('429', 'quota', 'resource exhausted', 'rate limit')):
+                    last_code = ai_errors.classify_gemini_error(e)
+                    if last_code == ai_errors.KEY_INVALID and not ai_errors.is_definitely_bad_key(e):
+                        # A 403 for one model (e.g. a locked preview) says nothing
+                        # about the key, which the up-front check already accepted.
+                        last_code = ai_errors.MODEL_UNAVAILABLE
+                    seen_codes.append(last_code)
+                    logger.warning(f"Error from {model_name} (attempt {attempt + 1}, {last_code}): {e}")
+
+                    if ai_errors.is_definitely_bad_key(e):
+                        # Every model will reject the same key: stop now.
+                        key_rejected = True
+                        break
+                    if last_code == ai_errors.KEY_QUOTA:
                         encountered_quota_error = e
                         break
+                    # Only a busy server is worth retrying on the same model.
+                    if last_code != ai_errors.AI_BUSY:
+                        break
 
-                    if any(x in err_str for x in ('404', 'not found', 'not supported')):
-                        break
-                    
-                    is_server_busy = any(x in err_str for x in ('503', 'unavailable', 'overloaded', '500', 'internal'))
-                    if not is_server_busy:
-                        break
-            
             if analysis_data is not None and response is not None:
+                break
+            if key_rejected:
                 break
                 
             if next_model_hint is not None:
-                err_summary = "quota reached" if any(x in str(last_error).lower() for x in ('429', 'quota', 'rate limit')) else \
-                              "not available or deprecated" if "404" in str(last_error) else \
-                              "temporarily busy"
+                err_summary = {
+                    ai_errors.KEY_QUOTA: "quota reached",
+                    ai_errors.MODEL_UNAVAILABLE: "not available or deprecated",
+                }.get(last_code, "temporarily busy")
                 yield _sse({
                     "step": 4,
                     "step_progress": 35,
@@ -2038,42 +2101,16 @@ async def analyze_video(request: AnalyzeRequest):
 
         if analysis_data is None:
             # If any model in the fallback chain suffered quota exhaustion, prioritize showing the quota explanation
-            error_to_report = encountered_quota_error or last_error
-            if error_to_report is not None:
-                err_str = str(error_to_report).lower()
-                if any(x in err_str for x in ('429', 'quota', 'resource exhausted', 'rate limit')):
-                    yield _sse({
-                        "error": "The AI service is busy right now. Please wait a minute and try again.",
-                        "status": 429
-                    })
-                elif any(x in err_str for x in ('503', 'unavailable', 'overloaded')):
-                    yield _sse({
-                        "error": "The AI service is under heavy load right now. Please try again in a few moments.",
-                        "status": 503
-                    })
-                elif any(x in err_str for x in ('401', '403', 'api_key', 'invalid', 'permission')):
-                    yield _sse({
-                        "error": "The AI service is not available right now. Please contact the administrator.",
-                        "status": 401
-                    })
-                elif any(x in err_str for x in ('404', 'not found', 'not supported')):
-                    models_preview = ', '.join(models_to_try[:3])
-                    logger.error(f"No usable Gemini model for the server key (tried {models_preview}...)")
-                    yield _sse({
-                        "error": "The AI service is not available right now. Please contact the administrator.",
-                        "status": 404
-                    })
-                else:
-                    logger.error(f"Gemini error after all fallback models: {error_to_report}")
-                    yield _sse({
-                        "error": "AI analysis failed. Please try again in a few moments.",
-                        "status": 500
-                    })
+            # Several models may have failed differently; a retired model at the
+            # end of the chain (404) must not hide "busy" or "wrong key".
+            if seen_codes:
+                code = ai_errors.most_relevant(seen_codes)
+            elif last_error is not None:
+                code = ai_errors.classify_gemini_error(last_error)
             else:
-                yield _sse({
-                    "error": "The AI service did not respond. Please try again in a few moments.",
-                    "status": 500
-                })
+                code = ai_errors.AI_FAILED
+            logger.error(f"Gemini analysis failed ({code}): {encountered_quota_error or last_error}")
+            yield _sse(ai_errors.error_event(code))
             return
 
         # Fallback clip synthesis if 0 clips were returned after all models

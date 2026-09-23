@@ -1,5 +1,6 @@
 import { useCallback, useRef, useState } from 'react';
 import type { AnalyzeResponse } from '../lib/types';
+import { geminiKeyHeaders } from '../api/client';
 
 export interface AnalyzeProgress {
   step: number;
@@ -22,6 +23,34 @@ export interface AnalyzeRequest {
 }
 
 type Status = 'idle' | 'running' | 'done' | 'error';
+
+/** An analysis failure with the backend's error code (e.g. `key_invalid`), when it sent one. */
+export class AnalyzeError extends Error {
+  readonly code?: string;
+
+  constructor(message: string, code?: string) {
+    super(message);
+    this.name = 'AnalyzeError';
+    this.code = code;
+  }
+}
+
+/**
+ * The fetch options for /api/analyze. The key travels only in the
+ * X-Gemini-Api-Key header, never in the body or the URL (issue #12).
+ */
+export function buildAnalyzeInit(
+  payload: AnalyzeRequest,
+  apiKey: string | undefined,
+  signal?: AbortSignal,
+): RequestInit {
+  return {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...geminiKeyHeaders(apiKey) },
+    body: JSON.stringify(payload),
+    signal,
+  };
+}
 
 const EMPTY_PROGRESS: AnalyzeProgress = {
   step: 0,
@@ -46,6 +75,7 @@ export function useAnalyze() {
   const [progress, setProgress] = useState<AnalyzeProgress>(EMPTY_PROGRESS);
   const [result, setResult] = useState<AnalyzeResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [errorCode, setErrorCode] = useState<string | null>(null);
   const abortRef = useRef<AbortController | null>(null);
 
   const cancel = useCallback(() => {
@@ -54,7 +84,7 @@ export function useAnalyze() {
     setStatus('idle');
   }, []);
 
-  const analyze = useCallback(async (payload: AnalyzeRequest) => {
+  const analyze = useCallback(async (payload: AnalyzeRequest, apiKey?: string) => {
     abortRef.current?.abort();
     const controller = new AbortController();
     abortRef.current = controller;
@@ -63,14 +93,10 @@ export function useAnalyze() {
     setProgress(EMPTY_PROGRESS);
     setResult(null);
     setError(null);
+    setErrorCode(null);
 
     try {
-      const res = await fetch('/api/analyze', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-        signal: controller.signal,
-      });
+      const res = await fetch('/api/analyze', buildAnalyzeInit(payload, apiKey, controller.signal));
 
       // Check the status BEFORE treating the body as an event stream.
       if (!res.ok) {
@@ -112,7 +138,9 @@ export function useAnalyze() {
             continue; // Ignore a malformed frame rather than failing the run.
           }
 
-          if (typeof event.error === 'string') throw new Error(event.error);
+          if (typeof event.error === 'string') {
+            throw new AnalyzeError(event.error, typeof event.code === 'string' ? event.code : undefined);
+          }
 
           if (event.result) {
             finalResult = event.result as AnalyzeResponse;
@@ -137,6 +165,7 @@ export function useAnalyze() {
     } catch (err) {
       if (err instanceof DOMException && err.name === 'AbortError') return null;
       setError(err instanceof Error ? err.message : 'Unexpected error during analysis.');
+      setErrorCode(err instanceof AnalyzeError ? (err.code ?? null) : null);
       setStatus('error');
       return null;
     } finally {
@@ -144,5 +173,5 @@ export function useAnalyze() {
     }
   }, []);
 
-  return { analyze, cancel, status, progress, result, error, setResult };
+  return { analyze, cancel, status, progress, result, error, errorCode, setResult };
 }
