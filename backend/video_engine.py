@@ -14,6 +14,17 @@ from PIL import Image, ImageDraw, ImageFont
 
 logger = logging.getLogger("cheat-clip-pro.video-engine")
 
+try:
+    from backend.captions import (
+        ChunkRules, DEFAULT_RULES, apply_text_case, build_caption_chunks,
+        clean_display_word, ends_phrase, words_from_transcript,
+    )
+except ImportError:
+    from captions import (
+        ChunkRules, DEFAULT_RULES, apply_text_case, build_caption_chunks,
+        clean_display_word, ends_phrase, words_from_transcript,
+    )
+
 BASE_DIR = Path(__file__).resolve().parent
 TEMP_DIR = BASE_DIR / "temp_clips"
 EXPORTS_DIR = BASE_DIR / "exports"
@@ -415,101 +426,6 @@ def download_full_raw_video(video_url: str, output_path: str, progress_callback=
     raise RuntimeError(f"Failed to download raw video. Process exited with code: {returncode}")
 
 
-def clean_caption_text(text: str) -> str:
-    """
-    Cleans transcripted subtitle/caption text by:
-    1. Removing sound/action tags like [LAUGHTER], [APPLAUSE], [MUSIC], (laughter), *cheering*.
-    2. Removing common sound effect words if present.
-    3. Stripping all symbols EXCEPT '.', ',', '%', '&', '$', '?' (keeping alphanumeric characters and spaces).
-    4. Normalizing whitespace.
-    """
-    if not text:
-        return ""
-    # 1. Remove bracketed, parenthesized, or asterisk tags (e.g. [LAUGHTER], (music), *cheering*)
-    t = re.sub(r'\[.*?\]|\(.*?\)|[\*].*?[\*]', ' ', text)
-    # 2. Remove common unbracketed sound tags
-    t = re.sub(r'\b(laughter|applause|music|cheering|snickering|giggle|cough)\b', ' ', t, flags=re.IGNORECASE)
-    # 3. Remove all symbols except . , % & $ ? (keep letters, digits, whitespace, . , % & $ ?)
-    # Note: in Python regex \w includes '_', so we explicitly eliminate '_'
-    t = re.sub(r'[^\w\s.,%&$?]|_', '', t)
-    # 4. Collapse multiple spaces
-    t = re.sub(r'\s+', ' ', t).strip()
-    return t
-
-
-def _to_float(value: Any) -> Optional[float]:
-    try:
-        return float(value)
-    except (TypeError, ValueError):
-        return None
-
-
-def _resolve_line_times(
-    lines: List[Dict[str, Any]],
-    clip_end_time: float = 0.0
-) -> List[Dict[str, Any]]:
-    """
-    Normalizes transcript lines into sorted {text, start, end} entries.
-
-    - `end` wins when present; legacy `duration` is still accepted.
-    - Lines with neither (or an end not after start) are incomplete: they end
-      at the next line's start, else the clip end, else start + 2s. This is
-      always logged as a warning, never applied silently.
-    - A line that runs past the start of the next later line is trimmed to
-      it. YouTube auto captions overlap like this routinely.
-    """
-    parsed = []
-    for line in lines:
-        text = str(line.get("text") or "").strip()
-        if not text:
-            continue
-        start = _to_float(line.get("start")) or 0.0
-        end = _to_float(line.get("end"))
-        if end is None or end <= start:
-            duration = _to_float(line.get("duration"))
-            end = start + duration if duration is not None and duration > 0 else None
-        parsed.append({"text": text, "start": start, "end": end})
-
-    parsed.sort(key=lambda l: l["start"])
-
-    # next_later[i]: start of the first following line that begins strictly
-    # after line i. Lines sharing a start look past each other to it.
-    next_later: List[Optional[float]] = [None] * len(parsed)
-    for i in range(len(parsed) - 2, -1, -1):
-        nxt = parsed[i + 1]["start"]
-        next_later[i] = nxt if nxt > parsed[i]["start"] else next_later[i + 1]
-
-    incomplete = []
-    for i, line in enumerate(parsed):
-        if line["end"] is not None:
-            continue
-        next_start = next_later[i]
-        if next_start is not None:
-            line["end"] = next_start
-        elif clip_end_time > line["start"]:
-            line["end"] = clip_end_time
-        else:
-            line["end"] = line["start"] + 2.0
-        incomplete.append(line)
-
-    if incomplete:
-        sample = ", ".join(f"{l['start']:.2f}s '{l['text'][:30]}'" for l in incomplete[:3])
-        logger.warning(
-            f"Transcript has {len(incomplete)} line(s) without a usable end/duration; "
-            f"end times were estimated. Examples: {sample}"
-        )
-
-    trimmed = 0
-    for line, next_start in zip(parsed, next_later):
-        if next_start is not None and line["end"] > next_start:
-            line["end"] = next_start
-            trimmed += 1
-    if trimmed:
-        logger.info(f"Trimmed {trimmed} overlapping transcript line(s) to the next line's start.")
-
-    return parsed
-
-
 def transcribe_clip_words(
     video_path: str,
     fallback_transcript: Optional[List[Dict[str, Any]]] = None,
@@ -520,43 +436,12 @@ def transcribe_clip_words(
     Extracts word-level timestamps using the analyzed video transcript.
     This guarantees 100% fidelity with the analyzed speech (no mis-speech or Whisper hallucinations).
     Timestamps are mapped relative to the sliced clip audio (0.0s = clip_start_time).
-    Line timing comes from `_resolve_line_times`; words are spread evenly within each line.
+    Line timing and text cleaning live in captions.py, shared with the preview.
     Whisper is only used as a fallback if no video transcript is available.
     """
     # 1. Primary: Use the analyzed video transcript (exact matches from YouTube)
     if fallback_transcript:
-        words = []
-        for line in _resolve_line_times(fallback_transcript, clip_end_time):
-            cleaned_line = clean_caption_text(line["text"])
-            if not cleaned_line:
-                continue
-
-            l_start = line["start"]
-            l_end = line["end"]
-
-            # If clip range is defined, filter lines overlapping the clip
-            if clip_end_time > clip_start_time:
-                if l_end < clip_start_time - 0.2 or l_start > clip_end_time + 0.2:
-                    continue
-                # Shift timestamps relative to clip start (0.0)
-                rel_start = max(0.0, l_start - clip_start_time)
-                rel_end = max(rel_start + 0.15, l_end - clip_start_time)
-            else:
-                rel_start = max(0.0, l_start)
-                rel_end = max(rel_start + 0.15, l_end)
-
-            line_words = cleaned_line.split()
-            if not line_words:
-                continue
-            w_duration = max(0.12, (rel_end - rel_start) / len(line_words))
-            for i, w in enumerate(line_words):
-                w_s = rel_start + (i * w_duration)
-                w_e = w_s + w_duration
-                words.append({
-                    "word": w,
-                    "start": round(w_s, 2),
-                    "end": round(w_e, 2)
-                })
+        words = words_from_transcript(fallback_transcript, clip_start_time, clip_end_time)
         if words:
             logger.info(f"Using analyzed video transcript: mapped {len(words)} words for clip range [{clip_start_time:.1f}s -> {clip_end_time:.1f}s].")
             return words
@@ -569,14 +454,22 @@ def transcribe_clip_words(
             result = whisper_model.transcribe(video_path, word_timestamps=True, fp16=False)
             words = []
             for segment in result.get("segments", []):
+                seg_words = []
                 for w in segment.get("words", []):
-                    word_clean = clean_caption_text(w.get("word", "").strip())
+                    raw_word = w.get("word", "").strip()
+                    word_clean = clean_display_word(raw_word)
                     if word_clean:
-                        words.append({
+                        seg_words.append({
                             "word": word_clean,
                             "start": max(0.0, float(w.get("start", 0.0))),
-                            "end": max(float(w.get("start", 0.0)) + 0.1, float(w.get("end", 0.0)))
+                            "end": max(float(w.get("start", 0.0)) + 0.1, float(w.get("end", 0.0))),
+                            "break_after": ends_phrase(raw_word),
                         })
+                    elif seg_words and ends_phrase(raw_word):
+                        seg_words[-1]["break_after"] = True
+                if seg_words:
+                    seg_words[-1]["break_after"] = True
+                words.extend(seg_words)
             if words:
                 logger.info(f"Whisper transcribed {len(words)} words successfully.")
                 return words
@@ -595,18 +488,6 @@ def format_ass_timestamp(seconds: float) -> str:
     if cs >= 100:
         cs = 99
     return f"{h}:{m:02d}:{s:02d}.{cs:02d}"
-
-
-def apply_text_case(text: str, mode: str) -> str:
-    """Applies uppercase, capitalize (Title Case), or lowercase to text."""
-    clean = text.strip()
-    if mode == "uppercase":
-        return clean.upper()
-    elif mode == "lowercase":
-        return clean.lower()
-    elif mode == "capitalize":
-        return clean.title()
-    return clean
 
 
 def wrap_title_smart(text: str, max_single_len: int = 22) -> Tuple[str, int]:
@@ -937,7 +818,8 @@ def generate_ass_file(
     subtitle_position_mode: str = "bottom",
     subtitle_center_y_percent: float = 50.0,
     skip_title: bool = False,
-    title_font_size_preset: Optional[str] = None
+    title_font_size_preset: Optional[str] = None,
+    chunk_rules: ChunkRules = DEFAULT_RULES
 ) -> str:
     """
     Generates an Advanced SubStation Alpha (.ass) subtitle and title file with karaoke / word-level animation.
@@ -1137,86 +1019,19 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
             )
 
     # 4. Add Subtitle Events if captions are enabled (guaranteed ZERO vertical glitch / jumping)
+    # Chunking and word timing come from captions.build_caption_chunks, the
+    # same function that feeds the browser preview.
     if words and style_preset != "none":
-        # Step A: Sanitize and sort all word timestamps
-        valid_words = []
-        for w in words:
-            raw_text = clean_caption_text(w.get("word", "").strip())
-            if not raw_text:
-                continue
-            w_text = apply_text_case(raw_text, text_case)
-            st = max(0.0, float(w.get("start", 0.0)))
-            et = max(st + 0.08, float(w.get("end", st + 0.25)))
-            valid_words.append({"word_text": w_text, "start": st, "end": et, "raw": w})
-
-        valid_words.sort(key=lambda x: x["start"])
-
-        # Step B: Pack into compact chunks (1 to 3 words, max 16 chars) to strictly guarantee 1 single line
-        chunks = []
-        current_chunk = []
-        current_chars = 0
-        for item in valid_words:
-            w_len = len(item["word_text"])
-            if len(current_chunk) >= 3 or (current_chunk and (current_chars + w_len > 16)):
-                chunks.append(current_chunk)
-                current_chunk = [item]
-                current_chars = w_len
-            else:
-                current_chunk.append(item)
-                current_chars += w_len + 1
-        if current_chunk:
-            chunks.append(current_chunk)
-
-        # Step C: Enforce strictly non-overlapping, monotonically increasing chunk boundaries
-        chunk_bounds = []
-        for chunk in chunks:
-            c_start = chunk[0]["start"]
-            c_end = max(c_start + 0.25, chunk[-1]["end"])
-            if chunk_bounds:
-                prev_end = chunk_bounds[-1][1]
-                if c_start < prev_end:
-                    c_start = prev_end
-                if c_end <= c_start:
-                    c_end = c_start + 0.25
-            chunk_bounds.append((c_start, c_end))
-
-        # Clamp against subsequent chunk start times to eliminate any inter-chunk overlaps
-        for i in range(len(chunk_bounds) - 1):
-            cur_s, cur_e = chunk_bounds[i]
-            nxt_s, _ = chunk_bounds[i + 1]
-            if cur_e > nxt_s:
-                chunk_bounds[i] = (cur_s, nxt_s)
-
-        # Step D: Partition each chunk into strictly contiguous active-word time slices
-        for chunk_idx, chunk in enumerate(chunks):
-            c_start, c_end = chunk_bounds[chunk_idx]
-            if c_end <= c_start:
-                c_end = c_start + 0.20
-            num_words = len(chunk)
-
-            if num_words == 1:
-                time_slices = [(c_start, c_end)]
-            else:
-                points = [c_start]
-                for w_i in range(1, num_words):
-                    raw_st = chunk[w_i]["start"]
-                    min_allowed = points[-1] + 0.08
-                    max_allowed = c_end - 0.08 * (num_words - w_i)
-                    if min_allowed > max_allowed:
-                        pt = points[-1] + (c_end - points[-1]) / (num_words - w_i + 1)
-                    else:
-                        pt = max(min_allowed, min(max_allowed, raw_st))
-                    points.append(pt)
-                points.append(c_end)
-                time_slices = [(points[k], points[k + 1]) for k in range(num_words)]
-
-            for active_idx, (w_start, w_end) in enumerate(time_slices):
+        for chunk in build_caption_chunks(words, text_case, chunk_rules):
+            chunk_words = chunk["words"]
+            for active_idx, active in enumerate(chunk_words):
+                w_start, w_end = active["start"], active["end"]
                 if w_end <= w_start:
                     continue
 
                 line_parts = []
-                for idx, item in enumerate(chunk):
-                    w_txt = item["word_text"]
+                for idx, item in enumerate(chunk_words):
+                    w_txt = item["text"]
                     if idx == active_idx:
                         # Highlight active word with color only (no font scale or bold toggle so metrics stay 100% identical)
                         line_parts.append(r"{\c" + highlight_color + r"\3c" + outline_color + r"}" + w_txt + r"{\c" + primary_color + r"\3c" + outline_color + r"}")

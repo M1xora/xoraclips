@@ -81,6 +81,12 @@ except ImportError:
         has_emoji,
         render_title_overlay_png
     )
+
+try:
+    from backend.captions import caption_chunks_for_clip
+except ImportError:
+    from captions import caption_chunks_for_clip
+
 try:
     from backend.secrets_guard import get_gemini_key, install_log_redaction, is_mock_mode, redact_data
 except ImportError:
@@ -2469,6 +2475,28 @@ async def process_batch_rendering(batch_id: str, request: RenderBatchRequest):
         batch["warning_message"] = f"{len(failed_clips)} of {len(batch['clips'])} clips encountered errors."
     else:
         batch["overall_status"] = "completed"
+
+
+class CaptionChunksRequest(BaseModel):
+    transcript: List[Dict[str, Any]] = Field(default_factory=list)
+    clip_start: float
+    clip_end: float
+    text_case: str = "uppercase"
+
+
+@app.post("/api/caption-chunks")
+def get_caption_chunks(request: CaptionChunksRequest):
+    """
+    The caption chunks a clip's export will burn in, for the browser preview.
+    Uses the same function as generate_ass_file(), so preview == render.
+    Times are relative to clip_start. Empty when the transcript has no words
+    in this clip (or there is no transcript): the render then falls back to
+    Whisper, which the preview cannot match.
+    """
+    chunks = caption_chunks_for_clip(
+        request.transcript, request.clip_start, request.clip_end, request.text_case
+    )
+    return {"chunks": chunks, "source": "transcript" if chunks else "none"}
 
 
 @app.post("/api/render-batch")

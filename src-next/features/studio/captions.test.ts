@@ -1,108 +1,75 @@
 import { describe, expect, it } from 'vitest';
-import {
-  activeWordIndex,
-  buildCaptionChunks,
-  CAPTION_THEMES,
-  chunkAt,
-  renderWord,
-} from './captions';
-import type { TranscriptLine } from '../../lib/types';
+import { activeWordIndex, CAPTION_THEMES, chunkAt, chunksFromApi } from './captions';
+import type { ApiCaptionChunk } from '../../api/client';
+import ted from './__fixtures__/caption-chunks.ted.json';
 
-const lines: TranscriptLine[] = [
-  { start: 10, end: 13, text: 'satu dua tiga' },
-  { start: 13, end: 16, text: 'empat lima enam' },
-  { start: 16, end: 19, text: 'tujuh delapan sembilan' },
-  { start: 40, end: 43, text: 'di luar klip' },
-];
+// Real backend output (backend/tests keeps this file in sync).
+const apiChunks = ted.chunks as ApiCaptionChunk[];
+const chunks = chunksFromApi(apiChunks, ted.clip_start);
 
-describe('buildCaptionChunks', () => {
-  it('keeps only words inside the clip', () => {
-    const chunks = buildCaptionChunks(lines, 10, 19);
-    const words = chunks.flatMap((c) => c.words.map((w) => w.text));
-    expect(words).not.toContain('luar');
-    expect(words).toContain('satu');
-    expect(words).toContain('sembilan');
+describe('chunksFromApi', () => {
+  it('moves every time onto the source timeline without changing text', () => {
+    expect(chunks).toHaveLength(apiChunks.length);
+    chunks.forEach((c, i) => {
+      const api = apiChunks[i];
+      expect(c.start).toBeCloseTo(ted.clip_start + api.start, 9);
+      expect(c.end).toBeCloseTo(ted.clip_start + api.end, 9);
+      expect(c.words.map((w) => w.text)).toEqual(api.words.map((w) => w.text));
+      c.words.forEach((w, j) => {
+        expect(w.start).toBeCloseTo(ted.clip_start + api.words[j].start, 9);
+        expect(w.end).toBeCloseTo(ted.clip_start + api.words[j].end, 9);
+      });
+    });
   });
 
-  it('groups words three at a time', () => {
-    const chunks = buildCaptionChunks(lines, 10, 19);
-    expect(chunks[0].words).toHaveLength(3);
-  });
-
-  it('spreads word timings across the line', () => {
-    const [first] = buildCaptionChunks([{ start: 0, end: 3, text: 'a b c' }], 0, 3);
-    expect(first.words[0].start).toBeCloseTo(0, 5);
-    expect(first.words[1].start).toBeCloseTo(1, 5);
-    expect(first.words[2].end).toBeCloseTo(3, 5);
-  });
-
-  it('keeps chunk bounds aligned with its words', () => {
-    for (const c of buildCaptionChunks(lines, 10, 19)) {
-      expect(c.start).toBe(c.words[0].start);
-      expect(c.end).toBe(c.words[c.words.length - 1].end);
-    }
-  });
-
-  it('falls back to the clip transcript when there are no timed lines', () => {
-    const chunks = buildCaptionChunks(undefined, 0, 6, 'halo dunia ini contoh');
-    expect(chunks.length).toBeGreaterThan(0);
-    expect(chunks.flatMap((c) => c.words.map((w) => w.text))).toContain('halo');
-  });
-
-  it('spans the whole clip when using the fallback', () => {
-    const chunks = buildCaptionChunks(undefined, 0, 6, 'a b c d e f');
-    expect(chunks[0].start).toBeCloseTo(0, 5);
-    expect(chunks[chunks.length - 1].end).toBeCloseTo(6, 5);
-  });
-
-  it('returns nothing when there is no text at all', () => {
-    expect(buildCaptionChunks(undefined, 0, 10)).toEqual([]);
-    expect(buildCaptionChunks([], 0, 10, '   ')).toEqual([]);
-  });
-
-  it('ignores lines that end before the clip starts', () => {
-    const chunks = buildCaptionChunks([{ start: 0, end: 5, text: 'lebih awal' }], 10, 20);
-    expect(chunks).toEqual([]);
-  });
-
-  it('never produces a zero-length word', () => {
-    for (const c of buildCaptionChunks(lines, 10, 19)) {
-      for (const w of c.words) expect(w.end).toBeGreaterThan(w.start);
-    }
+  it('keeps the backend word order', () => {
+    expect(chunks.flatMap((c) => c.words.map((w) => w.text)).join(' ')).toBe(
+      apiChunks.map((c) => c.text).join(' '),
+    );
   });
 });
 
 describe('chunkAt', () => {
-  const chunks = buildCaptionChunks(lines, 10, 19);
+  it('shows each backend chunk for exactly its own window', () => {
+    for (const c of chunks) {
+      expect(chunkAt(chunks, (c.start + c.end) / 2)).toBe(c);
+    }
+  });
 
-  it('finds the chunk covering a time', () => {
-    expect(chunkAt(chunks, 11)).not.toBeNull();
+  it('gives a boundary instant to the chunk that starts there', () => {
+    const [a, b] = chunks;
+    if (a.end === b.start) expect(chunkAt(chunks, b.start)).toBe(b);
   });
 
   it('returns null outside every chunk', () => {
-    expect(chunkAt(chunks, 100)).toBeNull();
-  });
-
-  it('covers the clip continuously', () => {
-    // Gaps would make captions flicker off mid-sentence.
-    for (let t = 10.05; t < 18.9; t += 0.5) {
-      expect(chunkAt(chunks, t), `no chunk at ${t.toFixed(2)}s`).not.toBeNull();
-    }
+    expect(chunkAt(chunks, 0)).toBeNull();
+    expect(chunkAt(chunks, 10_000)).toBeNull();
   });
 });
 
 describe('activeWordIndex', () => {
-  const [chunk] = buildCaptionChunks([{ start: 0, end: 3, text: 'a b c' }], 0, 3);
+  it('highlights the same word the export highlights', () => {
+    for (const c of chunks) {
+      c.words.forEach((w, i) => {
+        if (w.end > w.start) expect(activeWordIndex(c, (w.start + w.end) / 2)).toBe(i);
+      });
+    }
+  });
 
-  it('tracks the spoken word', () => {
-    expect(activeWordIndex(chunk, 0.5)).toBe(0);
-    expect(activeWordIndex(chunk, 1.5)).toBe(1);
-    expect(activeWordIndex(chunk, 2.5)).toBe(2);
+  it('never highlights a zero-length word, like the renderer', () => {
+    const chunk = {
+      start: 0,
+      end: 1,
+      words: [
+        { text: 'A', start: 0, end: 0 },
+        { text: 'B', start: 0, end: 1 },
+      ],
+    };
+    expect(activeWordIndex(chunk, 0)).toBe(1);
   });
 
   it('reports -1 before the chunk begins', () => {
-    const later = buildCaptionChunks([{ start: 5, end: 8, text: 'x y z' }], 5, 8)[0];
-    expect(activeWordIndex(later, 1)).toBe(-1);
+    expect(activeWordIndex(chunks[1], chunks[0].start)).toBe(-1);
   });
 });
 
@@ -123,13 +90,5 @@ describe('themes', () => {
   it('keeps clean_minimal free of an accent colour', () => {
     expect(CAPTION_THEMES.clean_minimal.accent).toBe('#FFFFFF');
     expect(CAPTION_THEMES.clean_minimal.glow).toBeUndefined();
-  });
-});
-
-describe('renderWord', () => {
-  it('applies the case option', () => {
-    expect(renderWord('halo', 'uppercase')).toBe('HALO');
-    expect(renderWord('HALO', 'lowercase')).toBe('halo');
-    expect(renderWord('halo', 'capitalize')).toBe('Halo');
   });
 });
