@@ -11,6 +11,7 @@ import { useYouTubePlayer, type ClipBounds } from '../../hooks/useYouTubePlayer'
 import { faceOffsetPercent, useFaceBox } from '../../hooks/useFaceBox';
 import { usePreviewAudio } from '../../hooks/usePreviewAudio';
 import { CaptionOverlay } from '../studio/CaptionOverlay';
+import { PreviewTitle } from './PreviewTitle';
 import { useCaptionChunks } from '../../hooks/useCaptionChunks';
 import { useLanguage } from '../../i18n';
 import { formatTimecode } from '../../lib/format';
@@ -75,6 +76,8 @@ interface ClipPreviewProps {
 
   title?: string;
   titleYPercent?: number;
+  /** Title size preset; the font size follows the renderer's (issue #19). */
+  titleFontSize?: FontSizeOption;
 
   watermarkEnabled?: boolean;
   watermarkType?: 'image' | 'text';
@@ -125,6 +128,7 @@ export function ClipPreview({
   enableFaceTracking = true,
   title,
   titleYPercent = 17,
+  titleFontSize = 'medium',
   watermarkEnabled = false,
   watermarkType = 'image',
   watermarkUrl = null,
@@ -332,17 +336,13 @@ export function ClipPreview({
         {!ready && <div className="skeleton absolute inset-0" aria-hidden="true" />}
 
         {title && (
-          <div
-            className="pointer-events-none absolute inset-x-0 px-3 text-center"
-            style={{ top: `${titleYPercent}%` }}
-          >
-            <span
-              className="font-display text-[0.95rem] font-extrabold leading-tight text-white"
-              style={{ textShadow: '0 1px 3px rgba(0,0,0,.95), 0 0 6px rgba(0,0,0,.8)' }}
-            >
-              {title}
-            </span>
-          </div>
+          <PreviewTitle
+            text={title}
+            sizePreset={titleFontSize}
+            font={captionFont}
+            scale={SCALE}
+            topPercent={titleYPercent}
+          />
         )}
 
         <CaptionOverlay

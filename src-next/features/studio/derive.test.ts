@@ -6,8 +6,9 @@ import {
   getDefaultPositions,
   getDefaultWatermarkConfig,
   getMaxPositions,
+  fitTitlePx,
   subtitleFontPx,
-  titleFontPx,
+  titleExportPx,
   watermarkPreset,
 } from './derive';
 import type { AspectRatioOption, FontSizeOption } from '../../lib/types';
@@ -174,15 +175,36 @@ describe('formatTitleSmart', () => {
 });
 
 describe('preview font sizes', () => {
+  // The renderer's numbers (video_engine.py:666-671), in export pixels (#19).
   it.each([
-    ['small', 1, 16.5],
-    ['small', 3, 14],
-    ['medium', 1, 21],
-    ['medium', 3, 18],
-    ['big', 1, 26],
-    ['big', 3, 22.5],
-  ] as const)('title %s with %d line(s) is %dpx', (preset, lines, px) => {
-    expect(titleFontPx(preset, lines)).toBe(px);
+    ['small', 1, 68],
+    ['small', 2, 68],
+    ['small', 3, 58],
+    ['medium', 1, 94],
+    ['medium', 3, 82],
+    ['big', 1, 124],
+    ['big', 4, 106],
+  ] as const)('title %s with %d line(s) is %dpx in the export', (preset, lines, px) => {
+    expect(titleExportPx(preset, lines)).toBe(px);
+  });
+
+  it('each size button gives a different title size', () => {
+    const sizes = SIZES.map((preset) => titleExportPx(preset, 1));
+    expect(new Set(sizes).size).toBe(3);
+    expect(sizes).toEqual([...sizes].sort((a, b) => a - b));
+  });
+
+  it('counts an emoji as one character when wrapping, like Python len()', () => {
+    // 18 code points (21 UTF-16 units): the renderer keeps it on one line.
+    expect(formatTitleSmart('KAGET BANGET 😱😱😱', 'uppercase', 'medium').lineCount).toBe(1);
+  });
+
+  it('shrinks a title that is too wide, like the renderer', () => {
+    // 94px title whose widest line measures 1212px: 94 * 1010 / 1212 = 78.3
+    expect(fitTitlePx(94, 1212, 1010, 40)).toBe(78);
+    expect(fitTitlePx(94, 900, 1010, 40)).toBe(94);
+    expect(fitTitlePx(94, 5000, 1010, 40)).toBe(40);
+    expect(fitTitlePx(94, 0, 1010, 40)).toBe(94);
   });
 
   it.each([

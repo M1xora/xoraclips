@@ -124,12 +124,18 @@ export function applyLetterCase(text: string, style: TextCaseOption): string {
   return text.toLowerCase().replace(/(?:^|\s|\b)\w/g, (c) => c.toUpperCase());
 }
 
+/** Characters as Python's len() counts them: an emoji is one, not two. */
+function charCount(text: string): number {
+  return Array.from(text).length;
+}
+
 /**
  * Wraps a title across up to four lines.
  *
  * Copied verbatim, including two things that look like slips and are load
- * bearing: the check reads `currentLen + w.length` while the accumulator
- * adds `w.length + 1`, and the threshold is scaled by 1.15. The returned
+ * bearing: the check reads `currentLen + wLen` while the accumulator
+ * adds `wLen + 1`, and the threshold is scaled by 1.15. Lengths are code
+ * points, like Python's len(), so an emoji counts once (#19). The returned
  * lineCount feeds back into title position and font size, so a different
  * split moves the whole layout.
  *
@@ -160,11 +166,11 @@ export function formatTitleSmart(
 
   const words = cased.split(/\s+/).filter(Boolean);
   const maxSingleLen = sizePreset === 'small' ? 24 : sizePreset === 'big' ? 13 : 19;
-  if (words.length <= 1 || cased.length <= maxSingleLen) {
+  if (words.length <= 1 || charCount(cased) <= maxSingleLen) {
     return { formatted: cased, lineCount: 1 };
   }
 
-  const totalLen = cased.length;
+  const totalLen = charCount(cased);
   const targetLines = Math.min(4, Math.max(2, Math.ceil(totalLen / maxSingleLen)));
   const targetPerLine = totalLen / targetLines;
 
@@ -174,20 +180,21 @@ export function formatTitleSmart(
 
   for (let i = 0; i < words.length; i++) {
     const w = words[i];
+    const wLen = charCount(w);
     const remainingWords = words.length - i;
     const remainingLines = targetLines - lines.length;
 
     if (
       remainingLines > 1 &&
       currentLine.length > 0 &&
-      (currentLen + w.length > targetPerLine * 1.15 || remainingWords <= remainingLines - 1)
+      (currentLen + wLen > targetPerLine * 1.15 || remainingWords <= remainingLines - 1)
     ) {
       lines.push(currentLine.join(' '));
       currentLine = [w];
-      currentLen = w.length;
+      currentLen = wLen;
     } else {
       currentLine.push(w);
-      currentLen += w.length + 1;
+      currentLen += wLen + 1;
     }
   }
 
@@ -197,13 +204,28 @@ export function formatTitleSmart(
 }
 
 /**
- * Preview font sizes, in px, for the 320x569 phone frame.
- * From ClipStudioSection.tsx:2948-2957 and 3005.
+ * Title font size in export pixels (1080-wide canvas), the numbers the
+ * renderer uses (video_engine.py:666-671). Multiply by the preview scale.
  */
-export function titleFontPx(preset: FontSizeOption, lineCount: number): number {
-  if (preset === 'small') return lineCount >= 3 ? 14 : 16.5;
-  if (preset === 'big') return lineCount >= 3 ? 22.5 : 26;
-  return lineCount >= 3 ? 18 : 21;
+export function titleExportPx(preset: FontSizeOption, lineCount: number): number {
+  if (preset === 'small') return lineCount >= 3 ? 58 : 68;
+  if (preset === 'big') return lineCount >= 3 ? 106 : 124;
+  return lineCount >= 3 ? 82 : 94;
+}
+
+/** Widest a title line may be, and the smallest it may shrink to (export px). */
+export const TITLE_SAFE_WIDTH = 1010;
+export const TITLE_MIN_PX = 40;
+/** Distance between title lines, relative to the font size (line_step). */
+export const TITLE_LINE_STEP = 0.86;
+
+/**
+ * Shrinks a title whose widest line is wider than the safe width, the way
+ * the renderer does (video_engine.py:692-697). Units only need to agree.
+ */
+export function fitTitlePx(sizePx: number, widestLinePx: number, maxWidthPx: number, minPx: number): number {
+  if (widestLinePx <= maxWidthPx || widestLinePx <= 0) return sizePx;
+  return Math.max(minPx, Math.floor(sizePx * (maxWidthPx / widestLinePx)));
 }
 
 export function subtitleFontPx(preset: FontSizeOption): number {
