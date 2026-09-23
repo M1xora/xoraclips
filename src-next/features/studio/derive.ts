@@ -197,13 +197,28 @@ export function formatTitleSmart(
 }
 
 /**
- * Preview font sizes, in px, for the 320x569 phone frame.
- * From ClipStudioSection.tsx:2948-2957 and 3005.
+ * Title font size in export pixels (1080-wide canvas), the numbers the
+ * renderer uses (video_engine.py:666-671). Multiply by the preview scale.
  */
-export function titleFontPx(preset: FontSizeOption, lineCount: number): number {
-  if (preset === 'small') return lineCount >= 3 ? 14 : 16.5;
-  if (preset === 'big') return lineCount >= 3 ? 22.5 : 26;
-  return lineCount >= 3 ? 18 : 21;
+export function titleExportPx(preset: FontSizeOption, lineCount: number): number {
+  if (preset === 'small') return lineCount >= 3 ? 58 : 68;
+  if (preset === 'big') return lineCount >= 3 ? 106 : 124;
+  return lineCount >= 3 ? 82 : 94;
+}
+
+/** Widest a title line may be, and the smallest it may shrink to (export px). */
+export const TITLE_SAFE_WIDTH = 1010;
+export const TITLE_MIN_PX = 40;
+/** Distance between title lines, relative to the font size (line_step). */
+export const TITLE_LINE_STEP = 0.86;
+
+/**
+ * Shrinks a title whose widest line is wider than the safe width, the way
+ * the renderer does (video_engine.py:692-697). Units only need to agree.
+ */
+export function fitTitlePx(sizePx: number, widestLinePx: number, maxWidthPx: number, minPx: number): number {
+  if (widestLinePx <= maxWidthPx || widestLinePx <= 0) return sizePx;
+  return Math.max(minPx, Math.floor(sizePx * (maxWidthPx / widestLinePx)));
 }
 
 export function subtitleFontPx(preset: FontSizeOption): number {

@@ -540,6 +540,8 @@ export function App() {
                         enableFaceTracking={studio.enableFaceTracking}
                         title={studio.titlePosition === 'none' ? undefined : titleRender.formatted}
                         titleYPercent={safePos.titleY}
+                        titleFontSize={studio.titleFontSize}
+                        titleLines={titleRender.lineCount}
                         watermarkEnabled={studio.watermarkEnabled}
                         watermarkType={studio.watermarkType}
                         watermarkUrl={studio.watermarkUrl}
