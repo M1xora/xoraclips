@@ -1,7 +1,7 @@
 import { Fragment } from 'react';
 import { activeWordIndex, CAPTION_THEMES, chunkAt, type CaptionChunk } from './captions';
-import { subtitleFontPx } from './derive';
-import { FONT_STACKS } from './fonts';
+import { subtitleExportPx } from './derive';
+import { FONT_STACKS, LIBASS_EM_PER_FONTSIZE } from './fonts';
 import type {
   CaptionFont,
   CaptionStyle,
@@ -23,7 +23,7 @@ interface CaptionOverlayProps {
   bottomPercent: number;
   /** Percent from the top, for centre mode. */
   centerPercent: number;
-  /** Preview frames are smaller than the 1080x1920 export. */
+  /** Export pixels to preview pixels (preview width / 1080). */
   scale?: number;
 }
 
@@ -53,7 +53,8 @@ export function CaptionOverlay({
 
   const theme = CAPTION_THEMES[style];
   const activeIdx = activeWordIndex(chunk, currentTime);
-  const sizePx = subtitleFontPx(fontSize) * scale;
+  // The em libass really draws for this font and preset, in preview px (#22).
+  const sizePx = subtitleExportPx(fontSize) * LIBASS_EM_PER_FONTSIZE[font] * scale;
 
   const position =
     positionMode === 'center'
@@ -71,18 +72,19 @@ export function CaptionOverlay({
 
   return (
     <div
-      className="pointer-events-none absolute inset-x-0 px-2 text-center"
+      // One line, never wrapped, like libass with WrapStyle 2 and \q2: a
+      // chunk too wide overflows both edges, as it is cut off in the video.
+      className="pointer-events-none absolute inset-x-0 flex justify-center"
       style={position}
       aria-hidden="true"
     >
       <span
-        className="inline-block font-extrabold leading-tight"
+        className="shrink-0 whitespace-nowrap font-extrabold leading-tight"
         style={{
           fontFamily: FONT_STACKS[font],
           fontSize: `${sizePx}px`,
-          letterSpacing: '0.03em',
+          // No extra letter spacing: SubStyle has Spacing 0 (#22).
           textShadow: shadow,
-          maxWidth: '96%',
         }}
       >
         {chunk.words.map((word, i) => (

@@ -7,7 +7,7 @@ import {
   getDefaultWatermarkConfig,
   getMaxPositions,
   fitTitlePx,
-  subtitleFontPx,
+  subtitleExportPx,
   titleExportPx,
   watermarkPreset,
 } from './derive';
@@ -207,12 +207,13 @@ describe('preview font sizes', () => {
     expect(fitTitlePx(94, 0, 1010, 40)).toBe(94);
   });
 
+  // The renderer's subtitle Fontsize (video_engine.py:851-856), #22.
   it.each([
-    ['small', 17],
-    ['medium', 20.5],
-    ['big', 25],
-  ] as const)('subtitle %s is %dpx', (preset, px) => {
-    expect(subtitleFontPx(preset)).toBe(px);
+    ['small', 65],
+    ['medium', 78],
+    ['big', 94],
+  ] as const)('subtitle %s is %dpx in the export', (preset, px) => {
+    expect(subtitleExportPx(preset)).toBe(px);
   });
 });
 

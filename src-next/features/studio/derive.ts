@@ -228,10 +228,15 @@ export function fitTitlePx(sizePx: number, widestLinePx: number, maxWidthPx: num
   return Math.max(minPx, Math.floor(sizePx * (maxWidthPx / widestLinePx)));
 }
 
-export function subtitleFontPx(preset: FontSizeOption): number {
-  if (preset === 'small') return 17;
-  if (preset === 'big') return 25;
-  return 20.5;
+/**
+ * Subtitle Fontsize in export pixels, the renderer's numbers
+ * (video_engine.py:851-856). Like the title, libass draws a smaller em than
+ * this: multiply by LIBASS_EM_PER_FONTSIZE for the font, then the scale.
+ */
+export function subtitleExportPx(preset: FontSizeOption): number {
+  if (preset === 'small') return 65;
+  if (preset === 'big') return 94;
+  return 78;
 }
 
 /** Corner and edge presets for the watermark, in percent. */
