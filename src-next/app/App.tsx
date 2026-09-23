@@ -286,9 +286,6 @@ export function App() {
         <div className="mx-auto flex h-14 max-w-[1400px] items-center gap-3 px-4">
           <FilmStripIcon size={20} weight="duotone" className="shrink-0 text-accent" />
           <span className="font-display text-sm font-semibold tracking-tight">{t.app.name}</span>
-          <span className="rounded bg-accent px-1.5 py-0.5 font-mono text-[0.76rem] font-bold text-on-accent">
-            PRO
-          </span>
 
           <div className="ml-auto flex items-center gap-2">
             <Button
