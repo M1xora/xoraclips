@@ -13,5 +13,5 @@ for path in (str(BACKEND), str(ROOT)):
     if path not in sys.path:
         sys.path.insert(0, path)
 
-for name in ("secrets_guard", "ai_errors", "captions", "video_engine"):
+for name in ("secrets_guard", "ai_errors", "youtube_errors", "captions", "video_engine"):
     sys.modules[name] = importlib.import_module(f"backend.{name}")

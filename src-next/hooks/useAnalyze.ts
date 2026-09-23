@@ -27,11 +27,14 @@ type Status = 'idle' | 'running' | 'done' | 'error';
 /** An analysis failure with the backend's error code (e.g. `key_invalid`), when it sent one. */
 export class AnalyzeError extends Error {
   readonly code?: string;
+  /** Seconds until the server tries YouTube again (code `youtube_blocked`). */
+  readonly retryAfter?: number;
 
-  constructor(message: string, code?: string) {
+  constructor(message: string, code?: string, retryAfter?: number) {
     super(message);
     this.name = 'AnalyzeError';
     this.code = code;
+    this.retryAfter = retryAfter;
   }
 }
 
@@ -76,6 +79,8 @@ export function useAnalyze() {
   const [result, setResult] = useState<AnalyzeResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [errorCode, setErrorCode] = useState<string | null>(null);
+  // When the server will try YouTube again (ms since epoch), for "try again after 14:35".
+  const [errorRetryAt, setErrorRetryAt] = useState<number | null>(null);
   const abortRef = useRef<AbortController | null>(null);
 
   const cancel = useCallback(() => {
@@ -94,6 +99,7 @@ export function useAnalyze() {
     setResult(null);
     setError(null);
     setErrorCode(null);
+    setErrorRetryAt(null);
 
     try {
       const res = await fetch('/api/analyze', buildAnalyzeInit(payload, apiKey, controller.signal));
@@ -139,7 +145,11 @@ export function useAnalyze() {
           }
 
           if (typeof event.error === 'string') {
-            throw new AnalyzeError(event.error, typeof event.code === 'string' ? event.code : undefined);
+            throw new AnalyzeError(
+              event.error,
+              typeof event.code === 'string' ? event.code : undefined,
+              typeof event.retry_after === 'number' ? event.retry_after : undefined,
+            );
           }
 
           if (event.result) {
@@ -166,6 +176,9 @@ export function useAnalyze() {
       if (err instanceof DOMException && err.name === 'AbortError') return null;
       setError(err instanceof Error ? err.message : 'Unexpected error during analysis.');
       setErrorCode(err instanceof AnalyzeError ? (err.code ?? null) : null);
+      setErrorRetryAt(
+        err instanceof AnalyzeError && err.retryAfter ? Date.now() + err.retryAfter * 1000 : null,
+      );
       setStatus('error');
       return null;
     } finally {
@@ -173,5 +186,5 @@ export function useAnalyze() {
     }
   }, []);
 
-  return { analyze, cancel, status, progress, result, error, errorCode, setResult };
+  return { analyze, cancel, status, progress, result, error, errorCode, errorRetryAt, setResult };
 }

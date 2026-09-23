@@ -369,6 +369,16 @@ export const id = {
     modelUnavailable: 'Model yang dipilih tidak tersedia untuk kunci kamu. Pilih model lain, lalu coba lagi.',
     aiBusy: 'Layanan AI Google sedang sibuk. Kunci kamu tidak bermasalah, coba lagi sebentar lagi.',
     aiFailed: 'Analisis AI gagal. Coba lagi sebentar lagi.',
+    youtubeBlocked: (time: string, minutes: number) =>
+      `YouTube sedang membatasi akses dari jaringan ini. Coba lagi setelah pukul ${time} (sekitar ${minutes} menit lagi), atau upload subtitle manual.`,
+    youtubeBlockedLater:
+      'YouTube sedang membatasi akses dari jaringan ini. Coba lagi beberapa saat lagi, atau upload subtitle manual.',
+    captionsDisabled: 'Pembuat video mematikan subtitle untuk video ini. Upload subtitle manual untuk menganalisisnya.',
+    videoUnavailable: 'Video ini private atau tidak tersedia.',
+    ageRestricted: 'Video ini dibatasi usia, jadi subtitlenya tidak bisa diambil. Upload subtitle manual.',
+    videoLive:
+      'Video ini sedang live atau baru selesai, jadi subtitlenya belum ada. Coba lagi nanti, atau upload subtitle manual.',
+    captionsUnavailable: 'Subtitle video ini tidak bisa diambil. Upload subtitle manual.',
     changeKey: 'Ganti kunci',
     getKey: 'Buat kunci di Google AI Studio',
     tryAgain: 'Coba lagi',

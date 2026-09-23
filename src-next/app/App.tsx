@@ -53,7 +53,7 @@ import type { AnalyzeResponse, ViralClip } from '../lib/types';
 export function App() {
   const { theme, toggle } = useTheme();
   const { language, setLanguage, t } = useLanguage();
-  const { analyze, status, progress, error, errorCode } = useAnalyze();
+  const { analyze, status, progress, error, errorCode, errorRetryAt } = useAnalyze();
   const { toast, show, dismiss } = useToast();
 
   // The result lives here rather than in useAnalyze so a cache hit and a
@@ -278,7 +278,12 @@ export function App() {
     [show, t.render.recover, t.studio.uploadFailed, startRender],
   );
 
-  const errorView = error ? analyzeErrorView(errorCode, error, t) : null;
+  const errorView = error
+    ? analyzeErrorView(errorCode, error, t, {
+        retryAt: errorRetryAt,
+        locale: language === 'id' ? 'id-ID' : 'en-US',
+      })
+    : null;
 
   return (
     <div className="min-h-[100dvh] bg-canvas">
