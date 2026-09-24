@@ -1,0 +1,1727 @@
+{
+ "source": "YouTube qedBB492cQY, fetched 2026-09-24 with fetch_video_metadata + fetch_transcript",
+ "content_type": "stand-up comedy",
+ "video_id": "qedBB492cQY",
+ "title": "Stand Up Comedy - BIKIN KEKEH! Ridwan : Sehat Itu Susah",
+ "channel": "Kompas TV Medan",
+ "duration": 663.0,
+ "heatmap": [
+  {
+   "start_time": 0.0,
+   "end_time": 6.63,
+   "value": 0.5387553684302508
+  },
+  {
+   "start_time": 6.63,
+   "end_time": 13.26,
+   "value": 0.3332663335336622
+  },
+  {
+   "start_time": 13.26,
+   "end_time": 19.89,
+   "value": 0.23177760265753938
+  },
+  {
+   "start_time": 19.89,
+   "end_time": 26.52,
+   "value": 0.2038704171929945
+  },
+  {
+   "start_time": 26.52,
+   "end_time": 33.15,
+   "value": 0.21773910265264684
+  },
+  {
+   "start_time": 33.15,
+   "end_time": 39.78,
+   "value": 0.22959793976071133
+  },
+  {
+   "start_time": 39.78,
+   "end_time": 46.41,
+   "value": 0.257826440268512
+  },
+  {
+   "start_time": 46.41,
+   "end_time": 53.04,
+   "value": 0.2932803239365371
+  },
+  {
+   "start_time": 53.04,
+   "end_time": 59.67,
+   "value": 0.3070121819817356
+  },
+  {
+   "start_time": 59.67,
+   "end_time": 66.3,
+   "value": 0.44559024458400964
+  },
+  {
+   "start_time": 66.3,
+   "end_time": 72.93,
+   "value": 0.737701118299233
+  },
+  {
+   "start_time": 72.93,
+   "end_time": 79.56,
+   "value": 0.7849614091985762
+  },
+  {
+   "start_time": 79.56,
+   "end_time": 86.19,
+   "value": 0.8119328670017415
+  },
+  {
+   "start_time": 86.19,
+   "end_time": 92.82,
+   "value": 0.2940786416292766
+  },
+  {
+   "start_time": 92.82,
+   "end_time": 99.45,
+   "value": 0.21612976030398406
+  },
+  {
+   "start_time": 99.45,
+   "end_time": 106.08,
+   "value": 0.5864896399792374
+  },
+  {
+   "start_time": 106.08,
+   "end_time": 112.71,
+   "value": 0.1689332954976526
+  },
+  {
+   "start_time": 112.71,
+   "end_time": 119.34,
+   "value": 0.1479034170671537
+  },
+  {
+   "start_time": 119.34,
+   "end_time": 125.97,
+   "value": 0.14678815348755395
+  },
+  {
+   "start_time": 125.97,
+   "end_time": 132.6,
+   "value": 0.13936725057862878
+  },
+  {
+   "start_time": 132.6,
+   "end_time": 139.23,
+   "value": 0.14092893271294346
+  },
+  {
+   "start_time": 139.23,
+   "end_time": 145.86,
+   "value": 0.1363347101485718
+  },
+  {
+   "start_time": 145.86,
+   "end_time": 152.49,
+   "value": 0.13508240069669838
+  },
+  {
+   "start_time": 152.49,
+   "end_time": 159.12,
+   "value": 0.13332681904251303
+  },
+  {
+   "start_time": 159.12,
+   "end_time": 165.75,
+   "value": 0.14482581971176767
+  },
+  {
+   "start_time": 165.75,
+   "end_time": 172.38,
+   "value": 0.1768938984503376
+  },
+  {
+   "start_time": 172.38,
+   "end_time": 179.01,
+   "value": 0.19562840415879973
+  },
+  {
+   "start_time": 179.01,
+   "end_time": 185.64,
+   "value": 0.17680700685252118
+  },
+  {
+   "start_time": 185.64,
+   "end_time": 192.27,
+   "value": 0.13530100415502222
+  },
+  {
+   "start_time": 192.27,
+   "end_time": 198.9,
+   "value": 0.15558033433603954
+  },
+  {
+   "start_time": 198.9,
+   "end_time": 205.53,
+   "value": 0.2052572602522141
+  },
+  {
+   "start_time": 205.53,
+   "end_time": 212.16,
+   "value": 0.3334881410400094
+  },
+  {
+   "start_time": 212.16,
+   "end_time": 218.79,
+   "value": 0.1610613864197972
+  },
+  {
+   "start_time": 218.79,
+   "end_time": 225.42,
+   "value": 0.194575546696383
+  },
+  {
+   "start_time": 225.42,
+   "end_time": 232.05,
+   "value": 0.20982302868555977
+  },
+  {
+   "start_time": 232.05,
+   "end_time": 238.68,
+   "value": 0.27561648000280353
+  },
+  {
+   "start_time": 238.68,
+   "end_time": 245.31,
+   "value": 0.3787043585293329
+  },
+  {
+   "start_time": 245.31,
+   "end_time": 251.94,
+   "value": 0.6808359652570145
+  },
+  {
+   "start_time": 251.94,
+   "end_time": 258.57,
+   "value": 1.0
+  },
+  {
+   "start_time": 258.57,
+   "end_time": 265.2,
+   "value": 0.9616031254032082
+  },
+  {
+   "start_time": 265.2,
+   "end_time": 271.83,
+   "value": 0.7296579382906723
+  },
+  {
+   "start_time": 271.83,
+   "end_time": 278.46,
+   "value": 0.40727237889870405
+  },
+  {
+   "start_time": 278.46,
+   "end_time": 285.09,
+   "value": 0.34396890981128203
+  },
+  {
+   "start_time": 285.09,
+   "end_time": 291.72,
+   "value": 0.27970426272647647
+  },
+  {
+   "start_time": 291.72,
+   "end_time": 298.35,
+   "value": 0.28185126617924783
+  },
+  {
+   "start_time": 298.35,
+   "end_time": 304.98,
+   "value": 0.2601020425578589
+  },
+  {
+   "start_time": 304.98,
+   "end_time": 311.61,
+   "value": 0.2402738277746817
+  },
+  {
+   "start_time": 311.61,
+   "end_time": 318.24,
+   "value": 0.27665612076712376
+  },
+  {
+   "start_time": 318.24,
+   "end_time": 324.87,
+   "value": 0.45474031395574543
+  },
+  {
+   "start_time": 324.87,
+   "end_time": 331.5,
+   "value": 0.31950847900791024
+  },
+  {
+   "start_time": 331.5,
+   "end_time": 338.13,
+   "value": 0.36255162374463556
+  },
+  {
+   "start_time": 338.13,
+   "end_time": 344.76,
+   "value": 0.27183395567263274
+  },
+  {
+   "start_time": 344.76,
+   "end_time": 351.39,
+   "value": 0.24141337658191336
+  },
+  {
+   "start_time": 351.39,
+   "end_time": 358.02,
+   "value": 0.22052291065006904
+  },
+  {
+   "start_time": 358.02,
+   "end_time": 364.65,
+   "value": 0.14528782159096004
+  },
+  {
+   "start_time": 364.65,
+   "end_time": 371.28,
+   "value": 0.6985367285622904
+  },
+  {
+   "start_time": 371.28,
+   "end_time": 377.91,
+   "value": 0.10987790255916509
+  },
+  {
+   "start_time": 377.91,
+   "end_time": 384.54,
+   "value": 0.13502478244673213
+  },
+  {
+   "start_time": 384.54,
+   "end_time": 391.17,
+   "value": 0.10890372632150483
+  },
+  {
+   "start_time": 391.17,
+   "end_time": 397.8,
+   "value": 0.12249788312097033
+  },
+  {
+   "start_time": 397.8,
+   "end_time": 404.43,
+   "value": 0.10395106908933355
+  },
+  {
+   "start_time": 404.43,
+   "end_time": 411.06,
+   "value": 0.07374953037257753
+  },
+  {
+   "start_time": 411.06,
+   "end_time": 417.69,
+   "value": 0.09066448269529617
+  },
+  {
+   "start_time": 417.69,
+   "end_time": 424.32,
+   "value": 0.2623267077655611
+  },
+  {
+   "start_time": 424.32,
+   "end_time": 430.95,
+   "value": 0.35453433098771836
+  },
+  {
+   "start_time": 430.95,
+   "end_time": 437.58,
+   "value": 0.2768042715785694
+  },
+  {
+   "start_time": 437.58,
+   "end_time": 444.21,
+   "value": 0.15957678348622725
+  },
+  {
+   "start_time": 444.21,
+   "end_time": 450.84,
+   "value": 0.14617756388127637
+  },
+  {
+   "start_time": 450.84,
+   "end_time": 457.47,
+   "value": 0.12148209066864249
+  },
+  {
+   "start_time": 457.47,
+   "end_time": 464.1,
+   "value": 0.07788617482860732
+  },
+  {
+   "start_time": 464.1,
+   "end_time": 470.73,
+   "value": 0.0741877385542325
+  },
+  {
+   "start_time": 470.73,
+   "end_time": 477.36,
+   "value": 0.0667706040426985
+  },
+  {
+   "start_time": 477.36,
+   "end_time": 483.99,
+   "value": 0.056244068358182533
+  },
+  {
+   "start_time": 483.99,
+   "end_time": 490.62,
+   "value": 0.2350520669181814
+  },
+  {
+   "start_time": 490.62,
+   "end_time": 497.25,
+   "value": 0.7366686866429655
+  },
+  {
+   "start_time": 497.25,
+   "end_time": 503.88,
+   "value": 0.2688162157598657
+  },
+  {
+   "start_time": 503.88,
+   "end_time": 510.51,
+   "value": 0.624017489368955
+  },
+  {
+   "start_time": 510.51,
+   "end_time": 517.14,
+   "value": 0.6301630719356569
+  },
+  {
+   "start_time": 517.14,
+   "end_time": 523.77,
+   "value": 0.08963383511122347
+  },
+  {
+   "start_time": 523.77,
+   "end_time": 530.4,
+   "value": 0.05354019771798051
+  },
+  {
+   "start_time": 530.4,
+   "end_time": 537.03,
+   "value": 0.03148158320933197
+  },
+  {
+   "start_time": 537.03,
+   "end_time": 543.66,
+   "value": 0.022885668507097945
+  },
+  {
+   "start_time": 543.66,
+   "end_time": 550.29,
+   "value": 0.012032001339874627
+  },
+  {
+   "start_time": 550.29,
+   "end_time": 556.92,
+   "value": 0.00428019855085095
+  },
+  {
+   "start_time": 556.92,
+   "end_time": 563.55,
+   "value": 0.0
+  },
+  {
+   "start_time": 563.55,
+   "end_time": 570.18,
+   "value": 0.0004499593918771466
+  },
+  {
+   "start_time": 570.18,
+   "end_time": 576.81,
+   "value": 0.004502251822245423
+  },
+  {
+   "start_time": 576.81,
+   "end_time": 583.44,
+   "value": 0.004961522978690578
+  },
+  {
+   "start_time": 583.44,
+   "end_time": 590.07,
+   "value": 0.009536057032054816
+  },
+  {
+   "start_time": 590.07,
+   "end_time": 596.7,
+   "value": 0.024194695070431028
+  },
+  {
+   "start_time": 596.7,
+   "end_time": 603.33,
+   "value": 0.03726826688536722
+  },
+  {
+   "start_time": 603.33,
+   "end_time": 609.96,
+   "value": 0.03759469748256945
+  },
+  {
+   "start_time": 609.96,
+   "end_time": 616.59,
+   "value": 0.04583062100503796
+  },
+  {
+   "start_time": 616.59,
+   "end_time": 623.22,
+   "value": 0.05534515083943555
+  },
+  {
+   "start_time": 623.22,
+   "end_time": 629.85,
+   "value": 0.06208211692909291
+  },
+  {
+   "start_time": 629.85,
+   "end_time": 636.48,
+   "value": 0.07131712998308545
+  },
+  {
+   "start_time": 636.48,
+   "end_time": 643.11,
+   "value": 0.08343507627022413
+  },
+  {
+   "start_time": 643.11,
+   "end_time": 649.74,
+   "value": 0.09423504832582802
+  },
+  {
+   "start_time": 649.74,
+   "end_time": 656.37,
+   "value": 0.10199346856630911
+  },
+  {
+   "start_time": 656.37,
+   "end_time": 663.0,
+   "value": 0.07103324404628485
+  }
+ ],
+ "transcript": [
+  {
+   "text": "sehat semuanya sehat ya gua enggak ya",
+   "start": 0.08,
+   "duration": 6.16
+  },
+  {
+   "text": "maklumlah lagi bulan Ramadan jadwal",
+   "start": 4.24,
+   "duration": 3.44
+  },
+  {
+   "text": "manggung lagi",
+   "start": 6.24,
+   "duration": 4.8
+  },
+  {
+   "text": "banyak banyak di-cancel ya",
+   "start": 7.68,
+   "duration": 7.4
+  },
+  {
+   "text": "Allah stres gua tapi ya zaman sekarang",
+   "start": 11.04,
+   "duration": 6.24
+  },
+  {
+   "text": "yang namanya sehat itu susah kalau sakit",
+   "start": 15.08,
+   "duration": 4.16
+  },
+  {
+   "text": "mah gampang gitu kita tinggal keluar",
+   "start": 17.28,
+   "duration": 4.44
+  },
+  {
+   "text": "rumah ujan-ujanan sakit keluar rumah",
+   "start": 19.24,
+   "duration": 4.64
+  },
+  {
+   "text": "panas-panasan sakit bahkan waktu masih",
+   "start": 21.72,
+   "duration": 3.52
+  },
+  {
+   "text": "jadi pengangguran Gua di rumah aja",
+   "start": 23.88,
+   "duration": 3.32
+  },
+  {
+   "text": "enggak ngapa-ngapain Eh gua",
+   "start": 25.24,
+   "duration": 5.36
+  },
+  {
+   "text": "sakit sakit hati diomongin Tetangga",
+   "start": 27.2,
+   "duration": 5.88
+  },
+  {
+   "text": "itu tahu sendiri kan tetangga kalau udah",
+   "start": 30.6,
+   "duration": 4.68
+  },
+  {
+   "text": "ngomong tuh apa aja dibahas gitu Tuh",
+   "start": 33.08,
+   "duration": 3.64
+  },
+  {
+   "text": "lihat tuh si Ridwan udah lulus bukannya",
+   "start": 35.28,
+   "duration": 3.36
+  },
+  {
+   "text": "kerja malah di rumah mulu Tuh lihat tuh",
+   "start": 36.72,
+   "duration": 3.32
+  },
+  {
+   "text": "si Ridwan udah gede bukannya bantuin",
+   "start": 38.64,
+   "duration": 3.12
+  },
+  {
+   "text": "orang tua malah nyusahin mulu sampai",
+   "start": 40.04,
+   "duration": 3.12
+  },
+  {
+   "text": "akhirnya sekarang gua jadi Stand Up",
+   "start": 41.76,
+   "duration": 3.52
+  },
+  {
+   "text": "komedian masih diomongin juga Tuh lihat",
+   "start": 43.16,
+   "duration": 3.36
+  },
+  {
+   "text": "tuh si Ridwan sekarang jadi Stand Up",
+   "start": 45.28,
+   "duration": 2.8
+  },
+  {
+   "text": "komedian tiap Manggu ngomongin kita mulu",
+   "start": 46.52,
+   "duration": 3.96
+  },
+  {
+   "text": "apa",
+   "start": 48.08,
+   "duration": 2.4
+  },
+  {
+   "text": "coba sakit loh hati gua hati gua tuh",
+   "start": 53.84,
+   "duration": 6.24
+  },
+  {
+   "text": "lembut",
+   "start": 57.16,
+   "duration": 4.56
+  },
+  {
+   "text": "tapi ya jujur buat hidup sehat tuh susah",
+   "start": 60.08,
+   "duration": 4.48
+  },
+  {
+   "text": "apalagi gua ini seorang perokok bagi gua",
+   "start": 61.72,
+   "duration": 5.64
+  },
+  {
+   "text": "rokok itu adalah gaya hidup Makanya",
+   "start": 64.56,
+   "duration": 4.44
+  },
+  {
+   "text": "kalau ada yang bilang roko membunuhmu",
+   "start": 67.36,
+   "duration": 4.76
+  },
+  {
+   "text": "gua enggak takut karena roko buat gaya",
+   "start": 69.0,
+   "duration": 6.68
+  },
+  {
+   "text": "kalau mau bunuh ya Bunuh aja tau percuma",
+   "start": 72.12,
+   "duration": 6.56
+  },
+  {
+   "text": "juga gua hidup kalau mati",
+   "start": 75.68,
+   "duration": 3.0
+  },
+  {
+   "text": "gaya gimana pemikiran",
+   "start": 83.0,
+   "duration": 7.64
+  },
+  {
+   "text": "gua agak filosofis ya",
+   "start": 85.84,
+   "duration": 6.36
+  },
+  {
+   "text": "tapi mungkin di sini ada yang benci sama",
+   "start": 90.64,
+   "duration": 3.8
+  },
+  {
+   "text": "merokok enggak masalah itu hak kalian",
+   "start": 92.2,
+   "duration": 4.08
+  },
+  {
+   "text": "Gua lebih bermasalah sama orang-orang",
+   "start": 94.44,
+   "duration": 3.48
+  },
+  {
+   "text": "yang akunya pecinta rokok tapi masih",
+   "start": 96.28,
+   "duration": 3.32
+  },
+  {
+   "text": "suka ngerugiin peroko",
+   "start": 97.92,
+   "duration": 6.36
+  },
+  {
+   "text": "lainnya misalnya dalam kasus pencurian",
+   "start": 99.6,
+   "duration": 4.68
+  },
+  {
+   "text": "korek ya gua tuh sering banget kecurian",
+   "start": 104.48,
+   "duration": 6.04
+  },
+  {
+   "text": "gitu saking seringnya gua sampai hafal",
+   "start": 108.44,
+   "duration": 3.56
+  },
+  {
+   "text": "modus",
+   "start": 110.52,
+   "duration": 3.68
+  },
+  {
+   "text": "operandinya kayak waktu itu gua pernah",
+   "start": 112.0,
+   "duration": 3.76
+  },
+  {
+   "text": "diajak nongkrong sama teman-teman gua",
+   "start": 114.2,
+   "duration": 3.16
+  },
+  {
+   "text": "pas nongkrong gua ngeluarin roko sama",
+   "start": 115.76,
+   "duration": 3.48
+  },
+  {
+   "text": "korek terus ada satu orang teman gue",
+   "start": 117.36,
+   "duration": 3.0
+  },
+  {
+   "text": "yang cuma ngeluar",
+   "start": 119.24,
+   "duration": 4.04
+  },
+  {
+   "text": "rokoknya doang di situ perasaan gua udah",
+   "start": 120.36,
+   "duration": 4.16
+  },
+  {
+   "text": "enggak enak",
+   "start": 123.28,
+   "duration": 4.2
+  },
+  {
+   "text": "tuh dan bener aja gitu gua adajakin",
+   "start": 124.52,
+   "duration": 6.64
+  },
+  {
+   "text": "ngobrol diajakin ngobrol sampai gua",
+   "start": 127.48,
+   "duration": 3.68
+  },
+  {
+   "text": "lengah",
+   "start": 132.84,
+   "duration": 4.76
+  },
+  {
+   "text": "I pas gua udah mau balik gua baru sadar",
+   "start": 134.88,
+   "duration": 6.0
+  },
+  {
+   "text": "nih Korek gua hilang ke mana ya Allah",
+   "start": 137.6,
+   "duration": 6.6
+  },
+  {
+   "text": "perasaan tadi di atas meja dah apa jatuh",
+   "start": 140.88,
+   "duration": 5.96
+  },
+  {
+   "text": "ke kolong ya itu gua cari-cari enggak",
+   "start": 144.2,
+   "duration": 6.48
+  },
+  {
+   "text": "ada gua miss call enggak aktif",
+   "start": 146.84,
+   "duration": 5.44
+  },
+  {
+   "text": "gua mau nanya teman gua juga enggak enak",
+   "start": 150.68,
+   "duration": 3.88
+  },
+  {
+   "text": "takut tersinggung ya kan Masud cuman",
+   "start": 152.28,
+   "duration": 5.12
+  },
+  {
+   "text": "gara-gara korek doang kami berantem sih",
+   "start": 154.56,
+   "duration": 4.64
+  },
+  {
+   "text": "akhirnya yang bisa gua lakuin apa coba",
+   "start": 157.4,
+   "duration": 4.28
+  },
+  {
+   "text": "ya udahlah ikhlasin aja ikhlasin aja",
+   "start": 159.2,
+   "duration": 5.92
+  },
+  {
+   "text": "gitu Padahal ya yang jadi masalah adalah",
+   "start": 161.68,
+   "duration": 4.84
+  },
+  {
+   "text": "ketika gua udah ikhlas Beberapa hari",
+   "start": 165.12,
+   "duration": 2.88
+  },
+  {
+   "text": "kemudian gua nongkrong bareng lagi sama",
+   "start": 166.52,
+   "duration": 2.92
+  },
+  {
+   "text": "teman gua terus gua ngelihat ada orang",
+   "start": 168.0,
+   "duration": 4.2
+  },
+  {
+   "text": "yang koreknya Mirip sama kayak gua kan",
+   "start": 169.44,
+   "duration": 5.64
+  },
+  {
+   "text": "gua Jadi curiga",
+   "start": 172.2,
+   "duration": 2.88
+  },
+  {
+   "text": "ya korek kayak kenal nih",
+   "start": 175.72,
+   "duration": 5.32
+  },
+  {
+   "text": "terus di situ dia baru ngaku gitu sorwan",
+   "start": 185.92,
+   "duration": 5.76
+  },
+  {
+   "text": "kemarin koreknya kebawa kirain punya gua",
+   "start": 188.08,
+   "duration": 6.76
+  },
+  {
+   "text": "Ais pas gua pegang-pegang rasanya sama",
+   "start": 191.68,
+   "duration": 7.04
+  },
+  {
+   "text": "lah alasan macam Apa itu kata gua sini",
+   "start": 194.84,
+   "duration": 7.36
+  },
+  {
+   "text": "balikin pas gua lihat Buset Abis lu",
+   "start": 198.72,
+   "duration": 4.64
+  },
+  {
+   "text": "pakai apa lu",
+   "start": 202.2,
+   "duration": 7.32
+  },
+  {
+   "text": "Minum gua pakai Wan pakai minum buset",
+   "start": 203.36,
+   "duration": 6.16
+  },
+  {
+   "text": "tapi ya dari kejadian itu gua jadi tahu",
+   "start": 212.96,
+   "duration": 3.88
+  },
+  {
+   "text": "ternyata rokok dan korek itu sama-sama",
+   "start": 214.88,
+   "duration": 4.6
+  },
+  {
+   "text": "berbahaya rokok itu bisa ngerusak badan",
+   "start": 216.84,
+   "duration": 4.96
+  },
+  {
+   "text": "korek bisa ngerusak",
+   "start": 219.48,
+   "duration": 4.56
+  },
+  {
+   "text": "pertemanan makanya ini buat produsen",
+   "start": 221.8,
+   "duration": 3.96
+  },
+  {
+   "text": "korek gitu next time kalian bikin korek",
+   "start": 224.04,
+   "duration": 3.2
+  },
+  {
+   "text": "Bikinlah korek dengan sistem keamanan",
+   "start": 225.76,
+   "duration": 2.32
+  },
+  {
+   "text": "yang",
+   "start": 227.24,
+   "duration": 3.92
+  },
+  {
+   "text": "jelas ya minimal bikin korek dengan",
+   "start": 228.08,
+   "duration": 5.36
+  },
+  {
+   "text": "password Jadi kalau korek kita diambil",
+   "start": 231.16,
+   "duration": 3.68
+  },
+  {
+   "text": "orang minimal di tangan pencuri korek",
+   "start": 233.44,
+   "duration": 3.8
+  },
+  {
+   "text": "kita enggak guna karena ada password-nya",
+   "start": 234.84,
+   "duration": 4.16
+  },
+  {
+   "text": "korek eh password ini penting loh gua",
+   "start": 237.24,
+   "duration": 3.84
+  },
+  {
+   "text": "sih gini ya ya kalau modus pencurian",
+   "start": 239.0,
+   "duration": 3.64
+  },
+  {
+   "text": "korek ini enggak pernah ada solusinya",
+   "start": 241.08,
+   "duration": 3.4
+  },
+  {
+   "text": "Gua cuma takut modus yang sama bakal",
+   "start": 242.64,
+   "duration": 3.52
+  },
+  {
+   "text": "digunain sama penjahat buat ngelakuin",
+   "start": 244.48,
+   "duration": 3.32
+  },
+  {
+   "text": "tindak kriminal yang lebih besar lagi",
+   "start": 246.16,
+   "duration": 4.16
+  },
+  {
+   "text": "gitu gua kan enggak mau ketika gua nanti",
+   "start": 247.8,
+   "duration": 3.96
+  },
+  {
+   "text": "udah punya keluarga terus diajakin",
+   "start": 250.32,
+   "duration": 3.24
+  },
+  {
+   "text": "nongkrong bareng sama teman-teman gua",
+   "start": 251.76,
+   "duration": 4.12
+  },
+  {
+   "text": "gua bawa anak sama istri gua terus",
+   "start": 253.56,
+   "duration": 5.92
+  },
+  {
+   "text": "tiba-tiba ada yang cuma bawa anaknya",
+   "start": 255.88,
+   "duration": 3.6
+  },
+  {
+   "text": "doang terus gua diajak ngobrol diajak",
+   "start": 263.76,
+   "duration": 7.56
+  },
+  {
+   "text": "ngobrol diajak ngobrol sampai gua lengah",
+   "start": 266.6,
+   "duration": 4.72
+  },
+  {
+   "text": "Pas udah mau balik gua baru sadar istri",
+   "start": 272.04,
+   "duration": 4.0
+  },
+  {
+   "text": "gua ke mana",
+   "start": 273.96,
+   "duration": 5.64
+  },
+  {
+   "text": "ini perasaan tadi di atas meja",
+   "start": 276.04,
+   "duration": 6.84
+  },
+  {
+   "text": "deh apa jatuh ke kolong",
+   "start": 279.6,
+   "duration": 7.28
+  },
+  {
+   "text": "ya gua cari-cari enggak ada gua mau",
+   "start": 282.88,
+   "duration": 5.84
+  },
+  {
+   "text": "nanya teman gua juga enggak enak takut",
+   "start": 286.88,
+   "duration": 4.2
+  },
+  {
+   "text": "tersinggung Masa cuman gara-gara istri",
+   "start": 288.72,
+   "duration": 4.12
+  },
+  {
+   "text": "kita berantem",
+   "start": 291.08,
+   "duration": 4.56
+  },
+  {
+   "text": "sih akhirnya yang bisa gua lakuin apa ya",
+   "start": 292.84,
+   "duration": 7.24
+  },
+  {
+   "text": "udahlah ikhlasin aja ikhlasin aja",
+   "start": 295.64,
+   "duration": 4.44
+  },
+  {
+   "text": "masalahnya yang gua takut nanti",
+   "start": 303.08,
+   "duration": 3.8
+  },
+  {
+   "text": "kejadiannya terulang lagi gitu Gua udah",
+   "start": 305.0,
+   "duration": 3.52
+  },
+  {
+   "text": "ikhlas Beberapa hari",
+   "start": 306.88,
+   "duration": 3.8
+  },
+  {
+   "text": "kemudian gua nongkrong lagi sama",
+   "start": 308.52,
+   "duration": 4.52
+  },
+  {
+   "text": "teman-teman gua terus ada yang bawa",
+   "start": 310.68,
+   "duration": 5.04
+  },
+  {
+   "text": "istri bentuknya mirip kayak punya gua",
+   "start": 313.04,
+   "duration": 6.08
+  },
+  {
+   "text": "kan gua Jadi curiga gitu ya istri kayak",
+   "start": 315.72,
+   "duration": 5.45
+  },
+  {
+   "text": "kenal",
+   "start": 319.12,
+   "duration": 5.84
+  },
+  {
+   "text": "[Tepuk tangan]",
+   "start": 321.17,
+   "duration": 6.83
+  },
+  {
+   "text": "nih terus di situ dia baru ngaku gitu",
+   "start": 324.96,
+   "duration": 6.84
+  },
+  {
+   "text": "sor kemarin istrinya Kew P habis Pas gua",
+   "start": 328.0,
+   "duration": 5.53
+  },
+  {
+   "text": "pegang-pegang rasanya",
+   "start": 331.8,
+   "duration": 4.85
+  },
+  {
+   "text": "[Tepuk tangan]",
+   "start": 333.53,
+   "duration": 3.12
+  },
+  {
+   "text": "sama alasan macam Udah diapain aja istri",
+   "start": 337.28,
+   "duration": 5.64
+  },
+  {
+   "text": "gua sama lu belum diapa-apain Wan masih",
+   "start": 340.36,
+   "duration": 5.8
+  },
+  {
+   "text": "utuh Kok bisa sih Ya kan gua enggak tahu",
+   "start": 342.92,
+   "duration": 6.64
+  },
+  {
+   "text": "password-nya nah itu gunanya password ya",
+   "start": 346.16,
+   "duration": 7.2
+  },
+  {
+   "text": "terima kasih gua Rid selamwat salam",
+   "start": 349.56,
+   "duration": 3.8
+  },
+  {
+   "text": "semuanya wow",
+   "start": 353.72,
+   "duration": 4.0
+  },
+  {
+   "text": "kamu luar biasa",
+   "start": 360.12,
+   "duration": 5.08
+  },
+  {
+   "text": "Remin",
+   "start": 363.04,
+   "duration": 4.76
+  },
+  {
+   "text": "Aduh langsung aja L kita dengarkan apa",
+   "start": 365.2,
+   "duration": 6.76
+  },
+  {
+   "text": "kata Bang Panji Remin kalau menurut gua",
+   "start": 367.8,
+   "duration": 6.2
+  },
+  {
+   "text": "ya kalau menurut gua ledakan tawanya sih",
+   "start": 371.96,
+   "duration": 4.36
+  },
+  {
+   "text": "enggak sekuat minggu-minggu sebelumnya",
+   "start": 374.0,
+   "duration": 5.0
+  },
+  {
+   "text": "tapi dari sisi penulisan sangat layak",
+   "start": 376.32,
+   "duration": 4.8
+  },
+  {
+   "text": "untuk dikagumi itu barusan satu set tuh",
+   "start": 379.0,
+   "duration": 4.96
+  },
+  {
+   "text": "keren banget Buset",
+   "start": 381.12,
+   "duration": 5.4
+  },
+  {
+   "text": "dah yang tadi ngomongin soal mati dan",
+   "start": 383.96,
+   "duration": 4.88
+  },
+  {
+   "text": "gaya kemudian kemati gaya itu tuh gua",
+   "start": 386.52,
+   "duration": 5.4
+  },
+  {
+   "text": "sama Pak tuh sampai Wah bagus ya kita",
+   "start": 388.84,
+   "duration": 5.64
+  },
+  {
+   "text": "bisa enggak ya nulis kayak dia gitu",
+   "start": 391.92,
+   "duration": 4.32
+  },
+  {
+   "text": "kompetisi itu panjang tapi makin Minggu",
+   "start": 394.48,
+   "duration": 6.0
+  },
+  {
+   "text": "makin baik gitu makasih bang Panji Remin",
+   "start": 396.24,
+   "duration": 6.68
+  },
+  {
+   "text": "rem Rem nih kita ngomongin tadi kita",
+   "start": 400.48,
+   "duration": 4.52
+  },
+  {
+   "text": "ngomongin soal kita ngomongin teknis ya",
+   "start": 402.92,
+   "duration": 3.72
+  },
+  {
+   "text": "yang patut dikagumi dari sisi teknis",
+   "start": 405.0,
+   "duration": 3.72
+  },
+  {
+   "text": "Mati Gaya mati Mati Gaya itu tadi terus",
+   "start": 406.64,
+   "duration": 4.6
+  },
+  {
+   "text": "ah gitu em kita ngomongin soal tadi gua",
+   "start": 408.72,
+   "duration": 5.28
+  },
+  {
+   "text": "ngomong sama si calontong tuh eh soal",
+   "start": 411.24,
+   "duration": 8.56
+  },
+  {
+   "text": "ketika lu mulai mengulang joke untuk ee",
+   "start": 414.0,
+   "duration": 7.56
+  },
+  {
+   "text": "subjek yang berbeda gitu satu jok",
+   "start": 419.8,
+   "duration": 3.32
+  },
+  {
+   "text": "diulang kita ada nbak-nembakan tadi lu",
+   "start": 421.56,
+   "duration": 5.32
+  },
+  {
+   "text": "nbak berhentinya di mana ya di 7 menit",
+   "start": 423.12,
+   "duration": 7.44
+  },
+  {
+   "text": "bukan bukan bukan waktunya",
+   "start": 426.88,
+   "duration": 7.36
+  },
+  {
+   "text": "joknya bukan durasi Bukan maksudnya",
+   "start": 430.56,
+   "duration": 4.48
+  },
+  {
+   "text": "ketika",
+   "start": 434.24,
+   "duration": 4.48
+  },
+  {
+   "text": "dia gak usah ngajak ngobrol calontong",
+   "start": 435.04,
+   "duration": 6.32
+  },
+  {
+   "text": "deh tadi tuh kita udah diskusi nih ini",
+   "start": 438.72,
+   "duration": 5.68
+  },
+  {
+   "text": "nutupnya nih di e gua pegang-pegang",
+   "start": 441.36,
+   "duration": 5.2
+  },
+  {
+   "text": "rasanya sama entar Bang panj Bang",
+   "start": 444.4,
+   "duration": 5.16
+  },
+  {
+   "text": "diginiin Coba sama calonong Bang Pan",
+   "start": 446.56,
+   "duration": 6.48
+  },
+  {
+   "text": "parah b apa sih gitu itu artinya apa Ca",
+   "start": 449.56,
+   "duration": 5.48
+  },
+  {
+   "text": "diginiin kan dia bisa lihat lewat",
+   "start": 453.04,
+   "duration": 5.48
+  },
+  {
+   "text": "tayangan gak usah diomongin",
+   "start": 455.04,
+   "duration": 6.24
+  },
+  {
+   "text": "Oh orang ngajak ngomong sendiri sekarang",
+   "start": 458.52,
+   "duration": 5.08
+  },
+  {
+   "text": "gak respek sama lu terus terang J sama",
+   "start": 461.28,
+   "duration": 4.44
+  },
+  {
+   "text": "gue kenapa ngesek sama gue justru lu gak",
+   "start": 463.6,
+   "duration": 5.0
+  },
+  {
+   "text": "pernah memperhatikan kesehatan diri lu",
+   "start": 465.72,
+   "duration": 4.52
+  },
+  {
+   "text": "Iya nih gua stres nih gila nih gua",
+   "start": 468.6,
+   "duration": 3.28
+  },
+  {
+   "text": "kayaknya lama-lama nih poin gua gini",
+   "start": 470.24,
+   "duration": 5.52
+  },
+  {
+   "text": "poin gua gini gua menghargai Remin Dan",
+   "start": 471.88,
+   "duration": 6.76
+  },
+  {
+   "text": "keberanian dan sikapnya jadi orang tuh",
+   "start": 475.76,
+   "duration": 5.16
+  },
+  {
+   "text": "punya sikapit itu terus punya nyali gitu",
+   "start": 478.64,
+   "duration": 3.92
+  },
+  {
+   "text": "berani ngambil resiko tuh gua kagumin",
+   "start": 480.92,
+   "duration": 2.72
+  },
+  {
+   "text": "jadi",
+   "start": 482.56,
+   "duration": 3.76
+  },
+  {
+   "text": "ee bagus banget dari Duan Remin malam",
+   "start": 483.64,
+   "duration": 4.28
+  },
+  {
+   "text": "hari ini bagus bagus sekali Thank you ya",
+   "start": 486.32,
+   "duration": 2.8
+  },
+  {
+   "text": "sudah ngasih pertunjukan yang bagus",
+   "start": 487.92,
+   "duration": 2.52
+  },
+  {
+   "text": "Thank you Terima",
+   "start": 489.12,
+   "duration": 4.32
+  },
+  {
+   "text": "kasih berikutnya silakan komentar dari",
+   "start": 490.44,
+   "duration": 4.48
+  },
+  {
+   "text": "Bung Cak",
+   "start": 493.44,
+   "duration": 4.44
+  },
+  {
+   "text": "Lontong kalau Bung ya Bung Kalau cak Ya",
+   "start": 494.92,
+   "duration": 5.28
+  },
+  {
+   "text": "cak jangan Cak Bung",
+   "start": 497.88,
+   "duration": 5.68
+  },
+  {
+   "text": "lontong enggak harus dibalik Oh I",
+   "start": 500.2,
+   "duration": 5.12
+  },
+  {
+   "text": "lontong Bu kalau Bung ya Bung Kalau cak",
+   "start": 503.56,
+   "duration": 4.08
+  },
+  {
+   "text": "Ya cak Jadi enggak usah pakai lontong",
+   "start": 505.32,
+   "duration": 6.12
+  },
+  {
+   "text": "Bung Cak gitu aja",
+   "start": 507.64,
+   "duration": 3.8
+  },
+  {
+   "text": "Wah baru kali ini dia marah-marah",
+   "start": 514.04,
+   "duration": 5.64
+  },
+  {
+   "text": "ya Apa",
+   "start": 516.52,
+   "duration": 3.16
+  },
+  {
+   "text": "ketawa kameraman ketawa Masa enggak",
+   "start": 519.76,
+   "duration": 6.56
+  },
+  {
+   "text": "boleh ketawa Masa enggak boleh Cak samp",
+   "start": 524.0,
+   "duration": 4.48
+  },
+  {
+   "text": "sampai botak palanya loh ketawa mulut",
+   "start": 526.32,
+   "duration": 4.4
+  },
+  {
+   "text": "tadinya gondrong loh dia Kayak ngerti",
+   "start": 528.48,
+   "duration": 4.6
+  },
+  {
+   "text": "baik Rit Tuan ini luar biasa menurut",
+   "start": 530.72,
+   "duration": 5.24
+  },
+  {
+   "text": "saya biasanya yang namanya colback itu",
+   "start": 533.08,
+   "duration": 6.6
+  },
+  {
+   "text": "kan satu panchlinnya atau satu idium ini",
+   "start": 535.96,
+   "duration": 6.6
+  },
+  {
+   "text": "satu cerita loh callback semua Iya kan",
+   "start": 539.68,
+   "duration": 7.8
+  },
+  {
+   "text": "satu bit dan itu durasinya ada 1 Seteng",
+   "start": 542.56,
+   "duration": 7.64
+  },
+  {
+   "text": "menit 2 menit ada kali tadi ya 1 Seteng",
+   "start": 547.48,
+   "duration": 6.52
+  },
+  {
+   "text": "menit I ada semenit ada semenit ada kan",
+   "start": 550.2,
+   "duration": 6.48
+  },
+  {
+   "text": "artinya itu sesuatu yang menurut aku",
+   "start": 554.0,
+   "duration": 5.68
+  },
+  {
+   "text": "luar biasa itu Karena begini Dari awal",
+   "start": 556.68,
+   "duration": 5.72
+  },
+  {
+   "text": "ketika kamu bicara sesuatu yang enggak",
+   "start": 559.68,
+   "duration": 5.16
+  },
+  {
+   "text": "lucu pun orang sudah terbawa gitu kamu",
+   "start": 562.4,
+   "duration": 5.16
+  },
+  {
+   "text": "nongkrong cuma bawa rokok eh kamu bawa",
+   "start": 564.84,
+   "duration": 5.08
+  },
+  {
+   "text": "rokok sama koreek temanmu datang cuma ba",
+   "start": 567.56,
+   "duration": 5.36
+  },
+  {
+   "text": "rokok mereka sudah membayangkan",
+   "start": 569.92,
+   "duration": 7.12
+  },
+  {
+   "text": "itu jadi apa maksud saya begini apa yang",
+   "start": 572.92,
+   "duration": 6.36
+  },
+  {
+   "text": "kamu sampaikan itu diikutin orang",
+   "start": 577.04,
+   "duration": 4.48
+  },
+  {
+   "text": "diikutin dalam arti ingin mengetahui",
+   "start": 579.28,
+   "duration": 4.8
+  },
+  {
+   "text": "kelanjutannya apa ini yang susah dan",
+   "start": 581.52,
+   "duration": 5.92
+  },
+  {
+   "text": "menurut saya itu luar biasa very good",
+   "start": 584.08,
+   "duration": 7.0
+  },
+  {
+   "text": "job terima kasihong very good job dari",
+   "start": 587.44,
+   "duration": 7.48
+  },
+  {
+   "text": "contong berikutnya silakan komentar",
+   "start": 591.08,
+   "duration": 8.96
+  },
+  {
+   "text": "Dar buat saya kamu mang sudahagkan",
+   "start": 594.92,
+   "duration": 6.92
+  },
+  {
+   "text": "Saya cuman pengin mengingatkan ini cara",
+   "start": 600.04,
+   "duration": 4.44
+  },
+  {
+   "text": "berpikir ini cara berpikir ketika kamu",
+   "start": 601.84,
+   "duration": 4.92
+  },
+  {
+   "text": "punya prinsip terhadap hal-hal politik",
+   "start": 604.48,
+   "duration": 6.32
+  },
+  {
+   "text": "misalnya apapun misalnya tapi ada satu",
+   "start": 606.76,
+   "duration": 6.36
+  },
+  {
+   "text": "prinsip yang kira-kira mungkin kita",
+   "start": 610.8,
+   "duration": 5.4
+  },
+  {
+   "text": "semua sebagai penampil di sana Sebagai",
+   "start": 613.12,
+   "duration": 6.32
+  },
+  {
+   "text": "public figure yang perlu kita pikirkan",
+   "start": 616.2,
+   "duration": 6.4
+  },
+  {
+   "text": "juga untuk kemaslahatan semua bukan",
+   "start": 619.44,
+   "duration": 6.64
+  },
+  {
+   "text": "hanya golongan ya Rokok Misalnya ini",
+   "start": 622.6,
+   "duration": 5.0
+  },
+  {
+   "text": "yang tadi dikatakan bahwa tidak boleh",
+   "start": 626.08,
+   "duration": 3.72
+  },
+  {
+   "text": "apa segala macam kayak kayaknya saya",
+   "start": 627.6,
+   "duration": 4.56
+  },
+  {
+   "text": "lebih memilih bukan karena dilarang",
+   "start": 629.8,
+   "duration": 5.2
+  },
+  {
+   "text": "Bukan karena tidak boleh Tapi Tapi ini",
+   "start": 632.16,
+   "duration": 4.48
+  },
+  {
+   "text": "adalah norma",
+   "start": 635.0,
+   "duration": 4.52
+  },
+  {
+   "text": "umum sama seperti misalnya kamu pegang",
+   "start": 636.64,
+   "duration": 4.72
+  },
+  {
+   "text": "punya bit",
+   "start": 639.52,
+   "duration": 5.48
+  },
+  {
+   "text": "eh soal perempuan bagaimanapun juga",
+   "start": 641.36,
+   "duration": 5.56
+  },
+  {
+   "text": "perempuan punya norma-norma tertentu",
+   "start": 645.0,
+   "duration": 3.72
+  },
+  {
+   "text": "yang kayaknya kita juga enggak enggak",
+   "start": 646.92,
+   "duration": 4.52
+  },
+  {
+   "text": "enggak enggak boleh melecehkan itu gitu",
+   "start": 648.72,
+   "duration": 4.72
+  },
+  {
+   "text": "dan hanya karena itu saya enggak bisa",
+   "start": 651.44,
+   "duration": 4.32
+  },
+  {
+   "text": "kasih komporgas walaupun sebetulnya",
+   "start": 653.44,
+   "duration": 4.28
+  },
+  {
+   "text": "Kalau tidak ada itu kamu komporgas",
+   "start": 655.76,
+   "duration": 4.28
+  },
+  {
+   "text": "banget terima kasih keren banget Bagus",
+   "start": 657.72,
+   "duration": 5.32
+  },
+  {
+   "text": "bangak",
+   "start": 660.04,
+   "duration": 3.0
+  }
+ ]
+}

@@ -171,6 +171,7 @@ export const id = {
     clipTitleHint: 'Mengganti judul hook untuk klip ini saja.',
     clipTitleReset: 'Kembalikan ke judul AI',
     clipTitleNoClip: 'Pilih klip dulu untuk mengganti judulnya.',
+    clipTitleOptions: 'Pilihan judul dari AI',
     titleAffix: 'Awalan & akhiran judul',
     titlePrefix: 'Awalan',
     titlePrefixPlaceholder: 'cth: "BAGIAN 1: "',

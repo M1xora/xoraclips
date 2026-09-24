@@ -1,0 +1,4022 @@
+{
+ "source": "YouTube Mwmex7kDaaE, fetched 2026-09-24 with fetch_video_metadata + fetch_transcript",
+ "content_type": "debat",
+ "video_id": "Mwmex7kDaaE",
+ "title": "APA KABAR INDONESIA, PAK AHOK?",
+ "channel": "Raymond Chin",
+ "duration": 1606.0,
+ "heatmap": [
+  {
+   "start_time": 0.0,
+   "end_time": 16.06,
+   "value": 0.11728093647199715
+  },
+  {
+   "start_time": 16.06,
+   "end_time": 32.12,
+   "value": 0.027536383284248223
+  },
+  {
+   "start_time": 32.12,
+   "end_time": 48.18,
+   "value": 0.062465988734111265
+  },
+  {
+   "start_time": 48.18,
+   "end_time": 64.24,
+   "value": 0.07150015906001343
+  },
+  {
+   "start_time": 64.24,
+   "end_time": 80.3,
+   "value": 0.03420835592620696
+  },
+  {
+   "start_time": 80.3,
+   "end_time": 96.36,
+   "value": 0.0477654411864815
+  },
+  {
+   "start_time": 96.36,
+   "end_time": 112.42,
+   "value": 0.31022407926940954
+  },
+  {
+   "start_time": 112.42,
+   "end_time": 128.48,
+   "value": 0.007229402376681374
+  },
+  {
+   "start_time": 128.48,
+   "end_time": 144.54,
+   "value": 0.07268888639075957
+  },
+  {
+   "start_time": 144.54,
+   "end_time": 160.6,
+   "value": 0.027051861827238507
+  },
+  {
+   "start_time": 160.6,
+   "end_time": 176.66,
+   "value": 0.02926862036520073
+  },
+  {
+   "start_time": 176.66,
+   "end_time": 192.72,
+   "value": 0.014270385095628868
+  },
+  {
+   "start_time": 192.72,
+   "end_time": 208.78,
+   "value": 0.008511301660321711
+  },
+  {
+   "start_time": 208.78,
+   "end_time": 224.84,
+   "value": 0.016160788853833576
+  },
+  {
+   "start_time": 224.84,
+   "end_time": 240.9,
+   "value": 0.011168818219693082
+  },
+  {
+   "start_time": 240.9,
+   "end_time": 256.96,
+   "value": 0.014066086136261938
+  },
+  {
+   "start_time": 256.96,
+   "end_time": 273.02,
+   "value": 0.5184830433690548
+  },
+  {
+   "start_time": 273.02,
+   "end_time": 289.08,
+   "value": 0.19344469987435356
+  },
+  {
+   "start_time": 289.08,
+   "end_time": 305.14,
+   "value": 0.11486823016237893
+  },
+  {
+   "start_time": 305.14,
+   "end_time": 321.2,
+   "value": 0.020197592393535878
+  },
+  {
+   "start_time": 321.2,
+   "end_time": 337.26,
+   "value": 0.0005291882662809445
+  },
+  {
+   "start_time": 337.26,
+   "end_time": 353.32,
+   "value": 0.0
+  },
+  {
+   "start_time": 353.32,
+   "end_time": 369.38,
+   "value": 0.0024470023891503393
+  },
+  {
+   "start_time": 369.38,
+   "end_time": 385.44,
+   "value": 0.0075456072513748335
+  },
+  {
+   "start_time": 385.44,
+   "end_time": 401.5,
+   "value": 0.0175528033654355
+  },
+  {
+   "start_time": 401.5,
+   "end_time": 417.56,
+   "value": 0.032977736147107035
+  },
+  {
+   "start_time": 417.56,
+   "end_time": 433.62,
+   "value": 0.01970299330135575
+  },
+  {
+   "start_time": 433.62,
+   "end_time": 449.68,
+   "value": 0.017721770376794628
+  },
+  {
+   "start_time": 449.68,
+   "end_time": 465.74,
+   "value": 0.05819773684499331
+  },
+  {
+   "start_time": 465.74,
+   "end_time": 481.8,
+   "value": 0.13148910120418547
+  },
+  {
+   "start_time": 481.8,
+   "end_time": 497.86,
+   "value": 1.0
+  },
+  {
+   "start_time": 497.86,
+   "end_time": 513.92,
+   "value": 0.022626190049769426
+  },
+  {
+   "start_time": 513.92,
+   "end_time": 529.98,
+   "value": 0.02307345236160728
+  },
+  {
+   "start_time": 529.98,
+   "end_time": 546.04,
+   "value": 0.04433999276714874
+  },
+  {
+   "start_time": 546.04,
+   "end_time": 562.1,
+   "value": 0.06366729102635289
+  },
+  {
+   "start_time": 562.1,
+   "end_time": 578.16,
+   "value": 0.08734310090657
+  },
+  {
+   "start_time": 578.16,
+   "end_time": 594.22,
+   "value": 0.08414204247703952
+  },
+  {
+   "start_time": 594.22,
+   "end_time": 610.28,
+   "value": 0.027119948097047177
+  },
+  {
+   "start_time": 610.28,
+   "end_time": 626.34,
+   "value": 0.016957387771610384
+  },
+  {
+   "start_time": 626.34,
+   "end_time": 642.4,
+   "value": 0.03537853398424899
+  },
+  {
+   "start_time": 642.4,
+   "end_time": 658.46,
+   "value": 0.05778134983772137
+  },
+  {
+   "start_time": 658.46,
+   "end_time": 674.52,
+   "value": 0.5590959612857246
+  },
+  {
+   "start_time": 674.52,
+   "end_time": 690.58,
+   "value": 0.07428397930352451
+  },
+  {
+   "start_time": 690.58,
+   "end_time": 706.64,
+   "value": 0.056314865215704814
+  },
+  {
+   "start_time": 706.64,
+   "end_time": 722.7,
+   "value": 0.01629140464162787
+  },
+  {
+   "start_time": 722.7,
+   "end_time": 738.76,
+   "value": 0.04034361218796264
+  },
+  {
+   "start_time": 738.76,
+   "end_time": 754.82,
+   "value": 0.04499201174767999
+  },
+  {
+   "start_time": 754.82,
+   "end_time": 770.88,
+   "value": 0.011573601894039737
+  },
+  {
+   "start_time": 770.88,
+   "end_time": 786.94,
+   "value": 0.0598446874214479
+  },
+  {
+   "start_time": 786.94,
+   "end_time": 803.0,
+   "value": 0.06488261367796308
+  },
+  {
+   "start_time": 803.0,
+   "end_time": 819.06,
+   "value": 0.006012602207245411
+  },
+  {
+   "start_time": 819.06,
+   "end_time": 835.12,
+   "value": 0.013948021219998594
+  },
+  {
+   "start_time": 835.12,
+   "end_time": 851.18,
+   "value": 0.0385980774465781
+  },
+  {
+   "start_time": 851.18,
+   "end_time": 867.24,
+   "value": 0.10427250015436648
+  },
+  {
+   "start_time": 867.24,
+   "end_time": 883.3,
+   "value": 0.0763541905571362
+  },
+  {
+   "start_time": 883.3,
+   "end_time": 899.36,
+   "value": 0.2937812330656332
+  },
+  {
+   "start_time": 899.36,
+   "end_time": 915.42,
+   "value": 0.7205203726240534
+  },
+  {
+   "start_time": 915.42,
+   "end_time": 931.48,
+   "value": 0.09213342247744416
+  },
+  {
+   "start_time": 931.48,
+   "end_time": 947.54,
+   "value": 0.04218219843241863
+  },
+  {
+   "start_time": 947.54,
+   "end_time": 963.6,
+   "value": 0.014397507838563302
+  },
+  {
+   "start_time": 963.6,
+   "end_time": 979.66,
+   "value": 0.012953491123484439
+  },
+  {
+   "start_time": 979.66,
+   "end_time": 995.72,
+   "value": 0.036360649719031315
+  },
+  {
+   "start_time": 995.72,
+   "end_time": 1011.78,
+   "value": 0.023416902986207664
+  },
+  {
+   "start_time": 1011.78,
+   "end_time": 1027.84,
+   "value": 0.03934580585626958
+  },
+  {
+   "start_time": 1027.84,
+   "end_time": 1043.9,
+   "value": 0.028246073639914025
+  },
+  {
+   "start_time": 1043.9,
+   "end_time": 1059.96,
+   "value": 0.02429263743753377
+  },
+  {
+   "start_time": 1059.96,
+   "end_time": 1076.02,
+   "value": 0.10100416648383387
+  },
+  {
+   "start_time": 1076.02,
+   "end_time": 1092.08,
+   "value": 0.022146582945528064
+  },
+  {
+   "start_time": 1092.08,
+   "end_time": 1108.14,
+   "value": 0.21382860003873105
+  },
+  {
+   "start_time": 1108.14,
+   "end_time": 1124.2,
+   "value": 0.5413879743836472
+  },
+  {
+   "start_time": 1124.2,
+   "end_time": 1140.26,
+   "value": 0.02199423800970897
+  },
+  {
+   "start_time": 1140.26,
+   "end_time": 1156.32,
+   "value": 0.04791902274048087
+  },
+  {
+   "start_time": 1156.32,
+   "end_time": 1172.38,
+   "value": 0.04644111947526725
+  },
+  {
+   "start_time": 1172.38,
+   "end_time": 1188.44,
+   "value": 0.05068914382415074
+  },
+  {
+   "start_time": 1188.44,
+   "end_time": 1204.5,
+   "value": 0.059830153142835595
+  },
+  {
+   "start_time": 1204.5,
+   "end_time": 1220.56,
+   "value": 0.04140406848746408
+  },
+  {
+   "start_time": 1220.56,
+   "end_time": 1236.62,
+   "value": 0.029000964799065266
+  },
+  {
+   "start_time": 1236.62,
+   "end_time": 1252.68,
+   "value": 0.011977815439225359
+  },
+  {
+   "start_time": 1252.68,
+   "end_time": 1268.74,
+   "value": 0.022470520698842325
+  },
+  {
+   "start_time": 1268.74,
+   "end_time": 1284.8,
+   "value": 0.0343610702414825
+  },
+  {
+   "start_time": 1284.8,
+   "end_time": 1300.86,
+   "value": 0.0742094610131808
+  },
+  {
+   "start_time": 1300.86,
+   "end_time": 1316.92,
+   "value": 0.8714780476845511
+  },
+  {
+   "start_time": 1316.92,
+   "end_time": 1332.98,
+   "value": 0.06144581888532691
+  },
+  {
+   "start_time": 1332.98,
+   "end_time": 1349.04,
+   "value": 0.06274808221900083
+  },
+  {
+   "start_time": 1349.04,
+   "end_time": 1365.1,
+   "value": 0.03966934211017466
+  },
+  {
+   "start_time": 1365.1,
+   "end_time": 1381.16,
+   "value": 0.05291389220035564
+  },
+  {
+   "start_time": 1381.16,
+   "end_time": 1397.22,
+   "value": 0.1749085321109732
+  },
+  {
+   "start_time": 1397.22,
+   "end_time": 1413.28,
+   "value": 0.26385211806737346
+  },
+  {
+   "start_time": 1413.28,
+   "end_time": 1429.34,
+   "value": 0.1284779519951969
+  },
+  {
+   "start_time": 1429.34,
+   "end_time": 1445.4,
+   "value": 0.059637714476015825
+  },
+  {
+   "start_time": 1445.4,
+   "end_time": 1461.46,
+   "value": 0.025545693003618645
+  },
+  {
+   "start_time": 1461.46,
+   "end_time": 1477.52,
+   "value": 0.0688051424558247
+  },
+  {
+   "start_time": 1477.52,
+   "end_time": 1493.58,
+   "value": 0.49400404195076214
+  },
+  {
+   "start_time": 1493.58,
+   "end_time": 1509.64,
+   "value": 0.028395118250589664
+  },
+  {
+   "start_time": 1509.64,
+   "end_time": 1525.7,
+   "value": 0.034348439070069715
+  },
+  {
+   "start_time": 1525.7,
+   "end_time": 1541.76,
+   "value": 0.04169158221437757
+  },
+  {
+   "start_time": 1541.76,
+   "end_time": 1557.82,
+   "value": 0.03675983649161401
+  },
+  {
+   "start_time": 1557.82,
+   "end_time": 1573.88,
+   "value": 0.06467262145697399
+  },
+  {
+   "start_time": 1573.88,
+   "end_time": 1589.94,
+   "value": 0.13087737670435948
+  },
+  {
+   "start_time": 1589.94,
+   "end_time": 1606.0,
+   "value": 0.06428929391105388
+  }
+ ],
+ "transcript": [
+  {
+   "text": "Apa kabar Indonesia, Pak?",
+   "start": 0.0,
+   "duration": 4.04
+  },
+  {
+   "text": "Kita sangat tidak baik dan berbahaya",
+   "start": 1.6,
+   "duration": 4.56
+  },
+  {
+   "text": "untuk orang yang waras tahu situasi.",
+   "start": 4.04,
+   "duration": 4.16
+  },
+  {
+   "text": "Kita tidak mau nyalahkan siapapun. Kalau",
+   "start": 6.16,
+   "duration": 3.52
+  },
+  {
+   "text": "pemerintah lagi buruk, gimana?",
+   "start": 8.2,
+   "duration": 3.32
+  },
+  {
+   "text": "Seburuk-buruknya 5 tahun kan ada pemilu",
+   "start": 9.68,
+   "duration": 2.36
+  },
+  {
+   "text": "lagi, Bos.",
+   "start": 11.52,
+   "duration": 1.96
+  },
+  {
+   "text": "Mentor saya di Singapura dibilang kayak",
+   "start": 12.04,
+   "duration": 3.6
+  },
+  {
+   "text": "gini, \"Never mix business with",
+   "start": 13.48,
+   "duration": 2.92
+  },
+  {
+   "text": "politics.\"",
+   "start": 15.64,
+   "duration": 2.56
+  },
+  {
+   "text": "Benar Bapak saya bilang, \"Ya, lu kalau",
+   "start": 16.4,
+   "duration": 4.0
+  },
+  {
+   "text": "mau lawan pejabat enggak bisa lu cuma",
+   "start": 18.2,
+   "duration": 4.36
+  },
+  {
+   "text": "jadi pengusaha lu. Lu jadi pejabat aja",
+   "start": 20.4,
+   "duration": 6.68
+  },
+  {
+   "text": "lu sana perbaikin. Kenapa kita takut?\"",
+   "start": 22.56,
+   "duration": 6.16
+  },
+  {
+   "text": "Apa kabar, Pak, hari ini? Pak",
+   "start": 27.08,
+   "duration": 3.04
+  },
+  {
+   "text": "selalu baik aja.",
+   "start": 28.72,
+   "duration": 4.44
+  },
+  {
+   "text": "Selalu baik. Oke. Ini kebanyakan audiens",
+   "start": 30.12,
+   "duration": 5.28
+  },
+  {
+   "text": "bisnis, Pak. Tapi kalau pembicaraan sama",
+   "start": 33.16,
+   "duration": 3.6
+  },
+  {
+   "text": "Pak Haw ini lumayan spesial nih menurut",
+   "start": 35.4,
+   "duration": 3.16
+  },
+  {
+   "text": "saya, Pak. Jadi mungkin pertanyaan",
+   "start": 36.76,
+   "duration": 3.32
+  },
+  {
+   "text": "pertama yang simpel. Tiga kata yang",
+   "start": 38.56,
+   "duration": 5.66
+  },
+  {
+   "text": "simpel, Pak. Apa kabar Indonesia, Pak?",
+   "start": 40.08,
+   "duration": 6.0
+  },
+  {
+   "text": "[Tertawa]",
+   "start": 44.22,
+   "duration": 3.94
+  },
+  {
+   "text": "Makanya orang suka bilang Ahok itu suka",
+   "start": 46.08,
+   "duration": 4.52
+  },
+  {
+   "text": "cari musuh, kan.",
+   "start": 48.16,
+   "duration": 3.44
+  },
+  {
+   "text": "Aku bilang, \"Aku enggak pernah cari",
+   "start": 50.6,
+   "duration": 2.76
+  },
+  {
+   "text": "musuh. Musuh menemukan saya kayak",
+   "start": 51.6,
+   "duration": 5.84
+  },
+  {
+   "text": "pertanyaan-pertanyaan begitu tuh.",
+   "start": 53.36,
+   "duration": 4.08
+  },
+  {
+   "text": "K jawab pun jadi masalah kan. Kita",
+   "start": 57.48,
+   "duration": 4.56
+  },
+  {
+   "text": "sangat tidak baik dan berbahaya untuk",
+   "start": 59.84,
+   "duration": 4.52
+  },
+  {
+   "text": "orang yang waras tahu situasi.",
+   "start": 62.04,
+   "duration": 3.72
+  },
+  {
+   "text": "Tadi tuh kita sudah bahas lumayan",
+   "start": 64.36,
+   "duration": 4.2
+  },
+  {
+   "text": "tentang economy side-nya of Indonesia.",
+   "start": 65.76,
+   "duration": 4.56
+  },
+  {
+   "text": "Jadi kita udah agree ini semua pengusaha",
+   "start": 68.56,
+   "duration": 3.56
+  },
+  {
+   "text": "tuh pengin sukses, pengin lihat",
+   "start": 70.32,
+   "duration": 4.0
+  },
+  {
+   "text": "negaranya maju. Tapi timeline kita",
+   "start": 72.12,
+   "duration": 5.36
+  },
+  {
+   "text": "pendek banget Pak. 2030",
+   "start": 74.32,
+   "duration": 5.44
+  },
+  {
+   "text": "puncak dari demografi terus kita",
+   "start": 77.48,
+   "duration": 4.48
+  },
+  {
+   "text": "menurun. Dan sebuah negara kalau",
+   "start": 79.76,
+   "duration": 3.8
+  },
+  {
+   "text": "misalnya kelewatan puncak demografi",
+   "start": 81.96,
+   "duration": 4.12
+  },
+  {
+   "text": "tanpa produktivitas ya jangan berharap",
+   "start": 83.56,
+   "duration": 3.88
+  },
+  {
+   "text": "kita bisa maju kan Pak kayak gitu",
+   "start": 86.08,
+   "duration": 3.76
+  },
+  {
+   "text": "situasinya gitu. Mungkin lebih detailnya",
+   "start": 87.44,
+   "duration": 4.36
+  },
+  {
+   "text": "sekarang yang jadi botle neck paling",
+   "start": 89.84,
+   "duration": 4.0
+  },
+  {
+   "text": "gede atau problem paling gedenya tuh apa",
+   "start": 91.8,
+   "duration": 2.72
+  },
+  {
+   "text": "sih Pak?",
+   "start": 93.84,
+   "duration": 4.08
+  },
+  {
+   "text": "Ini pertanyaannya susah dijawab ini.",
+   "start": 94.52,
+   "duration": 7.08
+  },
+  {
+   "text": "Saya pikir gini ya. Kita pengusaha itu",
+   "start": 97.92,
+   "duration": 6.04
+  },
+  {
+   "text": "enggak mungkin membangun semua",
+   "start": 101.6,
+   "duration": 4.84
+  },
+  {
+   "text": "infrastruktur untuk mendukung usaha",
+   "start": 103.96,
+   "duration": 3.92
+  },
+  {
+   "text": "kita.",
+   "start": 106.44,
+   "duration": 4.0
+  },
+  {
+   "text": "Misalnya orang butuh di daerah kawasan",
+   "start": 107.88,
+   "duration": 4.32
+  },
+  {
+   "text": "yang lebih dingin gitu loh supaya hemat",
+   "start": 110.44,
+   "duration": 5.12
+  },
+  {
+   "text": "untuk produksi tekstil misalnya.",
+   "start": 112.2,
+   "duration": 5.04
+  },
+  {
+   "text": "Enggak mungkin di bangun jalan, bangun",
+   "start": 115.56,
+   "duration": 3.36
+  },
+  {
+   "text": "tiang listrik, bangun internet. Itu",
+   "start": 117.24,
+   "duration": 3.72
+  },
+  {
+   "text": "harus pemerintah. Jadi pemerintah di",
+   "start": 118.92,
+   "duration": 3.84
+  },
+  {
+   "text": "seluruh dunia kalau maju pasti dia",
+   "start": 120.96,
+   "duration": 5.84
+  },
+  {
+   "text": "kehitung ini lantai supplier ini di",
+   "start": 122.76,
+   "duration": 6.0
+  },
+  {
+   "text": "bagian mana ya yang perlu saya",
+   "start": 126.8,
+   "duration": 6.8
+  },
+  {
+   "text": "intervensi supaya ini jadi murah.",
+   "start": 128.76,
+   "duration": 7.04
+  },
+  {
+   "text": "Atau contoh yang kedua soal impor. Saya",
+   "start": 133.6,
+   "duration": 5.24
+  },
+  {
+   "text": "bilang kalau pengin perbaiki industri",
+   "start": 135.8,
+   "duration": 5.12
+  },
+  {
+   "text": "kita tahu teori ya. Mungkin Saud Rayond",
+   "start": 138.84,
+   "duration": 4.92
+  },
+  {
+   "text": "lebih pintar saya soal saya juga gugup",
+   "start": 140.92,
+   "duration": 7.12
+  },
+  {
+   "text": "ditanya-tanya kayak tesis aja gitu loh.",
+   "start": 143.76,
+   "duration": 6.48
+  },
+  {
+   "text": "Ini lebih pintar ekonomi saya ya kan",
+   "start": 148.04,
+   "duration": 4.2
+  },
+  {
+   "text": "cuma kuliah-kuliah S2 gitu. Tapi saya",
+   "start": 150.24,
+   "duration": 5.68
+  },
+  {
+   "text": "bilang gini, enggak mungkin bisa",
+   "start": 152.24,
+   "duration": 6.04
+  },
+  {
+   "text": "nyerap tenaga kerja atau negara maju",
+   "start": 155.92,
+   "duration": 6.0
+  },
+  {
+   "text": "kalau pertumbuhan ekonomi dibuat 7% tapi",
+   "start": 158.28,
+   "duration": 7.92
+  },
+  {
+   "text": "5%. Ini udah udah teorinya begitu. Jadi",
+   "start": 161.92,
+   "duration": 6.92
+  },
+  {
+   "text": "saya bilang, \"Nah, kalau begitu gimana",
+   "start": 166.2,
+   "duration": 4.88
+  },
+  {
+   "text": "caranya?\" Nah, saya waktu itu ditanya",
+   "start": 168.84,
+   "duration": 4.64
+  },
+  {
+   "text": "mau jadi apa? Saya jujur saya minta jadi",
+   "start": 171.08,
+   "duration": 4.76
+  },
+  {
+   "text": "Dirjen Beat Cukai.",
+   "start": 173.48,
+   "duration": 4.92
+  },
+  {
+   "text": "Kaget. Kenapa?",
+   "start": 175.84,
+   "duration": 5.32
+  },
+  {
+   "text": "Karena saya lihat bukan saya anti impor",
+   "start": 178.4,
+   "duration": 5.44
+  },
+  {
+   "text": "ya, barang-barang dari luar negeri masuk",
+   "start": 181.16,
+   "duration": 5.44
+  },
+  {
+   "text": "tuh betul-betul enak banget gitu loh.",
+   "start": 183.84,
+   "duration": 5.52
+  },
+  {
+   "text": "Hanya borongan kontainer",
+   "start": 186.6,
+   "duration": 4.92
+  },
+  {
+   "text": "masuk tidak perlu warehouse. Sekarang",
+   "start": 189.36,
+   "duration": 4.84
+  },
+  {
+   "text": "warehouse kita rata-rata disewa kirim",
+   "start": 191.52,
+   "duration": 5.28
+  },
+  {
+   "text": "barang. Nah, kebayang enggak nih kalau",
+   "start": 194.2,
+   "duration": 4.36
+  },
+  {
+   "text": "orang kirim barang itu kan satu",
+   "start": 196.8,
+   "duration": 3.56
+  },
+  {
+   "text": "kontainer",
+   "start": 198.56,
+   "duration": 4.04
+  },
+  {
+   "text": "diborong gitu kan. Makanya saya bilang",
+   "start": 200.36,
+   "duration": 5.04
+  },
+  {
+   "text": "itu waktu itu sudah bicara sudah 67",
+   "start": 202.6,
+   "duration": 5.32
+  },
+  {
+   "text": "tahun yang lalu nih. Seluruh industri",
+   "start": 205.4,
+   "duration": 4.56
+  },
+  {
+   "text": "yang kecil-kecil pasti bangkrut karena",
+   "start": 207.92,
+   "duration": 4.64
+  },
+  {
+   "text": "volume kita enggak cukup. Apalagi lawan",
+   "start": 209.96,
+   "duration": 6.4
+  },
+  {
+   "text": "China kan. China produksi sebulan R juta",
+   "start": 212.56,
+   "duration": 5.52
+  },
+  {
+   "text": "biasa.",
+   "start": 216.36,
+   "duration": 4.24
+  },
+  {
+   "text": "Kita produksi Rp100.000 aja waduh besar",
+   "start": 218.08,
+   "duration": 6.6
+  },
+  {
+   "text": "itu loh. Itu mah barang rejecten dia 1%.",
+   "start": 220.6,
+   "duration": 5.92
+  },
+  {
+   "text": "Gimana mau ngelawan dia? Dia cuma",
+   "start": 224.68,
+   "duration": 4.72
+  },
+  {
+   "text": "balikin modal untuk bahan baku. Lalu",
+   "start": 226.52,
+   "duration": 4.56
+  },
+  {
+   "text": "barang datang dengan gampang. Saya mau",
+   "start": 229.4,
+   "duration": 3.68
+  },
+  {
+   "text": "jadi dirjan B cukai loh. Kan enggak bisa",
+   "start": 231.08,
+   "duration": 4.32
+  },
+  {
+   "text": "melawan WTO,",
+   "start": 233.08,
+   "duration": 4.04
+  },
+  {
+   "text": "enggak bisa dong naikin tarif segala",
+   "start": 235.4,
+   "duration": 3.44
+  },
+  {
+   "text": "macam. Saya bilang saya enggak naikin",
+   "start": 237.12,
+   "duration": 3.88
+  },
+  {
+   "text": "tarif. Saya cuma bilang aja ini plastik",
+   "start": 238.84,
+   "duration": 6.92
+  },
+  {
+   "text": "ini sudah lolos BPOM belum?",
+   "start": 241.0,
+   "duration": 6.6
+  },
+  {
+   "text": "Langsung dia 3 4 bulan ketahan itu",
+   "start": 245.76,
+   "duration": 4.0
+  },
+  {
+   "text": "barang. Kalau ketahan dia udah bonyok",
+   "start": 247.6,
+   "duration": 4.36
+  },
+  {
+   "text": "tuh. Mau enggak mau dia akan pindah.",
+   "start": 249.76,
+   "duration": 4.48
+  },
+  {
+   "text": "Terus saya bilang kalau ini dijalankan,",
+   "start": 251.96,
+   "duration": 4.64
+  },
+  {
+   "text": "kita bicara sama asosiasi industri, saya",
+   "start": 254.24,
+   "duration": 4.64
+  },
+  {
+   "text": "jamin enggak ada yang ngemis-ngemis,",
+   "start": 256.6,
+   "duration": 5.64
+  },
+  {
+   "text": "demo-demo minta UMP karena industri itu",
+   "start": 258.88,
+   "duration": 5.92
+  },
+  {
+   "text": "akan saling tumbuh lalu berebut. Tadi",
+   "start": 262.24,
+   "duration": 5.88
+  },
+  {
+   "text": "cuma supervisor bisa jadi manajer.",
+   "start": 264.8,
+   "duration": 4.96
+  },
+  {
+   "text": "Orang akan nawarkan, \"Ih, gaji sini",
+   "start": 268.12,
+   "duration": 3.96
+  },
+  {
+   "text": "enggak ada ngomong gaji karena orang",
+   "start": 269.76,
+   "duration": 5.08
+  },
+  {
+   "text": "membutuhkan.\" Nah, kita hari ini saya",
+   "start": 272.08,
+   "duration": 4.64
+  },
+  {
+   "text": "sudah ngomong 7 tahun 8 tahun yang lalu",
+   "start": 274.84,
+   "duration": 4.36
+  },
+  {
+   "text": "ini sekarang terbukti pada tutup tutup",
+   "start": 276.72,
+   "duration": 4.72
+  },
+  {
+   "text": "tutup tutup lalu kita apa? mewujudkan",
+   "start": 279.2,
+   "duration": 4.68
+  },
+  {
+   "text": "bantuan sosial bukan keadilan sosial.",
+   "start": 281.44,
+   "duration": 5.12
+  },
+  {
+   "text": "Itu fakta.",
+   "start": 283.88,
+   "duration": 6.32
+  },
+  {
+   "text": "Cari musuh kan akhir",
+   "start": 286.56,
+   "duration": 3.64
+  },
+  {
+   "text": "aduh. Tapi saya pernah dengar quot-nya",
+   "start": 290.28,
+   "duration": 5.0
+  },
+  {
+   "text": "ya tentang situasi di Indonesia gitu",
+   "start": 292.56,
+   "duration": 6.2
+  },
+  {
+   "text": "sebenarnya bukan hukumnya tapi penegakan",
+   "start": 295.28,
+   "duration": 5.76
+  },
+  {
+   "text": "hukumnya gitu. Terus kan saya juga",
+   "start": 298.76,
+   "duration": 4.64
+  },
+  {
+   "text": "analisa gitu kenapa beberapa",
+   "start": 301.04,
+   "duration": 3.76
+  },
+  {
+   "text": "sektor-sektor di Indonesia tuh agak",
+   "start": 303.4,
+   "duration": 3.04
+  },
+  {
+   "text": "susah maju. Kenapa beberapa pengusaha",
+   "start": 304.8,
+   "duration": 3.36
+  },
+  {
+   "text": "tuh kesulitan untuk dapat investment?",
+   "start": 306.44,
+   "duration": 3.64
+  },
+  {
+   "text": "kita kalau mau jadi negara maju untuk",
+   "start": 308.16,
+   "duration": 7.28
+  },
+  {
+   "text": "ng-push 8% atau misalnya 7 8% sampai 10%",
+   "start": 310.08,
+   "duration": 7.16
+  },
+  {
+   "text": "lah gitu, duit di Indonesia tuh enggak",
+   "start": 315.44,
+   "duration": 4.96
+  },
+  {
+   "text": "cukup gitu loh. Kita butuh namanya FDI,",
+   "start": 317.24,
+   "duration": 5.04
+  },
+  {
+   "text": "foreign direct investment. Tapi yang",
+   "start": 320.4,
+   "duration": 4.4
+  },
+  {
+   "text": "saya sering dengar feedback-nya",
+   "start": 322.28,
+   "duration": 5.52
+  },
+  {
+   "text": "karena adanya ketidakstabilan hukum,",
+   "start": 324.8,
+   "duration": 6.24
+  },
+  {
+   "text": "ketidakstabilan politik itu menghambat",
+   "start": 327.8,
+   "duration": 4.96
+  },
+  {
+   "text": "ekonomi kita, menghambat opportunity",
+   "start": 331.04,
+   "duration": 3.56
+  },
+  {
+   "text": "buat pengusaha-pengusaha di sini dapat",
+   "start": 332.76,
+   "duration": 4.08
+  },
+  {
+   "text": "inflow of money dan lain-lain kayak",
+   "start": 334.6,
+   "duration": 5.24
+  },
+  {
+   "text": "gitu. Itu kan jadi problem yang selama",
+   "start": 336.84,
+   "duration": 5.16
+  },
+  {
+   "text": "ini ada di Indonesia gitu. Kalau",
+   "start": 339.84,
+   "duration": 4.16
+  },
+  {
+   "text": "misalnya ada tantangan kayak gitu, kita",
+   "start": 342.0,
+   "duration": 4.24
+  },
+  {
+   "text": "sebagai pengusaha gitu misalnya kita",
+   "start": 344.0,
+   "duration": 3.8
+  },
+  {
+   "text": "ngelihatnya tuh harus kayak gimana, Pak.",
+   "start": 346.24,
+   "duration": 3.28
+  },
+  {
+   "text": "Misalnya, oke ini kan ada dua kacamata",
+   "start": 347.8,
+   "duration": 2.96
+  },
+  {
+   "text": "nih ya, mungkin tiga kacamata kalau",
+   "start": 349.52,
+   "duration": 3.28
+  },
+  {
+   "text": "sekarang Bahak ya, dua sebagai mantan",
+   "start": 350.76,
+   "duration": 4.56
+  },
+  {
+   "text": "mantan gubernur sebagai pernah sebagai",
+   "start": 352.8,
+   "duration": 4.28
+  },
+  {
+   "text": "komisaris, terus sekarang mungkin ada",
+   "start": 355.32,
+   "duration": 2.92
+  },
+  {
+   "text": "usaha juga, Pak, ya.",
+   "start": 357.08,
+   "duration": 3.88
+  },
+  {
+   "text": "Iya. Nah, ngelihat situasi Indonesia",
+   "start": 358.24,
+   "duration": 4.68
+  },
+  {
+   "text": "kayak gini dari tantangan sama",
+   "start": 360.96,
+   "duration": 4.68
+  },
+  {
+   "text": "potensinya, Pak Haw tuh masih optimis",
+   "start": 362.92,
+   "duration": 4.0
+  },
+  {
+   "text": "ada titik terangnya enggak sih untuk",
+   "start": 365.64,
+   "duration": 2.88
+  },
+  {
+   "text": "pengusaha di Indonesia gitu?",
+   "start": 366.92,
+   "duration": 3.76
+  },
+  {
+   "text": "Ni saya jawab satu-satu ya. Kalau",
+   "start": 368.52,
+   "duration": 4.04
+  },
+  {
+   "text": "optimis pasti saya optimis dong. Mukaku",
+   "start": 370.68,
+   "duration": 3.96
+  },
+  {
+   "text": "masih cerah kan?",
+   "start": 372.56,
+   "duration": 3.0
+  },
+  {
+   "text": "Oh enggak enggak gelap ya.",
+   "start": 374.64,
+   "duration": 3.56
+  },
+  {
+   "text": "Optimis gitu loh. Saya adalah orang yang",
+   "start": 375.56,
+   "duration": 5.04
+  },
+  {
+   "text": "selalu percaya bahwa masa depan tuh ada.",
+   "start": 378.2,
+   "duration": 5.36
+  },
+  {
+   "text": "Asal kita semua nih eling. Orang Jawa",
+   "start": 380.6,
+   "duration": 4.48
+  },
+  {
+   "text": "bilang sadar gitu loh.",
+   "start": 383.56,
+   "duration": 1.76
+  },
+  {
+   "text": "H",
+   "start": 385.08,
+   "duration": 2.32
+  },
+  {
+   "text": "kita jangan berkata ini bukan urusan",
+   "start": 385.32,
+   "duration": 4.88
+  },
+  {
+   "text": "saya. ini enggak kena saya. Emang gua",
+   "start": 387.4,
+   "duration": 5.88
+  },
+  {
+   "text": "pikirin gua pengusaha enggak ada urusan",
+   "start": 390.2,
+   "duration": 6.16
+  },
+  {
+   "text": "mau politik siapa yang jadi politisi",
+   "start": 393.28,
+   "duration": 5.2
+  },
+  {
+   "text": "enggak ada urusan. Nah, itu yang",
+   "start": 396.36,
+   "duration": 4.4
+  },
+  {
+   "text": "diharapkan dari orang-orang seperti itu.",
+   "start": 398.48,
+   "duration": 4.24
+  },
+  {
+   "text": "Saya masuk ke soal bisnis tadi. Saya",
+   "start": 400.76,
+   "duration": 4.28
+  },
+  {
+   "text": "ketemu satu orang di bandara saya enggak",
+   "start": 402.72,
+   "duration": 4.56
+  },
+  {
+   "text": "kenal namanya ya dia agak sombong juga.",
+   "start": 405.04,
+   "duration": 4.08
+  },
+  {
+   "text": "Dia kenal gua, gua enggak kenal dia. Oke",
+   "start": 407.28,
+   "duration": 3.24
+  },
+  {
+   "text": "oke oke.",
+   "start": 409.12,
+   "duration": 4.12
+  },
+  {
+   "text": "Dia negor gua gitu kan. Eh Pak Haok aku",
+   "start": 410.52,
+   "duration": 5.48
+  },
+  {
+   "text": "pernah ketemu mana? Enggak. Mau ke mana?",
+   "start": 413.24,
+   "duration": 5.24
+  },
+  {
+   "text": "Saya mau ke Vietnam sekarang loh. Bisnis",
+   "start": 416.0,
+   "duration": 4.72
+  },
+  {
+   "text": "apa? Saya buka pabrik di Vietnam. Dia",
+   "start": 418.48,
+   "duration": 5.52
+  },
+  {
+   "text": "bilang loh yang benar",
+   "start": 420.72,
+   "duration": 6.6
+  },
+  {
+   "text": "buka apa? Dia bilang nih PVC badang UPVC",
+   "start": 424.0,
+   "duration": 6.32
+  },
+  {
+   "text": "apa gitu loh. Bukannya Cina lebih hebat.",
+   "start": 427.32,
+   "duration": 6.6
+  },
+  {
+   "text": "Saya bilang lu bisa saing sama Cina",
+   "start": 430.32,
+   "duration": 7.0
+  },
+  {
+   "text": "daripada di Vietnam. Enggak. Vietnam",
+   "start": 433.92,
+   "duration": 5.4
+  },
+  {
+   "text": "lebih unggul, lebih efisien. Dia bilang.",
+   "start": 437.32,
+   "duration": 2.84
+  },
+  {
+   "text": "Oh ya.",
+   "start": 439.32,
+   "duration": 3.08
+  },
+  {
+   "text": "Wah saya bingung kenapa. Terus dia",
+   "start": 440.16,
+   "duration": 4.08
+  },
+  {
+   "text": "jelasin",
+   "start": 442.4,
+   "duration": 3.36
+  },
+  {
+   "text": "kenapa enggak Indonesia. Dia jelasin",
+   "start": 444.24,
+   "duration": 3.92
+  },
+  {
+   "text": "begini, \"Di Vietnam tuh aduh enak",
+   "start": 445.76,
+   "duration": 3.96
+  },
+  {
+   "text": "banget.\" Dia bilang, \"Saya cuma datang",
+   "start": 448.16,
+   "duration": 3.72
+  },
+  {
+   "text": "ke kantor pemerintah yang urusan",
+   "start": 449.72,
+   "duration": 4.68
+  },
+  {
+   "text": "investasi. Saya bilang, \"Gua bawa duit,",
+   "start": 451.88,
+   "duration": 5.8
+  },
+  {
+   "text": "gua mau bangun pabrik ini di sini, gua",
+   "start": 454.4,
+   "duration": 6.32
+  },
+  {
+   "text": "butuh lahan sekian.\" Oke, langsung",
+   "start": 457.68,
+   "duration": 5.64
+  },
+  {
+   "text": "pejabatnya kasih tahu, \"Besok lu bisa",
+   "start": 460.72,
+   "duration": 4.96
+  },
+  {
+   "text": "kunjungin lokasinya di mana, lahan di",
+   "start": 463.32,
+   "duration": 5.04
+  },
+  {
+   "text": "mana, harga lahan berapa, per meter",
+   "start": 465.68,
+   "duration": 4.44
+  },
+  {
+   "text": "berapa, diurusin semua.\"",
+   "start": 468.36,
+   "duration": 3.32
+  },
+  {
+   "text": "Enggak ada preman-preman atau ormas gitu",
+   "start": 470.12,
+   "duration": 4.64
+  },
+  {
+   "text": "ya? Wah, saya",
+   "start": 471.68,
+   "duration": 4.76
+  },
+  {
+   "text": "ini nih yang membikin gua banyak musuh",
+   "start": 474.76,
+   "duration": 3.52
+  },
+  {
+   "text": "nih.",
+   "start": 476.44,
+   "duration": 3.36
+  },
+  {
+   "text": "Tapi enggak usah khawatir, musuh gua",
+   "start": 478.28,
+   "duration": 2.84
+  },
+  {
+   "text": "udah banyak. Kalau tambah satu, dua",
+   "start": 479.8,
+   "duration": 3.36
+  },
+  {
+   "text": "enggak ada artinya ya. Ya, enggak",
+   "start": 481.12,
+   "duration": 3.68
+  },
+  {
+   "text": "apa-apa. Kalau enggak ada musuh jangan",
+   "start": 483.16,
+   "duration": 6.68
+  },
+  {
+   "text": "tambah. Nah, enggak apa-apa.",
+   "start": 484.8,
+   "duration": 5.04
+  },
+  {
+   "text": "Jadi saya kaget gitu loh. Oh, ini yang",
+   "start": 489.96,
+   "duration": 5.76
+  },
+  {
+   "text": "saya lakuin di Jakarta dulu bikin PTSP.",
+   "start": 492.56,
+   "duration": 5.68
+  },
+  {
+   "text": "Saya selalu kasih instruksi waktu PTSP",
+   "start": 495.72,
+   "duration": 6.76
+  },
+  {
+   "text": "kita ini biro jasa yang baik hati.",
+   "start": 498.24,
+   "duration": 6.6
+  },
+  {
+   "text": "Orang pengin ngurus apa lu urusin aja",
+   "start": 502.48,
+   "duration": 4.8
+  },
+  {
+   "text": "sampai bisa bikin IMB gitu ya. Banyak",
+   "start": 504.84,
+   "duration": 4.68
+  },
+  {
+   "text": "rumah orang kan enggak ada IMB kan.",
+   "start": 507.28,
+   "duration": 4.92
+  },
+  {
+   "text": "Ternyata mau ngajuin IMB itu mesti pakai",
+   "start": 509.52,
+   "duration": 5.24
+  },
+  {
+   "text": "dana arsiteknya. Orang enggak ada duit",
+   "start": 512.2,
+   "duration": 4.96
+  },
+  {
+   "text": "gimana bikinnya? Terus saya panggil PNS",
+   "start": 514.76,
+   "duration": 4.92
+  },
+  {
+   "text": "ASN. Eh lu kan insinyur kan semua kan",
+   "start": 517.16,
+   "duration": 5.76
+  },
+  {
+   "text": "arsitek kan? Waktu nerima kalian kan ada",
+   "start": 519.68,
+   "duration": 6.16
+  },
+  {
+   "text": "formasinya. Iya Pak. Udah lu gambarin",
+   "start": 522.92,
+   "duration": 4.48
+  },
+  {
+   "text": "sederhana aja. Orang mau bikin yang",
+   "start": 525.84,
+   "duration": 3.16
+  },
+  {
+   "text": "gambarin.",
+   "start": 527.4,
+   "duration": 4.32
+  },
+  {
+   "text": "Nah, itu yang harusnya seperti itu.",
+   "start": 529.0,
+   "duration": 4.6
+  },
+  {
+   "text": "Sekarang apa yang terjadi di kita,",
+   "start": 531.72,
+   "duration": 3.96
+  },
+  {
+   "text": "negara kita nih agak-agak lucu-lucu juga",
+   "start": 533.6,
+   "duration": 4.68
+  },
+  {
+   "text": "maksud saya gitu kelolanya ya. Eh,",
+   "start": 535.68,
+   "duration": 5.12
+  },
+  {
+   "text": "serius ini kalian kalau punya tanah",
+   "start": 538.28,
+   "duration": 4.68
+  },
+  {
+   "text": "sertifikat hak milik atau apa HGB atau",
+   "start": 540.8,
+   "duration": 4.96
+  },
+  {
+   "text": "HGU lah. Apa sekarang HGB? HGU kalau",
+   "start": 542.96,
+   "duration": 5.68
+  },
+  {
+   "text": "selesai mau diambil. D mana rumusnya?",
+   "start": 545.76,
+   "duration": 4.84
+  },
+  {
+   "text": "Ini menarik ini. Tanah yang belum ada",
+   "start": 548.64,
+   "duration": 5.2
+  },
+  {
+   "text": "sertifikat ditulis apa? Tanah negara.",
+   "start": 550.6,
+   "duration": 4.52
+  },
+  {
+   "text": "Betul enggak?",
+   "start": 553.84,
+   "duration": 1.72
+  },
+  {
+   "text": "Hm.",
+   "start": 555.12,
+   "duration": 2.64
+  },
+  {
+   "text": "Tanah negara loh yang belum disertifikat",
+   "start": 555.56,
+   "duration": 2.88
+  },
+  {
+   "text": "ya.",
+   "start": 557.76,
+   "duration": 3.48
+  },
+  {
+   "text": "Tapi pemerintah kalau enggak enggak",
+   "start": 558.44,
+   "duration": 5.48
+  },
+  {
+   "text": "sertifikatin enggak sah. Emang",
+   "start": 561.24,
+   "duration": 5.6
+  },
+  {
+   "text": "pemerintah gua waktu gua kerja di pemda",
+   "start": 563.92,
+   "duration": 5.16
+  },
+  {
+   "text": "pemerintah negara mana ya kira-kira",
+   "start": 566.84,
+   "duration": 5.08
+  },
+  {
+   "text": "mesti ngurusin sertifikat bayar pula",
+   "start": 569.08,
+   "duration": 6.84
+  },
+  {
+   "text": "sama BPN macam-macam ukur macam-macam.",
+   "start": 571.92,
+   "duration": 6.16
+  },
+  {
+   "text": "Terus waktu bayar anggaran enggak cukup",
+   "start": 575.92,
+   "duration": 4.72
+  },
+  {
+   "text": "anak itu gede kok. Itu sertifikat Monas.",
+   "start": 578.08,
+   "duration": 4.24
+  },
+  {
+   "text": "Gu kasih tahu lu ya. Monas belum ada",
+   "start": 580.64,
+   "duration": 4.0
+  },
+  {
+   "text": "sertifikat tuh waktu saya tinggalkan.",
+   "start": 582.32,
+   "duration": 5.24
+  },
+  {
+   "text": "Eh, serius. Makanya bikin sertifikat",
+   "start": 584.64,
+   "duration": 4.56
+  },
+  {
+   "text": "mahal di pagar itu lebih murah",
+   "start": 587.56,
+   "duration": 3.68
+  },
+  {
+   "text": "kira-kira. Tapi bisa bayangin enggak",
+   "start": 589.2,
+   "duration": 3.88
+  },
+  {
+   "text": "kalau orang dudukin sana keluarin surat",
+   "start": 591.24,
+   "duration": 4.28
+  },
+  {
+   "text": "agendum macam-macam ngaku dia punya wah",
+   "start": 593.08,
+   "duration": 4.64
+  },
+  {
+   "text": "berperkara panjang deh. Pemerintah kalah",
+   "start": 595.52,
+   "duration": 4.4
+  },
+  {
+   "text": "melulu mau nyonggok duitnya dari mana",
+   "start": 597.72,
+   "duration": 4.72
+  },
+  {
+   "text": "misalnya. Jadi kalau maksud saya tanah",
+   "start": 599.92,
+   "duration": 5.36
+  },
+  {
+   "text": "negara ya tanah negara saya komisi dua",
+   "start": 602.44,
+   "duration": 5.72
+  },
+  {
+   "text": "dulu kan. Ya sudah kalau sudah dikuasai",
+   "start": 605.28,
+   "duration": 5.2
+  },
+  {
+   "text": "pemerintah langsung terbitkan sertifikat",
+   "start": 608.16,
+   "duration": 3.12
+  },
+  {
+   "text": "dong. He",
+   "start": 610.48,
+   "duration": 4.08
+  },
+  {
+   "text": "enggak. Nah, terus pengalaman bupati",
+   "start": 611.28,
+   "duration": 6.08
+  },
+  {
+   "text": "kita dibawa ke China ini cerita tahun",
+   "start": 614.56,
+   "duration": 7.44
+  },
+  {
+   "text": "2006 hampir 20 tahun yang lalu.",
+   "start": 617.36,
+   "duration": 9.12
+  },
+  {
+   "text": "Road show bupati-bupati semua dari DPR",
+   "start": 622.0,
+   "duration": 6.52
+  },
+  {
+   "text": "langsung ngomong, \"Wah, ngomong besarlah",
+   "start": 626.48,
+   "duration": 4.36
+  },
+  {
+   "text": "kita. Silakan investasi di Indonesia",
+   "start": 628.52,
+   "duration": 5.52
+  },
+  {
+   "text": "kemudahan ini pasar 200 sekian juta.\"",
+   "start": 630.84,
+   "duration": 5.44
+  },
+  {
+   "text": "Satu pertanyaan aja dari pengusaha dari",
+   "start": 634.04,
+   "duration": 5.12
+  },
+  {
+   "text": "Tiongkok itu. Saya mau tanya dulu isnya",
+   "start": 636.28,
+   "duration": 4.88
+  },
+  {
+   "text": "1 MO ya. Kira-kira kalau kita",
+   "start": 639.16,
+   "duration": 5.04
+  },
+  {
+   "text": "terjemahkan anggap 1 hektar gitu. 1",
+   "start": 641.16,
+   "duration": 6.28
+  },
+  {
+   "text": "hektar tanah harganya berapa ya, Pak ya?",
+   "start": 644.2,
+   "duration": 5.24
+  },
+  {
+   "text": "Terus kalau kami ngurusnya gimana, Pak?",
+   "start": 647.44,
+   "duration": 3.72
+  },
+  {
+   "text": "Ya,",
+   "start": 649.44,
+   "duration": 3.4
+  },
+  {
+   "text": "yang ditanya lihat bupati, lihat",
+   "start": 651.16,
+   "duration": 4.32
+  },
+  {
+   "text": "gubernur, lihat dari investasi, lihat",
+   "start": 652.84,
+   "duration": 5.4
+  },
+  {
+   "text": "DPR, enggak ada yang bisa jawab?",
+   "start": 655.48,
+   "duration": 5.48
+  },
+  {
+   "text": "Enggak ada. Karena di sini ada BPN yang",
+   "start": 658.24,
+   "duration": 6.0
+  },
+  {
+   "text": "menentukan bukan kepak daerah. Dulu",
+   "start": 660.96,
+   "duration": 6.72
+  },
+  {
+   "text": "undang-undangnya dinas di tiap pemda itu",
+   "start": 664.24,
+   "duration": 6.04
+  },
+  {
+   "text": "ada dinas pertanahan.",
+   "start": 667.68,
+   "duration": 4.92
+  },
+  {
+   "text": "Jadi enggak ada BPN. BPN itu hanya",
+   "start": 670.28,
+   "duration": 4.16
+  },
+  {
+   "text": "koordinir, tapi yang ngatur semua nih",
+   "start": 672.6,
+   "duration": 5.4
+  },
+  {
+   "text": "ada di kepala daerah baru bisa gampang.",
+   "start": 674.44,
+   "duration": 5.68
+  },
+  {
+   "text": "Jadi jangan mimpilah orang investor mau",
+   "start": 678.0,
+   "duration": 5.76
+  },
+  {
+   "text": "masuk sebetulnya. Kalau kayak begitu",
+   "start": 680.12,
+   "duration": 5.4
+  },
+  {
+   "text": "kita aja kalau ada kesempatan mau keluar",
+   "start": 683.76,
+   "duration": 2.92
+  },
+  {
+   "text": "di dalam negeri apa luar negeri? Kalau",
+   "start": 685.52,
+   "duration": 3.6
+  },
+  {
+   "text": "ada kesempatan di luar negeri,",
+   "start": 686.68,
+   "duration": 3.92
+  },
+  {
+   "text": "masanya kita bertahan tuh katanya kita",
+   "start": 689.12,
+   "duration": 3.6
+  },
+  {
+   "text": "termasuk kategori agak bokek gitu aja",
+   "start": 690.6,
+   "duration": 4.64
+  },
+  {
+   "text": "masalahnya. Iya itu yang cilaka. Kita",
+   "start": 692.72,
+   "duration": 4.92
+  },
+  {
+   "text": "kejempit nih. Tapi nanti saya dibilang",
+   "start": 695.24,
+   "duration": 4.28
+  },
+  {
+   "text": "kabur aja dulu Indonesia G dibilang",
+   "start": 697.64,
+   "duration": 4.64
+  },
+  {
+   "text": "bazer, Pak. Itu gimana, Pak?",
+   "start": 699.52,
+   "duration": 7.52
+  },
+  {
+   "text": "Itu juga masalah kita",
+   "start": 702.28,
+   "duration": 4.76
+  },
+  {
+   "text": "kadang-kadang kita serba susah ya. Kita",
+   "start": 707.48,
+   "duration": 4.56
+  },
+  {
+   "text": "ngomong benar",
+   "start": 709.64,
+   "duration": 4.72
+  },
+  {
+   "text": "dibilang buzer. Tapi memang banyak orang",
+   "start": 712.04,
+   "duration": 5.24
+  },
+  {
+   "text": "juga hidupnya dari jadi basar soalnya.",
+   "start": 714.36,
+   "duration": 5.24
+  },
+  {
+   "text": "Jadi kita ketepak",
+   "start": 717.28,
+   "duration": 3.72
+  },
+  {
+   "text": "kurang baiknya.",
+   "start": 719.6,
+   "duration": 3.8
+  },
+  {
+   "text": "Heeh. Tapi paling tidak apa yang dibuat",
+   "start": 721.0,
+   "duration": 4.24
+  },
+  {
+   "text": "acara Saudara Rayond ini kan terus",
+   "start": 723.4,
+   "duration": 4.12
+  },
+  {
+   "text": "nyampaikan kebenaran. Kita tidak mau",
+   "start": 725.24,
+   "duration": 5.48
+  },
+  {
+   "text": "nyalahkan siapapun enggak ada guna. Kita",
+   "start": 727.52,
+   "duration": 4.72
+  },
+  {
+   "text": "enggak pengin negara ini pecah, negara",
+   "start": 730.72,
+   "duration": 4.2
+  },
+  {
+   "text": "ini rusak kok. Jadi harusnya gimana?",
+   "start": 732.24,
+   "duration": 4.2
+  },
+  {
+   "text": "Kita lakukan sebaik yang bisa kita",
+   "start": 734.92,
+   "duration": 2.8
+  },
+  {
+   "text": "lakukan.",
+   "start": 736.44,
+   "duration": 2.92
+  },
+  {
+   "text": "Kalau pemerintah lagi buruk, gimana?",
+   "start": 737.72,
+   "duration": 3.44
+  },
+  {
+   "text": "Seburuk-buruknya 5 tahun kan ada pemilu",
+   "start": 739.36,
+   "duration": 5.36
+  },
+  {
+   "text": "lagi, Bos. Kira-kira gitu.",
+   "start": 741.16,
+   "duration": 5.4
+  },
+  {
+   "text": "Tapi timeline kita kan pendek, Pak.",
+   "start": 744.72,
+   "duration": 3.2
+  },
+  {
+   "text": "Terus kalau misalnya berkaca dari",
+   "start": 746.56,
+   "duration": 2.8
+  },
+  {
+   "text": "negara-negara maju ya, saya kan banyak",
+   "start": 747.92,
+   "duration": 3.44
+  },
+  {
+   "text": "pelajarin tentang e geopolitik,",
+   "start": 749.36,
+   "duration": 3.76
+  },
+  {
+   "text": "geoekonomi. Saya pelajarin lah itu",
+   "start": 751.36,
+   "duration": 4.0
+  },
+  {
+   "text": "negara-negara maju tuh gimana sih mereka",
+   "start": 753.12,
+   "duration": 4.72
+  },
+  {
+   "text": "bisa maju gitu. Salah satu salah duanya",
+   "start": 755.36,
+   "duration": 4.04
+  },
+  {
+   "text": "yang pertama itu pokoknya hukumnya tuh",
+   "start": 757.84,
+   "duration": 4.08
+  },
+  {
+   "text": "harus jelas ya kan. Eh yang kedua tuh is",
+   "start": 759.4,
+   "duration": 5.4
+  },
+  {
+   "text": "of doing business. Jadi orang tuh mau",
+   "start": 761.92,
+   "duration": 5.36
+  },
+  {
+   "text": "bisnis, mau usaha, mau buka lapangan",
+   "start": 764.8,
+   "duration": 5.12
+  },
+  {
+   "text": "pekerjaan, mau inovasi enggak disusahin",
+   "start": 767.28,
+   "duration": 4.96
+  },
+  {
+   "text": "gitu loh. Berarti kan di Indonesia tuh",
+   "start": 769.92,
+   "duration": 4.28
+  },
+  {
+   "text": "ada kesalahan sistemik sama struktural",
+   "start": 772.24,
+   "duration": 4.44
+  },
+  {
+   "text": "nih. Dan kalau kita husnuz zone ya, kita",
+   "start": 774.2,
+   "duration": 5.52
+  },
+  {
+   "text": "optimis ya, sebenarnya kan semua yang di",
+   "start": 776.68,
+   "duration": 4.44
+  },
+  {
+   "text": "ruangan ini kalian semua mau Indonesia",
+   "start": 779.72,
+   "duration": 2.12
+  },
+  {
+   "text": "maju kan?",
+   "start": 781.12,
+   "duration": 1.16
+  },
+  {
+   "text": "Mau",
+   "start": 781.84,
+   "duration": 1.76
+  },
+  {
+   "text": "mau",
+   "start": 782.28,
+   "duration": 3.16
+  },
+  {
+   "text": "pemerintah juga pengin Indonesianya maju",
+   "start": 783.6,
+   "duration": 4.04
+  },
+  {
+   "text": "harusnya ya enggak bisa jawab. Itu itu",
+   "start": 785.44,
+   "duration": 5.72
+  },
+  {
+   "text": "yang kita enggak tahu.",
+   "start": 787.64,
+   "duration": 3.52
+  },
+  {
+   "text": "Kita bukan penguasa. Kita enggak tahu.",
+   "start": 792.84,
+   "duration": 2.48
+  },
+  {
+   "text": "Oh, kita enggak tahu. Ben",
+   "start": 794.48,
+   "duration": 2.8
+  },
+  {
+   "text": "memang kita dukun tahu hati dia.",
+   "start": 795.32,
+   "duration": 4.12
+  },
+  {
+   "text": "Kita kita husuzon aja lah gitu. Berarti",
+   "start": 797.28,
+   "duration": 4.12
+  },
+  {
+   "text": "dengan adanya problem sistemik sama",
+   "start": 799.44,
+   "duration": 4.48
+  },
+  {
+   "text": "struktural nih untuk bisnis kok",
+   "start": 801.4,
+   "duration": 5.08
+  },
+  {
+   "text": "disusahin gitu misalnya yang kita lakuin",
+   "start": 803.92,
+   "duration": 5.12
+  },
+  {
+   "text": "tuh harusnya ya udah terima aja ya udah",
+   "start": 806.48,
+   "duration": 4.84
+  },
+  {
+   "text": "kita berbisnis dengan semua keribetan",
+   "start": 809.04,
+   "duration": 4.56
+  },
+  {
+   "text": "dan kesusahannya atau ada hal lain yang",
+   "start": 811.32,
+   "duration": 3.88
+  },
+  {
+   "text": "sebenarnya kita bisa lakuin Pak. Soalnya",
+   "start": 813.6,
+   "duration": 3.64
+  },
+  {
+   "text": "teman saya tuh banyak yang saking",
+   "start": 815.2,
+   "duration": 5.44
+  },
+  {
+   "text": "kecewanya gitu loh. Akhirnya berbisnis",
+   "start": 817.24,
+   "duration": 6.44
+  },
+  {
+   "text": "kan bisnis tuh harusnya positif.",
+   "start": 820.64,
+   "duration": 5.12
+  },
+  {
+   "text": "Lapangan pekerjaan, gaji, bayar pajak,",
+   "start": 823.68,
+   "duration": 3.88
+  },
+  {
+   "text": "negara juga happy gitu. Tapi saking",
+   "start": 825.76,
+   "duration": 3.24
+  },
+  {
+   "text": "mereka enggak yakinnya, ini kok gua",
+   "start": 827.56,
+   "duration": 3.68
+  },
+  {
+   "text": "disusahin ya, mereka jadi tanda kutip",
+   "start": 829.0,
+   "duration": 4.84
+  },
+  {
+   "text": "bisnis yang tidak legal gitu.",
+   "start": 831.24,
+   "duration": 5.32
+  },
+  {
+   "text": "Diam-diaman pajaknya, izin-izinnya",
+   "start": 833.84,
+   "duration": 4.72
+  },
+  {
+   "text": "main-mainan dan lain-lain. Ini kan",
+   "start": 836.56,
+   "duration": 3.72
+  },
+  {
+   "text": "sebenarnya bisa jadi efek snowball yang",
+   "start": 838.56,
+   "duration": 3.68
+  },
+  {
+   "text": "gede ya. Apalagi pebisnis-pebisnis yang",
+   "start": 840.28,
+   "duration": 3.72
+  },
+  {
+   "text": "ya yang penting ya udahlah negara mau",
+   "start": 842.24,
+   "duration": 3.88
+  },
+  {
+   "text": "cuan sendiri ya gue cuan sendiri aja",
+   "start": 844.0,
+   "duration": 3.72
+  },
+  {
+   "text": "gitu. Ini kan bakal jadi problem yang",
+   "start": 846.12,
+   "duration": 3.52
+  },
+  {
+   "text": "besar Pak. Apa mereka enggak sadar itu",
+   "start": 847.72,
+   "duration": 4.56
+  },
+  {
+   "text": "apa ada solusi lain enggak pandangan",
+   "start": 849.64,
+   "duration": 4.72
+  },
+  {
+   "text": "kita tuh seharusnya gimana gitu apa kita",
+   "start": 852.28,
+   "duration": 3.68
+  },
+  {
+   "text": "nurut aja kok walaupun ada",
+   "start": 854.36,
+   "duration": 3.52
+  },
+  {
+   "text": "problem-problem yang kayak gini.",
+   "start": 855.96,
+   "duration": 4.24
+  },
+  {
+   "text": "Bukan nurut sih. Emang lu bisa lawan",
+   "start": 857.88,
+   "duration": 4.56
+  },
+  {
+   "text": "dia?",
+   "start": 860.2,
+   "duration": 5.48
+  },
+  {
+   "text": "Kan itu pertanyaan kita kan.",
+   "start": 862.44,
+   "duration": 6.16
+  },
+  {
+   "text": "Tapi kita juga enggak usah jadi lalu",
+   "start": 865.68,
+   "duration": 5.0
+  },
+  {
+   "text": "frustrasi gitu loh, lalu ikut-ikut",
+   "start": 868.6,
+   "duration": 4.16
+  },
+  {
+   "text": "nilip-nilip pajak atau apa untuk",
+   "start": 870.68,
+   "duration": 4.76
+  },
+  {
+   "text": "lakukan. Kalau namanya kan optimalisasi",
+   "start": 872.76,
+   "duration": 5.08
+  },
+  {
+   "text": "biaya itu bukan nilai pajak, Bos. Karena",
+   "start": 875.44,
+   "duration": 3.84
+  },
+  {
+   "text": "kalau optimalisasi biaya kan ada tiga",
+   "start": 877.84,
+   "duration": 3.56
+  },
+  {
+   "text": "unsur kan. Potong biaya,",
+   "start": 879.28,
+   "duration": 4.12
+  },
+  {
+   "text": "nambah penghasilan, sama menghindari",
+   "start": 881.4,
+   "duration": 2.84
+  },
+  {
+   "text": "biaya.",
+   "start": 883.4,
+   "duration": 4.0
+  },
+  {
+   "text": "Heeh. Kalau lu masukkan itu di dalam",
+   "start": 884.24,
+   "duration": 5.24
+  },
+  {
+   "text": "sebagai optimalisasi biaya supaya cuan",
+   "start": 887.4,
+   "duration": 4.88
+  },
+  {
+   "text": "untung nih, kamu pasti bisa kena cost",
+   "start": 889.48,
+   "duration": 5.24
+  },
+  {
+   "text": "avoidennya enggak berhasil. Begitu",
+   "start": 892.28,
+   "duration": 4.88
+  },
+  {
+   "text": "ketangkap oknum aparat seram merusnya",
+   "start": 894.72,
+   "duration": 3.2
+  },
+  {
+   "text": "gede-gede.",
+   "start": 897.16,
+   "duration": 1.24
+  },
+  {
+   "text": "I",
+   "start": 897.92,
+   "duration": 2.64
+  },
+  {
+   "text": "iya terusang seram ini. Soalnya zaman",
+   "start": 898.4,
+   "duration": 3.88
+  },
+  {
+   "text": "saya masih kecil orang tahunya cuma",
+   "start": 900.56,
+   "duration": 4.88
+  },
+  {
+   "text": "Rolex sama Mercedes doang.",
+   "start": 902.28,
+   "duration": 5.96
+  },
+  {
+   "text": "Sekarang mereknya begitu banyak. Dulu",
+   "start": 905.44,
+   "duration": 4.28
+  },
+  {
+   "text": "orang tahu cuma pengin bikin rumah di",
+   "start": 908.24,
+   "duration": 3.04
+  },
+  {
+   "text": "Jakarta. sekarang pada tahu bikin rumah",
+   "start": 909.72,
+   "duration": 4.6
+  },
+  {
+   "text": "di Paris, di Tokyo, di luar negeri, di",
+   "start": 911.28,
+   "duration": 6.2
+  },
+  {
+   "text": "Swiss. Wah, ini jadi saya bilang jangan,",
+   "start": 914.32,
+   "duration": 4.76
+  },
+  {
+   "text": "jangan lakukan itu.",
+   "start": 917.48,
+   "duration": 3.72
+  },
+  {
+   "text": "J solusinya bagaimana? Anda kan",
+   "start": 919.08,
+   "duration": 4.96
+  },
+  {
+   "text": "pengusaha. Pengusaha itu tentu selalu",
+   "start": 921.2,
+   "duration": 5.4
+  },
+  {
+   "text": "bisa cari usaha dong. Saya kasih contoh",
+   "start": 924.04,
+   "duration": 4.44
+  },
+  {
+   "text": "gini.",
+   "start": 926.6,
+   "duration": 5.48
+  },
+  {
+   "text": "Saya dulu bikin pabrik berantem sana",
+   "start": 928.48,
+   "duration": 4.44
+  },
+  {
+   "text": "sini juga.",
+   "start": 932.08,
+   "duration": 1.92
+  },
+  {
+   "text": "Ributnya sama siapa, Pak?",
+   "start": 932.92,
+   "duration": 2.96
+  },
+  {
+   "text": "Sama-Nong pejabatlah. Sampai gua mau",
+   "start": 934.0,
+   "duration": 5.2
+  },
+  {
+   "text": "tabok dia terus pabrik tutup.",
+   "start": 935.88,
+   "duration": 5.8
+  },
+  {
+   "text": "Ya, ini memang belum lagi oknum pajak",
+   "start": 939.2,
+   "duration": 4.92
+  },
+  {
+   "text": "nekan enggak-enggak aja hitungan",
+   "start": 941.68,
+   "duration": 4.72
+  },
+  {
+   "text": "suka-suka dia. Ujung-ujungnya ada yang",
+   "start": 944.12,
+   "duration": 5.64
+  },
+  {
+   "text": "nawarin deal, nego. Ya, kita waktu muda",
+   "start": 946.4,
+   "duration": 5.44
+  },
+  {
+   "text": "juga pernah lakukan kalau enggak dikasih",
+   "start": 949.76,
+   "duration": 4.52
+  },
+  {
+   "text": "kickback suplly barang, besok-besok dia",
+   "start": 951.84,
+   "duration": 4.56
+  },
+  {
+   "text": "bilang barang kita enggak bagus nih. Ya",
+   "start": 954.28,
+   "duration": 3.68
+  },
+  {
+   "text": "mulai kita berpikir bagian dari",
+   "start": 956.4,
+   "duration": 4.6
+  },
+  {
+   "text": "marketing lah, kasih 2 dolar gitu ya.",
+   "start": 957.96,
+   "duration": 7.32
+  },
+  {
+   "text": "Okelah satu satu sak 2 dolar gitu loh.",
+   "start": 961.0,
+   "duration": 7.88
+  },
+  {
+   "text": "Eh lama-lama berubah packaging",
+   "start": 965.28,
+   "duration": 7.44
+  },
+  {
+   "text": "22 sak dia mintanya berapa? 2 * 22.",
+   "start": 968.88,
+   "duration": 5.48
+  },
+  {
+   "text": "Enggak bisa dong. Ini barang jadi lebih",
+   "start": 972.72,
+   "duration": 3.92
+  },
+  {
+   "text": "murah kok. Jadi saya belajar satu hal",
+   "start": 974.36,
+   "duration": 4.96
+  },
+  {
+   "text": "akhirnya orang-orang seperti itu kalau",
+   "start": 976.64,
+   "duration": 5.28
+  },
+  {
+   "text": "Anda ladenin Anda pasti cuma jadi korban",
+   "start": 979.32,
+   "duration": 5.44
+  },
+  {
+   "text": "dia aja. Kita cuma habis dipres terus",
+   "start": 981.92,
+   "duration": 5.12
+  },
+  {
+   "text": "akhirnya lu bangkrut juga karena cost",
+   "start": 984.76,
+   "duration": 4.68
+  },
+  {
+   "text": "kita dimintain melulu. Nah lebih baik",
+   "start": 987.04,
+   "duration": 4.52
+  },
+  {
+   "text": "gimana? pikirkan bisnis yang lain aja",
+   "start": 989.44,
+   "duration": 5.84
+  },
+  {
+   "text": "udah yang sesuatu yang kita masih bisa.",
+   "start": 991.56,
+   "duration": 5.08
+  },
+  {
+   "text": "Tapi hari ini bisa contoh saya lihat",
+   "start": 995.28,
+   "duration": 3.12
+  },
+  {
+   "text": "teman-teman saya yang survive itu ya",
+   "start": 996.64,
+   "duration": 4.2
+  },
+  {
+   "text": "walaupun saya sedih juga tuh kemarin",
+   "start": 998.4,
+   "duration": 4.76
+  },
+  {
+   "text": "saya diajak join lagi nih. Join apa?",
+   "start": 1000.84,
+   "duration": 5.64
+  },
+  {
+   "text": "Beli tanah. Oke. Untuk apa? Bikin",
+   "start": 1003.16,
+   "duration": 5.28
+  },
+  {
+   "text": "gudang. Wah gua pikir mau bikin pabrik",
+   "start": 1006.48,
+   "duration": 3.72
+  },
+  {
+   "text": "nih. Enggak enggak. Kita sewain sama",
+   "start": 1008.44,
+   "duration": 5.96
+  },
+  {
+   "text": "orang Cina. Cuan. Benar cuan. Belum",
+   "start": 1010.2,
+   "duration": 7.56
+  },
+  {
+   "text": "bangun sudah pesan mau 7.000 m. Wah cuan",
+   "start": 1014.4,
+   "duration": 6.56
+  },
+  {
+   "text": "dong. Tapi saya berpikir ini mah cilaka",
+   "start": 1017.76,
+   "duration": 6.04
+  },
+  {
+   "text": "kita nih. Kita sudah 70 juta orang cuma",
+   "start": 1020.96,
+   "duration": 4.76
+  },
+  {
+   "text": "jadi pasar.",
+   "start": 1023.8,
+   "duration": 3.88
+  },
+  {
+   "text": "Dia bilang saya mau survive gimana? Masa",
+   "start": 1025.72,
+   "duration": 3.76
+  },
+  {
+   "text": "lu mau suruh gua pindah? Mau pindah ke",
+   "start": 1027.68,
+   "duration": 3.56
+  },
+  {
+   "text": "mana? Duit gua paling kuat gua pindah",
+   "start": 1029.48,
+   "duration": 3.12
+  },
+  {
+   "text": "Kuala Lumpur. Gua beli apartemen di",
+   "start": 1031.24,
+   "duration": 4.52
+  },
+  {
+   "text": "Kuala Lumpur aja di situs gimana? Balik",
+   "start": 1032.6,
+   "duration": 5.4
+  },
+  {
+   "text": "lagi. Kalau menurut saya, kita harus",
+   "start": 1035.76,
+   "duration": 4.4
+  },
+  {
+   "text": "bertahan dengan segala cara. lakukan",
+   "start": 1038.0,
+   "duration": 4.28
+  },
+  {
+   "text": "cost optimalisasi,",
+   "start": 1040.16,
+   "duration": 5.16
+  },
+  {
+   "text": "kurangin biaya memang jadi muter nih.",
+   "start": 1042.28,
+   "duration": 5.12
+  },
+  {
+   "text": "Pasti",
+   "start": 1045.32,
+   "duration": 4.68
+  },
+  {
+   "text": "ini akan enggak lama kalau kayak begitu",
+   "start": 1047.4,
+   "duration": 3.4
+  },
+  {
+   "text": "terus.",
+   "start": 1050.0,
+   "duration": 1.88
+  },
+  {
+   "text": "Hm.",
+   "start": 1050.8,
+   "duration": 3.08
+  },
+  {
+   "text": "Yang penting kita siap untuk",
+   "start": 1051.88,
+   "duration": 3.72
+  },
+  {
+   "text": "memperbaiki. Kita enggak ingin negara",
+   "start": 1053.88,
+   "duration": 3.64
+  },
+  {
+   "text": "ini hancur. Jadi jangan punya pikiran",
+   "start": 1055.6,
+   "duration": 4.48
+  },
+  {
+   "text": "kalau jatuh hore gitu. Eh kalau ini",
+   "start": 1057.52,
+   "duration": 4.72
+  },
+  {
+   "text": "negara hancur hancur juga kita, Bos.",
+   "start": 1060.08,
+   "duration": 3.56
+  },
+  {
+   "text": "Sama jatuhnya.",
+   "start": 1062.24,
+   "duration": 3.6
+  },
+  {
+   "text": "Kita harus jaga. Nah, menurut saya yang",
+   "start": 1063.64,
+   "duration": 5.4
+  },
+  {
+   "text": "sudah usaha ada ya jalanin. Tapi jangan",
+   "start": 1065.84,
+   "duration": 5.48
+  },
+  {
+   "text": "tergoda nanti mau main mau main",
+   "start": 1069.04,
+   "duration": 5.16
+  },
+  {
+   "text": "sahamlah, main apalah juga enggak",
+   "start": 1071.32,
+   "duration": 4.24
+  },
+  {
+   "text": "segampang itu.",
+   "start": 1074.2,
+   "duration": 3.08
+  },
+  {
+   "text": "Tapi peluang ada. Saya lihat peluang",
+   "start": 1075.56,
+   "duration": 2.8
+  },
+  {
+   "text": "masih ada.",
+   "start": 1077.28,
+   "duration": 3.08
+  },
+  {
+   "text": "Kenapa kita buka bisnis? Kita pengin",
+   "start": 1078.36,
+   "duration": 5.44
+  },
+  {
+   "text": "bisa membuka lowongan kerja. Itu yang",
+   "start": 1080.36,
+   "duration": 5.12
+  },
+  {
+   "text": "sederhana sebetulnya.",
+   "start": 1083.8,
+   "duration": 2.88
+  },
+  {
+   "text": "Oke. Kebayang",
+   "start": 1085.48,
+   "duration": 2.72
+  },
+  {
+   "text": "nyambung ke selanjutnya gini, Pak.",
+   "start": 1086.68,
+   "duration": 2.76
+  },
+  {
+   "text": "Soalnya ini dari pengalaman pribadi",
+   "start": 1088.2,
+   "duration": 3.84
+  },
+  {
+   "text": "saya, mentor saya di Singapura itu kan",
+   "start": 1089.44,
+   "duration": 4.8
+  },
+  {
+   "text": "negara hukum banget kan. itu ketat gitu.",
+   "start": 1092.04,
+   "duration": 4.48
+  },
+  {
+   "text": "Dibilang kayak gini, \"Never mix business",
+   "start": 1094.24,
+   "duration": 4.68
+  },
+  {
+   "text": "with politics.\" gitu. Jangan pernah",
+   "start": 1096.52,
+   "duration": 5.44
+  },
+  {
+   "text": "campur bisnis dengan politik, gitu. Tapi",
+   "start": 1098.92,
+   "duration": 5.24
+  },
+  {
+   "text": "saya kan e banyak ngobrol udah hampir",
+   "start": 1101.96,
+   "duration": 3.92
+  },
+  {
+   "text": "ratusan lah pengusaha sama bisnis-bisnis",
+   "start": 1104.16,
+   "duration": 5.16
+  },
+  {
+   "text": "gitu. Pas bisnisnya udah sizable enough",
+   "start": 1105.88,
+   "duration": 5.84
+  },
+  {
+   "text": "nih, udah gede gini, mau enggak mau",
+   "start": 1109.32,
+   "duration": 4.2
+  },
+  {
+   "text": "pasti ketemu dengan politik. Enggak tahu",
+   "start": 1111.72,
+   "duration": 3.56
+  },
+  {
+   "text": "kenapa, enggak tahu gimana caranya pasti",
+   "start": 1113.52,
+   "duration": 4.36
+  },
+  {
+   "text": "ketemu. Diliriklah, dikasih surat",
+   "start": 1115.28,
+   "duration": 5.0
+  },
+  {
+   "text": "inilah, dan lain-lain lah gitu loh.",
+   "start": 1117.88,
+   "duration": 5.08
+  },
+  {
+   "text": "Responnya cuma dua, Pak. satu yaitu ya",
+   "start": 1120.28,
+   "duration": 4.24
+  },
+  {
+   "text": "udah kita ikutinlah cara mainnya gitu",
+   "start": 1122.96,
+   "duration": 3.12
+  },
+  {
+   "text": "misalnya karena memang sudah begini",
+   "start": 1124.52,
+   "duration": 5.84
+  },
+  {
+   "text": "caranya atau yang kedua enggak firm",
+   "start": 1126.08,
+   "duration": 5.6
+  },
+  {
+   "text": "bisnis saya enggak mau ee",
+   "start": 1130.36,
+   "duration": 2.92
+  },
+  {
+   "text": "dicampur-campur dengan urusan politik",
+   "start": 1131.68,
+   "duration": 4.0
+  },
+  {
+   "text": "atau dengan godaan apa-apa gitu tapi",
+   "start": 1133.28,
+   "duration": 4.08
+  },
+  {
+   "text": "dua-duanya kan kayak ada resikonya nih",
+   "start": 1135.68,
+   "duration": 4.44
+  },
+  {
+   "text": "Pak Jala kalau saya ajaran mentor saya",
+   "start": 1137.36,
+   "duration": 5.36
+  },
+  {
+   "text": "ya I never mix business with politic",
+   "start": 1140.12,
+   "duration": 4.84
+  },
+  {
+   "text": "saya saya benar-benah tapi sejak kemarin",
+   "start": 1142.72,
+   "duration": 3.96
+  },
+  {
+   "text": "bikin YouTube kritik-kritik itu jadi",
+   "start": 1144.96,
+   "duration": 3.6
+  },
+  {
+   "text": "terpaksa enggak bisa dipisah jadi udah",
+   "start": 1146.68,
+   "duration": 3.6
+  },
+  {
+   "text": "udah banyak-banyak yang chat-chat Pak",
+   "start": 1148.56,
+   "duration": 4.12
+  },
+  {
+   "text": "tapi kalau dari Pak Hok sendiri setuju",
+   "start": 1150.28,
+   "duration": 4.64
+  },
+  {
+   "text": "dengan statement itu enggak? Atau ya",
+   "start": 1152.68,
+   "duration": 4.84
+  },
+  {
+   "text": "because this is Wakanda ya itu sudah",
+   "start": 1154.92,
+   "duration": 4.48
+  },
+  {
+   "text": "pasti terjadi gitu suatu hari gitu",
+   "start": 1157.52,
+   "duration": 4.8
+  },
+  {
+   "text": "ya. Sebetulnya di Amerika pun tempat",
+   "start": 1159.4,
+   "duration": 5.88
+  },
+  {
+   "text": "orang jadi standar demokrasi",
+   "start": 1162.32,
+   "duration": 5.0
+  },
+  {
+   "text": "itu pun terjadi toh. Misal contoh Trump",
+   "start": 1165.28,
+   "duration": 4.56
+  },
+  {
+   "text": "melakukan apa bikin isu minyak terus",
+   "start": 1167.32,
+   "duration": 3.88
+  },
+  {
+   "text": "temannya langsung dia bilang untung",
+   "start": 1169.84,
+   "duration": 4.24
+  },
+  {
+   "text": "sekian ratus juta.",
+   "start": 1171.2,
+   "duration": 3.36
+  },
+  {
+   "text": "Hm.",
+   "start": 1174.08,
+   "duration": 2.68
+  },
+  {
+   "text": "Dia enggak korupsi dia lempar kebijakan",
+   "start": 1174.56,
+   "duration": 4.24
+  },
+  {
+   "text": "aja bisa jadi untung. Kita masih ingat",
+   "start": 1176.76,
+   "duration": 5.24
+  },
+  {
+   "text": "dulu kasus taksin kan di Thailand. Jadi",
+   "start": 1178.8,
+   "duration": 5.2
+  },
+  {
+   "text": "kalau penguasa",
+   "start": 1182.0,
+   "duration": 3.56
+  },
+  {
+   "text": "jadi",
+   "start": 1184.0,
+   "duration": 3.88
+  },
+  {
+   "text": "pengusaha atau pengusaha jadi penguasa",
+   "start": 1185.56,
+   "duration": 4.36
+  },
+  {
+   "text": "itu jadi penguasa H. Ini",
+   "start": 1187.88,
+   "duration": 3.08
+  },
+  {
+   "text": "penguasa H.",
+   "start": 1189.92,
+   "duration": 4.44
+  },
+  {
+   "text": "Iya kan? Penguasa H kan. Ini bahaya",
+   "start": 1190.96,
+   "duration": 5.56
+  },
+  {
+   "text": "banget. Nah di Amerika tuh dia mesti",
+   "start": 1194.36,
+   "duration": 4.64
+  },
+  {
+   "text": "kasih ke Transfan untuk jalankan.",
+   "start": 1196.52,
+   "duration": 3.12
+  },
+  {
+   "text": "Iya.",
+   "start": 1199.0,
+   "duration": 1.92
+  },
+  {
+   "text": "Tapi tetap aja dia bisa membuat",
+   "start": 1199.64,
+   "duration": 3.8
+  },
+  {
+   "text": "kebijakan yang orang enggak tahu nih",
+   "start": 1200.92,
+   "duration": 5.36
+  },
+  {
+   "text": "dengan isu-isu cari keuntungan. Jadi",
+   "start": 1203.44,
+   "duration": 6.08
+  },
+  {
+   "text": "situasi sekarang terus mau ngapain kita?",
+   "start": 1206.28,
+   "duration": 5.24
+  },
+  {
+   "text": "Ya kalau menurut saya bertahan masih",
+   "start": 1209.52,
+   "duration": 4.68
+  },
+  {
+   "text": "banyak peluang dagang kok. Jangan main",
+   "start": 1211.52,
+   "duration": 4.04
+  },
+  {
+   "text": "yang terlalu gede.",
+   "start": 1214.2,
+   "duration": 2.8
+  },
+  {
+   "text": "Jangan main yang terlalu gede. Gimana",
+   "start": 1215.56,
+   "duration": 1.96
+  },
+  {
+   "text": "itu maksudnya?",
+   "start": 1217.0,
+   "duration": 2.04
+  },
+  {
+   "text": "Iya itu kata anak saya.",
+   "start": 1217.52,
+   "duration": 3.08
+  },
+  {
+   "text": "Oh gitu.",
+   "start": 1219.04,
+   "duration": 3.2
+  },
+  {
+   "text": "Jadi kita main kecil-kecil aja katanya",
+   "start": 1220.6,
+   "duration": 3.84
+  },
+  {
+   "text": "yang kecil-kecil supaya kita enggak jadi",
+   "start": 1222.24,
+   "duration": 4.48
+  },
+  {
+   "text": "sorotan. Kita ban pajak juga.",
+   "start": 1224.44,
+   "duration": 3.36
+  },
+  {
+   "text": "Nah bagaimana kalau kan sudah jadi",
+   "start": 1226.72,
+   "duration": 2.64
+  },
+  {
+   "text": "konglomret jadi gede?",
+   "start": 1227.8,
+   "duration": 2.0
+  },
+  {
+   "text": "Heeh.",
+   "start": 1229.36,
+   "duration": 1.56
+  },
+  {
+   "text": "Kan hadapan juga dong.",
+   "start": 1229.8,
+   "duration": 1.96
+  },
+  {
+   "text": "Iya.",
+   "start": 1230.92,
+   "duration": 3.24
+  },
+  {
+   "text": "Nah ini balik lagi ke visi mula-mula",
+   "start": 1231.76,
+   "duration": 3.24
+  },
+  {
+   "text": "Anda.",
+   "start": 1234.16,
+   "duration": 1.92
+  },
+  {
+   "text": "Heeh.",
+   "start": 1235.0,
+   "duration": 2.44
+  },
+  {
+   "text": "Saya bilang gini, pabrik saya itu",
+   "start": 1236.08,
+   "duration": 3.96
+  },
+  {
+   "text": "harusnya jalan atau enggak?",
+   "start": 1237.44,
+   "duration": 6.52
+  },
+  {
+   "text": "Kalau saya mau ikut main bisa jalan,",
+   "start": 1240.04,
+   "duration": 6.72
+  },
+  {
+   "text": "tapi saya terus putuskan.",
+   "start": 1243.96,
+   "duration": 5.36
+  },
+  {
+   "text": "Kalau enggak jalan pun, ya sudah saya",
+   "start": 1246.76,
+   "duration": 5.4
+  },
+  {
+   "text": "enggak bisa terus di sini.",
+   "start": 1249.32,
+   "duration": 5.16
+  },
+  {
+   "text": "Betul-betul dikerjainlah tutup. Ya",
+   "start": 1252.16,
+   "duration": 4.68
+  },
+  {
+   "text": "namanya penguasa kan gampang kan dia",
+   "start": 1254.48,
+   "duration": 4.48
+  },
+  {
+   "text": "assesment bilang enggak lulus. Tapi",
+   "start": 1256.84,
+   "duration": 5.0
+  },
+  {
+   "text": "karena itu saya berpikir benar Bapak",
+   "start": 1258.96,
+   "duration": 5.64
+  },
+  {
+   "text": "saya bilang ya, lu kalau mau lawan",
+   "start": 1261.84,
+   "duration": 4.68
+  },
+  {
+   "text": "pejabat enggak bisa lu cuma jadi",
+   "start": 1264.6,
+   "duration": 4.8
+  },
+  {
+   "text": "pengusaha lu. Lu jadi pejabat aja lu",
+   "start": 1266.52,
+   "duration": 6.32
+  },
+  {
+   "text": "sana perbaikin nolong orang miskin.",
+   "start": 1269.4,
+   "duration": 4.96
+  },
+  {
+   "text": "Padahal saya dulu pengin jadi konglomrat",
+   "start": 1272.84,
+   "duration": 2.32
+  },
+  {
+   "text": "sebetulnya.",
+   "start": 1274.36,
+   "duration": 1.28
+  },
+  {
+   "text": "Oh ya",
+   "start": 1275.16,
+   "duration": 2.28
+  },
+  {
+   "text": "saya pikir bisa nolong orang banyak gitu",
+   "start": 1275.64,
+   "duration": 2.36
+  },
+  {
+   "text": "kan.",
+   "start": 1277.44,
+   "duration": 0.96
+  },
+  {
+   "text": "Heeh.",
+   "start": 1278.0,
+   "duration": 2.12
+  },
+  {
+   "text": "Sebab saya enggak bisa kalau mau nolong",
+   "start": 1278.4,
+   "duration": 4.12
+  },
+  {
+   "text": "orang banyak mau buka laman kerja semua",
+   "start": 1280.12,
+   "duration": 4.32
+  },
+  {
+   "text": "tuh jadi pejabat. Akhirnya saya masuk ke",
+   "start": 1282.52,
+   "duration": 5.04
+  },
+  {
+   "text": "politik. Singkatnya gitulah. Dan sampai",
+   "start": 1284.44,
+   "duration": 5.16
+  },
+  {
+   "text": "hari ini saya masih dap di politik.",
+   "start": 1287.56,
+   "duration": 4.16
+  },
+  {
+   "text": "Orang bilang, \"Kamu sudah selesai.\" Ya,",
+   "start": 1289.6,
+   "duration": 3.92
+  },
+  {
+   "text": "sebelum bunyi empat paku di atas peti",
+   "start": 1291.72,
+   "duration": 3.64
+  },
+  {
+   "text": "mati saya. Eh, enggak bunyi paku lagi.",
+   "start": 1293.52,
+   "duration": 4.56
+  },
+  {
+   "text": "Karena pakai skrup sekarang peti mati.",
+   "start": 1295.36,
+   "duration": 4.68
+  },
+  {
+   "text": "Jadi kayak pepatah kunonya udah enggak",
+   "start": 1298.08,
+   "duration": 4.28
+  },
+  {
+   "text": "cocok ya, enggak pakai bunyi paku. Jadi",
+   "start": 1300.04,
+   "duration": 4.68
+  },
+  {
+   "text": "sebelum bunyi skrup paku di atas peti",
+   "start": 1302.36,
+   "duration": 5.36
+  },
+  {
+   "text": "mati saya, saya masih ada harapan untuk",
+   "start": 1304.72,
+   "duration": 8.16
+  },
+  {
+   "text": "terus berjuang dong. Kenapa kita takut?",
+   "start": 1307.72,
+   "duration": 7.24
+  },
+  {
+   "text": "Itu sih",
+   "start": 1312.88,
+   "duration": 3.84
+  },
+  {
+   "text": "luar biasa. Enggak bahaya kan, Pak?",
+   "start": 1314.96,
+   "duration": 3.28
+  },
+  {
+   "text": "Pertanyaannya kan aman kan?",
+   "start": 1316.72,
+   "duration": 5.36
+  },
+  {
+   "text": "Saya ada asuransi juga,",
+   "start": 1318.24,
+   "duration": 3.84
+  },
+  {
+   "text": "Pak. Ini kan kalau misalnya kita mau",
+   "start": 1322.56,
+   "duration": 3.84
+  },
+  {
+   "text": "optimis nih ini banyakan anak muda semua",
+   "start": 1324.24,
+   "duration": 4.52
+  },
+  {
+   "text": "kita pengin bantu kontribusilah untuk",
+   "start": 1326.4,
+   "duration": 4.4
+  },
+  {
+   "text": "bikin Indonesia maju jadi pengusaha dan",
+   "start": 1328.76,
+   "duration": 4.6
+  },
+  {
+   "text": "lain-lain. Dan enggak jauh-jauh dari",
+   "start": 1330.8,
+   "duration": 5.2
+  },
+  {
+   "text": "leadership kepemimpinan. Sebenarnya kan",
+   "start": 1333.36,
+   "duration": 4.28
+  },
+  {
+   "text": "kalau e banyak orang yang ngeliput Pak",
+   "start": 1336.0,
+   "duration": 4.68
+  },
+  {
+   "text": "Haok itu pasti cara kepemimpinannya Pak",
+   "start": 1337.64,
+   "duration": 4.48
+  },
+  {
+   "text": "Ahok gitu sangat.",
+   "start": 1340.68,
+   "duration": 3.88
+  },
+  {
+   "text": "Cara yang kapan? sebelum makobrim atau",
+   "start": 1342.12,
+   "duration": 4.88
+  },
+  {
+   "text": "sesudah makobrim mop itu mesti dibedakan",
+   "start": 1344.56,
+   "duration": 2.88
+  },
+  {
+   "text": "juga.",
+   "start": 1347.0,
+   "duration": 1.6
+  },
+  {
+   "text": "Oh itu bed.",
+   "start": 1347.44,
+   "duration": 3.36
+  },
+  {
+   "text": "Itu mesti dibedakan juga nih. Karena ada",
+   "start": 1348.6,
+   "duration": 4.24
+  },
+  {
+   "text": "dua yang berbeda nih.",
+   "start": 1350.8,
+   "duration": 4.8
+  },
+  {
+   "text": "Jadi kalau misalnya ada pesan nih kita",
+   "start": 1352.84,
+   "duration": 4.52
+  },
+  {
+   "text": "harus optimis, this is what it is gitu.",
+   "start": 1355.6,
+   "duration": 4.56
+  },
+  {
+   "text": "Tapi kita bisa kontribusi untuk sesuatu",
+   "start": 1357.36,
+   "duration": 5.12
+  },
+  {
+   "text": "yang positif untuk Indonesia. Ada saran",
+   "start": 1360.16,
+   "duration": 3.84
+  },
+  {
+   "text": "atau insight yang paling penting yang",
+   "start": 1362.48,
+   "duration": 2.68
+  },
+  {
+   "text": "mungkin yang bisa dipelajari untuk",
+   "start": 1364.0,
+   "duration": 2.68
+  },
+  {
+   "text": "anak-anak muda zaman sekarang. What",
+   "start": 1365.16,
+   "duration": 3.88
+  },
+  {
+   "text": "would it be, Pak? Ya, kalau menurut saya",
+   "start": 1366.68,
+   "duration": 5.52
+  },
+  {
+   "text": "ya jangan bedakan muda tua lah. Sama",
+   "start": 1369.04,
+   "duration": 4.44
+  },
+  {
+   "text": "Anda juga mesti bilang sama orang tua",
+   "start": 1372.2,
+   "duration": 4.72
+  },
+  {
+   "text": "Anda semua kita mesti sama-sama. Jadilah",
+   "start": 1373.48,
+   "duration": 7.32
+  },
+  {
+   "text": "orang yang memang lurus. Enggak usah",
+   "start": 1376.92,
+   "duration": 6.64
+  },
+  {
+   "text": "baik drama-drama gitu loh. Kita bisa apa",
+   "start": 1380.8,
+   "duration": 4.92
+  },
+  {
+   "text": "aja. Terus Anda harus berani berdiri",
+   "start": 1383.56,
+   "duration": 4.96
+  },
+  {
+   "text": "untuk menyuarakan apa itu kebenaran,",
+   "start": 1385.72,
+   "duration": 4.52
+  },
+  {
+   "text": "berdiri untuk menyuarakan apa itu",
+   "start": 1388.52,
+   "duration": 3.36
+  },
+  {
+   "text": "keadilan,",
+   "start": 1390.24,
+   "duration": 3.6
+  },
+  {
+   "text": "apa itu kejujuran, apa itu",
+   "start": 1391.88,
+   "duration": 3.92
+  },
+  {
+   "text": "prikemanusiaan. Kita sering kan lihat",
+   "start": 1393.84,
+   "duration": 3.64
+  },
+  {
+   "text": "dengan kasus hukum misalnya ya.",
+   "start": 1395.8,
+   "duration": 2.04
+  },
+  {
+   "text": "Ya,",
+   "start": 1397.48,
+   "duration": 2.24
+  },
+  {
+   "text": "enggak adil kita tahu. Ah, bukan urusan",
+   "start": 1397.84,
+   "duration": 3.8
+  },
+  {
+   "text": "gua, bukan keluarga gua kok. Dia",
+   "start": 1399.72,
+   "duration": 3.64
+  },
+  {
+   "text": "dizalimin. Emang gua pikirin",
+   "start": 1401.64,
+   "duration": 2.72
+  },
+  {
+   "text": "ini yang gula ya, Pak?",
+   "start": 1403.36,
+   "duration": 3.24
+  },
+  {
+   "text": "Gua aman enggak tahu apalah. Pokoknya",
+   "start": 1404.36,
+   "duration": 4.04
+  },
+  {
+   "text": "adalah",
+   "start": 1406.6,
+   "duration": 5.08
+  },
+  {
+   "text": "kita diam toh. Eh, hati-hati loh. Kalau",
+   "start": 1408.4,
+   "duration": 5.16
+  },
+  {
+   "text": "kita enggak mau nyuarakan itu satu hari",
+   "start": 1411.68,
+   "duration": 5.08
+  },
+  {
+   "text": "ketidakadilan itu kan datang ke kita",
+   "start": 1413.56,
+   "duration": 5.48
+  },
+  {
+   "text": "juga, ke keluarga kita. Jadi, kita",
+   "start": 1416.76,
+   "duration": 4.88
+  },
+  {
+   "text": "sama-sama berani nyuarakan. Terus yang",
+   "start": 1419.04,
+   "duration": 5.96
+  },
+  {
+   "text": "kedua, jangan terlalu mengandalkan Ai",
+   "start": 1421.64,
+   "duration": 5.68
+  },
+  {
+   "text": "lah.",
+   "start": 1425.0,
+   "duration": 4.16
+  },
+  {
+   "text": "E untuk tertentu nih.",
+   "start": 1427.32,
+   "duration": 3.6
+  },
+  {
+   "text": "Kita bahas AI seharian nih, Pak.",
+   "start": 1429.16,
+   "duration": 3.92
+  },
+  {
+   "text": "Aku mau ngomong jujur nih. Lu jangan",
+   "start": 1430.92,
+   "duration": 4.48
+  },
+  {
+   "text": "salah nih.",
+   "start": 1433.08,
+   "duration": 4.56
+  },
+  {
+   "text": "Saya mau tanya ya. Kalau kita bicara",
+   "start": 1435.4,
+   "duration": 5.28
+  },
+  {
+   "text": "soal kasus kemarin ada COVID,",
+   "start": 1437.64,
+   "duration": 4.76
+  },
+  {
+   "text": "AI enggak bisa jawab karena dia enggak",
+   "start": 1440.68,
+   "duration": 4.0
+  },
+  {
+   "text": "punya data.",
+   "start": 1442.4,
+   "duration": 5.72
+  },
+  {
+   "text": "Tapi kita sebagai manusia, human being,",
+   "start": 1444.68,
+   "duration": 5.48
+  },
+  {
+   "text": "kita punya data ini sudah punya dalam",
+   "start": 1448.12,
+   "duration": 5.52
+  },
+  {
+   "text": "otak pikiran kita dari kita dalam janin.",
+   "start": 1450.16,
+   "duration": 6.48
+  },
+  {
+   "text": "Bayangin itu full data dengan pengalaman",
+   "start": 1453.64,
+   "duration": 6.2
+  },
+  {
+   "text": "kita dengar, mata kita lihat,",
+   "start": 1456.64,
+   "duration": 6.08
+  },
+  {
+   "text": "yang pengalaman hidup kita. Nah, Anda",
+   "start": 1459.84,
+   "duration": 5.72
+  },
+  {
+   "text": "cuma butuh ngelatih mendengarkan suara",
+   "start": 1462.72,
+   "duration": 4.72
+  },
+  {
+   "text": "bingini. Mak orang bisa meditasi,",
+   "start": 1465.56,
+   "duration": 3.52
+  },
+  {
+   "text": "mungkin orang bisa sembahyang tengah",
+   "start": 1467.44,
+   "duration": 4.8
+  },
+  {
+   "text": "malam, tahajud, macam-macamlah.",
+   "start": 1469.08,
+   "duration": 5.12
+  },
+  {
+   "text": "itu untuk melatih mendengarkan, bingung",
+   "start": 1472.24,
+   "duration": 4.36
+  },
+  {
+   "text": "kita. Karena zaman ini berubah gitu",
+   "start": 1474.2,
+   "duration": 4.8
+  },
+  {
+   "text": "cepat. Maka orang tanya sama saya, saya",
+   "start": 1476.6,
+   "duration": 4.28
+  },
+  {
+   "text": "juga power by AI juga.",
+   "start": 1479.0,
+   "duration": 2.32
+  },
+  {
+   "text": "Oh ya,",
+   "start": 1480.88,
+   "duration": 4.12
+  },
+  {
+   "text": "tapi Ahok intelligent",
+   "start": 1481.32,
+   "duration": 3.68
+  },
+  {
+   "text": "luar biasa.",
+   "start": 1487.36,
+   "duration": 4.68
+  },
+  {
+   "text": "Kasih intelligion. Siap siap siap. Oke,",
+   "start": 1489.08,
+   "duration": 5.0
+  },
+  {
+   "text": "berarti pesan terakhirnya adalah mau",
+   "start": 1492.04,
+   "duration": 4.44
+  },
+  {
+   "text": "apapun yang kita lakukan kita harus",
+   "start": 1494.08,
+   "duration": 3.84
+  },
+  {
+   "text": "lurus.",
+   "start": 1496.48,
+   "duration": 3.64
+  },
+  {
+   "text": "Kita harus menyuarakan kebenaran dan",
+   "start": 1497.92,
+   "duration": 3.72
+  },
+  {
+   "text": "integritas tetap nomor satu.",
+   "start": 1500.12,
+   "duration": 4.52
+  },
+  {
+   "text": "Dan satu tambahan, jangan terdistract",
+   "start": 1501.64,
+   "duration": 6.76
+  },
+  {
+   "text": "dengan tujuan hidup Anda yang mula-mula.",
+   "start": 1504.64,
+   "duration": 6.16
+  },
+  {
+   "text": "Teknologi, situasi, kekacauan membuat",
+   "start": 1508.4,
+   "duration": 4.4
+  },
+  {
+   "text": "kita terdistrak.",
+   "start": 1510.8,
+   "duration": 4.2
+  },
+  {
+   "text": "Saya juga berpikir, waduh, jadi",
+   "start": 1512.8,
+   "duration": 4.76
+  },
+  {
+   "text": "bisnismen susah. Sementara ada orang",
+   "start": 1515.0,
+   "duration": 5.56
+  },
+  {
+   "text": "percaya saya jadi CEO.",
+   "start": 1517.56,
+   "duration": 6.12
+  },
+  {
+   "text": "Gua kerja aja sama dia. Ya kan lumayan",
+   "start": 1520.56,
+   "duration": 4.48
+  },
+  {
+   "text": "saya sudah pernah kerja juga nih. Gaji",
+   "start": 1523.68,
+   "duration": 4.36
+  },
+  {
+   "text": "gede. Tapi kerjanya bosnya pulang jam .",
+   "start": 1525.04,
+   "duration": 6.88
+  },
+  {
+   "text": "pagi nih. Nah saya langsung cek AI Ahok",
+   "start": 1528.04,
+   "duration": 7.76
+  },
+  {
+   "text": "Intellig ini gitu kan. Kalau cek AI yang",
+   "start": 1531.92,
+   "duration": 6.52
+  },
+  {
+   "text": "artifisial pasti suruh kerja nambah",
+   "start": 1535.8,
+   "duration": 5.24
+  },
+  {
+   "text": "modal kok gede. Itu saya cek saya",
+   "start": 1538.44,
+   "duration": 5.88
+  },
+  {
+   "text": "dapatin kalimat begini. Neverwor",
+   "start": 1541.04,
+   "duration": 5.64
+  },
+  {
+   "text": "for the riches.",
+   "start": 1544.32,
+   "duration": 4.2
+  },
+  {
+   "text": "Kenapa saya ngomong begitu? Saya cuma",
+   "start": 1546.68,
+   "duration": 4.08
+  },
+  {
+   "text": "pengin lebih kaya aja. Terus saya enggak",
+   "start": 1548.52,
+   "duration": 3.2
+  },
+  {
+   "text": "bisa datang lagi dong",
+   "start": 1550.76,
+   "duration": 4.12
+  },
+  {
+   "text": "ngomporin-ngomporin kalian kan sebaik ya",
+   "start": 1551.72,
+   "duration": 4.8
+  },
+  {
+   "text": "dong. Hari kayak gini jangan-jangan bos",
+   "start": 1554.88,
+   "duration": 4.12
+  },
+  {
+   "text": "gua lagi di rumah meeting. Gua di rumah",
+   "start": 1556.52,
+   "duration": 8.16
+  },
+  {
+   "text": "bos weekend ada bos. Minggu nemenin bos.",
+   "start": 1559.0,
+   "duration": 7.96
+  },
+  {
+   "text": "Nah saya enggak bisa menularkan",
+   "start": 1564.68,
+   "duration": 4.96
+  },
+  {
+   "text": "membagikan. Saya kan politisi edukator",
+   "start": 1566.96,
+   "duration": 3.08
+  },
+  {
+   "text": "soalnya.",
+   "start": 1569.64,
+   "duration": 1.32
+  },
+  {
+   "text": "Politisi edukator?",
+   "start": 1570.04,
+   "duration": 2.56
+  },
+  {
+   "text": "Iya. Saya pengin semua orang punya",
+   "start": 1570.96,
+   "duration": 3.88
+  },
+  {
+   "text": "persepsi yang sama. Kita punya langkah",
+   "start": 1572.6,
+   "duration": 4.36
+  },
+  {
+   "text": "perjuangan yang sama. Partai politik",
+   "start": 1574.84,
+   "duration": 3.84
+  },
+  {
+   "text": "banyak orang enggak benar. Karena kita",
+   "start": 1576.96,
+   "duration": 3.64
+  },
+  {
+   "text": "yang baik enggak mau masuk. Itu",
+   "start": 1578.68,
+   "duration": 3.92
+  },
+  {
+   "text": "masalahnya.",
+   "start": 1580.6,
+   "duration": 3.84
+  },
+  {
+   "text": "Itu sih",
+   "start": 1582.6,
+   "duration": 3.8
+  },
+  {
+   "text": "aku lagi memprovokasi dia. Kan aku",
+   "start": 1584.44,
+   "duration": 3.56
+  },
+  {
+   "text": "profesor juga Prof. bukan profesor",
+   "start": 1586.4,
+   "duration": 4.04
+  },
+  {
+   "text": "provokator.",
+   "start": 1588.0,
+   "duration": 2.84
+  },
+  {
+   "text": "Oke.",
+   "start": 1590.44,
+   "duration": 2.36
+  },
+  {
+   "text": "Jadi tertarikan nih. Kita mau bikin",
+   "start": 1590.84,
+   "duration": 4.68
+  },
+  {
+   "text": "kongres partai nih.",
+   "start": 1592.8,
+   "duration": 3.6
+  },
+  {
+   "text": "Bercandain dia aja.",
+   "start": 1595.52,
+   "duration": 4.28
+  },
+  {
+   "text": "Gimana guys?",
+   "start": 1596.4,
+   "duration": 3.4
+  }
+ ]
+}

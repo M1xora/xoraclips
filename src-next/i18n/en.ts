@@ -172,6 +172,7 @@ export const en: Translations = {
     clipTitleHint: 'Replaces the hook title for this clip only.',
     clipTitleReset: 'Reset to the AI title',
     clipTitleNoClip: 'Pick a clip first to rename it.',
+    clipTitleOptions: 'AI title options',
     titleAffix: 'Title prefix & suffix',
     titlePrefix: 'Prefix',
     titlePrefixPlaceholder: 'e.g. "PART 1: "',

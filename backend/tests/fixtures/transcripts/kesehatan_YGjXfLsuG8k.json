@@ -1,0 +1,5897 @@
+{
+ "source": "YouTube YGjXfLsuG8k, fetched 2026-09-24 with fetch_video_metadata + fetch_transcript",
+ "content_type": "edukasi dan kesehatan",
+ "video_id": "YGjXfLsuG8k",
+ "title": "#ngopenk PEMBAHASAN LEBIH DALAM SEPUTAR GINJAL BERSAMA AHLINYA: dr. DECSA MEDIKA HERTANTO, Sp.PD-KGH",
+ "channel": "Tirta PengPengPeng",
+ "duration": 2784.0,
+ "heatmap": [
+  {
+   "start_time": 0.0,
+   "end_time": 27.84,
+   "value": 0.2258493457381575
+  },
+  {
+   "start_time": 27.84,
+   "end_time": 55.68,
+   "value": 0.04981602538349655
+  },
+  {
+   "start_time": 55.68,
+   "end_time": 83.52,
+   "value": 0.5426169699625012
+  },
+  {
+   "start_time": 83.52,
+   "end_time": 111.36,
+   "value": 0.07445137242364967
+  },
+  {
+   "start_time": 111.36,
+   "end_time": 139.2,
+   "value": 0.17496132845871942
+  },
+  {
+   "start_time": 139.2,
+   "end_time": 167.04,
+   "value": 0.041293181500927985
+  },
+  {
+   "start_time": 167.04,
+   "end_time": 194.88,
+   "value": 0.011669348839621538
+  },
+  {
+   "start_time": 194.88,
+   "end_time": 222.72,
+   "value": 0.018827321472942565
+  },
+  {
+   "start_time": 222.72,
+   "end_time": 250.56,
+   "value": 0.17843269758480582
+  },
+  {
+   "start_time": 250.56,
+   "end_time": 278.4,
+   "value": 0.009536274357265437
+  },
+  {
+   "start_time": 278.4,
+   "end_time": 306.24,
+   "value": 0.3199895654570183
+  },
+  {
+   "start_time": 306.24,
+   "end_time": 334.08,
+   "value": 0.05108061768159627
+  },
+  {
+   "start_time": 334.08,
+   "end_time": 361.92,
+   "value": 0.014144513259790964
+  },
+  {
+   "start_time": 361.92,
+   "end_time": 389.76,
+   "value": 0.0
+  },
+  {
+   "start_time": 389.76,
+   "end_time": 417.6,
+   "value": 0.06439084226939441
+  },
+  {
+   "start_time": 417.6,
+   "end_time": 445.44,
+   "value": 0.32999999741974706
+  },
+  {
+   "start_time": 445.44,
+   "end_time": 473.28,
+   "value": 0.15357324009331227
+  },
+  {
+   "start_time": 473.28,
+   "end_time": 501.12,
+   "value": 0.22894635112237133
+  },
+  {
+   "start_time": 501.12,
+   "end_time": 528.96,
+   "value": 0.20848217909587421
+  },
+  {
+   "start_time": 528.96,
+   "end_time": 556.8,
+   "value": 0.2063533878334364
+  },
+  {
+   "start_time": 556.8,
+   "end_time": 584.64,
+   "value": 0.08115389944599388
+  },
+  {
+   "start_time": 584.64,
+   "end_time": 612.48,
+   "value": 0.22596126679067363
+  },
+  {
+   "start_time": 612.48,
+   "end_time": 640.32,
+   "value": 0.6714278629648294
+  },
+  {
+   "start_time": 640.32,
+   "end_time": 668.16,
+   "value": 0.16940561034722723
+  },
+  {
+   "start_time": 668.16,
+   "end_time": 696.0,
+   "value": 0.10623637336157161
+  },
+  {
+   "start_time": 696.0,
+   "end_time": 723.84,
+   "value": 0.17687841512606212
+  },
+  {
+   "start_time": 723.84,
+   "end_time": 751.68,
+   "value": 0.230242959199234
+  },
+  {
+   "start_time": 751.68,
+   "end_time": 779.52,
+   "value": 0.18364761588496614
+  },
+  {
+   "start_time": 779.52,
+   "end_time": 807.36,
+   "value": 0.31549406296694515
+  },
+  {
+   "start_time": 807.36,
+   "end_time": 835.2,
+   "value": 0.13412335518549567
+  },
+  {
+   "start_time": 835.2,
+   "end_time": 863.04,
+   "value": 0.13810066031253573
+  },
+  {
+   "start_time": 863.04,
+   "end_time": 890.88,
+   "value": 0.1674935396916443
+  },
+  {
+   "start_time": 890.88,
+   "end_time": 918.72,
+   "value": 0.1568438036128186
+  },
+  {
+   "start_time": 918.72,
+   "end_time": 946.56,
+   "value": 0.12154119541571616
+  },
+  {
+   "start_time": 946.56,
+   "end_time": 974.4,
+   "value": 0.6885249906530336
+  },
+  {
+   "start_time": 974.4,
+   "end_time": 1002.24,
+   "value": 0.3290549230065417
+  },
+  {
+   "start_time": 1002.24,
+   "end_time": 1030.08,
+   "value": 0.3984405260722951
+  },
+  {
+   "start_time": 1030.08,
+   "end_time": 1057.92,
+   "value": 0.4024672894881268
+  },
+  {
+   "start_time": 1057.92,
+   "end_time": 1085.76,
+   "value": 0.4506163372844747
+  },
+  {
+   "start_time": 1085.76,
+   "end_time": 1113.6,
+   "value": 0.7419576946884718
+  },
+  {
+   "start_time": 1113.6,
+   "end_time": 1141.44,
+   "value": 0.31741583537366835
+  },
+  {
+   "start_time": 1141.44,
+   "end_time": 1169.28,
+   "value": 0.46282109893489737
+  },
+  {
+   "start_time": 1169.28,
+   "end_time": 1197.12,
+   "value": 0.17303010200514038
+  },
+  {
+   "start_time": 1197.12,
+   "end_time": 1224.96,
+   "value": 0.15527075755452913
+  },
+  {
+   "start_time": 1224.96,
+   "end_time": 1252.8,
+   "value": 0.11362576372262384
+  },
+  {
+   "start_time": 1252.8,
+   "end_time": 1280.64,
+   "value": 0.3489776134672691
+  },
+  {
+   "start_time": 1280.64,
+   "end_time": 1308.48,
+   "value": 0.11938391816056862
+  },
+  {
+   "start_time": 1308.48,
+   "end_time": 1336.32,
+   "value": 0.1988859086967168
+  },
+  {
+   "start_time": 1336.32,
+   "end_time": 1364.16,
+   "value": 0.20572060659682953
+  },
+  {
+   "start_time": 1364.16,
+   "end_time": 1392.0,
+   "value": 0.24693847567427815
+  },
+  {
+   "start_time": 1392.0,
+   "end_time": 1419.84,
+   "value": 0.3346255446591473
+  },
+  {
+   "start_time": 1419.84,
+   "end_time": 1447.68,
+   "value": 0.294073133141827
+  },
+  {
+   "start_time": 1447.68,
+   "end_time": 1475.52,
+   "value": 0.33929307777475887
+  },
+  {
+   "start_time": 1475.52,
+   "end_time": 1503.36,
+   "value": 0.11971130065649375
+  },
+  {
+   "start_time": 1503.36,
+   "end_time": 1531.2,
+   "value": 0.12112315315168869
+  },
+  {
+   "start_time": 1531.2,
+   "end_time": 1559.04,
+   "value": 0.09913149201321399
+  },
+  {
+   "start_time": 1559.04,
+   "end_time": 1586.88,
+   "value": 0.15555607160614812
+  },
+  {
+   "start_time": 1586.88,
+   "end_time": 1614.72,
+   "value": 0.18641127322840476
+  },
+  {
+   "start_time": 1614.72,
+   "end_time": 1642.56,
+   "value": 0.08909746621739302
+  },
+  {
+   "start_time": 1642.56,
+   "end_time": 1670.4,
+   "value": 0.11545342914328635
+  },
+  {
+   "start_time": 1670.4,
+   "end_time": 1698.24,
+   "value": 0.17681425971639408
+  },
+  {
+   "start_time": 1698.24,
+   "end_time": 1726.08,
+   "value": 0.105655651308743
+  },
+  {
+   "start_time": 1726.08,
+   "end_time": 1753.92,
+   "value": 0.3937965248637046
+  },
+  {
+   "start_time": 1753.92,
+   "end_time": 1781.76,
+   "value": 0.10146424711185835
+  },
+  {
+   "start_time": 1781.76,
+   "end_time": 1809.6,
+   "value": 0.08242414765858816
+  },
+  {
+   "start_time": 1809.6,
+   "end_time": 1837.44,
+   "value": 0.11721299652775359
+  },
+  {
+   "start_time": 1837.44,
+   "end_time": 1865.28,
+   "value": 0.13548168291322946
+  },
+  {
+   "start_time": 1865.28,
+   "end_time": 1893.12,
+   "value": 0.12922956484807857
+  },
+  {
+   "start_time": 1893.12,
+   "end_time": 1920.96,
+   "value": 1.0
+  },
+  {
+   "start_time": 1920.96,
+   "end_time": 1948.8,
+   "value": 0.3133787922300326
+  },
+  {
+   "start_time": 1948.8,
+   "end_time": 1976.64,
+   "value": 0.27364178193301714
+  },
+  {
+   "start_time": 1976.64,
+   "end_time": 2004.48,
+   "value": 0.13086730300865237
+  },
+  {
+   "start_time": 2004.48,
+   "end_time": 2032.32,
+   "value": 0.20718216508510062
+  },
+  {
+   "start_time": 2032.32,
+   "end_time": 2060.16,
+   "value": 0.1949977564700488
+  },
+  {
+   "start_time": 2060.16,
+   "end_time": 2088.0,
+   "value": 0.19865541986005225
+  },
+  {
+   "start_time": 2088.0,
+   "end_time": 2115.84,
+   "value": 0.30929802928019456
+  },
+  {
+   "start_time": 2115.84,
+   "end_time": 2143.68,
+   "value": 0.13744601917282767
+  },
+  {
+   "start_time": 2143.68,
+   "end_time": 2171.52,
+   "value": 0.1347345861493569
+  },
+  {
+   "start_time": 2171.52,
+   "end_time": 2199.36,
+   "value": 0.2443340302596586
+  },
+  {
+   "start_time": 2199.36,
+   "end_time": 2227.2,
+   "value": 0.16667890222621645
+  },
+  {
+   "start_time": 2227.2,
+   "end_time": 2255.04,
+   "value": 0.250017357361681
+  },
+  {
+   "start_time": 2255.04,
+   "end_time": 2282.88,
+   "value": 0.3987587847937436
+  },
+  {
+   "start_time": 2282.88,
+   "end_time": 2310.72,
+   "value": 0.27599550932774347
+  },
+  {
+   "start_time": 2310.72,
+   "end_time": 2338.56,
+   "value": 0.7383223866101385
+  },
+  {
+   "start_time": 2338.56,
+   "end_time": 2366.4,
+   "value": 0.0822507133754379
+  },
+  {
+   "start_time": 2366.4,
+   "end_time": 2394.24,
+   "value": 0.10638381933688015
+  },
+  {
+   "start_time": 2394.24,
+   "end_time": 2422.08,
+   "value": 0.10972085017270923
+  },
+  {
+   "start_time": 2422.08,
+   "end_time": 2449.92,
+   "value": 0.11622391332001407
+  },
+  {
+   "start_time": 2449.92,
+   "end_time": 2477.76,
+   "value": 0.2506962735212635
+  },
+  {
+   "start_time": 2477.76,
+   "end_time": 2505.6,
+   "value": 0.4266272507224063
+  },
+  {
+   "start_time": 2505.6,
+   "end_time": 2533.44,
+   "value": 0.25792436710910266
+  },
+  {
+   "start_time": 2533.44,
+   "end_time": 2561.28,
+   "value": 0.04559419484367409
+  },
+  {
+   "start_time": 2561.28,
+   "end_time": 2589.12,
+   "value": 0.0852546438747762
+  },
+  {
+   "start_time": 2589.12,
+   "end_time": 2616.96,
+   "value": 0.13683390060194722
+  },
+  {
+   "start_time": 2616.96,
+   "end_time": 2644.8,
+   "value": 0.07014121466440326
+  },
+  {
+   "start_time": 2644.8,
+   "end_time": 2672.64,
+   "value": 0.05703175439913778
+  },
+  {
+   "start_time": 2672.64,
+   "end_time": 2700.48,
+   "value": 0.139616920163619
+  },
+  {
+   "start_time": 2700.48,
+   "end_time": 2728.32,
+   "value": 0.2924029457199925
+  },
+  {
+   "start_time": 2728.32,
+   "end_time": 2756.16,
+   "value": 0.25090409741590247
+  },
+  {
+   "start_time": 2756.16,
+   "end_time": 2784.0,
+   "value": 0.04899011737312703
+  }
+ ],
+ "transcript": [
+  {
+   "text": "Bukankah tiga itu adalah penyakit",
+   "start": 0.04,
+   "duration": 4.16
+  },
+  {
+   "text": "terbanyak saat ini yang ditanggung bpcs",
+   "start": 2.44,
+   "duration": 4.8
+  },
+  {
+   "text": "di BPJS berarti karena gaya hidup ya Nah",
+   "start": 4.2,
+   "duration": 5.36
+  },
+  {
+   "text": "Jelaskan kinerja ginjal saat menjalankan",
+   "start": 7.24,
+   "duration": 3.96
+  },
+  {
+   "text": "ibadah puasa",
+   "start": 9.56,
+   "duration": 4.28
+  },
+  {
+   "text": "Ramadan ini menarik ini ya ada yang tadi",
+   "start": 11.2,
+   "duration": 6.28
+  },
+  {
+   "text": "itu kayak dosen nih bisa enggak",
+   "start": 13.84,
+   "duration": 3.64
+  },
+  {
+   "text": "[Musik]",
+   "start": 18.54,
+   "duration": 3.1
+  },
+  {
+   "text": "nih yuk sudah Pak sudah Yo",
+   "start": 24.56,
+   "duration": 6.6
+  },
+  {
+   "text": "Asalamualaikum War wabarakatuh Kembali",
+   "start": 29.12,
+   "duration": 4.36
+  },
+  {
+   "text": "lagi bersama bincang-bincang dengan saya",
+   "start": 31.16,
+   "duration": 4.52
+  },
+  {
+   "text": "Tirta citot dan kali ini saya tidak",
+   "start": 33.48,
+   "duration": 3.92
+  },
+  {
+   "text": "sendiri tidaklin tidak bukan bersama",
+   "start": 35.68,
+   "duration": 4.32
+  },
+  {
+   "text": "kawan lama saya yang akhirnya bisa satu",
+   "start": 37.4,
+   "duration": 5.94
+  },
+  {
+   "text": "podcast beliau adalah Dr",
+   "start": 40.0,
+   "duration": 5.16
+  },
+  {
+   "text": "[Tepuk tangan]",
+   "start": 43.34,
+   "duration": 4.82
+  },
+  {
+   "text": "Deksa tapi gelarnya tapi gelarnya",
+   "start": 45.16,
+   "duration": 7.56
+  },
+  {
+   "text": "sekarang panjang dokter Deksa",
+   "start": 48.16,
+   "duration": 8.6
+  },
+  {
+   "text": "SPPD sub kgh betul kgh konsultan ginjal",
+   "start": 52.72,
+   "duration": 8.08
+  },
+  {
+   "text": "hipertensi k kgh",
+   "start": 56.76,
+   "duration": 7.32
+  },
+  {
+   "text": "spesialis untuk cangkok ginjal",
+   "start": 60.8,
+   "duration": 6.28
+  },
+  {
+   "text": "wei",
+   "start": 64.08,
+   "duration": 3.0
+  },
+  {
+   "text": "jadi to the point langsung pertanyaan",
+   "start": 69.4,
+   "duration": 4.6
+  },
+  {
+   "text": "pertama Pak Deksa let's go bisnis jual",
+   "start": 71.72,
+   "duration": 5.0
+  },
+  {
+   "text": "beli ginjal tu gimana mitos atau fakta",
+   "start": 74.0,
+   "duration": 6.6
+  },
+  {
+   "text": "di sini loh mitos atau fakta fakta Tapi",
+   "start": 76.72,
+   "duration": 6.0
+  },
+  {
+   "text": "kan enggak boleh kan asinnya Oh tapi",
+   "start": 80.6,
+   "duration": 4.16
+  },
+  {
+   "text": "memang ada loh ada coba dijelaskan",
+   "start": 82.72,
+   "duration": 4.0
+  },
+  {
+   "text": "sebenarnya bisnis jual beli ginjang tu",
+   "start": 84.76,
+   "duration": 4.68
+  },
+  {
+   "text": "aduh itu ngeri Pak sebenarnya jadi ya",
+   "start": 86.72,
+   "duration": 3.92
+  },
+  {
+   "text": "saya kan kan enggak pernah ketemu",
+   "start": 89.44,
+   "duration": 4.52
+  },
+  {
+   "text": "langsung ya sama sama siapanya entah",
+   "start": 90.64,
+   "duration": 6.64
+  },
+  {
+   "text": "perantaranya atau apa tapi kayak",
+   "start": 93.96,
+   "duration": 6.0
+  },
+  {
+   "text": "Beberapa pasien Saya tuh ditawarin mau",
+   "start": 97.28,
+   "duration": 4.84
+  },
+  {
+   "text": "enggak cangkok di luar negeri jadi",
+   "start": 99.96,
+   "duration": 4.6
+  },
+  {
+   "text": "perantaranya di luar mereka jadi kayak",
+   "start": 102.12,
+   "duration": 5.12
+  },
+  {
+   "text": "ada pihak ketiga yang membawa ke luar",
+   "start": 104.56,
+   "duration": 5.16
+  },
+  {
+   "text": "negeri Heh contoh kasus yang kemarin",
+   "start": 107.24,
+   "duration": 4.76
+  },
+  {
+   "text": "beritanya kan 1 tahun yang lalu ada yang",
+   "start": 109.72,
+   "duration": 5.0
+  },
+  {
+   "text": "ditangkap itu di polisi di waktu mau",
+   "start": 112.0,
+   "duration": 5.76
+  },
+  {
+   "text": "keluar mereka ditangkap karena diduga",
+   "start": 114.72,
+   "duration": 6.0
+  },
+  {
+   "text": "ada bisnis cangkok ginjel",
+   "start": 117.76,
+   "duration": 6.2
+  },
+  {
+   "text": "yang orangnya iku adalah yang pernah",
+   "start": 120.72,
+   "duration": 5.12
+  },
+  {
+   "text": "transplan atau cangkok ginjal di luar",
+   "start": 123.96,
+   "duration": 5.04
+  },
+  {
+   "text": "negeri Jadi mereka itu kayak sindikat",
+   "start": 125.84,
+   "duration": 5.64
+  },
+  {
+   "text": "lah jual beli ginjal Emang kalau boleh",
+   "start": 129.0,
+   "duration": 4.4
+  },
+  {
+   "text": "tahu satu ginjal Harganya berapa pak",
+   "start": 131.48,
+   "duration": 6.08
+  },
+  {
+   "text": "aduh kira-kira ya 200 sampai",
+   "start": 133.4,
+   "duration": 7.2
+  },
+  {
+   "text": "400-an jadi itu ilegal ya ilegal engak",
+   "start": 137.56,
+   "duration": 4.2
+  },
+  {
+   "text": "boleh di sini Emang kalau emang",
+   "start": 140.6,
+   "duration": 3.36
+  },
+  {
+   "text": "transplantasi ginjal tuh emang harus",
+   "start": 141.76,
+   "duration": 5.16
+  },
+  {
+   "text": "sukarela atau gimana prosedurnya harus",
+   "start": 143.96,
+   "duration": 6.08
+  },
+  {
+   "text": "sukarela dan di kita di Indonesia itu",
+   "start": 146.92,
+   "duration": 6.08
+  },
+  {
+   "text": "related maksudnya jadi harus sedarah dan",
+   "start": 150.04,
+   "duration": 5.96
+  },
+  {
+   "text": "punya hubungan keluarga kalau di Belanda",
+   "start": 153.0,
+   "duration": 7.0
+  },
+  {
+   "text": "kemarin itu bisa tiga dia living related",
+   "start": 156.0,
+   "duration": 7.44
+  },
+  {
+   "text": "living unrelated sama cadaveric donor",
+   "start": 160.0,
+   "duration": 6.52
+  },
+  {
+   "text": "Jadi diambil dari orang yang mau mati",
+   "start": 163.44,
+   "duration": 5.24
+  },
+  {
+   "text": "atau yang sudah mati Oh kalau yang",
+   "start": 166.52,
+   "duration": 4.2
+  },
+  {
+   "text": "kemarin di bisnis itu berarti yang",
+   "start": 168.68,
+   "duration": 4.2
+  },
+  {
+   "text": "living unrelated ya yang harusnya",
+   "start": 170.72,
+   "duration": 4.56
+  },
+  {
+   "text": "sukarela yang harusnya itu tidak boleh",
+   "start": 172.88,
+   "duration": 5.6
+  },
+  {
+   "text": "ada imbal balik enggak boleh tapi",
+   "start": 175.28,
+   "duration": 5.16
+  },
+  {
+   "text": "underground-nya yang itu yang sulit Iya",
+   "start": 178.48,
+   "duration": 4.6
+  },
+  {
+   "text": "itu yang sulit dikontrol oke nah kalau",
+   "start": 180.44,
+   "duration": 4.84
+  },
+  {
+   "text": "boleh tahu pak drter Diksa kok ngeringan",
+   "start": 183.08,
+   "duration": 5.64
+  },
+  {
+   "text": "ya Iya langsung drkter Deksa itu kan",
+   "start": 185.28,
+   "duration": 5.12
+  },
+  {
+   "text": "Bisa dijelaskan ke publik Engak enggak",
+   "start": 188.72,
+   "duration": 4.08
+  },
+  {
+   "text": "semua orang tahu dokter Deksa itu ee",
+   "start": 190.4,
+   "duration": 4.56
+  },
+  {
+   "text": "spesialis Apa karena edukasinya",
+   "start": 192.8,
+   "duration": 3.92
+  },
+  {
+   "text": "bagus-bagus dan cenderung akrab sama",
+   "start": 194.96,
+   "duration": 3.4
+  },
+  {
+   "text": "bapak-bapak Kalau boleh tahu sekarang",
+   "start": 196.72,
+   "duration": 4.52
+  },
+  {
+   "text": "kita akan bahas ke profile dokter desa",
+   "start": 198.36,
+   "duration": 6.88
+  },
+  {
+   "text": "bisa diceritakan S1 S2 tetek B S1 saya",
+   "start": 201.24,
+   "duration": 6.92
+  },
+  {
+   "text": "di Airlangga Universitas Airlangga S2 di",
+   "start": 205.24,
+   "duration": 5.0
+  },
+  {
+   "text": "Universitas Airlangga",
+   "start": 208.16,
+   "duration": 6.52
+  },
+  {
+   "text": "akan s2-nya apa s2-nya anu SPPD he jadi",
+   "start": 210.24,
+   "duration": 7.08
+  },
+  {
+   "text": "SPPD itu kalau di setaranya itu setara",
+   "start": 214.68,
+   "duration": 5.28
+  },
+  {
+   "text": "S2 Apa itu SPPD percaya",
+   "start": 217.32,
+   "duration": 5.32
+  },
+  {
+   "text": "diri spesialis penyakit dalam internis",
+   "start": 219.96,
+   "duration": 4.96
+  },
+  {
+   "text": "jadi enggak ngurusi pisau enggak engak m",
+   "start": 222.64,
+   "duration": 4.36
+  },
+  {
+   "text": "pisau terus untuk",
+   "start": 224.92,
+   "duration": 3.88
+  },
+  {
+   "text": "subspesialisasinya konsultannya",
+   "start": 227.0,
+   "duration": 4.68
+  },
+  {
+   "text": "subpesialisnya adalah ginjel hipertensi",
+   "start": 228.8,
+   "duration": 5.6
+  },
+  {
+   "text": "Apa itu maksudnya jadi mengurusi masalah",
+   "start": 231.68,
+   "duration": 5.4
+  },
+  {
+   "text": "ginjelmu dan tekanan darah secara",
+   "start": 234.4,
+   "duration": 6.28
+  },
+  {
+   "text": "general Terus kenapa kok ngambil sip di",
+   "start": 237.08,
+   "duration": 5.36
+  },
+  {
+   "text": "cangkok ginjal emang apa kan enggak main",
+   "start": 240.68,
+   "duration": 4.28
+  },
+  {
+   "text": "pisau Iya jadi cangkok ginjal itu jadi",
+   "start": 242.44,
+   "duration": 6.88
+  },
+  {
+   "text": "Ee Kita mengurusi mulai dari kita",
+   "start": 244.96,
+   "duration": 7.88
+  },
+  {
+   "text": "menilai atau menseleksi pasien yang akan",
+   "start": 249.32,
+   "duration": 7.36
+  },
+  {
+   "text": "cangkok dan donornya nah baru itu kita",
+   "start": 252.84,
+   "duration": 6.6
+  },
+  {
+   "text": "akan melakukan namanya proses ee apa ya",
+   "start": 256.68,
+   "duration": 6.76
+  },
+  {
+   "text": "Eh etika yang dalam hal ini kita lihat",
+   "start": 259.44,
+   "duration": 7.84
+  },
+  {
+   "text": "apakah ada proses jual beli Terus",
+   "start": 263.44,
+   "duration": 6.6
+  },
+  {
+   "text": "keluarga atau enggak itu itu kita",
+   "start": 267.28,
+   "duration": 5.28
+  },
+  {
+   "text": "benar-benar seleksi banget untuk siap",
+   "start": 270.04,
+   "duration": 4.2
+  },
+  {
+   "text": "siapa yang melakukan tindakan itu",
+   "start": 272.56,
+   "duration": 4.8
+  },
+  {
+   "text": "urologi Nah nanti waktu sudah acc baru",
+   "start": 274.24,
+   "duration": 6.0
+  },
+  {
+   "text": "ditreat Baru dioperasi oleh antara",
+   "start": 277.36,
+   "duration": 5.04
+  },
+  {
+   "text": "dokter urologi dan bedah torak",
+   "start": 280.24,
+   "duration": 3.84
+  },
+  {
+   "text": "kardiovaskular Oh kenapa harus sampai",
+   "start": 282.4,
+   "duration": 4.2
+  },
+  {
+   "text": "bedah torak bukankan vaskularnya ini Oh",
+   "start": 284.08,
+   "duration": 5.24
+  },
+  {
+   "text": "btkv jadi rabber ya Ini betul rer rabber",
+   "start": 286.6,
+   "duration": 4.72
+  },
+  {
+   "text": "dan veloshipnya kemarin ngambil di mana",
+   "start": 289.32,
+   "duration": 6.8
+  },
+  {
+   "text": "Di leiden University medical Centrum di",
+   "start": 291.32,
+   "duration": 7.2
+  },
+  {
+   "text": "Belanda Kalau boleh tahu gosip-gosip",
+   "start": 296.12,
+   "duration": 4.6
+  },
+  {
+   "text": "Underground saya tanya dari",
+   "start": 298.52,
+   "duration": 4.72
+  },
+  {
+   "text": "angeneng S mau dicalonkan jadi guru",
+   "start": 300.72,
+   "duration": 5.16
+  },
+  {
+   "text": "besar muda ya Aduh Belumlah belum gak",
+   "start": 303.24,
+   "duration": 5.24
+  },
+  {
+   "text": "itu kan gosip saya tah am karena bapak",
+   "start": 305.88,
+   "duration": 4.44
+  },
+  {
+   "text": "bapaknya jenengan guru besar kan Iya",
+   "start": 308.48,
+   "duration": 4.76
+  },
+  {
+   "text": "guru besar coba diceritakan bapaknya",
+   "start": 310.32,
+   "duration": 6.24
+  },
+  {
+   "text": "siapa ya jadi biar bapak-bapak",
+   "start": 313.24,
+   "duration": 5.52
+  },
+  {
+   "text": "bapak-bapak ID juga tahu bahwa bapaknya",
+   "start": 316.56,
+   "duration": 6.0
+  },
+  {
+   "text": "jenengan itu juga guru besar e Prof Joko",
+   "start": 318.76,
+   "duration": 6.44
+  },
+  {
+   "text": "Santoso sih guru besar di bidang guru",
+   "start": 322.56,
+   "duration": 5.36
+  },
+  {
+   "text": "besar di bidang nerologi",
+   "start": 325.2,
+   "duration": 5.04
+  },
+  {
+   "text": "juga dan",
+   "start": 327.92,
+   "duration": 4.84
+  },
+  {
+   "text": "mau kalau kalau misal kalau misal",
+   "start": 330.24,
+   "duration": 5.76
+  },
+  {
+   "text": "Universitas Erlangga menanyakan meminta",
+   "start": 332.76,
+   "duration": 6.88
+  },
+  {
+   "text": "doter Diksa yuk dipromosikan menjadi",
+   "start": 336.0,
+   "duration": 6.36
+  },
+  {
+   "text": "guru besar maka jenengan harus jadi S3",
+   "start": 339.64,
+   "duration": 4.8
+  },
+  {
+   "text": "gimana dan harus berdedikasi bidang",
+   "start": 342.36,
+   "duration": 4.2
+  },
+  {
+   "text": "akademik maka pertanyaan jenengan adalah",
+   "start": 344.44,
+   "duration": 5.2
+  },
+  {
+   "text": "jawaban jenengan adalah saya masih belum",
+   "start": 346.56,
+   "duration": 5.28
+  },
+  {
+   "text": "memutuskan tapi kalau ke depannya ada",
+   "start": 349.64,
+   "duration": 4.72
+  },
+  {
+   "text": "rencana S3 waktu itu pernah kita wa",
+   "start": 351.84,
+   "duration": 3.92
+  },
+  {
+   "text": "enggak pernah saya enggak pernah di WA",
+   "start": 354.36,
+   "duration": 5.76
+  },
+  {
+   "text": "gak ingat saya lupa ingatan i rencana ke",
+   "start": 355.76,
+   "duration": 7.0
+  },
+  {
+   "text": "depannya pengin sih S3 s3-nya bidang apa",
+   "start": 360.12,
+   "duration": 5.76
+  },
+  {
+   "text": "rencananya penginnya bidangnya edukasi",
+   "start": 362.76,
+   "duration": 5.84
+  },
+  {
+   "text": "kie jadi komunikasi lah Oh berarti",
+   "start": 365.88,
+   "duration": 4.92
+  },
+  {
+   "text": "ngajar dong berarti akan mungkin di",
+   "start": 368.6,
+   "duration": 4.84
+  },
+  {
+   "text": "akademik 100% traser knowledge dan akan",
+   "start": 370.8,
+   "duration": 4.92
+  },
+  {
+   "text": "dijadikan guru besar mungkin sekali dong",
+   "start": 373.44,
+   "duration": 5.0
+  },
+  {
+   "text": "untuk saat ini itu enggak arahnya Enggak",
+   "start": 375.72,
+   "duration": 6.4
+  },
+  {
+   "text": "ngajar tapi klinisi karena ee Ada apa ya",
+   "start": 378.44,
+   "duration": 8.16
+  },
+  {
+   "text": "saya kan di e di apa di provinsi lah",
+   "start": 382.12,
+   "duration": 7.8
+  },
+  {
+   "text": "bukan di unernya langsung Oh tapi kalau",
+   "start": 386.6,
+   "duration": 5.8
+  },
+  {
+   "text": "Bapak dulu Berapa tahun berdedikasi di",
+   "start": 389.92,
+   "duration": 5.72
+  },
+  {
+   "text": "alangga udah udah purna tugas beliaunya",
+   "start": 392.4,
+   "duration": 7.48
+  },
+  {
+   "text": "udah total 15 20 tahunan guru besar tuh",
+   "start": 395.64,
+   "duration": 6.88
+  },
+  {
+   "text": "Oh anunya secara total kalau guru",
+   "start": 399.88,
+   "duration": 5.12
+  },
+  {
+   "text": "besarnya 15 tahunan kalau totalnya",
+   "start": 402.52,
+   "duration": 5.32
+  },
+  {
+   "text": "totalnya 20",
+   "start": 405.0,
+   "duration": 5.48
+  },
+  {
+   "text": "25 ya jelas-jelas ya Jadi kalau ada yang",
+   "start": 407.84,
+   "duration": 4.64
+  },
+  {
+   "text": "tanya ini penuh dengan previlage jadi",
+   "start": 410.48,
+   "duration": 4.48
+  },
+  {
+   "text": "gak usah tanya",
+   "start": 412.48,
+   "duration": 5.12
+  },
+  {
+   "text": "lagi dibongkar di sini",
+   "start": 414.96,
+   "duration": 5.28
+  },
+  {
+   "text": "sear ini akrab sekali edukasi di",
+   "start": 417.6,
+   "duration": 5.6
+  },
+  {
+   "text": "bapak-bapak ID ya saya akui jenengan",
+   "start": 420.24,
+   "duration": 4.4
+  },
+  {
+   "text": "memang bapak-bapak bercandanya juga",
+   "start": 423.2,
+   "duration": 3.96
+  },
+  {
+   "text": "enggak masuk akal enggak suka saya tapi",
+   "start": 424.64,
+   "duration": 5.36
+  },
+  {
+   "text": "saya suka sebuah konten mengenai kopi",
+   "start": 427.16,
+   "duration": 6.32
+  },
+  {
+   "text": "dan ini saya akan tanya efek kopi",
+   "start": 430.0,
+   "duration": 6.24
+  },
+  {
+   "text": "terhadap hipertensi itu sebenarnya kayak",
+   "start": 433.48,
+   "duration": 5.0
+  },
+  {
+   "text": "apa beberapa jurnal mengatakan kalau",
+   "start": 436.24,
+   "duration": 3.84
+  },
+  {
+   "text": "anda memiliki riwayat hipertensi",
+   "start": 438.48,
+   "duration": 3.16
+  },
+  {
+   "text": "sebaiknya hindari kopi tapi dari",
+   "start": 440.08,
+   "duration": 5.48
+  },
+  {
+   "text": "seseorang dokter penyakit dalam sub ya",
+   "start": 441.64,
+   "duration": 6.92
+  },
+  {
+   "text": "konsultan ginjal hipertensi yang hobi",
+   "start": 445.56,
+   "duration": 5.8
+  },
+  {
+   "text": "ngopi itu gimana Tolong dijelaskan yang",
+   "start": 448.56,
+   "duration": 5.84
+  },
+  {
+   "text": "kagetnya saya waktu di Belanda pasien",
+   "start": 451.36,
+   "duration": 6.72
+  },
+  {
+   "text": "cangkok ditawari minum teh atau kopi loh",
+   "start": 454.4,
+   "duration": 6.2
+  },
+  {
+   "text": "kok gitu pasiennya pasien gagal ginjal",
+   "start": 458.08,
+   "duration": 4.6
+  },
+  {
+   "text": "pasien cangkok dianuk Kamu mau teh atau",
+   "start": 460.6,
+   "duration": 4.64
+  },
+  {
+   "text": "kopi pasien tuh pasien gagal ginjal",
+   "start": 462.68,
+   "duration": 5.84
+  },
+  {
+   "text": "gagal ginjal Anda bingung kaget kan loh",
+   "start": 465.24,
+   "duration": 5.92
+  },
+  {
+   "text": "ini enggak ada batasan atau limitasi",
+   "start": 468.52,
+   "duration": 4.44
+  },
+  {
+   "text": "atau ini harusnya Nantilah Setelah",
+   "start": 471.16,
+   "duration": 4.28
+  },
+  {
+   "text": "sembuh pulang enggak Jadi sebetulnya",
+   "start": 472.96,
+   "duration": 6.92
+  },
+  {
+   "text": "Enggak ada masalah jika Satu No sugar",
+   "start": 475.44,
+   "duration": 7.48
+  },
+  {
+   "text": "enggak pakai gula enggak pakai tambahan",
+   "start": 479.88,
+   "duration": 5.16
+  },
+  {
+   "text": "apapun kalau misalnya sakit ya ini kita",
+   "start": 482.92,
+   "duration": 3.8
+  },
+  {
+   "text": "ngomongin pada kondisi sakit Sakit",
+   "start": 485.04,
+   "duration": 3.56
+  },
+  {
+   "text": "ginjal dan hipertensi sakit ginjal dan",
+   "start": 486.72,
+   "duration": 3.08
+  },
+  {
+   "text": "hipertensi Enggak apa-apa karena",
+   "start": 488.6,
+   "duration": 4.32
+  },
+  {
+   "text": "sifatnya itu kalau beberapa jurnal sudah",
+   "start": 489.8,
+   "duration": 5.44
+  },
+  {
+   "text": "metaanalisis Pak syistematic review",
+   "start": 492.92,
+   "duration": 5.04
+  },
+  {
+   "text": "paling tinggi itu protektif untuk",
+   "start": 495.24,
+   "duration": 5.72
+  },
+  {
+   "text": "jantung dan ginjan kopi kopi satu galon",
+   "start": 497.96,
+   "duration": 6.64
+  },
+  {
+   "text": "ya an batasane lah oh ada batasannya",
+   "start": 500.96,
+   "duration": 6.52
+  },
+  {
+   "text": "jadi batasannya ya 3 sampai EMP kalau",
+   "start": 504.6,
+   "duration": 5.12
+  },
+  {
+   "text": "saya tergantung orang Indonesia kalau",
+   "start": 507.48,
+   "duration": 5.12
+  },
+  {
+   "text": "saya balik lagi ke pribadi cocoknya itu",
+   "start": 509.72,
+   "duration": 5.48
+  },
+  {
+   "text": "kapan saat misalnya satu dua kopi kalau",
+   "start": 512.6,
+   "duration": 5.72
+  },
+  {
+   "text": "tiga saya drodok atau anu berdebar atau",
+   "start": 515.2,
+   "duration": 5.24
+  },
+  {
+   "text": "saya kalau tiga kelebihan saya gampang",
+   "start": 518.32,
+   "duration": 4.48
+  },
+  {
+   "text": "mules atau mencret drodok",
+   "start": 520.44,
+   "duration": 4.04
+  },
+  {
+   "text": "drodok",
+   "start": 522.8,
+   "duration": 5.0
+  },
+  {
+   "text": "Timuran drodok itu berarti Enggak usah",
+   "start": 524.48,
+   "duration": 5.88
+  },
+  {
+   "text": "Ya jangan jadi kembalikan tapi efek",
+   "start": 527.8,
+   "duration": 6.2
+  },
+  {
+   "text": "protekinya 3 sampai EMP tapi balik lagi",
+   "start": 530.36,
+   "duration": 6.92
+  },
+  {
+   "text": "selama sudah bisa menerima efek apa e",
+   "start": 534.0,
+   "duration": 5.96
+  },
+  {
+   "text": "benefitnya ya UD lanjutkan tapi kalau",
+   "start": 537.28,
+   "duration": 5.44
+  },
+  {
+   "text": "semulai sudah ada efek yang tidak baik",
+   "start": 539.96,
+   "duration": 4.68
+  },
+  {
+   "text": "dibatasin jadi itu balik lagi kayak",
+   "start": 542.72,
+   "duration": 4.8
+  },
+  {
+   "text": "keringet dingin mual muntah di hari Nah",
+   "start": 544.64,
+   "duration": 5.08
+  },
+  {
+   "text": "jadi yang bermasalah dari kopi itu",
+   "start": 547.52,
+   "duration": 5.28
+  },
+  {
+   "text": "tambahan gula atau tambahan susunya dua",
+   "start": 549.72,
+   "duration": 6.28
+  },
+  {
+   "text": "keduanya Saya suka es late nah",
+   "start": 552.8,
+   "duration": 5.16
+  },
+  {
+   "text": "tergantung kalau misalnya cocok",
+   "start": 556.0,
+   "duration": 3.4
+  },
+  {
+   "text": "lanjutkan Enggak ada masalah Kapi kan",
+   "start": 557.96,
+   "duration": 3.96
+  },
+  {
+   "text": "buat bulking tapi saya juga Americano",
+   "start": 559.4,
+   "duration": 4.52
+  },
+  {
+   "text": "Nah sekarang gula Mas Heeh kopi pakai",
+   "start": 561.92,
+   "duration": 4.12
+  },
+  {
+   "text": "gula impactnya bagi apa kalau bagi tubuh",
+   "start": 563.92,
+   "duration": 3.96
+  },
+  {
+   "text": "secara kardiovaskular bagi ginjal",
+   "start": 566.04,
+   "duration": 4.88
+  },
+  {
+   "text": "utamanya bagi seorang dokter",
+   "start": 567.88,
+   "duration": 5.2
+  },
+  {
+   "text": "subspesialis penyakit dalam dan",
+   "start": 570.92,
+   "duration": 3.96
+  },
+  {
+   "text": "subspesialisnya di bidang kedokteran",
+   "start": 573.08,
+   "duration": 3.64
+  },
+  {
+   "text": "melihat fenomena kopi gula aren yang",
+   "start": 574.88,
+   "duration": 3.48
+  },
+  {
+   "text": "viral di Indonesia gimana pendapatnya",
+   "start": 576.72,
+   "duration": 4.12
+  },
+  {
+   "text": "Pak Dokter Deksa tergantung kebutuhan",
+   "start": 578.36,
+   "duration": 5.0
+  },
+  {
+   "text": "kalori harian Maksudnya gimana tuh jadi",
+   "start": 580.84,
+   "duration": 4.64
+  },
+  {
+   "text": "pribadi ya kalau misalnya pribadi lihat",
+   "start": 583.36,
+   "duration": 5.04
+  },
+  {
+   "text": "secara anu jadi selama 1 hari saya sudah",
+   "start": 585.48,
+   "duration": 5.6
+  },
+  {
+   "text": "konsumsi gula berapa Jadi kalau misalnya",
+   "start": 588.4,
+   "duration": 5.24
+  },
+  {
+   "text": "satu gula aren lak sekitar 15 sampai 20",
+   "start": 591.08,
+   "duration": 4.8
+  },
+  {
+   "text": "graman lah berarti maksimal dua selain",
+   "start": 593.64,
+   "duration": 4.88
+  },
+  {
+   "text": "itu sudah jangan gula lagi Oh gula",
+   "start": 595.88,
+   "duration": 4.96
+  },
+  {
+   "text": "tambahannya kalau memang sudah suka kopi",
+   "start": 598.52,
+   "duration": 4.08
+  },
+  {
+   "text": "gulararen ya jangan konsumsi kopi gula",
+   "start": 600.84,
+   "duration": 4.04
+  },
+  {
+   "text": "tambah yang lain gula tambah yang lain",
+   "start": 602.6,
+   "duration": 4.2
+  },
+  {
+   "text": "Jadi enggak perlu dicut tapi kita",
+   "start": 604.88,
+   "duration": 4.4
+  },
+  {
+   "text": "membatasi sehari itu ya Sambil jangan",
+   "start": 606.8,
+   "duration": 4.92
+  },
+  {
+   "text": "lupa selalu ingat pesannya Dokter Tirta",
+   "start": 609.28,
+   "duration": 4.48
+  },
+  {
+   "text": "untuk aktivitas fisik itu tingkatkan",
+   "start": 611.72,
+   "duration": 4.8
+  },
+  {
+   "text": "enggak pernah saya pesan gitu kebaran",
+   "start": 613.76,
+   "duration": 6.84
+  },
+  {
+   "text": "Saya kayaknya sing gondrongi ya botak",
+   "start": 616.52,
+   "duration": 6.48
+  },
+  {
+   "text": "belum beritu",
+   "start": 620.6,
+   "duration": 5.28
+  },
+  {
+   "text": "sih Anda sendirian di sini kawan-kawan",
+   "start": 623.0,
+   "duration": 4.76
+  },
+  {
+   "text": "anda sendiri tidak ada yang membantu",
+   "start": 625.88,
+   "duration": 3.92
+  },
+  {
+   "text": "terus pertanyaan berikutnya sebagai",
+   "start": 627.76,
+   "duration": 4.16
+  },
+  {
+   "text": "seorang dokter yang sudah berpraktik ada",
+   "start": 629.8,
+   "duration": 5.28
+  },
+  {
+   "text": "berapa sip dipakai sekarang saya kemarin",
+   "start": 631.92,
+   "duration": 5.76
+  },
+  {
+   "text": "baru ngurangi satu praktikan saya jadi",
+   "start": 635.08,
+   "duration": 5.56
+  },
+  {
+   "text": "saya dua sekarang dua sip praktik di",
+   "start": 637.68,
+   "duration": 4.4
+  },
+  {
+   "text": "mana kan enggak boleh disebut ya Ya",
+   "start": 640.64,
+   "duration": 4.92
+  },
+  {
+   "text": "janganlah praktik bab Sebutkan tiga",
+   "start": 642.08,
+   "duration": 6.28
+  },
+  {
+   "text": "kasus besar pasien yang sering ditangani",
+   "start": 645.56,
+   "duration": 4.64
+  },
+  {
+   "text": "dan kenapa kok bisa kayak gitu sama",
+   "start": 648.36,
+   "duration": 6.04
+  },
+  {
+   "text": "usianya gagal ginjal hipertensi diabetes",
+   "start": 650.2,
+   "duration": 8.16
+  },
+  {
+   "text": "usianya 20-an 30-an dan 40-an Woh kok",
+   "start": 654.4,
+   "duration": 6.32
+  },
+  {
+   "text": "jadi muda Nah sekarang pertanyaan akan",
+   "start": 658.36,
+   "duration": 5.52
+  },
+  {
+   "text": "mungkin viral ni Jelaskan ini kayak",
+   "start": 660.72,
+   "duration": 6.64
+  },
+  {
+   "text": "dosen ini Jelaskan ya kenapa kok bisa",
+   "start": 663.88,
+   "duration": 5.04
+  },
+  {
+   "text": "anak muda sekarang malah jadi gagal",
+   "start": 667.36,
+   "duration": 3.56
+  },
+  {
+   "text": "ginjal tuh prosesnya gimana itu gimana",
+   "start": 668.92,
+   "duration": 4.44
+  },
+  {
+   "text": "Kok kok bisa jadi kemarin ya ngacau Anda",
+   "start": 670.92,
+   "duration": 4.92
+  },
+  {
+   "text": "Jan ngacau ya Enggak enggak biar",
+   "start": 673.36,
+   "duration": 4.6
+  },
+  {
+   "text": "menakut-nakuti ya Enggak enggak kemarin",
+   "start": 675.84,
+   "duration": 4.96
+  },
+  {
+   "text": "minggu lalu saya kedatangan eh apa teman",
+   "start": 677.96,
+   "duration": 4.76
+  },
+  {
+   "text": "saya yang dari Belanda yang dari leiden",
+   "start": 680.8,
+   "duration": 4.64
+  },
+  {
+   "text": "saya ajak ke sini ke Indonesia ya kamu",
+   "start": 682.72,
+   "duration": 4.84
+  },
+  {
+   "text": "lihat gimana situasi di Indonesia nanti",
+   "start": 685.44,
+   "duration": 5.36
+  },
+  {
+   "text": "sekalian kamu ee apa yang kurang apa",
+   "start": 687.56,
+   "duration": 4.92
+  },
+  {
+   "text": "yang bisa ditingkatkan sambil kita",
+   "start": 690.8,
+   "duration": 5.36
+  },
+  {
+   "text": "kolaborasi dua negara jadies apa leiden",
+   "start": 692.48,
+   "duration": 7.4
+  },
+  {
+   "text": "Amsterdam sama Surabaya Alhamdulillah du",
+   "start": 696.16,
+   "duration": 5.28
+  },
+  {
+   "text": "minggu yang lalu saya kedatangan dua",
+   "start": 699.88,
+   "duration": 5.04
+  },
+  {
+   "text": "terus saya ajak ke Unit cuci darah kami",
+   "start": 701.44,
+   "duration": 6.12
+  },
+  {
+   "text": "kaget yang pertama yang pertama yang",
+   "start": 704.92,
+   "duration": 4.96
+  },
+  {
+   "text": "pertama dia katakan adalah pasienmu kok",
+   "start": 707.56,
+   "duration": 7.44
+  },
+  {
+   "text": "muda-muda Nah ya itu sama saya orang",
+   "start": 709.88,
+   "duration": 5.12
+  },
+  {
+   "text": "belandaan jadi apa Terus kamu harus",
+   "start": 717.08,
+   "duration": 5.52
+  },
+  {
+   "text": "ngelihat bagaimana orang hidup di sini",
+   "start": 720.32,
+   "duration": 5.48
+  },
+  {
+   "text": "dulu baru bisa ngomong pas dia kan 8",
+   "start": 722.6,
+   "duration": 5.4
+  },
+  {
+   "text": "hari di sini terus hari Kelapan saya",
+   "start": 725.8,
+   "duration": 4.72
+  },
+  {
+   "text": "tanyain kira-kira menurutmu e apa yang",
+   "start": 728.0,
+   "duration": 4.88
+  },
+  {
+   "text": "membuat dia pasiennya muda-muda yang",
+   "start": 730.52,
+   "duration": 4.8
+  },
+  {
+   "text": "pertama kelihatannya makanmu jadi",
+   "start": 732.88,
+   "duration": 4.56
+  },
+  {
+   "text": "makanannya jadi begitu dia datang di",
+   "start": 735.32,
+   "duration": 4.52
+  },
+  {
+   "text": "sana dia disambut dengan satu hari itu",
+   "start": 737.44,
+   "duration": 6.44
+  },
+  {
+   "text": "bisa empat kotakan ya dan tiga makan",
+   "start": 739.84,
+   "duration": 7.68
+  },
+  {
+   "text": "besar di Belanda pagi itu yogur",
+   "start": 743.88,
+   "duration": 7.32
+  },
+  {
+   "text": "Tok siangnya makan apa salad terus",
+   "start": 747.52,
+   "duration": 6.44
+  },
+  {
+   "text": "protein protein terus habis itu malam",
+   "start": 751.2,
+   "duration": 6.52
+  },
+  {
+   "text": "yogur terus semua C cold meal ya di sana",
+   "start": 753.96,
+   "duration": 5.64
+  },
+  {
+   "text": "bilangnya cold meal warm meal itu kayak",
+   "start": 757.72,
+   "duration": 4.72
+  },
+  {
+   "text": "ibaratnya kayak eh yang diangetin atau",
+   "start": 759.6,
+   "duration": 4.6
+  },
+  {
+   "text": "dipanasi langsung disajikan itu warm",
+   "start": 762.44,
+   "duration": 4.44
+  },
+  {
+   "text": "meal dia itu cuma sekali sehari Dik kita",
+   "start": 764.2,
+   "duration": 4.76
+  },
+  {
+   "text": "kan tiga kali warm meal itu maksudnya",
+   "start": 766.88,
+   "duration": 5.08
+  },
+  {
+   "text": "Har apa misalnya lodeh soto terus habis",
+   "start": 768.96,
+   "duration": 4.8
+  },
+  {
+   "text": "itu malkelemnya rawon atau nasi goreng",
+   "start": 771.96,
+   "duration": 4.64
+  },
+  {
+   "text": "atau m goreng dan kita saya kemarin",
+   "start": 773.76,
+   "duration": 5.4
+  },
+  {
+   "text": "ngajak itu dia kaget lah aku kok mbok",
+   "start": 776.6,
+   "duration": 6.2
+  },
+  {
+   "text": "mau kasih makan terus kenapa Kan saya",
+   "start": 779.16,
+   "duration": 6.16
+  },
+  {
+   "text": "cukup Makan pagi itu yang ringan makan",
+   "start": 782.8,
+   "duration": 5.24
+  },
+  {
+   "text": "siang Okelah berat makan malam kok berat",
+   "start": 785.32,
+   "duration": 6.32
+  },
+  {
+   "text": "juga De kaget kaget sekali itu pertama",
+   "start": 788.04,
+   "duration": 7.48
+  },
+  {
+   "text": "jadi diet-nya ya dan dia ngomong eh",
+   "start": 791.64,
+   "duration": 7.96
+  },
+  {
+   "text": "either to salt eh terlalu asin atau",
+   "start": 795.52,
+   "duration": 7.56
+  },
+  {
+   "text": "terlalu manis jadi kalau kita ke Eropa",
+   "start": 799.6,
+   "duration": 6.08
+  },
+  {
+   "text": "itu hambar Pak makan betul setuju ke",
+   "start": 803.08,
+   "duration": 4.92
+  },
+  {
+   "text": "Arab juga kok iya hambar ini kok enggak",
+   "start": 805.68,
+   "duration": 4.48
+  },
+  {
+   "text": "ada rasane gitu kan enggak ada rasanya",
+   "start": 808.0,
+   "duration": 5.36
+  },
+  {
+   "text": "Terus yang kedua dia ngomong aktivitas",
+   "start": 810.16,
+   "duration": 6.92
+  },
+  {
+   "text": "fisikmu kok kurang banget jadi melihat",
+   "start": 813.36,
+   "duration": 6.92
+  },
+  {
+   "text": "orang motoran ke mana-mana itu kan Brul",
+   "start": 817.08,
+   "duration": 5.76
+  },
+  {
+   "text": "ya Kok kayak semut lah di jalanan begitu",
+   "start": 820.28,
+   "duration": 5.52
+  },
+  {
+   "text": "kita ke luar negeri Aduh pak enggak ada",
+   "start": 822.84,
+   "duration": 7.52
+  },
+  {
+   "text": "Pak sepeda ngepit atau jalan kaki Karena",
+   "start": 825.8,
+   "duration": 7.84
+  },
+  {
+   "text": "mobil di sana kan parkirnya pajaknya",
+   "start": 830.36,
+   "duration": 5.52
+  },
+  {
+   "text": "mahal loh semua yang kedua itu yang",
+   "start": 833.64,
+   "duration": 4.64
+  },
+  {
+   "text": "ketiga kamu kok di sini tidurmu malam",
+   "start": 835.88,
+   "duration": 5.84
+  },
+  {
+   "text": "terus k Ken apa di sana tidur toko-toko",
+   "start": 838.28,
+   "duration": 5.72
+  },
+  {
+   "text": "tutup jam . jam 07. malam di kita sampai",
+   "start": 841.72,
+   "duration": 5.36
+  },
+  {
+   "text": "jam 10. malam di Jepang jam 8.00 Iya",
+   "start": 844.0,
+   "duration": 5.2
+  },
+  {
+   "text": "kita Itu jam 10 malam plus nasi goreng",
+   "start": 847.08,
+   "duration": 3.72
+  },
+  {
+   "text": "dan mie goreng pada saat malam sebelum",
+   "start": 849.2,
+   "duration": 3.36
+  },
+  {
+   "text": "pulang toko yang buka malam tuh karena",
+   "start": 850.8,
+   "duration": 5.12
+  },
+  {
+   "text": "dekat Mekah aja kemarin itu kan karena",
+   "start": 852.56,
+   "duration": 6.72
+  },
+  {
+   "text": "Terus yang keempat stressful Pak Kenapa",
+   "start": 855.92,
+   "duration": 6.56
+  },
+  {
+   "text": "dia bisa tahu stressful karena kita kita",
+   "start": 859.28,
+   "duration": 6.0
+  },
+  {
+   "text": "kaget ya dokter di sini sehari tiga",
+   "start": 862.48,
+   "duration": 5.92
+  },
+  {
+   "text": "Rumah Sakit muter sana cuma satu pak",
+   "start": 865.28,
+   "duration": 4.72
+  },
+  {
+   "text": "terus habisnya itu kalau sudah pulang",
+   "start": 868.4,
+   "duration": 3.8
+  },
+  {
+   "text": "kerjaan ya stop kerjaan selesai terus",
+   "start": 870.0,
+   "duration": 4.6
+  },
+  {
+   "text": "familitam itu penyebab kenapa angka",
+   "start": 872.2,
+   "duration": 4.36
+  },
+  {
+   "text": "gagal ginjal meningkat di anak muda",
+   "start": 874.6,
+   "duration": 4.52
+  },
+  {
+   "text": "mungkin mungkin positif faktor faktor",
+   "start": 876.56,
+   "duration": 5.12
+  },
+  {
+   "text": "yang nampak jelas itu tapi memang betul",
+   "start": 879.12,
+   "duration": 5.32
+  },
+  {
+   "text": "hemodialisanya meningkat sangat pakang",
+   "start": 881.68,
+   "duration": 4.6
+  },
+  {
+   "text": "usia berapa mayoritas searang sekarang",
+   "start": 884.44,
+   "duration": 5.52
+  },
+  {
+   "text": "30-an itu buanya 40 itu sudah kayak",
+   "start": 886.28,
+   "duration": 6.2
+  },
+  {
+   "text": "menjadi penghuni tetap cuci darah cuci",
+   "start": 889.96,
+   "duration": 5.2
+  },
+  {
+   "text": "darah ppds kan itu 1,2 juta kan per cuci",
+   "start": 892.48,
+   "duration": 6.04
+  },
+  {
+   "text": "darah 1 juta 1, 1,2 juta jadi Dit",
+   "start": 895.16,
+   "duration": 4.72
+  },
+  {
+   "text": "tanggung PPJ sih jadi enggak apa-apa ya",
+   "start": 898.52,
+   "duration": 3.28
+  },
+  {
+   "text": "Danil ya Terus kalau boleh tahu cara",
+   "start": 899.88,
+   "duration": 3.48
+  },
+  {
+   "text": "mencegahnya terus B biar kita enggak",
+   "start": 901.8,
+   "duration": 4.0
+  },
+  {
+   "text": "kayak gitu ya tadi faktor resiko harus",
+   "start": 903.36,
+   "duration": 4.64
+  },
+  {
+   "text": "benar-benar tahu dan satu mungkin ya",
+   "start": 905.8,
+   "duration": 4.72
+  },
+  {
+   "text": "kita itu karena kita enggak mawas diri",
+   "start": 908.0,
+   "duration": 6.56
+  },
+  {
+   "text": "akan pentingnya sehat pak nek misalnya",
+   "start": 910.52,
+   "duration": 5.4
+  },
+  {
+   "text": "kita itu tanggung jawab nek misalnya",
+   "start": 914.56,
+   "duration": 3.36
+  },
+  {
+   "text": "sehat ya Kalau kalau saya orang",
+   "start": 915.92,
+   "duration": 4.68
+  },
+  {
+   "text": "Indonesia alah kan sudah ada BPJS ya nek",
+   "start": 917.92,
+   "duration": 4.68
+  },
+  {
+   "text": "misalnya saya sakit ya ke sana aja wong",
+   "start": 920.6,
+   "duration": 5.12
+  },
+  {
+   "text": "gratis semua kok ya kesehatan itu nek",
+   "start": 922.6,
+   "duration": 5.12
+  },
+  {
+   "text": "aku sakit ya tanggung jawabmu Oke",
+   "start": 925.72,
+   "duration": 4.08
+  },
+  {
+   "text": "kesehatan yo membut terserah aku",
+   "start": 927.72,
+   "duration": 4.08
+  },
+  {
+   "text": "pokoknya yang penting besok bisa cari",
+   "start": 929.8,
+   "duration": 5.36
+  },
+  {
+   "text": "makan aku sehat itu tuh mindset yang itu",
+   "start": 931.8,
+   "duration": 5.28
+  },
+  {
+   "text": "itu yang kalau saya sih ngomongnya ke",
+   "start": 935.16,
+   "duration": 4.96
+  },
+  {
+   "text": "pasien saya ngomongnya Bapak Mending",
+   "start": 937.08,
+   "duration": 5.52
+  },
+  {
+   "text": "besok dapat uang banyak terus habis itu",
+   "start": 940.12,
+   "duration": 4.88
+  },
+  {
+   "text": "sakit terus enggak bisa kerja lagi atau",
+   "start": 942.6,
+   "duration": 5.2
+  },
+  {
+   "text": "bapak work Life balance-nya ada begitu",
+   "start": 945.0,
+   "duration": 6.0
+  },
+  {
+   "text": "kerjanya sudah cukup Jaga kesehatannya",
+   "start": 947.8,
+   "duration": 5.48
+  },
+  {
+   "text": "Biar apa Biar sampai isok Sampai tua",
+   "start": 951.0,
+   "duration": 4.8
+  },
+  {
+   "text": "nanti bapak bisa kerja terus produktif",
+   "start": 953.28,
+   "duration": 5.24
+  },
+  {
+   "text": "sebagai tulang punggung nah itu yang",
+   "start": 955.8,
+   "duration": 4.8
+  },
+  {
+   "text": "kita tidak mililiki sebetulnya Nah",
+   "start": 958.52,
+   "duration": 4.2
+  },
+  {
+   "text": "mungkin netizen belum tahu gagal ginjal",
+   "start": 960.6,
+   "duration": 3.76
+  },
+  {
+   "text": "tu maksudnya gimana ginjalnya gagal",
+   "start": 962.72,
+   "duration": 3.6
+  },
+  {
+   "text": "failer kan kalau gagal harus bangkit",
+   "start": 964.36,
+   "duration": 5.72
+  },
+  {
+   "text": "betul jadi gagal ginjel bukan jadi",
+   "start": 966.32,
+   "duration": 5.44
+  },
+  {
+   "text": "ginjel itu kan ada fungsinya ya",
+   "start": 970.08,
+   "duration": 6.32
+  },
+  {
+   "text": "diterangin pahami netizen ya ini kapan",
+   "start": 971.76,
+   "duration": 8.68
+  },
+  {
+   "text": "pin kalau salah yang dirujak diajar",
+   "start": 976.4,
+   "duration": 7.24
+  },
+  {
+   "text": "saya jadi yang pertama fungsi ginjel itu",
+   "start": 980.44,
+   "duration": 7.04
+  },
+  {
+   "text": "satu nyaring racun sampah metabolisme",
+   "start": 983.64,
+   "duration": 6.72
+  },
+  {
+   "text": "jadi setiap hari kita itu makan makan ya",
+   "start": 987.48,
+   "duration": 4.92
+  },
+  {
+   "text": "metabolisme ada sampahnya itu dibuangi",
+   "start": 990.36,
+   "duration": 5.0
+  },
+  {
+   "text": "ginjel yang kedua dia ngatur air jadi",
+   "start": 992.4,
+   "duration": 5.36
+  },
+  {
+   "text": "kalau kita kelebihan air itu dibuang",
+   "start": 995.36,
+   "duration": 4.36
+  },
+  {
+   "text": "atau kita kekurangan air dia ditahan",
+   "start": 997.76,
+   "duration": 4.32
+  },
+  {
+   "text": "ibarat kalau kita ke gunung atau Pantai",
+   "start": 999.72,
+   "duration": 4.24
+  },
+  {
+   "text": "Padang ada yang dimasalnya gunung kita",
+   "start": 1002.08,
+   "duration": 3.84
+  },
+  {
+   "text": "keblet pipis terus di pantai kita kok",
+   "start": 1003.96,
+   "duration": 4.16
+  },
+  {
+   "text": "enggak kebet pipis ya karena dia retain",
+   "start": 1005.92,
+   "duration": 4.24
+  },
+  {
+   "text": "dia jaga airnya biar enggak sampai kita",
+   "start": 1008.12,
+   "duration": 4.88
+  },
+  {
+   "text": "itu dehidrasi terus yang ketiga dia jaga",
+   "start": 1010.16,
+   "duration": 5.64
+  },
+  {
+   "text": "tekanan darah agar tekanan darahnya",
+   "start": 1013.0,
+   "duration": 5.32
+  },
+  {
+   "text": "tetap stabil yang keempat dia produksi",
+   "start": 1015.8,
+   "duration": 5.6
+  },
+  {
+   "text": "sel eritropoitin yaitu pencetus sel",
+   "start": 1018.32,
+   "duration": 5.12
+  },
+  {
+   "text": "darah merah perangsang sel darah merah",
+   "start": 1021.4,
+   "duration": 5.72
+  },
+  {
+   "text": "keluar yang kelima dia aktivasi vitamin",
+   "start": 1023.44,
+   "duration": 6.68
+  },
+  {
+   "text": "D sehingga Kenapa tulang kita selalu",
+   "start": 1027.12,
+   "duration": 5.16
+  },
+  {
+   "text": "dijaga kekokohannya salah satunya",
+   "start": 1030.12,
+   "duration": 5.0
+  },
+  {
+   "text": "fungsinya dia yang keenam adalah fungsi",
+   "start": 1032.28,
+   "duration": 6.12
+  },
+  {
+   "text": "regulasi elektrolit dan asam basah Jadi",
+   "start": 1035.12,
+   "duration": 6.76
+  },
+  {
+   "text": "begitu k Aki ya Ha k aki",
+   "start": 1038.4,
+   "duration": 8.8
+  },
+  {
+   "text": "Iya netizen bilang Kan Aki apa mau",
+   "start": 1041.88,
+   "duration": 9.32
+  },
+  {
+   "text": "protes jadi begitu ada",
+   "start": 1047.2,
+   "duration": 6.72
+  },
+  {
+   "text": "kerusakan ginjal tidak bisa menjalankan",
+   "start": 1051.2,
+   "duration": 4.68
+  },
+  {
+   "text": "fungsinya yang kita sebut gagal",
+   "start": 1053.92,
+   "duration": 5.6
+  },
+  {
+   "text": "menjalankan fungsi nek misal gagal",
+   "start": 1055.88,
+   "duration": 6.0
+  },
+  {
+   "text": "fungsinya dalam membuang sampah dia",
+   "start": 1059.52,
+   "duration": 5.04
+  },
+  {
+   "text": "uremik jadi sampahnya numpuk dalam tubuh",
+   "start": 1061.88,
+   "duration": 4.68
+  },
+  {
+   "text": "bisa yang paling berat dia tiba-tiba",
+   "start": 1064.56,
+   "duration": 4.64
+  },
+  {
+   "text": "enggak sadar atau orang kayak meracau",
+   "start": 1066.56,
+   "duration": 4.0
+  },
+  {
+   "text": "gitu kayak orang enggak sadar gitu",
+   "start": 1069.2,
+   "duration": 3.48
+  },
+  {
+   "text": "karena uremnya sampai kotak ya Iya terus",
+   "start": 1070.56,
+   "duration": 7.0
+  },
+  {
+   "text": "baau e bau kencing Oh kayak Pak Deni gak",
+   "start": 1072.68,
+   "duration": 6.8
+  },
+  {
+   "text": "ada di sini tapi Oh enggak ada ya Terus",
+   "start": 1077.56,
+   "duration": 4.76
+  },
+  {
+   "text": "yang kedua adalah dia gagal membuang",
+   "start": 1079.48,
+   "duration": 6.04
+  },
+  {
+   "text": "cairan akibatnya opo odim jadi bengkak",
+   "start": 1082.32,
+   "duration": 5.64
+  },
+  {
+   "text": "kaki yang paling berat kalau sudah",
+   "start": 1085.52,
+   "duration": 5.44
+  },
+  {
+   "text": "membanjiri paru-paru sesek udim paru",
+   "start": 1087.96,
+   "duration": 5.72
+  },
+  {
+   "text": "udim paru Yes terus terus yang ketiga",
+   "start": 1090.96,
+   "duration": 5.48
+  },
+  {
+   "text": "adalah dia gagal menjalankan fungsi",
+   "start": 1093.68,
+   "duration": 5.04
+  },
+  {
+   "text": "regulasi tekanan darah dia semula sudah",
+   "start": 1096.44,
+   "duration": 5.48
+  },
+  {
+   "text": "tekanan darah tensinya tinggi tambah",
+   "start": 1098.72,
+   "duration": 5.8
+  },
+  {
+   "text": "tinggi lagi tensin akibatnya apa",
+   "start": 1101.92,
+   "duration": 4.52
+  },
+  {
+   "text": "tiba-tiba stroke tiba-tiba serangan",
+   "start": 1104.52,
+   "duration": 3.76
+  },
+  {
+   "text": "jantung jadi ada hubungannya Oh itu",
+   "start": 1106.44,
+   "duration": 4.56
+  },
+  {
+   "text": "disalahkan seringnya futsal",
+   "start": 1108.28,
+   "duration": 5.52
+  },
+  {
+   "text": "Nah iya Bet",
+   "start": 1111.0,
+   "duration": 6.16
+  },
+  {
+   "text": "kan yang keempat dia gagal hormon",
+   "start": 1113.8,
+   "duration": 5.08
+  },
+  {
+   "text": "eritropoidnya tidak bisa terproduksi",
+   "start": 1117.16,
+   "duration": 3.88
+  },
+  {
+   "text": "dengan baik akibatnya apa lemah letih",
+   "start": 1118.88,
+   "duration": 4.96
+  },
+  {
+   "text": "lesu anemia orang kan ngomong Ih aku",
+   "start": 1121.04,
+   "duration": 4.56
+  },
+  {
+   "text": "kurang darah minum aja obat penambah",
+   "start": 1123.84,
+   "duration": 4.2
+  },
+  {
+   "text": "darah zat besi kok enggak kok enggak",
+   "start": 1125.6,
+   "duration": 5.12
+  },
+  {
+   "text": "bisa baik-baik ternyata dia gagal ginjel",
+   "start": 1128.04,
+   "duration": 4.96
+  },
+  {
+   "text": "Aduh terakhir enggak tahu pak terus",
+   "start": 1130.72,
+   "duration": 4.8
+  },
+  {
+   "text": "habis itu dia enggak bisa menjaga e",
+   "start": 1133.0,
+   "duration": 4.56
+  },
+  {
+   "text": "vitamin dak enggak bisa aktivasi vitamin",
+   "start": 1135.52,
+   "duration": 4.76
+  },
+  {
+   "text": "D lagi Akib kita akibatnya apa orang",
+   "start": 1137.56,
+   "duration": 5.36
+  },
+  {
+   "text": "yang sudah cuci darah atau gagal ginjal",
+   "start": 1140.28,
+   "duration": 5.48
+  },
+  {
+   "text": "stadium 5 begitu dia jatuh gampang Pak",
+   "start": 1142.92,
+   "duration": 5.04
+  },
+  {
+   "text": "fraktur patologis",
+   "start": 1145.76,
+   "duration": 6.2
+  },
+  {
+   "text": "oke wah kita menarik Terus kalau ginjal",
+   "start": 1147.96,
+   "duration": 6.12
+  },
+  {
+   "text": "gagal kan kalau kita lihat tulang patah",
+   "start": 1151.96,
+   "duration": 5.0
+  },
+  {
+   "text": "Bisa dioperasi Kenapa ginjal yang rusak",
+   "start": 1154.08,
+   "duration": 6.76
+  },
+  {
+   "text": "tidak bisa diperbaiki harus diganti ya",
+   "start": 1156.96,
+   "duration": 6.12
+  },
+  {
+   "text": "ini menarik pertanyaannya bagus belum",
+   "start": 1160.84,
+   "duration": 6.12
+  },
+  {
+   "text": "bukan bagus itu aku pura-pura bodoh saja",
+   "start": 1163.08,
+   "duration": 7.64
+  },
+  {
+   "text": "ya Jangan dianggap saya bodoh beneran",
+   "start": 1166.96,
+   "duration": 3.76
+  },
+  {
+   "text": "onyol jadi orang kenapa ngomong kalau",
+   "start": 1171.4,
+   "duration": 4.88
+  },
+  {
+   "text": "misalnya penyakit ginjel kronis untuk",
+   "start": 1174.08,
+   "duration": 4.92
+  },
+  {
+   "text": "saat ini tidak bisa sembuh dan terapinya",
+   "start": 1176.28,
+   "duration": 4.96
+  },
+  {
+   "text": "adalah kalau kita ngomong adalah terapi",
+   "start": 1179.0,
+   "duration": 4.48
+  },
+  {
+   "text": "pengganti ginjel atau Rinal Replacement",
+   "start": 1181.24,
+   "duration": 5.8
+  },
+  {
+   "text": "thapy tiga modalitasnya satu cuci darah",
+   "start": 1183.48,
+   "duration": 5.64
+  },
+  {
+   "text": "yang kedua capd yang ketiga cangkok",
+   "start": 1187.04,
+   "duration": 4.88
+  },
+  {
+   "text": "ginjel Jadi kalau ibaratnya paling",
+   "start": 1189.12,
+   "duration": 5.28
+  },
+  {
+   "text": "gampang kita pernah jatuh ya terus ada",
+   "start": 1191.92,
+   "duration": 4.8
+  },
+  {
+   "text": "luka di sini terus habis itu lukanya",
+   "start": 1194.4,
+   "duration": 5.64
+  },
+  {
+   "text": "balik kayak sikatrik atau keloid keloid",
+   "start": 1196.72,
+   "duration": 5.56
+  },
+  {
+   "text": "betul ya gincil kalau rusak ya kayak",
+   "start": 1200.04,
+   "duration": 4.24
+  },
+  {
+   "text": "gini apa ada fungsinya ini dia udah",
+   "start": 1202.28,
+   "duration": 4.08
+  },
+  {
+   "text": "enggak bisa produksi sel apao keringat",
+   "start": 1204.28,
+   "duration": 4.56
+  },
+  {
+   "text": "enggak bisa dia enggak bisa balik ke",
+   "start": 1206.36,
+   "duration": 4.72
+  },
+  {
+   "text": "kulit kayak gini enggak bisa ginjel Sel",
+   "start": 1208.84,
+   "duration": 4.16
+  },
+  {
+   "text": "ginjel satu sel ginjel itu fungsinya",
+   "start": 1211.08,
+   "duration": 4.88
+  },
+  {
+   "text": "yang saya Sebutkan Tadi enam en begitu",
+   "start": 1213.0,
+   "duration": 5.32
+  },
+  {
+   "text": "rusak Ya sudah enggak ada yang gantikan",
+   "start": 1215.96,
+   "duration": 4.2
+  },
+  {
+   "text": "Enggak dia enggak bisa regenerasi enggak",
+   "start": 1218.32,
+   "duration": 5.2
+  },
+  {
+   "text": "bisa Oh sel Organ sel ginjel itu tidak",
+   "start": 1220.16,
+   "duration": 6.32
+  },
+  {
+   "text": "bisa R ya ringkeh ya Iya Jadi kalau",
+   "start": 1223.52,
+   "duration": 5.12
+  },
+  {
+   "text": "kalau sudah gagal ginjel kronis sudah",
+   "start": 1226.48,
+   "duration": 4.08
+  },
+  {
+   "text": "tidak bisa sembuh makanya terapi",
+   "start": 1228.64,
+   "duration": 4.52
+  },
+  {
+   "text": "pengganti ginjelnya ada tiga tadi yang",
+   "start": 1230.56,
+   "duration": 4.96
+  },
+  {
+   "text": "mirip sembuh adalah cangkok ginjel",
+   "start": 1233.16,
+   "duration": 5.12
+  },
+  {
+   "text": "Karena kan dia ngambil ibaratnya kalau",
+   "start": 1235.52,
+   "duration": 5.76
+  },
+  {
+   "text": "busi motor rusak apa radiator rusak",
+   "start": 1238.28,
+   "duration": 4.92
+  },
+  {
+   "text": "tinggal beli baru selesai upgrade aja",
+   "start": 1241.28,
+   "duration": 4.2
+  },
+  {
+   "text": "aku kalau gitu ya Oh itu kenapa ada itu",
+   "start": 1243.2,
+   "duration": 4.92
+  },
+  {
+   "text": "sindikat organ ya Saya nyari orang",
+   "start": 1245.48,
+   "duration": 5.44
+  },
+  {
+   "text": "atletis misal gitu terus tak Aku nyari",
+   "start": 1248.12,
+   "duration": 4.68
+  },
+  {
+   "text": "orang anak muda atletis ginjalnya tak",
+   "start": 1250.92,
+   "duration": 4.96
+  },
+  {
+   "text": "pakai buatku nah ini bahaya itu ya",
+   "start": 1252.8,
+   "duration": 5.8
+  },
+  {
+   "text": "jangan Pak itu bisa bahaya bahaya nah",
+   "start": 1255.88,
+   "duration": 5.52
+  },
+  {
+   "text": "berikutnya e kemarin kan kita dengar si",
+   "start": 1258.6,
+   "duration": 6.56
+  },
+  {
+   "text": "Vidi Aldiano mengemukakan ada Cancer Ca",
+   "start": 1261.4,
+   "duration": 6.52
+  },
+  {
+   "text": "ginjal Bisa dijelaskan enggak Ca ginjal",
+   "start": 1265.16,
+   "duration": 5.32
+  },
+  {
+   "text": "tuh gimana gambarannya buat netizen kok",
+   "start": 1267.92,
+   "duration": 4.08
+  },
+  {
+   "text": "ginjal tiba-tiba bisa ada kankernya",
+   "start": 1270.48,
+   "duration": 3.2
+  },
+  {
+   "text": "karena mereka tahunya kan di paru getah",
+   "start": 1272.0,
+   "duration": 5.04
+  },
+  {
+   "text": "bening i lagi-lagi e namanya ca itu",
+   "start": 1273.68,
+   "duration": 5.76
+  },
+  {
+   "text": "muncul secara multifaktor bisa ada",
+   "start": 1277.04,
+   "duration": 5.2
+  },
+  {
+   "text": "genetiknya bisa karena polusi idiopatik",
+   "start": 1279.44,
+   "duration": 5.24
+  },
+  {
+   "text": "ya ideiopati kita enggak tahu tiba-tiba",
+   "start": 1282.24,
+   "duration": 4.72
+  },
+  {
+   "text": "ya kalau ibaratnya orang ngomong ada",
+   "start": 1284.68,
+   "duration": 4.4
+  },
+  {
+   "text": "yang ngomong ini sebagai Hadi Tuhan",
+   "start": 1286.96,
+   "duration": 3.8
+  },
+  {
+   "text": "untuk mendekatkan diri kita kepada",
+   "start": 1289.08,
+   "duration": 3.68
+  },
+  {
+   "text": "mereka atau ada yang menganggap sebagai",
+   "start": 1290.76,
+   "duration": 5.04
+  },
+  {
+   "text": "kutukan macam-macam kan apa coping",
+   "start": 1292.76,
+   "duration": 4.6
+  },
+  {
+   "text": "responnya masyarakat karena engak tahu",
+   "start": 1295.8,
+   "duration": 3.6
+  },
+  {
+   "text": "literasi kesehatannya lah sekarang tahu",
+   "start": 1297.36,
+   "duration": 4.76
+  },
+  {
+   "text": "gimana ya kita ggak akan tahu kanker",
+   "start": 1299.4,
+   "duration": 4.84
+  },
+  {
+   "text": "mana sel mana yang tiba-tiba berubah",
+   "start": 1302.12,
+   "duration": 5.44
+  },
+  {
+   "text": "sifat menjadi Cancer salah satunya C",
+   "start": 1304.24,
+   "duration": 5.2
+  },
+  {
+   "text": "ginjel Itu yang kenapa Kok enggak",
+   "start": 1307.56,
+   "duration": 4.36
+  },
+  {
+   "text": "langsung E berat karena kan dia ada",
+   "start": 1309.44,
+   "duration": 4.96
+  },
+  {
+   "text": "kapsula bomennya dia itu kankernya tetap",
+   "start": 1311.92,
+   "duration": 5.28
+  },
+  {
+   "text": "Stay di situ kalau sudah keluar dari",
+   "start": 1314.4,
+   "duration": 5.76
+  },
+  {
+   "text": "kapsula bomennya atau jadi ginjel itu",
+   "start": 1317.2,
+   "duration": 5.04
+  },
+  {
+   "text": "kayak ada kayak ada pelindung",
+   "start": 1320.16,
+   "duration": 4.2
+  },
+  {
+   "text": "cangkangnya Oleh karena itu Ca ginjel",
+   "start": 1322.24,
+   "duration": 3.96
+  },
+  {
+   "text": "itu enggak gampang untuk dia metastase",
+   "start": 1324.36,
+   "duration": 4.52
+  },
+  {
+   "text": "atau nyebar karena ada cangkang kapsula",
+   "start": 1326.2,
+   "duration": 4.92
+  },
+  {
+   "text": "Bung Iya jadi dia bisa nahan di situ",
+   "start": 1328.88,
+   "duration": 3.8
+  },
+  {
+   "text": "tapi begitu sudah keluar tapi dia",
+   "start": 1331.12,
+   "duration": 2.84
+  },
+  {
+   "text": "akhirnya melebar kayak orang",
+   "start": 1332.68,
+   "duration": 4.6
+  },
+  {
+   "text": "hidronevrosis atau ginjal bengk ya gede",
+   "start": 1333.96,
+   "duration": 5.84
+  },
+  {
+   "text": "nah kalau misalnya bisa screening cepat",
+   "start": 1337.28,
+   "duration": 4.76
+  },
+  {
+   "text": "itu enggak menyebar Pak Tapi kalau sudah",
+   "start": 1339.8,
+   "duration": 4.52
+  },
+  {
+   "text": "sudah keluar dari kapsula bomennya Ada",
+   "start": 1342.04,
+   "duration": 4.28
+  },
+  {
+   "text": "kemungkinan untuk menjadi penyebaran Nah",
+   "start": 1344.32,
+   "duration": 4.2
+  },
+  {
+   "text": "kalau metastasisnya kan dia ada vaskular",
+   "start": 1346.32,
+   "duration": 3.88
+  },
+  {
+   "text": "asasis tersering dari cea ginjal ke mana",
+   "start": 1348.52,
+   "duration": 3.84
+  },
+  {
+   "text": "Pak biasanya kalau enggak tulang paru",
+   "start": 1350.2,
+   "duration": 4.8
+  },
+  {
+   "text": "atau liver tulang panggul ya Iya waduh",
+   "start": 1352.36,
+   "duration": 5.0
+  },
+  {
+   "text": "ya jadi semoga cepat cepuh buat mas Widi",
+   "start": 1355.0,
+   "duration": 4.16
+  },
+  {
+   "text": "ya kita akan bahas lagi mengenai",
+   "start": 1357.36,
+   "duration": 4.48
+  },
+  {
+   "text": "perginjalan dan tekanan darah Bisa",
+   "start": 1359.16,
+   "duration": 4.6
+  },
+  {
+   "text": "dijelaskan lebih lanjut enggak Pak kalau",
+   "start": 1361.84,
+   "duration": 4.56
+  },
+  {
+   "text": "e mekanisme ginjal dalam mempertahankan",
+   "start": 1363.76,
+   "duration": 5.16
+  },
+  {
+   "text": "tekanan darah ya jadi mekanisme ginjal",
+   "start": 1366.4,
+   "duration": 4.32
+  },
+  {
+   "text": "dalam mempertahankan tekanan darah itu",
+   "start": 1368.92,
+   "duration": 4.04
+  },
+  {
+   "text": "melalui hormon renin angiotensin",
+   "start": 1370.72,
+   "duration": 6.16
+  },
+  {
+   "text": "aldosteron system moder rungokno kabeh",
+   "start": 1372.96,
+   "duration": 7.6
+  },
+  {
+   "text": "bos jadi eh sebetulnya yang mengatur",
+   "start": 1376.88,
+   "duration": 5.24
+  },
+  {
+   "text": "Jadi kalau rumus tekanan darah itu",
+   "start": 1380.56,
+   "duration": 4.08
+  },
+  {
+   "text": "cardiac output dikalikan resistensi",
+   "start": 1382.12,
+   "duration": 5.44
+  },
+  {
+   "text": "perifer cardiak output itu ada stroke",
+   "start": 1384.64,
+   "duration": 6.92
+  },
+  {
+   "text": "volume Ya kali frekuensi rate kita heart",
+   "start": 1387.56,
+   "duration": 5.92
+  },
+  {
+   "text": "rate kita dikalikan sehingga cardia",
+   "start": 1391.56,
+   "duration": 4.2
+  },
+  {
+   "text": "outputnya lah yang mengatur hormon",
+   "start": 1393.48,
+   "duration": 4.8
+  },
+  {
+   "text": "rendin angotensi system itu mainly ada",
+   "start": 1395.76,
+   "duration": 5.12
+  },
+  {
+   "text": "di vaskularnya ya di resistensi",
+   "start": 1398.28,
+   "duration": 5.52
+  },
+  {
+   "text": "periferennya tadi dan di cairan dan",
+   "start": 1400.88,
+   "duration": 4.96
+  },
+  {
+   "text": "stroke volumenya Jadi kenapa kalau",
+   "start": 1403.8,
+   "duration": 5.08
+  },
+  {
+   "text": "misalnya kita misalnya kebanyak akan",
+   "start": 1405.84,
+   "duration": 5.8
+  },
+  {
+   "text": "garam sama ginjil buru-buru dikeluarin",
+   "start": 1408.88,
+   "duration": 5.12
+  },
+  {
+   "text": "karena kalau ngumpul di dalam astr",
+   "start": 1411.64,
+   "duration": 4.0
+  },
+  {
+   "text": "volumenya akan naik menyebabkan tekanan",
+   "start": 1414.0,
+   "duration": 4.08
+  },
+  {
+   "text": "darahnya ikut naik I karena sifat garam",
+   "start": 1415.64,
+   "duration": 6.28
+  },
+  {
+   "text": "hidrofilik ya yes Terus yang kedua",
+   "start": 1418.08,
+   "duration": 5.96
+  },
+  {
+   "text": "resistensi perifer fasoonstriksi dan",
+   "start": 1421.92,
+   "duration": 4.12
+  },
+  {
+   "text": "faso dilatasi salah satunya dipengaruhi",
+   "start": 1424.04,
+   "duration": 5.28
+  },
+  {
+   "text": "oleh R sistem tadi jadi begitu ada",
+   "start": 1426.04,
+   "duration": 7.16
+  },
+  {
+   "text": "gangguan dia tidak bisa meregulasi Raas",
+   "start": 1429.32,
+   "duration": 6.44
+  },
+  {
+   "text": "sistemnya dia tidak bisa membuang garam",
+   "start": 1433.2,
+   "duration": 5.48
+  },
+  {
+   "text": "dan airnya dengan tepat membebani k",
+   "start": 1435.76,
+   "duration": 5.0
+  },
+  {
+   "text": "output dan resistensi perifer bisa",
+   "start": 1438.68,
+   "duration": 3.92
+  },
+  {
+   "text": "menyebabkan tekanan darah naik karena",
+   "start": 1440.76,
+   "duration": 3.92
+  },
+  {
+   "text": "rumus tekanan darah adalah stroke volume",
+   "start": 1442.6,
+   "duration": 4.2
+  },
+  {
+   "text": "kali resistensi perifer Oke ini menarik",
+   "start": 1444.68,
+   "duration": 4.12
+  },
+  {
+   "text": "nah Jelaskan kinerja ginjal saat",
+   "start": 1446.8,
+   "duration": 4.28
+  },
+  {
+   "text": "menjalankan ibadah puasa",
+   "start": 1448.8,
+   "duration": 4.92
+  },
+  {
+   "text": "Ramadan ini menarik ini ya ada yang tadi",
+   "start": 1451.08,
+   "duration": 5.0
+  },
+  {
+   "text": "itu kayak dosen nih bisa enggak nih ya",
+   "start": 1453.72,
+   "duration": 4.64
+  },
+  {
+   "text": "Karena kan katanya stroke volume berarti",
+   "start": 1456.08,
+   "duration": 4.36
+  },
+  {
+   "text": "kan air kita tidak konsumsi air 12 jam",
+   "start": 1458.36,
+   "duration": 3.56
+  },
+  {
+   "text": "kok bisa kita normal-normal saja",
+   "start": 1460.44,
+   "duration": 3.48
+  },
+  {
+   "text": "tensinya Terima kasih ke ginjel pertama",
+   "start": 1461.92,
+   "duration": 4.32
+  },
+  {
+   "text": "dulu jadi kalau kita puasa Ramadan itu",
+   "start": 1463.92,
+   "duration": 4.12
+  },
+  {
+   "text": "benar-benar kita harus bersyukur bahwa",
+   "start": 1466.24,
+   "duration": 4.2
+  },
+  {
+   "text": "kita punya ginjel jadi begitu tidak ada",
+   "start": 1468.04,
+   "duration": 5.92
+  },
+  {
+   "text": "air yang masuk ginjel akan meretain atau",
+   "start": 1470.44,
+   "duration": 6.64
+  },
+  {
+   "text": "menjaga jangan sampai banyak air yang",
+   "start": 1473.96,
+   "duration": 6.04
+  },
+  {
+   "text": "keluar jangan sampai banyak dan R",
+   "start": 1477.08,
+   "duration": 5.96
+  },
+  {
+   "text": "syistem bekerja penuh di situ nah tapi",
+   "start": 1480.0,
+   "duration": 5.96
+  },
+  {
+   "text": "nanti e ada kurun waktunya kalau agar",
+   "start": 1483.04,
+   "duration": 5.28
+  },
+  {
+   "text": "tidak menyebabkan gangguan ginjal naik",
+   "start": 1485.96,
+   "duration": 3.68
+  },
+  {
+   "text": "puasa Ramadan itu jelas-jelas",
+   "start": 1488.32,
+   "duration": 3.36
+  },
+  {
+   "text": "menyehatkan notut debat jadi benar-benar",
+   "start": 1489.64,
+   "duration": 4.24
+  },
+  {
+   "text": "bagus bahkan untuk ginjalnya sendiri kok",
+   "start": 1491.68,
+   "duration": 5.28
+  },
+  {
+   "text": "iso ya karena selama ini ginjel kita",
+   "start": 1493.88,
+   "duration": 5.92
+  },
+  {
+   "text": "dipaksa kerja 20 jam nonstop untuk",
+   "start": 1496.96,
+   "duration": 4.84
+  },
+  {
+   "text": "filter makanan-makanan dan minuman",
+   "start": 1499.8,
+   "duration": 3.76
+  },
+  {
+   "text": "Enggak penting Yes dan untuk pertama",
+   "start": 1501.8,
+   "duration": 3.72
+  },
+  {
+   "text": "kali dia enggak ngfilter makanan minuman",
+   "start": 1503.56,
+   "duration": 4.36
+  },
+  {
+   "text": "Enggak penting Iya betul juga tapi kudu",
+   "start": 1505.52,
+   "duration": 4.28
+  },
+  {
+   "text": "hati-hati pada pasien yang sudah gagal",
+   "start": 1507.92,
+   "duration": 5.52
+  },
+  {
+   "text": "ginjel H karena kan tadi kan Ya kita itu",
+   "start": 1509.8,
+   "duration": 5.32
+  },
+  {
+   "text": "waktu puasa kita salah satunya Terima",
+   "start": 1513.44,
+   "duration": 3.76
+  },
+  {
+   "text": "kasih ke ginjal karena apa dia ngatur",
+   "start": 1515.12,
+   "duration": 4.32
+  },
+  {
+   "text": "sedemikian rupa agar air yang di dalam",
+   "start": 1517.2,
+   "duration": 4.56
+  },
+  {
+   "text": "tubuh kita tuh tetap bisa membuat kita",
+   "start": 1519.44,
+   "duration": 5.12
+  },
+  {
+   "text": "aktivitas nah begitu ada gangguan",
+   "start": 1521.76,
+   "duration": 5.76
+  },
+  {
+   "text": "ginjelnya kurang air sedikit ginjelnya",
+   "start": 1524.56,
+   "duration": 4.72
+  },
+  {
+   "text": "lembek karena karena sudah mengalami",
+   "start": 1527.52,
+   "duration": 4.52
+  },
+  {
+   "text": "gangguan kalau kurang air sedikit bisa",
+   "start": 1529.28,
+   "duration": 5.56
+  },
+  {
+   "text": "menyebabkan gagal ginjel akut aki Iya",
+   "start": 1532.04,
+   "duration": 5.2
+  },
+  {
+   "text": "akut kidne injury pada pasien gagal",
+   "start": 1534.84,
+   "duration": 4.48
+  },
+  {
+   "text": "ginjal kronis yang menjalani puasa itu",
+   "start": 1537.24,
+   "duration": 4.52
+  },
+  {
+   "text": "perlu evaluasi ketat bahkan stadium 4",
+   "start": 1539.32,
+   "duration": 4.96
+  },
+  {
+   "text": "dan stadium 5 orang yang gagal ginjal",
+   "start": 1541.76,
+   "duration": 4.52
+  },
+  {
+   "text": "kronis itu disarankan untuk tidak",
+   "start": 1544.28,
+   "duration": 3.96
+  },
+  {
+   "text": "berpuasa Oh jadi tergantung ya kalau",
+   "start": 1546.28,
+   "duration": 4.88
+  },
+  {
+   "text": "ginjal sehat malah aman aman nah terus",
+   "start": 1548.24,
+   "duration": 5.28
+  },
+  {
+   "text": "saat kita membatalkan puasa sebagai",
+   "start": 1551.16,
+   "duration": 5.28
+  },
+  {
+   "text": "seorang dokter spesialis penyakit dalam",
+   "start": 1553.52,
+   "duration": 6.44
+  },
+  {
+   "text": "sup ginjal-ginjal sgg G G GG ginjal",
+   "start": 1556.44,
+   "duration": 5.84
+  },
+  {
+   "text": "ginjal ginjal ginjaluk paru-paru man I",
+   "start": 1559.96,
+   "duration": 5.2
+  },
+  {
+   "text": "jadi kalau di ditanya pasien kalau aku",
+   "start": 1562.28,
+   "duration": 5.16
+  },
+  {
+   "text": "pas batalin puasa Ti sebagai dokter aku",
+   "start": 1565.16,
+   "duration": 5.28
+  },
+  {
+   "text": "pakai minum apa paling bagus adalah air",
+   "start": 1567.44,
+   "duration": 5.8
+  },
+  {
+   "text": "putih itu berapa gelas berapa gelas",
+   "start": 1570.44,
+   "duration": 5.8
+  },
+  {
+   "text": "pokoknya 8 gelas untuk dari buka sampai",
+   "start": 1573.24,
+   "duration": 5.52
+  },
+  {
+   "text": "sahur tapi Untuk membatalkan sat gelas",
+   "start": 1576.24,
+   "duration": 4.72
+  },
+  {
+   "text": "200 cc sudah lebih jadi cukup untuk",
+   "start": 1578.76,
+   "duration": 3.8
+  },
+  {
+   "text": "makanannya direkomendasikan kalau aku",
+   "start": 1580.96,
+   "duration": 4.04
+  },
+  {
+   "text": "kurma tiga biji bermanfaat bermanfaat",
+   "start": 1582.56,
+   "duration": 4.04
+  },
+  {
+   "text": "karena itu replace langsung kalau",
+   "start": 1585.0,
+   "duration": 5.16
+  },
+  {
+   "text": "langsung aku makan es air es sama",
+   "start": 1586.6,
+   "duration": 7.6
+  },
+  {
+   "text": "gorengan dan Santen tunjang Apa saran",
+   "start": 1590.16,
+   "duration": 6.24
+  },
+  {
+   "text": "Pak Dokter kalau saya mau batalin dengan",
+   "start": 1594.2,
+   "duration": 4.72
+  },
+  {
+   "text": "tunjang makanan berat gorengan dan es",
+   "start": 1596.4,
+   "duration": 4.72
+  },
+  {
+   "text": "batu gimana i jadi ibaratnya harus",
+   "start": 1598.92,
+   "duration": 4.84
+  },
+  {
+   "text": "benar-benar dijaga jadi kalau puasa itu",
+   "start": 1601.12,
+   "duration": 5.08
+  },
+  {
+   "text": "kan dia sudah istirahat penuh ya Yoi",
+   "start": 1603.76,
+   "duration": 4.76
+  },
+  {
+   "text": "begitu langsung tiba-tiba dibrekin kalau",
+   "start": 1606.2,
+   "duration": 4.64
+  },
+  {
+   "text": "kita tiba-tiba dibrekin kamu tugas ini",
+   "start": 1608.52,
+   "duration": 4.08
+  },
+  {
+   "text": "tugas ini kamu tak tambahin tugas ini",
+   "start": 1610.84,
+   "duration": 4.68
+  },
+  {
+   "text": "tambahi tugas iniah tak pukul Pak Bos ya",
+   "start": 1612.6,
+   "duration": 5.64
+  },
+  {
+   "text": "Sama ginjalnya juga mukul bukan mukul",
+   "start": 1615.52,
+   "duration": 4.84
+  },
+  {
+   "text": "lebih tepatnya protes protesnya apa",
+   "start": 1618.24,
+   "duration": 5.12
+  },
+  {
+   "text": "mulai dari tiba-tiba perutnya abdominal",
+   "start": 1620.36,
+   "duration": 5.28
+  },
+  {
+   "text": "discomfort penuh modah rasanya gak",
+   "start": 1623.36,
+   "duration": 4.88
+  },
+  {
+   "text": "nyaman terus habis itu langsung kebelet",
+   "start": 1625.64,
+   "duration": 5.04
+  },
+  {
+   "text": "pipis kan kaget kan begitu kasih garam",
+   "start": 1628.24,
+   "duration": 5.96
+  },
+  {
+   "text": "banyak uh dia kayak diuresis OP ya op",
+   "start": 1630.68,
+   "duration": 5.32
+  },
+  {
+   "text": "ini pengin dibuang segera ini bayang",
+   "start": 1634.2,
+   "duration": 3.48
+  },
+  {
+   "text": "Enggak soalnya selama ini saya kok",
+   "start": 1636.0,
+   "duration": 3.2
+  },
+  {
+   "text": "tiba-tiba ayam-ayam tiba-tiba kok",
+   "start": 1637.68,
+   "duration": 3.48
+  },
+  {
+   "text": "dibrekin tugas gitu banyak oh makanya",
+   "start": 1639.2,
+   "duration": 4.56
+  },
+  {
+   "text": "bertahap ya bertahap apalagi belum lagi",
+   "start": 1641.16,
+   "duration": 6.4
+  },
+  {
+   "text": "kan kita mau magriban iya tarawih Isya",
+   "start": 1643.76,
+   "duration": 6.84
+  },
+  {
+   "text": "tarawih ter itu Nah itu itu jangan jadi",
+   "start": 1647.56,
+   "duration": 5.32
+  },
+  {
+   "text": "sebaiknya kalau pengin puasanya itu",
+   "start": 1650.6,
+   "duration": 4.08
+  },
+  {
+   "text": "menjadi momen puasa yang baik untuk",
+   "start": 1652.88,
+   "duration": 4.96
+  },
+  {
+   "text": "kesehatan utamanya kesehatan ginjel",
+   "start": 1654.68,
+   "duration": 7.08
+  },
+  {
+   "text": "Makanlah sesuai kebutuhan dan stop kalau",
+   "start": 1657.84,
+   "duration": 6.0
+  },
+  {
+   "text": "misalnya sudah mau kenyang itu benar",
+   "start": 1661.76,
+   "duration": 3.96
+  },
+  {
+   "text": "jadi Pas buka puasa jangan kalap jangan",
+   "start": 1663.84,
+   "duration": 3.32
+  },
+  {
+   "text": "kalap Nah sekarang pertanyaan",
+   "start": 1665.72,
+   "duration": 2.88
+  },
+  {
+   "text": "kontroversial yang sering dilakukan anak",
+   "start": 1667.16,
+   "duration": 3.28
+  },
+  {
+   "text": "muda sebut sajaa fotografer saya namanya",
+   "start": 1668.6,
+   "duration": 3.64
+  },
+  {
+   "text": "Stefan ee",
+   "start": 1670.44,
+   "duration": 5.6
+  },
+  {
+   "text": "Mabuk alkoholan apa impact alkohol",
+   "start": 1672.24,
+   "duration": 6.48
+  },
+  {
+   "text": "terhadap ginjal jadi kar kan mereka",
+   "start": 1676.04,
+   "duration": 5.04
+  },
+  {
+   "text": "bilang saya minum alkohol satu botol gak",
+   "start": 1678.72,
+   "duration": 4.64
+  },
+  {
+   "text": "mabuk saya kemarin di Twitter bilang",
+   "start": 1681.08,
+   "duration": 4.12
+  },
+  {
+   "text": "orang yang sering minum alkohol dan",
+   "start": 1683.36,
+   "duration": 4.12
+  },
+  {
+   "text": "sudah mulai tidak mabuk dengan riwayat",
+   "start": 1685.2,
+   "duration": 4.64
+  },
+  {
+   "text": "minum alkohol banyak itu artinya Hatinya",
+   "start": 1687.48,
+   "duration": 5.68
+  },
+  {
+   "text": "sudah ada masalah hepar karena hepar itu",
+   "start": 1689.84,
+   "duration": 6.8
+  },
+  {
+   "text": "adalah organ pertama molerir alkohol",
+   "start": 1693.16,
+   "duration": 5.72
+  },
+  {
+   "text": "sehingga ketika alkohol berlebihan ada",
+   "start": 1696.64,
+   "duration": 4.32
+  },
+  {
+   "text": "intoksikasi dia akan mulai enggak sadar",
+   "start": 1698.88,
+   "duration": 4.08
+  },
+  {
+   "text": "tapi ketika dia sudah minum panjang dan",
+   "start": 1700.96,
+   "duration": 4.28
+  },
+  {
+   "text": "alkohol itu sudah tidak mengganggu otak",
+   "start": 1702.96,
+   "duration": 5.16
+  },
+  {
+   "text": "jadi ada gangguan pada hepar Iya nah",
+   "start": 1705.24,
+   "duration": 4.8
+  },
+  {
+   "text": "toansi lah sudah mulai toleransi jadi",
+   "start": 1708.12,
+   "duration": 3.4
+  },
+  {
+   "text": "dia akan minum alkohol tambah banyak",
+   "start": 1710.04,
+   "duration": 4.04
+  },
+  {
+   "text": "lagi dan akan merusak sel hepar benar Ya",
+   "start": 1711.52,
+   "duration": 4.72
+  },
+  {
+   "text": "benar Nah sekarang kalau pada ginjal",
+   "start": 1714.08,
+   "duration": 4.48
+  },
+  {
+   "text": "impa alkohol pada ginjal tu kayak apa",
+   "start": 1716.24,
+   "duration": 4.12
+  },
+  {
+   "text": "tergantung jenisnya dulu Pak kalau",
+   "start": 1718.56,
+   "duration": 5.6
+  },
+  {
+   "text": "alkohol yang diminum knya 30% 40%um jika",
+   "start": 1720.36,
+   "duration": 6.24
+  },
+  {
+   "text": "awal cuma dosis standar itu engak",
+   "start": 1724.16,
+   "duration": 3.72
+  },
+  {
+   "text": "sebenarnya Enggak ada enggak bermasalah",
+   "start": 1726.6,
+   "duration": 3.28
+  },
+  {
+   "text": "untuk ginjel maksudnya dosis yang umum",
+   "start": 1727.88,
+   "duration": 4.48
+  },
+  {
+   "text": "ya Misalnya satu sloki karena di luar",
+   "start": 1729.88,
+   "duration": 3.8
+  },
+  {
+   "text": "negeri juga seperti itu teman saya",
+   "start": 1732.36,
+   "duration": 3.2
+  },
+  {
+   "text": "namanya Stefan dan Rendy yang hobi lari",
+   "start": 1733.68,
+   "duration": 3.96
+  },
+  {
+   "text": "itu satu botol dua botol sekaligus",
+   "start": 1735.56,
+   "duration": 5.48
+  },
+  {
+   "text": "jangan Pak apa impaknya coba Diang ini",
+   "start": 1737.64,
+   "duration": 5.68
+  },
+  {
+   "text": "buat kamu yang namanya Rendy ya Rendy",
+   "start": 1741.04,
+   "duration": 4.56
+  },
+  {
+   "text": "Wiranda pelari half maraton yang hobinya",
+   "start": 1743.32,
+   "duration": 4.72
+  },
+  {
+   "text": "mabuk itu gimana tolong diterangkan ini",
+   "start": 1745.6,
+   "duration": 4.28
+  },
+  {
+   "text": "mungkin pasiennya di depan hobinya tiap",
+   "start": 1748.04,
+   "duration": 4.44
+  },
+  {
+   "text": "hari sebotol terus terus dia saya hebat",
+   "start": 1749.88,
+   "duration": 5.52
+  },
+  {
+   "text": "sebotol enggak mabuk jadi intoksikasi",
+   "start": 1752.48,
+   "duration": 4.48
+  },
+  {
+   "text": "dalam hal ini kalau misalnya lebih",
+   "start": 1755.4,
+   "duration": 3.84
+  },
+  {
+   "text": "banyak karena kan alkohol itu sifatnya",
+   "start": 1756.96,
+   "duration": 4.36
+  },
+  {
+   "text": "adiktif kan makin lama makin banyak",
+   "start": 1759.24,
+   "duration": 4.0
+  },
+  {
+   "text": "dosisnya Makin sering makin banyak Makin",
+   "start": 1761.32,
+   "duration": 4.72
+  },
+  {
+   "text": "sering itu menyebabkan faso konstriksi",
+   "start": 1763.24,
+   "duration": 4.84
+  },
+  {
+   "text": "Pembuluh darah yang lama-kelamaan akan",
+   "start": 1766.04,
+   "duration": 4.12
+  },
+  {
+   "text": "menyebabkan kekakuan pembuluh darah lah",
+   "start": 1768.08,
+   "duration": 4.08
+  },
+  {
+   "text": "masalahnya ginjel itu terdiri dari",
+   "start": 1770.16,
+   "duration": 5.64
+  },
+  {
+   "text": "kumparan pembuluh darah jadi Nek ginjel",
+   "start": 1772.16,
+   "duration": 5.12
+  },
+  {
+   "text": "itu kalau misalnya sel terkecilnya",
+   "start": 1775.8,
+   "duration": 4.16
+  },
+  {
+   "text": "namanya nefron itu glomerulusnya itu",
+   "start": 1777.28,
+   "duration": 4.56
+  },
+  {
+   "text": "kumparan pembuluh darah Pak begitu",
+   "start": 1779.96,
+   "duration": 4.52
+  },
+  {
+   "text": "pembuluh darahnya yang dulu apa eh",
+   "start": 1781.84,
+   "duration": 5.12
+  },
+  {
+   "text": "elastis jadi kaku jadi mengalami",
+   "start": 1784.48,
+   "duration": 4.16
+  },
+  {
+   "text": "gangguan kalau misalnya sebut",
+   "start": 1786.96,
+   "duration": 4.32
+  },
+  {
+   "text": "lama-kelamaan jadi sklerosis atau kayak",
+   "start": 1788.64,
+   "duration": 5.0
+  },
+  {
+   "text": "orang ngomongnya Fibrosis jadi kayak",
+   "start": 1791.28,
+   "duration": 4.96
+  },
+  {
+   "text": "ototnya jadi ada kayak sikatrik atau",
+   "start": 1793.64,
+   "duration": 4.84
+  },
+  {
+   "text": "keloidnya dalam tanda kutip sehingga",
+   "start": 1796.24,
+   "duration": 5.56
+  },
+  {
+   "text": "lama-kelamaan rusak dan e jadi tapi itu",
+   "start": 1798.48,
+   "duration": 5.48
+  },
+  {
+   "text": "efeknya kronis ya kronis Mas Jadi wajar",
+   "start": 1801.8,
+   "duration": 4.44
+  },
+  {
+   "text": "kalau Rendy sekarang bisa lari-lari ya",
+   "start": 1803.96,
+   "duration": 4.04
+  },
+  {
+   "text": "tapi kalau enggak tahu 20 tahun lagi",
+   "start": 1806.24,
+   "duration": 3.32
+  },
+  {
+   "text": "masih bisa lari apa enggak mungkin",
+   "start": 1808.0,
+   "duration": 4.04
+  },
+  {
+   "text": "transplantasi ginjal hati-hati ya Mas",
+   "start": 1809.56,
+   "duration": 4.24
+  },
+  {
+   "text": "Rendi didengarkan edukasi yang pulang",
+   "start": 1812.04,
+   "duration": 3.24
+  },
+  {
+   "text": "bikan saya kalau kamu masih minum",
+   "start": 1813.8,
+   "duration": 2.96
+  },
+  {
+   "text": "alkohol 20 tahun lagi siapa tahu",
+   "start": 1815.28,
+   "duration": 3.52
+  },
+  {
+   "text": "ginjalmu diganti benar yang lebih bahaya",
+   "start": 1816.76,
+   "duration": 4.96
+  },
+  {
+   "text": "adalah metanol metanol berarti alkohol",
+   "start": 1818.8,
+   "duration": 6.12
+  },
+  {
+   "text": "Oplosan I itu lebih B yang kemarin beli",
+   "start": 1821.72,
+   "duration": 6.64
+  },
+  {
+   "text": "alkohol murni medis terus dicampur itu",
+   "start": 1824.92,
+   "duration": 5.36
+  },
+  {
+   "text": "cobaahananya apa itu bahayanya kan",
+   "start": 1828.36,
+   "duration": 3.92
+  },
+  {
+   "text": "metanol itu e bahan yang sudah",
+   "start": 1830.28,
+   "duration": 4.28
+  },
+  {
+   "text": "didegradasi di tubuh metanol ya bahan",
+   "start": 1832.28,
+   "duration": 4.24
+  },
+  {
+   "text": "bakunya didegradasi di tubuh itu tidak",
+   "start": 1834.56,
+   "duration": 3.64
+  },
+  {
+   "text": "bisa dikeluarkan secara langsung oleh",
+   "start": 1836.52,
+   "duration": 4.24
+  },
+  {
+   "text": "ginjel jadi numpuk di dalam tubuh",
+   "start": 1838.2,
+   "duration": 4.84
+  },
+  {
+   "text": "menyebabkan asidosis yang kalau sudah",
+   "start": 1840.76,
+   "duration": 5.0
+  },
+  {
+   "text": "berat menyebabkan kondisi gagal nafas",
+   "start": 1843.04,
+   "duration": 5.24
+  },
+  {
+   "text": "gagal ginjel akut terus matanya rusak",
+   "start": 1845.76,
+   "duration": 5.44
+  },
+  {
+   "text": "namanya Toxic opti neuropathti jadi",
+   "start": 1848.28,
+   "duration": 5.72
+  },
+  {
+   "text": "matanya tiba-tiba buta Pak itu akut",
+   "start": 1851.2,
+   "duration": 5.48
+  },
+  {
+   "text": "kondisinya tiba-tiba dan itu butuh cuci",
+   "start": 1854.0,
+   "duration": 4.68
+  },
+  {
+   "text": "darah segera untuk ngeluar",
+   "start": 1856.68,
+   "duration": 4.24
+  },
+  {
+   "text": "kalau misalnya di rumah sakitnya sedia",
+   "start": 1858.68,
+   "duration": 4.8
+  },
+  {
+   "text": "etanol Ya itu bisa dimasukkan Oh jadi",
+   "start": 1860.92,
+   "duration": 4.48
+  },
+  {
+   "text": "cara mengatasi keracunan metanol adalah",
+   "start": 1863.48,
+   "duration": 3.64
+  },
+  {
+   "text": "justru dimasukin etanol etanol jika",
+   "start": 1865.4,
+   "duration": 3.36
+  },
+  {
+   "text": "Golden period-nya ada tapi kalau sudah",
+   "start": 1867.12,
+   "duration": 3.44
+  },
+  {
+   "text": "lepas dari Golden period cuci darah",
+   "start": 1868.76,
+   "duration": 3.68
+  },
+  {
+   "text": "Siapa tahu mereka butuh tantangan saya",
+   "start": 1870.56,
+   "duration": 4.4
+  },
+  {
+   "text": "enggak mabuk kok minumal siapa tahu ya",
+   "start": 1872.44,
+   "duration": 5.84
+  },
+  {
+   "text": "kan tuh orangnya tuh mabuk ciri ciri",
+   "start": 1874.96,
+   "duration": 5.0
+  },
+  {
+   "text": "khas orang mabuk kan pasti lemak",
+   "start": 1878.28,
+   "duration": 4.52
+  },
+  {
+   "text": "perlemakan hati kenapa kok ketika orang",
+   "start": 1879.96,
+   "duration": 5.2
+  },
+  {
+   "text": "hobi alkoholik perutnya membesar terus",
+   "start": 1882.8,
+   "duration": 4.52
+  },
+  {
+   "text": "gula Pak kan diubah jadi gula Pak",
+   "start": 1885.16,
+   "duration": 5.0
+  },
+  {
+   "text": "Terangkan Pak terang i jadi paling",
+   "start": 1887.32,
+   "duration": 5.76
+  },
+  {
+   "text": "paling gampang itu ada Penyakitnya kan e",
+   "start": 1890.16,
+   "duration": 5.84
+  },
+  {
+   "text": "kalau liver ya mohon maaf alkoholik ee",
+   "start": 1893.08,
+   "duration": 5.6
+  },
+  {
+   "text": "apa liver anu kan pembesaran ya jadi",
+   "start": 1896.0,
+   "duration": 4.96
+  },
+  {
+   "text": "karena livernya ada alkoholik kalau kita",
+   "start": 1898.68,
+   "duration": 6.48
+  },
+  {
+   "text": "ngomong itu alkoholik SEATO he hepato",
+   "start": 1900.96,
+   "duration": 6.52
+  },
+  {
+   "text": "hepat saya lupa ya Nes kalau kita",
+   "start": 1905.16,
+   "duration": 4.6
+  },
+  {
+   "text": "ngomong non aloholik steato hepatitis",
+   "start": 1907.48,
+   "duration": 4.4
+  },
+  {
+   "text": "atau apa gitu loh yang kgeh mohon",
+   "start": 1909.76,
+   "duration": 4.76
+  },
+  {
+   "text": "dibenarkan Nah itu kalau misalnya",
+   "start": 1911.88,
+   "duration": 5.16
+  },
+  {
+   "text": "nonalkoholik aja ada yang alkoholik itu",
+   "start": 1914.52,
+   "duration": 6.2
+  },
+  {
+   "text": "lebih parah p menyebabkan sirosis",
+   "start": 1917.04,
+   "duration": 6.92
+  },
+  {
+   "text": "Hati nah kalau di bagian gincel ya itu",
+   "start": 1920.72,
+   "duration": 5.76
+  },
+  {
+   "text": "menyebabkan CKD atau gagal ginjel kronis",
+   "start": 1923.96,
+   "duration": 4.44
+  },
+  {
+   "text": "itu karena intoksikasi alkohol",
+   "start": 1926.48,
+   "duration": 5.04
+  },
+  {
+   "text": "berlebihan Makanya kalau bagi ya kan",
+   "start": 1928.4,
+   "duration": 5.48
+  },
+  {
+   "text": "kalau di musim dilarang kalau bagi",
+   "start": 1931.52,
+   "duration": 5.6
+  },
+  {
+   "text": "nonmuslim ya minum secukupnya secukupnya",
+   "start": 1933.88,
+   "duration": 6.56
+  },
+  {
+   "text": "dua sloki satu sloki ini a botol",
+   "start": 1937.12,
+   "duration": 5.56
+  },
+  {
+   "text": "masalahnya kemarin jadi kemarin dia",
+   "start": 1940.44,
+   "duration": 5.0
+  },
+  {
+   "text": "sombong saya bisa trilan di Bromo tig",
+   "start": 1942.68,
+   "duration": 5.68
+  },
+  {
+   "text": "botol Saya habis saya tetap bisa finish",
+   "start": 1945.44,
+   "duration": 4.68
+  },
+  {
+   "text": "kencang nah gimana cara mengedukasi",
+   "start": 1948.36,
+   "duration": 4.12
+  },
+  {
+   "text": "orang seperti itu ya mungkin enggak bisa",
+   "start": 1950.12,
+   "duration": 3.8
+  },
+  {
+   "text": "kita ngomong langsung stop itu enggak",
+   "start": 1952.48,
+   "duration": 3.4
+  },
+  {
+   "text": "bisa jadi ya mungkin edukasinya lebih",
+   "start": 1953.92,
+   "duration": 4.64
+  },
+  {
+   "text": "tepatnya kurang-kurangilah kalau enggak",
+   "start": 1955.88,
+   "duration": 5.28
+  },
+  {
+   "text": "akan ada bahaya yang mengintai di masa",
+   "start": 1958.56,
+   "duration": 4.6
+  },
+  {
+   "text": "tua di masa tua siapa tahu lari",
+   "start": 1961.16,
+   "duration": 3.92
+  },
+  {
+   "text": "lari-lari Boh kok udah di",
+   "start": 1963.16,
+   "duration": 6.12
+  },
+  {
+   "text": "neraka neraka lagi neraka enggak apa-apa",
+   "start": 1965.08,
+   "duration": 6.32
+  },
+  {
+   "text": "Mas Rendi jangan baper ya terima kasih",
+   "start": 1969.28,
+   "duration": 4.04
+  },
+  {
+   "text": "tetap lari supaya kencang terus untuk",
+   "start": 1971.4,
+   "duration": 4.96
+  },
+  {
+   "text": "mendekatkan diri pada Tuhan nah terus",
+   "start": 1973.32,
+   "duration": 5.72
+  },
+  {
+   "text": "pertanyaan berikutnya santan dan",
+   "start": 1976.36,
+   "duration": 6.04
+  },
+  {
+   "text": "gorengan Lebih bahaya mana Atau gini",
+   "start": 1979.04,
+   "duration": 4.96
+  },
+  {
+   "text": "jangan dibandingkan Yah itu pertanya",
+   "start": 1982.4,
+   "duration": 4.56
+  },
+  {
+   "text": "netizen I jangan jangan santan itu",
+   "start": 1984.0,
+   "duration": 5.0
+  },
+  {
+   "text": "sebenarnya mengandung lemak jenuh atau",
+   "start": 1986.96,
+   "duration": 4.08
+  },
+  {
+   "text": "teras jenuh atau gorengan Apakah kita",
+   "start": 1989.0,
+   "duration": 3.8
+  },
+  {
+   "text": "masih bisa konsumsi santan dan gorengan",
+   "start": 1991.04,
+   "duration": 4.32
+  },
+  {
+   "text": "secara sehat Jadi kalau santan dan",
+   "start": 1992.8,
+   "duration": 4.88
+  },
+  {
+   "text": "gorengan itu kalau sebatas wajar itu",
+   "start": 1995.36,
+   "duration": 4.8
+  },
+  {
+   "text": "enggak ada masalah sebetulnya karena ya",
+   "start": 1997.68,
+   "duration": 4.56
+  },
+  {
+   "text": "pada dasarnya tubuh itu kita hebat tuh",
+   "start": 2000.16,
+   "duration": 4.6
+  },
+  {
+   "text": "karena bisa melakukan e apa",
+   "start": 2002.24,
+   "duration": 6.08
+  },
+  {
+   "text": "detoksifikasi Mandiri metabolismenya",
+   "start": 2004.76,
+   "duration": 5.76
+  },
+  {
+   "text": "efektif yang berlebihan itulah yang",
+   "start": 2008.32,
+   "duration": 4.32
+  },
+  {
+   "text": "menjadi bahaya Emang efeknya Santen itu",
+   "start": 2010.52,
+   "duration": 4.68
+  },
+  {
+   "text": "apa sih Pak efeknya Santen itu SP",
+   "start": 2012.64,
+   "duration": 4.84
+  },
+  {
+   "text": "sebagian besar menyebabkan peningkatan",
+   "start": 2015.2,
+   "duration": 5.16
+  },
+  {
+   "text": "profilipid ya kolesterol total terus",
+   "start": 2017.48,
+   "duration": 6.4
+  },
+  {
+   "text": "triglceratenya meningkat gitu Tapi kalau",
+   "start": 2020.36,
+   "duration": 5.72
+  },
+  {
+   "text": "sebatas misalnya seminggu sekali",
+   "start": 2023.88,
+   "duration": 3.96
+  },
+  {
+   "text": "seminggu dua kali Enggak ada masalah lah",
+   "start": 2026.08,
+   "duration": 5.24
+  },
+  {
+   "text": "teman saya tujang tiap hari",
+   "start": 2027.84,
+   "duration": 6.88
+  },
+  {
+   "text": "Ideal lah harusnya seideal mungkinlah ya",
+   "start": 2031.32,
+   "duration": 5.52
+  },
+  {
+   "text": "Jadi ya memang yang berlebihan k di",
+   "start": 2034.72,
+   "duration": 4.72
+  },
+  {
+   "text": "agama itu Jin yang berlebihan tidak baik",
+   "start": 2036.84,
+   "duration": 5.08
+  },
+  {
+   "text": "nah gorengan kalau memang gorengan itu",
+   "start": 2039.44,
+   "duration": 4.24
+  },
+  {
+   "text": "dilarang kalau saya goreng sendiri di",
+   "start": 2041.92,
+   "duration": 3.72
+  },
+  {
+   "text": "rumah gimana pakai minyak sendiri tapi",
+   "start": 2043.68,
+   "duration": 4.56
+  },
+  {
+   "text": "sekali tetap ada batasannya karena",
+   "start": 2045.64,
+   "duration": 4.4
+  },
+  {
+   "text": "apapun yang masuk ke dalam tubuh itu kan",
+   "start": 2048.24,
+   "duration": 4.88
+  },
+  {
+   "text": "diganti dijadikan gula nah gula berlebih",
+   "start": 2050.04,
+   "duration": 5.56
+  },
+  {
+   "text": "di dalam tubuh dijadikan triglcerid",
+   "start": 2053.12,
+   "duration": 4.64
+  },
+  {
+   "text": "penyimpanan Nah penyimpanannya kalau",
+   "start": 2055.6,
+   "duration": 5.8
+  },
+  {
+   "text": "misalnya sudah lepas dari ee apa E",
+   "start": 2057.76,
+   "duration": 6.96
+  },
+  {
+   "text": "abdomen ya ini kan abdomenal apa fat ya",
+   "start": 2061.4,
+   "duration": 4.72
+  },
+  {
+   "text": "kalau misalnya ngomong itu dia",
+   "start": 2064.72,
+   "duration": 3.92
+  },
+  {
+   "text": "nyimpannya di liver jadinya apa ftiver",
+   "start": 2066.12,
+   "duration": 4.96
+  },
+  {
+   "text": "Oh jadi kalau ftilver tuh karena tubuh",
+   "start": 2068.64,
+   "duration": 4.0
+  },
+  {
+   "text": "sudah enggak punya lagi simpanan di",
+   "start": 2071.08,
+   "duration": 5.0
+  },
+  {
+   "text": "perut Ya makanya Who mengakukan ee",
+   "start": 2072.64,
+   "duration": 5.04
+  },
+  {
+   "text": "standarnya itu lewat lingkar perut",
+   "start": 2076.08,
+   "duration": 4.84
+  },
+  {
+   "text": "lingkar pinggang ya Selain BMI Iya nah",
+   "start": 2077.68,
+   "duration": 5.68
+  },
+  {
+   "text": "terus berikutnya Kalau kita akan melihat",
+   "start": 2080.92,
+   "duration": 4.8
+  },
+  {
+   "text": "selain Tadi dilihat kasus-kasusnya kan",
+   "start": 2083.36,
+   "duration": 6.16
+  },
+  {
+   "text": "terit cuci darah He kalau terkait",
+   "start": 2085.72,
+   "duration": 6.2
+  },
+  {
+   "text": "jantung Iya banyak yang",
+   "start": 2089.52,
+   "duration": 5.16
+  },
+  {
+   "text": "mengatakan sebenarnya tanpa olahraga pun",
+   "start": 2091.92,
+   "duration": 5.36
+  },
+  {
+   "text": "kita tuh jantung akan menua sendiri I",
+   "start": 2094.68,
+   "duration": 5.56
+  },
+  {
+   "text": "terus gunanya olahraga terhadap penuh",
+   "start": 2097.28,
+   "duration": 4.92
+  },
+  {
+   "text": "jantung tuh gimana Kok bisa jantung",
+   "start": 2100.24,
+   "duration": 4.16
+  },
+  {
+   "text": "Berhenti Berdetak itu pertanyaan netizen",
+   "start": 2102.2,
+   "duration": 5.16
+  },
+  {
+   "text": "Iya Jadi intinya tubuh kita itu suka",
+   "start": 2104.4,
+   "duration": 6.2
+  },
+  {
+   "text": "dengan kondisi dinamis pertama jadi",
+   "start": 2107.36,
+   "duration": 6.36
+  },
+  {
+   "text": "gerak itu itu adalah kaidah apa secara",
+   "start": 2110.6,
+   "duration": 6.08
+  },
+  {
+   "text": "alamiah itu tubuh itu harus gerak nah",
+   "start": 2113.72,
+   "duration": 5.32
+  },
+  {
+   "text": "salah satunya jantung jadi jantung itu",
+   "start": 2116.68,
+   "duration": 5.92
+  },
+  {
+   "text": "ibaratnya Kayak misalnya alat ee apa E",
+   "start": 2119.04,
+   "duration": 6.0
+  },
+  {
+   "text": "kayak sepatu yang tapi tidak digunakan",
+   "start": 2122.6,
+   "duration": 5.12
+  },
+  {
+   "text": "sepatu lama digunakan rusak juga i",
+   "start": 2125.04,
+   "duration": 5.28
+  },
+  {
+   "text": "sepatu dibiarkan rusak juga ya benar",
+   "start": 2127.72,
+   "duration": 4.8
+  },
+  {
+   "text": "krak benul benar crack ya pasti ada",
+   "start": 2130.32,
+   "duration": 4.56
+  },
+  {
+   "text": "craknya sama kayak organ itu enggak",
+   "start": 2132.52,
+   "duration": 5.04
+  },
+  {
+   "text": "hanya jantung tok semua organ itu ee apa",
+   "start": 2134.88,
+   "duration": 4.56
+  },
+  {
+   "text": "faedahnya untuk digerak Kenapa paling",
+   "start": 2137.56,
+   "duration": 4.72
+  },
+  {
+   "text": "gampang paling gampang adalah antar satu",
+   "start": 2139.44,
+   "duration": 4.52
+  },
+  {
+   "text": "organ dengan organ yang lainnya itu",
+   "start": 2142.28,
+   "duration": 4.48
+  },
+  {
+   "text": "terhubung pembuluh darah Pak betul nah",
+   "start": 2143.96,
+   "duration": 4.84
+  },
+  {
+   "text": "ternyata organ itu suka banget dengan",
+   "start": 2146.76,
+   "duration": 5.88
+  },
+  {
+   "text": "nutrisi oksigen dan aliran darah Ya kan",
+   "start": 2148.8,
+   "duration": 5.52
+  },
+  {
+   "text": "flashing kan ya kan sama Kak kita makan",
+   "start": 2152.64,
+   "duration": 3.28
+  },
+  {
+   "text": "enggak dikasih makan sehari ngamuk",
+   "start": 2154.32,
+   "duration": 4.04
+  },
+  {
+   "text": "ngamuk betul Iya namanya nya perfusi kan",
+   "start": 2155.92,
+   "duration": 5.4
+  },
+  {
+   "text": "ya perfusi Jadi begitu jantung memompa",
+   "start": 2158.36,
+   "duration": 5.36
+  },
+  {
+   "text": "secara efektif disalurkan darah itu ke",
+   "start": 2161.32,
+   "duration": 5.32
+  },
+  {
+   "text": "seluruh tubuh organ ginjel paru-paru",
+   "start": 2163.72,
+   "duration": 5.44
+  },
+  {
+   "text": "otak senang Pak dia menjalankan",
+   "start": 2166.64,
+   "duration": 5.0
+  },
+  {
+   "text": "fungsinya itu dengan ikhlas senang",
+   "start": 2169.16,
+   "duration": 5.08
+  },
+  {
+   "text": "gembira karena apa saya dapat jatah yang",
+   "start": 2171.64,
+   "duration": 4.96
+  },
+  {
+   "text": "saya inginkan Oleh karena itu kewajiban",
+   "start": 2174.24,
+   "duration": 5.52
+  },
+  {
+   "text": "saya untuk menjalankan Nah karena itu",
+   "start": 2176.6,
+   "duration": 5.32
+  },
+  {
+   "text": "kenapa jantung itu harus dilatih dengan",
+   "start": 2179.76,
+   "duration": 4.84
+  },
+  {
+   "text": "apa olahraga Nah kalau dia mager itulah",
+   "start": 2181.92,
+   "duration": 5.04
+  },
+  {
+   "text": "alasan mager itu dengan hanya mager tok",
+   "start": 2184.6,
+   "duration": 5.08
+  },
+  {
+   "text": "impactnya kronis bahaya ya bahaya karena",
+   "start": 2186.96,
+   "duration": 5.2
+  },
+  {
+   "text": "tadi lama-kelamaan kronis hipoperfusi",
+   "start": 2189.68,
+   "duration": 4.08
+  },
+  {
+   "text": "jadinya sneaker yang Cracking tapi yang",
+   "start": 2192.16,
+   "duration": 4.24
+  },
+  {
+   "text": "Cracking jantungnya betul nah ini Danil",
+   "start": 2193.76,
+   "duration": 4.64
+  },
+  {
+   "text": "sama Dori ini jantungnya",
+   "start": 2196.4,
+   "duration": 4.52
+  },
+  {
+   "text": "Cracking makanya ini saya Saya khawatir",
+   "start": 2198.4,
+   "duration": 4.32
+  },
+  {
+   "text": "S videografer saya tiba-tiba besok",
+   "start": 2200.92,
+   "duration": 4.56
+  },
+  {
+   "text": "inanillahi amit-amit Kenapa sih Pak",
+   "start": 2202.72,
+   "duration": 4.64
+  },
+  {
+   "text": "kalau kita ngomong secara besar luas",
+   "start": 2205.48,
+   "duration": 3.92
+  },
+  {
+   "text": "pemampang tubuh itu kan juga penting toh",
+   "start": 2207.36,
+   "duration": 4.84
+  },
+  {
+   "text": "Pak jadi semakin kita obes BMI semakin",
+   "start": 2209.4,
+   "duration": 4.8
+  },
+  {
+   "text": "naik luas menampang tubuh akan semakin",
+   "start": 2212.2,
+   "duration": 4.68
+  },
+  {
+   "text": "besar betul jantung itu harus memompa",
+   "start": 2214.2,
+   "duration": 5.0
+  },
+  {
+   "text": "jantungak dari kecil segitu aja Pak",
+   "start": 2216.88,
+   "duration": 5.72
+  },
+  {
+   "text": "bentuknya ya apa ukurannya lama-kelamaan",
+   "start": 2219.2,
+   "duration": 5.24
+  },
+  {
+   "text": "kalau luas penampang tubuh kita semakin",
+   "start": 2222.6,
+   "duration": 4.48
+  },
+  {
+   "text": "besar jantung itu dipaksa untuk memenuhi",
+   "start": 2224.44,
+   "duration": 4.92
+  },
+  {
+   "text": "semua aliran darah ke organ-organ yang",
+   "start": 2227.08,
+   "duration": 4.52
+  },
+  {
+   "text": "penampangnya juga besar dan ada",
+   "start": 2229.36,
+   "duration": 5.0
+  },
+  {
+   "text": "hambatannya begitu kita menampang tubuh",
+   "start": 2231.6,
+   "duration": 5.4
+  },
+  {
+   "text": "membesar pembuluh darahnya otomatis",
+   "start": 2234.36,
+   "duration": 5.4
+  },
+  {
+   "text": "gampang stres di situ dulu yang pembuluh",
+   "start": 2237.0,
+   "duration": 4.68
+  },
+  {
+   "text": "darah kita waktu bayi itu ibaratnya Kay",
+   "start": 2239.76,
+   "duration": 4.6
+  },
+  {
+   "text": "selang nek dikasih tekanan tinggi jos",
+   "start": 2241.68,
+   "duration": 4.6
+  },
+  {
+   "text": "aliran darahnya kencang tapi",
+   "start": 2244.36,
+   "duration": 5.36
+  },
+  {
+   "text": "lama-kelamaan kaku atelur sklerosis jadi",
+   "start": 2246.28,
+   "duration": 5.64
+  },
+  {
+   "text": "kaku kayak pipa begitu dikasih tekanan",
+   "start": 2249.72,
+   "duration": 4.4
+  },
+  {
+   "text": "tinggi jebol Pak jebol di otak Jadinya",
+   "start": 2251.92,
+   "duration": 4.48
+  },
+  {
+   "text": "apa stroke stroke di jantung Jadinya apa",
+   "start": 2254.12,
+   "duration": 4.36
+  },
+  {
+   "text": "serangan jantung dig ginjel Jadinya apa",
+   "start": 2256.4,
+   "duration": 5.12
+  },
+  {
+   "text": "gagal ginjel Bukankah tiga itu adalah",
+   "start": 2258.48,
+   "duration": 4.32
+  },
+  {
+   "text": "penyakit terbanyak saat ini yang",
+   "start": 2261.52,
+   "duration": 4.24
+  },
+  {
+   "text": "ditanggung BPJS berarti karena gaya",
+   "start": 2262.8,
+   "duration": 5.56
+  },
+  {
+   "text": "hidup ya sebag bes gaya hidup Nah",
+   "start": 2265.76,
+   "duration": 4.8
+  },
+  {
+   "text": "sekarang penyakit dalam itu ngurusi",
+   "start": 2268.36,
+   "duration": 4.28
+  },
+  {
+   "text": "infeksi enggak ngurusi Pak Woh kok",
+   "start": 2270.56,
+   "duration": 5.0
+  },
+  {
+   "text": "banyak kpti konsultan penyakit tropik",
+   "start": 2272.64,
+   "duration": 5.68
+  },
+  {
+   "text": "infeksi Nah sekarang terkait infeksi",
+   "start": 2275.56,
+   "duration": 4.56
+  },
+  {
+   "text": "benar enggak Kalau varingitis atau",
+   "start": 2278.32,
+   "duration": 3.8
+  },
+  {
+   "text": "ladang tenggorokan yang tidak ditangani",
+   "start": 2280.12,
+   "duration": 4.08
+  },
+  {
+   "text": "baik bisa menyebabkan infeksi pada klep",
+   "start": 2282.12,
+   "duration": 4.6
+  },
+  {
+   "text": "jantung bisa tapi untuk kasus saya kan",
+   "start": 2284.2,
+   "duration": 5.04
+  },
+  {
+   "text": "bukan jantung pak ginjel pak bisa bisa",
+   "start": 2286.72,
+   "duration": 4.28
+  },
+  {
+   "text": "namanya post streptococal",
+   "start": 2289.24,
+   "duration": 4.16
+  },
+  {
+   "text": "glomeronefritis mod Diar Kok bisa sejauh",
+   "start": 2291.0,
+   "duration": 5.0
+  },
+  {
+   "text": "itu bang diterangkan Bang itu bang jadi",
+   "start": 2293.4,
+   "duration": 4.76
+  },
+  {
+   "text": "postreptococal glomer nefritis itu",
+   "start": 2296.0,
+   "duration": 4.48
+  },
+  {
+   "text": "adalah penyakit yang diakibatkan karena",
+   "start": 2298.16,
+   "duration": 6.12
+  },
+  {
+   "text": "peradangan eh sifatnya kronis menahun",
+   "start": 2300.48,
+   "duration": 5.72
+  },
+  {
+   "text": "atau yang seringlah biasanya itu",
+   "start": 2304.28,
+   "duration": 4.2
+  },
+  {
+   "text": "menyebabkan infek ya secara tidak",
+   "start": 2306.2,
+   "duration": 4.8
+  },
+  {
+   "text": "langsung menyebabkan infected ke ginjal",
+   "start": 2308.48,
+   "duration": 4.92
+  },
+  {
+   "text": "Namun infectednya beda Pak karena sistem",
+   "start": 2311.0,
+   "duration": 4.76
+  },
+  {
+   "text": "imunnya mengenali sebagai threat masalah",
+   "start": 2313.4,
+   "duration": 5.6
+  },
+  {
+   "text": "Waduh jadi di sana terjadi kekakuan apa",
+   "start": 2315.76,
+   "duration": 7.96
+  },
+  {
+   "text": "E pertempuran ya antara eh bakteri dan",
+   "start": 2319.0,
+   "duration": 6.8
+  },
+  {
+   "text": "sistem imun kita secara berlebihan",
+   "start": 2323.72,
+   "duration": 4.6
+  },
+  {
+   "text": "menyebabkan glomerunonfritis yau",
+   "start": 2325.8,
+   "duration": 5.12
+  },
+  {
+   "text": "penyakit yang penyakit radang yang ada",
+   "start": 2328.32,
+   "duration": 5.36
+  },
+  {
+   "text": "di ginjan berarti kelanjutan tadi",
+   "start": 2330.92,
+   "duration": 4.4
+  },
+  {
+   "text": "glomerolus nefritis itu yang protein",
+   "start": 2333.68,
+   "duration": 4.28
+  },
+  {
+   "text": "Bocor iya jadi postreptol glomer k itu",
+   "start": 2335.32,
+   "duration": 5.72
+  },
+  {
+   "text": "jadi respon imunnya itu menjadi aneh",
+   "start": 2337.96,
+   "duration": 5.76
+  },
+  {
+   "text": "abnormal respon imun tubuh itu kalau",
+   "start": 2341.04,
+   "duration": 4.52
+  },
+  {
+   "text": "misalnya ada benda asing dia akan",
+   "start": 2343.72,
+   "duration": 4.16
+  },
+  {
+   "text": "melawan Iya alien cororpus sikat sikat",
+   "start": 2345.56,
+   "duration": 5.6
+  },
+  {
+   "text": "sikat ituu apao sikat gitu kan Nah ini",
+   "start": 2347.88,
+   "duration": 5.72
+  },
+  {
+   "text": "Aneh loh kok tiba-tiba dia itu kayak",
+   "start": 2351.16,
+   "duration": 4.92
+  },
+  {
+   "text": "ibaratnya menyerang tubuhnya sendiri",
+   "start": 2353.6,
+   "duration": 5.84
+  },
+  {
+   "text": "karena pencetusnya dari infeksi eh GL",
+   "start": 2356.08,
+   "duration": 5.88
+  },
+  {
+   "text": "apa postropticocal glomberonefritis Jadi",
+   "start": 2359.44,
+   "duration": 4.68
+  },
+  {
+   "text": "streptcocusnya itu kayak menyerupai",
+   "start": 2361.96,
+   "duration": 5.4
+  },
+  {
+   "text": "mimikri kayak organ ginjal jadi di situ",
+   "start": 2364.12,
+   "duration": 6.28
+  },
+  {
+   "text": "itu terjadi Kompleks e antigen antibodi",
+   "start": 2367.36,
+   "duration": 5.8
+  },
+  {
+   "text": "ya antigen yang ini terjadi pertarungan",
+   "start": 2370.4,
+   "duration": 4.76
+  },
+  {
+   "text": "di sana menyebabkan kerusakan sehingga",
+   "start": 2373.16,
+   "duration": 4.76
+  },
+  {
+   "text": "yang paling dikenal adalah e ginjelnya",
+   "start": 2375.16,
+   "duration": 5.6
+  },
+  {
+   "text": "bocor ya itu yang k bilang Nah sekarang",
+   "start": 2377.92,
+   "duration": 5.64
+  },
+  {
+   "text": "pertanyaan terakhir ya dok eh bedanya",
+   "start": 2380.76,
+   "duration": 4.96
+  },
+  {
+   "text": "nefroti sindrome dan nefritik nah",
+   "start": 2383.56,
+   "duration": 4.2
+  },
+  {
+   "text": "nefrotick sindrome ini pertanyaan UKM",
+   "start": 2385.72,
+   "duration": 4.76
+  },
+  {
+   "text": "PPD langsung ke dokter spesialis secara",
+   "start": 2387.76,
+   "duration": 5.08
+  },
+  {
+   "text": "singkat loh dok Apa perbedaan sindrom",
+   "start": 2390.48,
+   "duration": 4.96
+  },
+  {
+   "text": "nefrotik dan nefritik ya Empat kalau",
+   "start": 2392.84,
+   "duration": 4.84
+  },
+  {
+   "text": "sindrom nefrotik itu ada empat pertama",
+   "start": 2395.44,
+   "duration": 5.56
+  },
+  {
+   "text": "adalah protein Uria terus karena protein",
+   "start": 2397.68,
+   "duration": 5.6
+  },
+  {
+   "text": "Uria albuminnya bocor berarti",
+   "start": 2401.0,
+   "duration": 4.84
+  },
+  {
+   "text": "hipoalbumin albuminnya turun di dalam",
+   "start": 2403.28,
+   "duration": 5.2
+  },
+  {
+   "text": "tubuh terus pengganti proteinnya itu",
+   "start": 2405.84,
+   "duration": 4.64
+  },
+  {
+   "text": "lipid sehingga kolesterolnya tinggi",
+   "start": 2408.48,
+   "duration": 4.88
+  },
+  {
+   "text": "seakan-akan ya kan Terus yang keempat",
+   "start": 2410.48,
+   "duration": 6.2
+  },
+  {
+   "text": "adalah adanya odem bengkak biasanya di",
+   "start": 2413.36,
+   "duration": 5.6
+  },
+  {
+   "text": "Kalau aw kalau anak kecil itu odem",
+   "start": 2416.68,
+   "duration": 4.64
+  },
+  {
+   "text": "palpebra jadi matanya bengkak banget",
+   "start": 2418.96,
+   "duration": 5.84
+  },
+  {
+   "text": "kayak bengep nah sedangkan eh nefritik",
+   "start": 2421.32,
+   "duration": 6.52
+  },
+  {
+   "text": "itu biasanya ada hematurianya ya jadi",
+   "start": 2424.8,
+   "duration": 5.04
+  },
+  {
+   "text": "protein Uri tapi enggak terlalu masif",
+   "start": 2427.84,
+   "duration": 4.88
+  },
+  {
+   "text": "jadi protein uranya positif 2 positif 1",
+   "start": 2429.84,
+   "duration": 5.44
+  },
+  {
+   "text": "tapi hematurianya kalau dicek kencingnya",
+   "start": 2432.72,
+   "duration": 5.16
+  },
+  {
+   "text": "itu positif du positif 3 enggak selalu",
+   "start": 2435.28,
+   "duration": 5.56
+  },
+  {
+   "text": "merah kalau merah Sudah berat pakah plus",
+   "start": 2437.88,
+   "duration": 5.4
+  },
+  {
+   "text": "ada hipertensioh saya enggak punya",
+   "start": 2440.84,
+   "duration": 4.28
+  },
+  {
+   "text": "hipertensi kok tiba-tiba ada hipertensi",
+   "start": 2443.28,
+   "duration": 4.88
+  },
+  {
+   "text": "Nah itu hipertensi biasanya ada gangguan",
+   "start": 2445.12,
+   "duration": 6.24
+  },
+  {
+   "text": "nah ini fakta menarik lagi mungkin ya",
+   "start": 2448.16,
+   "duration": 5.08
+  },
+  {
+   "text": "Orang Indonesia itu enggak sadar bahwa",
+   "start": 2451.36,
+   "duration": 4.8
+  },
+  {
+   "text": "dirinya sedang sakit ginjel loh kok iso",
+   "start": 2453.24,
+   "duration": 5.92
+  },
+  {
+   "text": "ya paling gampang saya ini dok ggak",
+   "start": 2456.16,
+   "duration": 5.28
+  },
+  {
+   "text": "punya hipertensi ya enggak punya",
+   "start": 2459.16,
+   "duration": 5.12
+  },
+  {
+   "text": "diabetes enggak punya kolesterol Deni",
+   "start": 2461.44,
+   "duration": 5.08
+  },
+  {
+   "text": "banget enggak punya asam urat tiba-tiba",
+   "start": 2464.28,
+   "duration": 4.92
+  },
+  {
+   "text": "Kreatinin saya kok tiba-tiba naik ini",
+   "start": 2466.52,
+   "duration": 5.64
+  },
+  {
+   "text": "ada namanya penyakitnya IG nefropati Ini",
+   "start": 2469.2,
+   "duration": 5.08
+  },
+  {
+   "text": "masalah dunia penyakitnya sudah ada",
+   "start": 2472.16,
+   "duration": 4.64
+  },
+  {
+   "text": "sejap lama nanti dikira kayak kita covid",
+   "start": 2474.28,
+   "duration": 5.24
+  },
+  {
+   "text": "kpirasi",
+   "start": 2476.8,
+   "duration": 2.72
+  },
+  {
+   "text": "konspirasiog lanjut IG nefropathi itu",
+   "start": 2479.72,
+   "duration": 5.88
+  },
+  {
+   "text": "adalah penyakit ginjel yaitu karena",
+   "start": 2482.84,
+   "duration": 5.64
+  },
+  {
+   "text": "respon imun yang dia itu berubah secara",
+   "start": 2485.6,
+   "duration": 5.08
+  },
+  {
+   "text": "signifikan penyebabnya apa multifaktor",
+   "start": 2488.48,
+   "duration": 4.4
+  },
+  {
+   "text": "lagi-lagi dan ini menjadi masalah",
+   "start": 2490.68,
+   "duration": 4.68
+  },
+  {
+   "text": "kesehatan dunia sekarang di Indonesia",
+   "start": 2492.88,
+   "duration": 4.92
+  },
+  {
+   "text": "belum dilakukan penelitian banyak tapi",
+   "start": 2495.36,
+   "duration": 5.36
+  },
+  {
+   "text": "sudah ada bahwa orang Asia itu rentan",
+   "start": 2497.8,
+   "duration": 6.16
+  },
+  {
+   "text": "terjadi Iga nefropati jadi saya pengin",
+   "start": 2500.72,
+   "duration": 5.52
+  },
+  {
+   "text": "menekankan pentingnya untuk scrining",
+   "start": 2503.96,
+   "duration": 5.16
+  },
+  {
+   "text": "paling minim adalah cek kencing wis itu",
+   "start": 2506.24,
+   "duration": 6.64
+  },
+  {
+   "text": "Tok Pak Aman sudah sering nah terus",
+   "start": 2509.12,
+   "duration": 7.04
+  },
+  {
+   "text": "banyak konsumsi energy gel Wah ini dalam",
+   "start": 2512.88,
+   "duration": 5.84
+  },
+  {
+   "text": "traileran i ketika kita trail Run kita",
+   "start": 2516.16,
+   "duration": 5.12
+  },
+  {
+   "text": "akan kurang air betul dong 50 kilo 60",
+   "start": 2518.72,
+   "duration": 5.04
+  },
+  {
+   "text": "Kil 100 kilo terus kita konsumsi energy",
+   "start": 2521.28,
+   "duration": 6.64
+  },
+  {
+   "text": "gel untuk orang yang konsumsi energy gel",
+   "start": 2523.76,
+   "duration": 6.88
+  },
+  {
+   "text": "terus-terusan 20 tahun dia trailan apa",
+   "start": 2527.92,
+   "duration": 4.68
+  },
+  {
+   "text": "side effectnya bagi tubuh ya pada",
+   "start": 2530.64,
+   "duration": 4.48
+  },
+  {
+   "text": "dasarnya kalau misalnya dia e ada",
+   "start": 2532.6,
+   "duration": 5.36
+  },
+  {
+   "text": "mengeluarkan apa energi ya Dia sedang",
+   "start": 2535.12,
+   "duration": 5.04
+  },
+  {
+   "text": "aktivitas ditambah energi jel masih make",
+   "start": 2537.96,
+   "duration": 4.96
+  },
+  {
+   "text": "sense kayak ibaratnya impas ya Gak ada",
+   "start": 2540.16,
+   "duration": 5.68
+  },
+  {
+   "text": "masalah tapi kalau itu terusmenerus ini",
+   "start": 2542.92,
+   "duration": 5.92
+  },
+  {
+   "text": "mesin Pak tubuh ini kan mesin ya mesin",
+   "start": 2545.84,
+   "duration": 5.88
+  },
+  {
+   "text": "kalau dipakai terus-menerus dilakukan ee",
+   "start": 2548.84,
+   "duration": 6.92
+  },
+  {
+   "text": "over over aktivitas otomatis terganggu",
+   "start": 2551.72,
+   "duration": 6.4
+  },
+  {
+   "text": "Jadi kesannya bahwa energi gel yang",
+   "start": 2555.76,
+   "duration": 4.88
+  },
+  {
+   "text": "menjadi penyebab masihya tubuh kita itu",
+   "start": 2558.12,
+   "duration": 4.72
+  },
+  {
+   "text": "juga ada limitnya Pak jadi tubuh bisa",
+   "start": 2560.64,
+   "duration": 4.36
+  },
+  {
+   "text": "jadi ya tubuhnya overe exhaust saja I",
+   "start": 2562.84,
+   "duration": 4.44
+  },
+  {
+   "text": "over demonya tubuh adalah memberikan",
+   "start": 2565.0,
+   "duration": 5.56
+  },
+  {
+   "text": "inflamasi betul apalagi kalau larinya di",
+   "start": 2567.28,
+   "duration": 6.48
+  },
+  {
+   "text": "Gunung Ya itu kan respon house kita itu",
+   "start": 2570.56,
+   "duration": 7.0
+  },
+  {
+   "text": "hampir hilang ohara gak sadar J kita",
+   "start": 2573.76,
+   "duration": 6.28
+  },
+  {
+   "text": "lari kalau di darat kita lari ngombeh",
+   "start": 2577.56,
+   "duration": 4.72
+  },
+  {
+   "text": "terus minum terus ya minum terus tapi",
+   "start": 2580.04,
+   "duration": 3.68
+  },
+  {
+   "text": "begitu di Gunung karena kondisinya",
+   "start": 2582.28,
+   "duration": 3.28
+  },
+  {
+   "text": "dingin kita enggak ada respon haus",
+   "start": 2583.72,
+   "duration": 3.96
+  },
+  {
+   "text": "padahal tubuhnya butuh kayak kayak ada",
+   "start": 2585.56,
+   "duration": 3.88
+  },
+  {
+   "text": "alarm tubuh yang secara enggak langsung",
+   "start": 2587.68,
+   "duration": 4.0
+  },
+  {
+   "text": "kita Hilang padahal itu respon penting",
+   "start": 2589.44,
+   "duration": 3.96
+  },
+  {
+   "text": "banget jadi betul reseptor dingin tu",
+   "start": 2591.68,
+   "duration": 4.2
+  },
+  {
+   "text": "bisa mengacukan Haus ya sangat Pak Oh",
+   "start": 2593.4,
+   "duration": 4.6
+  },
+  {
+   "text": "makanya ada yang teman saya habis",
+   "start": 2595.88,
+   "duration": 6.72
+  },
+  {
+   "text": "tereran batu gincil Pak Heh habisan ada",
+   "start": 2598.0,
+   "duration": 7.32
+  },
+  {
+   "text": "itu yang di teman",
+   "start": 2602.6,
+   "duration": 6.4
+  },
+  {
+   "text": "saya habis ya karena lupa minum Pak lupa",
+   "start": 2605.32,
+   "duration": 6.16
+  },
+  {
+   "text": "minum jadi hipersaturasi lupa minum",
+   "start": 2609.0,
+   "duration": 5.48
+  },
+  {
+   "text": "hipersaturasi ada kristal kristal ee",
+   "start": 2611.48,
+   "duration": 5.64
+  },
+  {
+   "text": "waktu itu kristal kalsium Waduh jarang",
+   "start": 2614.48,
+   "duration": 5.6
+  },
+  {
+   "text": "itu nah itu jelas Hip saturate ya I Nah",
+   "start": 2617.12,
+   "duration": 5.4
+  },
+  {
+   "text": "sekarang pesan-pesan sebelum video ini",
+   "start": 2620.08,
+   "duration": 4.44
+  },
+  {
+   "text": "ditutup ya",
+   "start": 2622.52,
+   "duration": 5.32
+  },
+  {
+   "text": "Pesan pesan-pesannya intinya kesehatan",
+   "start": 2624.52,
+   "duration": 7.08
+  },
+  {
+   "text": "itu tanggung jawab pribadimu jadi mulai",
+   "start": 2627.84,
+   "duration": 6.0
+  },
+  {
+   "text": "upayakan yang terbaik untuk dirimu Jika",
+   "start": 2631.6,
+   "duration": 4.64
+  },
+  {
+   "text": "kamu pengin mendapatkan misalnya menjadi",
+   "start": 2633.84,
+   "duration": 4.72
+  },
+  {
+   "text": "saya ini harus mencari uang dok Untuk",
+   "start": 2636.24,
+   "duration": 4.24
+  },
+  {
+   "text": "tulang punggung keluarga jagaan dulu",
+   "start": 2638.56,
+   "duration": 4.84
+  },
+  {
+   "text": "biar long lasting atau tahan lama untuk",
+   "start": 2640.48,
+   "duration": 6.96
+  },
+  {
+   "text": "cari uangnya di babrasno atau di",
+   "start": 2643.4,
+   "duration": 6.92
+  },
+  {
+   "text": "pol-polno sekarang tapi begitu sakit",
+   "start": 2647.44,
+   "duration": 5.64
+  },
+  {
+   "text": "kasihan kan karena ada beberapa kasus",
+   "start": 2650.32,
+   "duration": 6.88
+  },
+  {
+   "text": "ojek online buruh bangunan usia 30 udah",
+   "start": 2653.08,
+   "duration": 7.36
+  },
+  {
+   "text": "gagal ginjel mau cari uang dari mana Pak",
+   "start": 2657.2,
+   "duration": 5.8
+  },
+  {
+   "text": "betul ya betul karena dia sering minuman",
+   "start": 2660.44,
+   "duration": 5.92
+  },
+  {
+   "text": "energy drink karena apa ya itu ada hal",
+   "start": 2663.0,
+   "duration": 5.12
+  },
+  {
+   "text": "yang kesehatan yang harusnya",
+   "start": 2666.36,
+   "duration": 4.68
+  },
+  {
+   "text": "diperhatikan ada ada alarm tubuh yang",
+   "start": 2668.12,
+   "duration": 5.88
+  },
+  {
+   "text": "itu di sama dia Udahlah enggak perlu",
+   "start": 2671.04,
+   "duration": 4.76
+  },
+  {
+   "text": "yang penting saya bisa cari uang",
+   "start": 2674.0,
+   "duration": 3.68
+  },
+  {
+   "text": "besoknya Oh Balance pertanyaan",
+   "start": 2675.8,
+   "duration": 3.48
+  },
+  {
+   "text": "terakhirnya aku lupa ini ini",
+   "start": 2677.68,
+   "duration": 4.36
+  },
+  {
+   "text": "pertanyaanet tapi Dok kalau saya dikasih",
+   "start": 2679.28,
+   "duration": 4.4
+  },
+  {
+   "text": "obat terus bukannya gagal ginjal nanti",
+   "start": 2682.04,
+   "duration": 4.6
+  },
+  {
+   "text": "dok Iya ini nah",
+   "start": 2683.68,
+   "duration": 7.04
+  },
+  {
+   "text": "berat Iya tergantung obatnya apa dan",
+   "start": 2686.64,
+   "duration": 6.8
+  },
+  {
+   "text": "tergantung indikasinya yang menyebabkan",
+   "start": 2690.72,
+   "duration": 7.08
+  },
+  {
+   "text": "gagal ginjal itu adalah obat nyeri jika",
+   "start": 2693.44,
+   "duration": 7.8
+  },
+  {
+   "text": "dikonsumsi rutin dan menahun jadi",
+   "start": 2697.8,
+   "duration": 6.08
+  },
+  {
+   "text": "obat-obatan nyeri itu ada pekelinu",
+   "start": 2701.24,
+   "duration": 5.88
+  },
+  {
+   "text": "pekelinu minum obat nyeri pegelinu minum",
+   "start": 2703.88,
+   "duration": 5.08
+  },
+  {
+   "text": "obat nyeri yang langsung minum EMP",
+   "start": 2707.12,
+   "duration": 4.2
+  },
+  {
+   "text": "tablet kalau bapak-bapak biar afdol He",
+   "start": 2708.96,
+   "duration": 5.88
+  },
+  {
+   "text": "Itu nsid neevropati bisa menyebabkan",
+   "start": 2711.32,
+   "duration": 6.64
+  },
+  {
+   "text": "nekrosis pada tubulus ginjelnya kalau",
+   "start": 2714.84,
+   "duration": 5.44
+  },
+  {
+   "text": "sudah kayak gitu Ya sudah Pak karena",
+   "start": 2717.96,
+   "duration": 4.44
+  },
+  {
+   "text": "ketidak tahuan paling gampang itu apa",
+   "start": 2720.28,
+   "duration": 5.2
+  },
+  {
+   "text": "asam urat enggak ke dokter beli obat di",
+   "start": 2722.4,
+   "duration": 6.8
+  },
+  {
+   "text": "warung minum Pak",
+   "start": 2725.48,
+   "duration": 3.72
+  },
+  {
+   "text": "Deni kalau Kak gitu apa terusan kita",
+   "start": 2730.2,
+   "duration": 5.6
+  },
+  {
+   "text": "sebagai do foto Pak Deni ini dia",
+   "start": 2733.84,
+   "duration": 4.56
+  },
+  {
+   "text": "tersangkanya dibilang eyel kalau",
+   "start": 2735.8,
+   "duration": 5.32
+  },
+  {
+   "text": "antibiotik B antibiotik itu juga ada kan",
+   "start": 2738.4,
+   "duration": 5.72
+  },
+  {
+   "text": "harus dihabuskan Iya itu juga harus",
+   "start": 2741.12,
+   "duration": 6.4
+  },
+  {
+   "text": "sesuai indikasi enggak bisa Saya batuk",
+   "start": 2744.12,
+   "duration": 6.16
+  },
+  {
+   "text": "pilek ke warung beli antibiotik lah",
+   "start": 2747.52,
+   "duration": 5.08
+  },
+  {
+   "text": "misalnya anti batuk pileknya terkait",
+   "start": 2750.28,
+   "duration": 4.4
+  },
+  {
+   "text": "virus ya enggak mambung toh Pak virus Oh",
+   "start": 2752.6,
+   "duration": 3.32
+  },
+  {
+   "text": "makanya itulah alasan konsumsi",
+   "start": 2754.68,
+   "duration": 3.44
+  },
+  {
+   "text": "antibiotik harus dalam pengawasan dokter",
+   "start": 2755.92,
+   "duration": 4.4
+  },
+  {
+   "text": "Iya Always trust your doctor buat",
+   "start": 2758.12,
+   "duration": 3.88
+  },
+  {
+   "text": "teman-teman sekalian menyambut bulan",
+   "start": 2760.32,
+   "duration": 4.32
+  },
+  {
+   "text": "puasa di Ramadan ini teman-teman bisa",
+   "start": 2762.0,
+   "duration": 4.64
+  },
+  {
+   "text": "tulis di kolom komentar pertanyaan apa",
+   "start": 2764.64,
+   "duration": 4.12
+  },
+  {
+   "text": "yang mau ditanyakan dokter Deksa terpi",
+   "start": 2766.64,
+   "duration": 3.68
+  },
+  {
+   "text": "terkait dengan penyakit dalam dan",
+   "start": 2768.76,
+   "duration": 4.2
+  },
+  {
+   "text": "perginjal dan tekanan darah mau paruh Ya",
+   "start": 2770.32,
+   "duration": 4.0
+  },
+  {
+   "text": "silakan infeksi enggak apa-apa itu aja",
+   "start": 2772.96,
+   "duration": 3.36
+  },
+  {
+   "text": "kalau dari saya sampai jumpa di topi",
+   "start": 2774.32,
+   "duration": 4.44
+  },
+  {
+   "text": "Berikutnya saya drter Tirta saya drkter",
+   "start": 2776.32,
+   "duration": 6.88
+  },
+  {
+   "text": "Deksa w s jumpa",
+   "start": 2778.76,
+   "duration": 4.44
+  }
+ ]
+}

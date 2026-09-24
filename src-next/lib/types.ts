@@ -30,6 +30,9 @@ export interface ViralClip {
   hashtag_suggestion?: string;
   /** Per-clip title override. Read by the backend at main.py:2274 and 2463. */
   custom_title?: string;
+  /** Up to 3 checked hook titles, first = the AI's active one (#31). */
+  title_options?: string[];
+  content_type?: string;
 }
 
 export interface AnalyzeResponse {
