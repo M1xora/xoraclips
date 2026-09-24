@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef } from 'react';
 import {
+  ArrowCounterClockwiseIcon,
   ArrowsOutSimpleIcon,
   PauseIcon,
   PlayIcon,
@@ -10,6 +11,7 @@ import {
 import { useYouTubePlayer, type ClipBounds } from '../../hooks/useYouTubePlayer';
 import { faceOffsetPercent, useFaceBox } from '../../hooks/useFaceBox';
 import { usePreviewAudio } from '../../hooks/usePreviewAudio';
+import { boostedBeyondPreview, previewVolume } from './previewSound';
 import { CaptionOverlay } from '../studio/CaptionOverlay';
 import { PreviewTitle } from './PreviewTitle';
 import { useFrameWidth } from './useFrameWidth';
@@ -62,10 +64,14 @@ interface ClipPreviewProps {
   sfxUrl?: string | null;
   sfxEnabled?: boolean;
   sfxVolume?: number;
-  /** Whether preview sound is on; the video itself stays muted. */
+  /** Whether preview sound is on: the video's own sound plus music/SFX (#40). */
   soundOn?: boolean;
   onToggleSound?: () => void;
   soundLabel?: string;
+  /** Studio's "original audio volume" (0-200); the preview stops at 100. */
+  originalAudioVolume?: number;
+  soundBoostNote?: string;
+  replayLabel?: string;
   backgroundStyle?: BackgroundStyle;
   enableFaceTracking?: boolean;
 
@@ -119,6 +125,9 @@ export function ClipPreview({
   soundOn = false,
   onToggleSound,
   soundLabel,
+  originalAudioVolume = 100,
+  soundBoostNote,
+  replayLabel,
   backgroundStyle = 'black',
   enableFaceTracking = true,
   title,
@@ -174,14 +183,32 @@ export function ClipPreview({
     [clip.start_time, clip.end_time],
   );
 
-  const { hostRef, ready, playing, currentTime, toggle, play } = useYouTubePlayer({
+  // Created muted: browsers block autoplay with sound. The sound button
+  // unmutes it, which a click is allowed to do (#40).
+  const { hostRef, ready, playing, currentTime, toggle, play, seek, setSound } = useYouTubePlayer({
     videoId,
     bounds,
     loop,
     muted: true,
     controls: false,
+    // Only ever started through play(), so a new clip is not cued (#40).
+    cueWhenIdle: false,
     pollMs: 120,
   });
+
+  // Applied once the player is ready, and whenever the sound or volume changes.
+  // The same player is reused across clips, so its sound carries over.
+  const volume = previewVolume(originalAudioVolume);
+  useEffect(() => {
+    if (ready) setSound(soundOn, volume);
+  }, [ready, soundOn, volume, setSound]);
+
+  const replay = () => seek(clip.start_time, true);
+  const sfxLoud = sfxEnabled && !!sfxUrl ? sfxVolume : 0;
+  const soundTitle =
+    soundOn && boostedBeyondPreview(originalAudioVolume, sfxLoud) && soundBoostNote
+      ? `${soundLabel ?? ''} (${soundBoostNote})`
+      : soundLabel;
 
   // Sample the face once per clip, at its midpoint, rather than per frame.
   const sampleAt = Math.round((clip.start_time + clip.end_time) / 2);
@@ -189,7 +216,7 @@ export function ClipPreview({
   // (video_engine.py:1590), so the preview follows the same rule.
   const tracks =
     streamerPreset !== 'none' || (enableFaceTracking && aspectRatio === '9:16');
-  const { box } = useFaceBox(videoId, sampleAt, tracks);
+  const { box } = useFaceBox(videoId, sampleAt, tracks, clip.id);
 
   // Captions come from the backend so they match the export exactly.
   const { t } = useLanguage();
@@ -223,10 +250,8 @@ export function ClipPreview({
   const total = Math.max(1, clip.end_time - clip.start_time);
   const progress = Math.min(100, (elapsed / total) * 100);
 
-  const hasAudio = (bgmEnabled && !!bgmUrl) || (sfxEnabled && !!sfxUrl);
-
-  // The YouTube iframe stays muted, so what is audible here is the music and
-  // the hook sound as the renderer would mix them.
+  // Music and the hook sound, mixed as the renderer would, next to the
+  // video's own sound.
   usePreviewAudio({
     bgmUrl,
     bgmEnabled,
@@ -443,37 +468,47 @@ export function ClipPreview({
         <span className="tabular font-mono text-[0.8rem] text-ink-dim">
           {formatTimecode(elapsed)} / {formatTimecode(total)}
         </span>
-        <span className="flex items-center gap-0.5">
-          {/* Only offered when there is something to hear: the video track
-              itself stays muted, so without an uploaded asset this would be a
-              button that does nothing. */}
-          {onToggleSound && hasAudio && (
+        <span className="flex items-center gap-1">
+          {onToggleSound && (
             <button
               type="button"
               onClick={onToggleSound}
               aria-pressed={soundOn}
-              className={`pressable grid size-6 place-items-center rounded hover:bg-surface-2
+              className={`pressable grid size-8 place-items-center rounded hover:bg-surface-2
                 ${soundOn ? 'text-teal-text' : 'text-ink-faint hover:text-ink'}`}
-              aria-label={soundLabel}
-              title={soundLabel}
+              aria-label={soundTitle}
+              title={soundTitle}
             >
               {soundOn ? (
-                <SpeakerSimpleHighIcon size={12} weight="fill" />
+                <SpeakerSimpleHighIcon size={16} weight="fill" />
               ) : (
-                <SpeakerSimpleSlashIcon size={12} />
+                <SpeakerSimpleSlashIcon size={16} />
               )}
             </button>
           )}
 
           <button
             type="button"
+            onClick={replay}
+            disabled={!ready}
+            className="pressable grid size-8 place-items-center rounded text-ink-dim
+              hover:bg-surface-2 hover:text-ink disabled:opacity-40"
+            aria-label={replayLabel}
+            title={replayLabel}
+          >
+            <ArrowCounterClockwiseIcon size={16} weight="bold" />
+          </button>
+
+          <button
+            type="button"
             onClick={toggle}
             disabled={!ready}
-            className="pressable grid size-6 place-items-center rounded text-ink-dim
+            className="pressable grid size-8 place-items-center rounded text-ink-dim
               hover:bg-surface-2 hover:text-ink disabled:opacity-40"
             aria-label={label}
+            title={label}
           >
-            {playing ? <PauseIcon size={12} weight="fill" /> : <PlayIcon size={12} weight="fill" />}
+            {playing ? <PauseIcon size={16} weight="fill" /> : <PlayIcon size={16} weight="fill" />}
           </button>
         </span>
       </div>

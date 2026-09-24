@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { loadYouTubeApi, PLAYER_STATE, type YTPlayer } from '../lib/youtubeApi';
+import { pauseOthers, registerPlayer } from '../lib/playbackGuard';
 
 export interface ClipBounds {
   start: number;
@@ -13,8 +14,44 @@ interface Options {
   loop?: boolean;
   muted?: boolean;
   controls?: boolean;
+  /**
+   * Whether a player that has not played yet is cued at a new clip. Off for
+   * a player only ever started through play() (the Studio preview): the
+   * spot is remembered and play() lands on it, so no late cue can stop
+   * playback (#40).
+   */
+  cueWhenIdle?: boolean;
   /** How often to report playback position, in ms. */
   pollMs?: number;
+}
+
+/** True once the video has played (seekTo keeps it playing or paused). */
+function hasStarted(state: number): boolean {
+  return state === PLAYER_STATE.PLAYING || state === PLAYER_STATE.PAUSED || state === PLAYER_STATE.BUFFERING;
+}
+
+/**
+ * How to put a player at `target` without starting it (#40).
+ *
+ * YouTube's seekTo() STARTS a video that has not played yet (unstarted or
+ * cued). The browser held that start back until the first click anywhere on
+ * the page, and then the source video began playing, with sound, next to the
+ * preview. A video that has not played yet is cued at the spot instead.
+ *
+ * cueVideoById() lands late, so a cue still on its way when play is pressed
+ * resets the player to "cued" and playback stops. So no cue is sent when the
+ * player already sits there: a fresh player (it is created at the clip's
+ * start) or the spot it was last cued at.
+ */
+export function planMove(
+  state: number,
+  current: number,
+  target: number,
+  lastCued: number | null,
+): 'seek' | 'cue' | 'none' {
+  if (hasStarted(state)) return 'seek';
+  if (lastCued !== null) return Math.abs(lastCued - target) < 0.05 ? 'none' : 'cue';
+  return Math.abs(current - target) < 1 ? 'none' : 'cue';
 }
 
 interface PlayerState {
@@ -44,12 +81,15 @@ export function useYouTubePlayer({
   loop = false,
   muted = false,
   controls = true,
+  cueWhenIdle = true,
   pollMs = 200,
 }: Options) {
   const hostRef = useRef<HTMLDivElement | null>(null);
   const playerRef = useRef<YTPlayer | null>(null);
   const timerRef = useRef<number | null>(null);
   const seekingRef = useRef(false);
+  // Where a not-yet-started player was last cued; see planMove (#40).
+  const cuedRef = useRef<number | null>(null);
 
   // Live values for the interval, so it never needs rebuilding.
   const boundsRef = useRef<ClipBounds | null>(bounds);
@@ -117,6 +157,7 @@ export function useYouTubePlayer({
     const mount = document.createElement('div');
     host.appendChild(mount);
 
+    let unregister: (() => void) | null = null;
     loadYouTubeApi()
       .then((YT) => {
         if (cancelled) return;
@@ -137,8 +178,11 @@ export function useYouTubePlayer({
           events: {
             onReady: ({ target }) => {
               if (cancelled) return;
+              unregister = registerPlayer(target);
               if (muted) target.mute();
-              if (bounds) target.seekTo(bounds.start, true);
+              // Created at the clip's start (playerVars.start): no seek here,
+              // which would start the video (#40). play() lands on the exact
+              // start.
               setState((s) => ({ ...s, ready: true, error: null }));
             },
             onStateChange: ({ data, target }) => {
@@ -146,8 +190,14 @@ export function useYouTubePlayer({
               const playing = data === PLAYER_STATE.PLAYING;
               setState((s) => ({ ...s, playing }));
 
-              if (playing) startPolling();
-              else stopPolling();
+              if (playing) {
+                // Started (also with YouTube's own controls): a remembered
+                // cue spot no longer applies.
+                cuedRef.current = null;
+                // One sound at a time, so two players never talk over each other (#40).
+                pauseOthers(target);
+                startPolling();
+              } else stopPolling();
 
               const b = boundsRef.current;
               if (data === PLAYER_STATE.ENDED && loopRef.current && b) {
@@ -168,6 +218,7 @@ export function useYouTubePlayer({
 
     return () => {
       cancelled = true;
+      unregister?.();
       stopPolling();
       try {
         playerRef.current?.destroy();
@@ -183,7 +234,34 @@ export function useYouTubePlayer({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [videoId, startPolling, stopPolling]);
 
-  // Moving to another clip seeks the existing player. The readout follows
+  /** Puts the player at `seconds` without starting it. */
+  const moveTo = useCallback(
+    (player: YTPlayer, seconds: number) => {
+      let current = seconds;
+      try {
+        current = player.getCurrentTime();
+      } catch {
+        // Not ready: treat as already there.
+      }
+      const plan = planMove(player.getPlayerState(), current, seconds, cuedRef.current);
+      if (plan === 'seek') {
+        cuedRef.current = null;
+        // A poll tick right after the seek can still read the old time; it
+        // would pause a source player that seems past the new clip's end.
+        seekingRef.current = true;
+        player.seekTo(seconds, true);
+        window.setTimeout(() => {
+          seekingRef.current = false;
+        }, 120);
+      } else if (plan === 'cue') {
+        cuedRef.current = seconds;
+        if (cueWhenIdle) player.cueVideoById({ videoId, startSeconds: seconds });
+      }
+    },
+    [videoId, cueWhenIdle],
+  );
+
+  // Moving to another clip moves the existing player (cued, not started). The readout follows
   // only once the seek went through, as before; it is set in a microtask so
   // the effect body itself sets no state (#2).
   const boundsStart = bounds?.start;
@@ -191,7 +269,7 @@ export function useYouTubePlayer({
   useEffect(() => {
     if (!state.ready || boundsStart === undefined || !playerRef.current) return;
     try {
-      playerRef.current.seekTo(boundsStart, true);
+      moveTo(playerRef.current, boundsStart);
     } catch {
       return;
     }
@@ -202,16 +280,21 @@ export function useYouTubePlayer({
     return () => {
       live = false;
     };
-  }, [boundsStart, boundsEnd, state.ready]);
+  }, [boundsStart, boundsEnd, state.ready, moveTo]);
 
   const seek = useCallback((seconds: number, play = false) => {
     const player = playerRef.current;
     if (!player) return;
     seekingRef.current = true;
     try {
-      player.seekTo(seconds, true);
+      if (play) {
+        cuedRef.current = null;
+        player.seekTo(seconds, true);
+        player.playVideo();
+      } else {
+        moveTo(player, seconds);
+      }
       setState((s) => ({ ...s, currentTime: seconds }));
-      if (play) player.playVideo();
     } catch {
       // Ignore.
     } finally {
@@ -220,11 +303,20 @@ export function useYouTubePlayer({
         seekingRef.current = false;
       }, 120);
     }
-  }, []);
+  }, [moveTo]);
 
   const play = useCallback(() => {
+    const player = playerRef.current;
+    if (!player) return;
     try {
-      playerRef.current?.playVideo();
+      // The first play lands on the exact spot: the player was created at
+      // the whole second, or cued at the last clip picked (#40).
+      if (!hasStarted(player.getPlayerState())) {
+        const at = cuedRef.current ?? boundsRef.current?.start;
+        cuedRef.current = null;
+        if (at !== undefined) player.seekTo(at, true);
+      }
+      player.playVideo();
     } catch {
       // Ignore.
     }
@@ -243,5 +335,23 @@ export function useYouTubePlayer({
     else play();
   }, [state.playing, play, pause]);
 
-  return { hostRef, ...state, seek, play, pause, toggle };
+  /** Sound on at `volume` (0-100), or muted. The player is not rebuilt (#40). */
+  const setSound = useCallback((on: boolean, volume: number) => {
+    const player = playerRef.current;
+    if (!player) return;
+    try {
+      if (on) {
+        player.unMute();
+        player.setVolume(volume);
+        // Now audible: another player with sound should stop.
+        if (player.getPlayerState() === PLAYER_STATE.PLAYING) pauseOthers(player, true);
+      } else {
+        player.mute();
+      }
+    } catch {
+      // Ignore.
+    }
+  }, []);
+
+  return { hostRef, ...state, seek, play, pause, toggle, setSound };
 }

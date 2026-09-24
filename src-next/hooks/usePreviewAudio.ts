@@ -152,20 +152,20 @@ export function usePreviewAudio({
       return;
     }
 
-    const target = bgmSeekTarget(bgmStartOffset, elapsedRef.current, el.duration);
-
-    if (Math.abs(el.currentTime - target) > 0.35) {
-      try {
-        el.currentTime = target;
-      } catch {
-        // Seeking before metadata loads throws; the next tick retries.
-      }
-    }
+    syncBgm(el, bgmStartOffset, elapsedRef.current, START_SYNC_SEC);
 
     void el.play().catch(() => {
       // Autoplay can be refused until the user interacts with the page.
     });
   }, [playing, bgmStartOffset, bgmOn]);
+
+  // A jump in the video (replay from start, the loop wrapping round) leaves
+  // the music behind; the effect above only runs when playback starts (#40).
+  useEffect(() => {
+    const el = bgmRef.current;
+    if (!el || !playing) return;
+    syncBgm(el, bgmStartOffset, elapsed, RESYNC_SEC);
+  }, [playing, elapsed, bgmStartOffset]);
 
   // The SFX is a one-shot at the start of the clip, so it restarts whenever
   // playback returns to the beginning rather than following the playhead.
@@ -190,6 +190,30 @@ export function usePreviewAudio({
       firedRef.current = false;
     }
   }, [playing, elapsed]);
+}
+
+/** Drift allowed when playback starts, and while it runs (#40). */
+const START_SYNC_SEC = 0.35;
+export const RESYNC_SEC = 1;
+
+/**
+ * Whether the music is further than `tolerance` from where it should be.
+ * The track loops, so 0.1s and 29.9s of a 30s track are 0.2s apart, not 29.8.
+ */
+export function needsResync(current: number, target: number, trackLen = Number.NaN, tolerance = RESYNC_SEC): boolean {
+  let d = Math.abs(current - target);
+  if (Number.isFinite(trackLen) && trackLen > 0) d = Math.min(d, trackLen - (d % trackLen));
+  return d > tolerance;
+}
+
+function syncBgm(el: HTMLAudioElement, offset: number, elapsed: number, tolerance: number): void {
+  const target = bgmSeekTarget(offset, elapsed, el.duration);
+  if (!needsResync(el.currentTime, target, el.duration, tolerance)) return;
+  try {
+    el.currentTime = target;
+  } catch {
+    // Seeking before metadata loads throws; the next tick retries.
+  }
 }
 
 function clamp01(v: number): number {
