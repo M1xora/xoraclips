@@ -1,6 +1,7 @@
 import { useCallback, useRef, useState } from 'react';
 import type { AnalyzeResponse } from '../lib/types';
 import { geminiKeyHeaders } from '../api/client';
+import type { ClipDuration } from '../features/analyze/clipDurations';
 
 export interface AnalyzeProgress {
   step: number;
@@ -12,7 +13,7 @@ export interface AnalyzeProgress {
 
 export interface AnalyzeRequest {
   url: string;
-  duration: string;
+  duration: ClipDuration;
   model?: string;
   custom_prompt?: string;
   range_start?: number;

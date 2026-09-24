@@ -52,6 +52,7 @@ try:
         COOKIES_PATH,
         download_clip_segment,
         download_full_raw_video,
+        download_timeouts,
         transcribe_clip_words,
         generate_ass_file,
         render_clip_to_mp4,
@@ -70,6 +71,7 @@ except ImportError:
         COOKIES_PATH,
         download_clip_segment,
         download_full_raw_video,
+        download_timeouts,
         transcribe_clip_words,
         generate_ass_file,
         render_clip_to_mp4,
@@ -97,6 +99,7 @@ try:
     from backend.youtube_errors import CaptionUnavailable, YouTubeBlocked
     from backend import title_rules
     from backend import clip_bounds
+    from backend import clip_lengths
 except ImportError:
     from secrets_guard import (
         GEMINI_KEY_HEADER, install_log_redaction, is_mock_mode, redact_data,
@@ -107,6 +110,7 @@ except ImportError:
     from youtube_errors import CaptionUnavailable, YouTubeBlocked
     import title_rules
     import clip_bounds
+    import clip_lengths
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
@@ -189,7 +193,7 @@ class VideoAnalysis(BaseModel):
 
 class AnalyzeRequest(BaseModel):
     url: str = Field(..., description="YouTube video URL")
-    duration: str = Field("30s", description="Target clip duration: '15s', '30s', or '60s'")
+    duration: clip_lengths.Duration = Field("30s", description="Target clip duration: '15s', '30s', '60s', '120s' or '180s'")
     model: Optional[str] = Field("gemini-2.5-flash", description="Preferred Gemini model name")
     custom_prompt: Optional[str] = Field(None, description="Optional custom focus prompt for clips search")
     range_start: Optional[float] = Field(None, description="Search range start in seconds")
@@ -1955,20 +1959,9 @@ async def analyze_video(
             return
 
         is_long_video = duration > 3600
-        if request.target_clip_count:
-            N = request.target_clip_count
-            if N <= 5:
-                min_clips = max(1, N - 1)
-                max_clips = N + 2
-            elif N <= 10:
-                min_clips = max(1, N - 2)
-                max_clips = N + 3
-            else:
-                min_clips = N - 5
-                max_clips = N + 5
-            clip_range = f"{min_clips}-{max_clips}"
-        else:
-            clip_range = "15-60" if is_long_video else "10-30"
+        # Issue #34: never more clips than fit in the searched span.
+        clip_range, capped_count = clip_lengths.clip_count_range(
+            request.target_clip_count, is_long_video, end_bound - start_bound, request.duration)
 
         # ── Step 4: Build prompt ─────────────────────────────────────────────
         transcript_dump = []
@@ -1982,7 +1975,7 @@ async def analyze_video(
             transcript_dump = transcript_dump[:MAX_LINES]
 
         transcript_text = "\n".join(transcript_dump)
-        dur_range   = {"15s": "10-20s", "30s": "20-40s", "60s": "45-75s"}.get(request.duration, "20-40s")
+        dur_range   = clip_lengths.prompt_range(request.duration)
         heatmap_note = (
             "Columns: start|end|audience_interest(0-1). Prioritise high-interest peaks."
             if heatmap else
@@ -2003,6 +1996,7 @@ async def analyze_video(
             f"- Video Duration: {int(start_bound)}s to {int(end_bound)}s (Total: {int(duration)}s) | Target clip length: {dur_range}\n"
             f"- Heatmap: {heatmap_note}\n\n"
             f"{focus_instruction}"
+            f"{clip_lengths.prompt_rules(request.duration)}"
             f"{title_rules.prompt_rules()}"
             f"Write caption_suggestion, key_quotes and hashtag_suggestion in the language of the transcript.\n\n"
             f"Transcript (start|end[|interest] text):\n---\n{transcript_text}\n---\n\n"
@@ -2024,6 +2018,18 @@ async def analyze_video(
             "model": requested_model,
             "message": f"Assembling prompt and engagement context for {requested_model}..."
         })
+        if capped_count is not None:
+            span_s = int(end_bound - start_bound)
+            yield _sse({
+                "step": 4,
+                "step_progress": 12,
+                "overall_progress": 72,
+                "stage": "Clip Count",
+                "detail": (f"{request.target_clip_count} clips of {clip_lengths.label(request.duration)} do not fit in "
+                           f"{span_s // 60}:{span_s % 60:02d} of video: asking for at most {capped_count}."),
+                "model": requested_model,
+                "message": f"Asking for at most {capped_count} clip(s) so they do not overlap...",
+            })
 
         # ── Step 4: Gemini API call with dynamic Flash fallback models and retry ───────────
         client = genai.Client(api_key=gemini_key)
@@ -2263,18 +2269,13 @@ async def analyze_video(
         if len(analysis_data.get('clips', [])) == 0 and enriched_transcript:
             logger.info("Generating fallback clips from heatmap and transcript segments...")
             sorted_lines = sorted(enriched_transcript, key=lambda l: l.get('engagement', 0.0), reverse=True)
-            candidate_starts = []
-            for l in sorted_lines:
-                s = l['start']
-                if not any(abs(s - existing) < 25.0 for existing in candidate_starts):
-                    candidate_starts.append(s)
-                if len(candidate_starts) >= 5:
-                    break
-            
+            # Issue #34: windows around the peaks that do not overlap and stay
+            # inside the searched range (end_bound, not the range's length).
+            windows = clip_lengths.backup_windows(
+                [l['start'] for l in sorted_lines], request.duration, start_bound, end_bound)
+
             fallback_clips_list = []
-            for i, st in enumerate(candidate_starts):
-                target_len = 30.0 if request.duration == "30s" else 15.0 if request.duration == "15s" else 60.0
-                et = min(duration, st + target_len)
+            for i, (st, et, peak) in enumerate(windows):
                 seg_lines = [l['text'] for l in enriched_transcript if max(l['start'], st) < min(l['end'], et)]
                 seg_text = " ".join(seg_lines).strip()
                 preview = seg_text[:60] + "..." if len(seg_text) > 60 else seg_text or f"Viral Highlight #{i+1}"
@@ -2282,7 +2283,7 @@ async def analyze_video(
                     "title": f"Key Highlight #{i+1}",
                     "start_time": st,
                     "end_time": et,
-                    "hook_time": st,
+                    "hook_time": peak,
                     "virality_score": max(70, int(95 - i * 5)),
                     "key_quotes": [seg_text[:80]] if seg_text else [],
                     "title_suggestion": f"Must Watch Moment #{i+1}",
@@ -2321,6 +2322,13 @@ async def analyze_video(
         snapped_bounds = clip_bounds.snap_clips(raw_bounds, enriched_transcript, start_bound, end_bound)
         moved = sum(1 for r, s in zip(raw_bounds, snapped_bounds) if r != s)
         logger.info(f"Clip bounds: {moved}/{len(raw_bounds)} clip(s) moved to line/sentence edges.")
+        # Issue #34: the length limit runs after snapping, which can lengthen a clip.
+        lines_index = clip_bounds.Lines(enriched_transcript)
+        capped_bounds = [(s, clip_lengths.cap_length(s, e, lines_index, end_bound)) for s, e in snapped_bounds]
+        cut = sum(1 for a, b in zip(snapped_bounds, capped_bounds) if a != b)
+        if cut:
+            logger.info(f"Clip length: {cut} clip(s) cut back to {clip_lengths.MAX_CLIP_SECONDS:.0f}s.")
+        snapped_bounds = capped_bounds
 
         # Reconstruct clip transcripts from enriched_transcript
         final_clips = []
@@ -3169,6 +3177,8 @@ async def run_raw_clip_download_job(
                     break
 
         duration_sec = max(1.0, end_time - start_time)
+        # Issue #34: re-encoding a 3-minute clip on the CPU can take longer than 90s.
+        trim_timeout = download_timeouts(duration_sec)["trim"]
 
         success = False
         if source_video and os.path.exists(source_video):
@@ -3186,7 +3196,7 @@ async def run_raw_clip_download_job(
                     "-movflags", "+faststart",
                     str(out_path)
                 ]
-                await asyncio.to_thread(subprocess.run, trim_cmd, check=True, timeout=90)
+                await asyncio.to_thread(subprocess.run, trim_cmd, check=True, timeout=trim_timeout)
                 if out_path.exists() and out_path.stat().st_size > 1000:
                     success = True
             except Exception as trim_err:
@@ -3206,7 +3216,7 @@ async def run_raw_clip_download_job(
                         "-movflags", "+faststart",
                         str(out_path)
                     ]
-                    await asyncio.to_thread(subprocess.run, cpu_trim_cmd, check=True, timeout=90)
+                    await asyncio.to_thread(subprocess.run, cpu_trim_cmd, check=True, timeout=trim_timeout)
                     if out_path.exists() and out_path.stat().st_size > 1000:
                         success = True
                 except Exception as cpu_err:

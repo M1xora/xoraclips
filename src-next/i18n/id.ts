@@ -60,6 +60,8 @@ export const id = {
     durationHook: 'hook',
     durationShorts: 'shorts',
     durationStory: 'cerita',
+    durationContext: 'konteks',
+    durationFull: 'utuh',
 
     clipCountLabel: (n: number) => `Jumlah klip (sekitar ${n})`,
     focusLabel: 'Fokus pada (opsional)',

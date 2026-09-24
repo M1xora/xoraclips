@@ -158,6 +158,30 @@ class Lines:
         return None
 
 
+    def last_end_before(self, limit: float, hi: float) -> Optional[float]:
+        """The latest clean clip end at or before limit, or None.
+
+        A sentence end when the transcript has punctuation, otherwise a line
+        end with its tail (without the tail if only that fits).
+        """
+        if self.punctuated:
+            k = bisect.bisect_right(self._stop_times, limit) - 1
+            while k >= 0:
+                end = self._stop_end(k, hi)
+                if end <= limit:
+                    return end
+                k -= 1
+        best = None
+        for i, e in enumerate(self.ends):
+            if e > limit:
+                continue
+            tailed = self._tail(i, hi)
+            end = tailed if tailed <= limit else e
+            if best is None or end > best:
+                best = end
+        return best
+
+
 def snap_clip(start: float, end: float, lines: Lines, lo: float, hi: float) -> Tuple[float, float]:
     """One clip's (start, end) moved to line and sentence edges; unchanged if that goes wrong."""
     s = lines.snap_start(start, lo)

@@ -10,6 +10,8 @@ interface SegmentedControlProps<T extends string> {
   options: readonly Option<T>[];
   onChange: (value: T) => void;
   disabled?: boolean;
+  /** Drop the `sub` hints on phones so many options still fit one row. */
+  hideSubsOnPhone?: boolean;
 }
 
 /**
@@ -25,6 +27,7 @@ export function SegmentedControl<T extends string>({
   options,
   onChange,
   disabled,
+  hideSubsOnPhone = false,
 }: SegmentedControlProps<T>) {
   return (
     <div>
@@ -32,7 +35,7 @@ export function SegmentedControl<T extends string>({
       <div
         role="radiogroup"
         aria-label={label}
-        className="mt-1.5 inline-flex rounded-[--radius-control] border border-hairline bg-surface-2 p-0.5"
+        className="mt-1.5 inline-flex max-w-full flex-wrap rounded-[--radius-control] border border-hairline bg-surface-2 p-0.5"
       >
         {options.map((opt) => {
           const active = opt.value === value;
@@ -49,7 +52,11 @@ export function SegmentedControl<T extends string>({
                 ${active ? 'bg-accent text-on-accent' : 'text-ink-dim hover:text-ink'}`}
             >
               {opt.label}
-              {opt.sub && <span className="ml-1 opacity-70">{opt.sub}</span>}
+              {opt.sub && (
+                <span className={`ml-1 opacity-70 ${hideSubsOnPhone ? 'hidden sm:inline' : ''}`}>
+                  {opt.sub}
+                </span>
+              )}
             </button>
           );
         })}

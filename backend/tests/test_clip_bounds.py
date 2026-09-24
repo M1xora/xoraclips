@@ -186,18 +186,19 @@ def test_the_search_range_still_holds(api):
 
 
 def test_backup_clips_are_snapped_too(api, monkeypatch):
-    # Lines of 4s every 7s: a 30s backup clip from a line start ends 2s into
-    # a line, so it has to be moved to that line's end.
-    monkeypatch.setattr(main, "fetch_transcript", lambda *a, **k: [
-        {"text": f"kalimat nomor {i}", "start": i * 7.0, "duration": 4.0} for i in range(17)])
+    # Lines of 4s every 7s: a 30s backup window mostly starts or ends inside
+    # a line, and has to be moved to that line's edge.
+    lines = [{"text": f"kalimat nomor {i}", "start": i * 7.0, "duration": 4.0} for i in range(17)]
+    monkeypatch.setattr(main, "fetch_transcript", lambda *a, **k: [dict(l) for l in lines])
     FakeGemini.payload = {"summary": "", "clips": []}
     clips = analyze(api)["clips"]
     assert clips
-    whole = [c for c in clips if c["start_time"] + 30 < 118]  # not cut off by the video's end
-    assert whole
-    for clip in whole:
-        assert clip["start_time"] % 7 == 0
-        assert round(clip["end_time"] - clip["start_time"], 2) == 32.4  # 30s -> end of line + tail
+    edges = Lines([{"start": l["start"], "end": l["start"] + l["duration"]} for l in lines])
+    for clip in clips:
+        assert edges._containing(clip["start_time"]) is None or clip["start_time"] in edges.starts
+        assert edges._containing(clip["end_time"] - 0.001) is None
+        # A 30s window, widened by at most one line on each side (+ tail).
+        assert 30 <= clip["end_time"] - clip["start_time"] <= 30 + 2 * 7 + TAIL_SECONDS
 
 
 def test_a_time_gemini_did_not_give_as_a_number_does_not_break_the_analysis(api):
