@@ -18,6 +18,7 @@ import { Slider } from '../../components/ui/Slider';
 import { useLocalStorage, useLocalStorageString } from '../../hooks/useLocalStorage';
 import { api, ApiError } from '../../api/client';
 import type { AnalyzeRequest } from '../../hooks/useAnalyze';
+import { durationOptions, type ClipDuration } from './clipDurations';
 import { useLanguage } from '../../i18n';
 import { useServerAiStatus } from '../../hooks/useServerAiStatus';
 import { AI_STUDIO_KEY_URL, clearApiKey, loadApiKey, saveApiKey } from './apiKeyStore';
@@ -86,7 +87,7 @@ export function AnalyzeForm({ onSubmit, busy, onKeyCleared }: AnalyzeFormProps) 
   );
   const [clipCount, setClipCount] = useLocalStorage('xoraclips_target_clip_count', 10);
 
-  const [duration, setDuration] = useState<'15s' | '30s' | '60s'>('30s');
+  const [duration, setDuration] = useState<ClipDuration>('30s');
   const [prompt, setPrompt] = useState('');
   const [rangeType, setRangeType] = useState<'entire' | 'custom'>('entire');
   const [rangeStart, setRangeStart] = useState('');
@@ -207,11 +208,7 @@ export function AnalyzeForm({ onSubmit, busy, onKeyCleared }: AnalyzeFormProps) 
 
   const modelOptions = models.length > 0 ? models : FALLBACK_MODELS;
 
-  const durations = [
-    { value: '15s' as const, label: '15s', sub: t.form.durationHook },
-    { value: '30s' as const, label: '30s', sub: t.form.durationShorts },
-    { value: '60s' as const, label: '60s', sub: t.form.durationStory },
-  ];
+  const durations = durationOptions(t);
   const subtitleSources = [
     { value: 'youtube' as const, label: t.form.subtitleFromYoutube },
     { value: 'manual' as const, label: t.form.subtitleUpload },

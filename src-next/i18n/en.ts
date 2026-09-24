@@ -61,6 +61,8 @@ export const en: Translations = {
     durationHook: 'hooks',
     durationShorts: 'shorts',
     durationStory: 'story',
+    durationContext: 'context',
+    durationFull: 'full',
 
     clipCountLabel: (n: number) => `How many clips (about ${n})`,
     focusLabel: 'Focus on (optional)',
