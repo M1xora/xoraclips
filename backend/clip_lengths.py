@@ -13,6 +13,8 @@ value silently became 30s. Now the request only accepts the values below.
   span without overlap (10 clips of 3 minutes do not fit in 15 minutes).
 - Backup clips (when Gemini returns none) are placed around the peaks, do
   not overlap, and stay inside the searched span.
+- 2m/3m clips Gemini made too short are widened to the shortest length
+  (#38), ending on a sentence or line edge.
 """
 from typing import Dict, List, Literal, Optional, Sequence, Tuple
 
@@ -148,3 +150,47 @@ def backup_windows(
         if len(chosen) >= count:
             break
     return chosen
+
+
+# How the missing seconds of a too-short clip are split: most of it after
+# the clip (where the story goes on), the rest before it (the lead-up).
+STRETCH_AFTER_SHARE = 0.75
+
+
+def stretch_short_clips(
+    bounds: Sequence[Tuple[float, float]], lines: Lines, duration: str, lo: float, hi: float
+) -> List[Tuple[float, float]]:
+    """2m/3m clips under the shortest length, widened to reach it (#38).
+
+    Gemini (seen with gemini-3.5-flash-lite) can ignore the length rule and
+    return 40s clips for 2m. Like OpusClip, the length stays a preference,
+    but a clip is only widened up to the shortest length, not the target,
+    so as little as possible is added that Gemini did not pick. The new ends
+    are moved to a line start and a sentence/line end, never into another
+    clip, and stay inside [lo, hi]. Other durations are left alone.
+    """
+    out = [list(b) for b in bounds]
+    if duration not in LONG_DURATIONS:
+        return [(s, e) for s, e in out]
+    shortest = float(DURATIONS[duration][0])
+
+    for k in sorted(range(len(out)), key=lambda n: out[n][0]):
+        s, e = out[k]
+        if e - s >= shortest:
+            continue
+        # Neighbours as they are now; clips that already overlap this one
+        # (Gemini's own overlaps) are not walls.
+        before = max([lo] + [b for j, (a, b) in enumerate(out) if j != k and b <= s])
+        after = min([hi] + [a for j, (a, b) in enumerate(out) if j != k and a >= e])
+        missing = shortest - (e - s)
+        add_after = min(max(0.0, after - e), missing * STRETCH_AFTER_SHARE)
+        add_before = min(max(0.0, s - before), missing - add_after)
+        add_after = min(max(0.0, after - e), missing - add_before)
+
+        new_s = max(before, lines.snap_start(s - add_before, before))
+        target_end = e + add_after
+        sentence = lines.sentence_end(target_end, after)
+        new_e = min(after, sentence if sentence is not None else lines.snap_end(target_end, after))
+        if new_e > new_s and (new_s, new_e) != (s, e):
+            out[k] = [round(new_s, 2), round(new_e, 2)]
+    return [(s, e) for s, e in out]
