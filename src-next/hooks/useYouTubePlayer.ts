@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { loadYouTubeApi, PLAYER_STATE, type YTPlayer } from '../lib/youtubeApi';
+import { pauseOthers, registerPlayer } from '../lib/playbackGuard';
 
 export interface ClipBounds {
   start: number;
@@ -117,6 +118,7 @@ export function useYouTubePlayer({
     const mount = document.createElement('div');
     host.appendChild(mount);
 
+    let unregister: (() => void) | null = null;
     loadYouTubeApi()
       .then((YT) => {
         if (cancelled) return;
@@ -137,6 +139,7 @@ export function useYouTubePlayer({
           events: {
             onReady: ({ target }) => {
               if (cancelled) return;
+              unregister = registerPlayer(target);
               if (muted) target.mute();
               if (bounds) target.seekTo(bounds.start, true);
               setState((s) => ({ ...s, ready: true, error: null }));
@@ -146,8 +149,11 @@ export function useYouTubePlayer({
               const playing = data === PLAYER_STATE.PLAYING;
               setState((s) => ({ ...s, playing }));
 
-              if (playing) startPolling();
-              else stopPolling();
+              if (playing) {
+                // One video at a time, so two players never talk over each other (#40).
+                pauseOthers(target);
+                startPolling();
+              } else stopPolling();
 
               const b = boundsRef.current;
               if (data === PLAYER_STATE.ENDED && loopRef.current && b) {
@@ -168,6 +174,7 @@ export function useYouTubePlayer({
 
     return () => {
       cancelled = true;
+      unregister?.();
       stopPolling();
       try {
         playerRef.current?.destroy();
@@ -243,5 +250,21 @@ export function useYouTubePlayer({
     else play();
   }, [state.playing, play, pause]);
 
-  return { hostRef, ...state, seek, play, pause, toggle };
+  /** Sound on at `volume` (0-100), or muted. The player is not rebuilt (#40). */
+  const setSound = useCallback((on: boolean, volume: number) => {
+    const player = playerRef.current;
+    if (!player) return;
+    try {
+      if (on) {
+        player.unMute();
+        player.setVolume(volume);
+      } else {
+        player.mute();
+      }
+    } catch {
+      // Ignore.
+    }
+  }, []);
+
+  return { hostRef, ...state, seek, play, pause, toggle, setSound };
 }

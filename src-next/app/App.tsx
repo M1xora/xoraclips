@@ -551,6 +551,9 @@ export function App() {
                         soundOn={previewSound}
                         onToggleSound={() => setPreviewSound((v) => !v)}
                         soundLabel={t.player.previewSound}
+                        originalAudioVolume={studio.originalAudioVolume}
+                        soundBoostNote={t.player.previewBoostNote}
+                        replayLabel={t.player.replay}
                         backgroundStyle={studio.backgroundStyle}
                         enableFaceTracking={studio.enableFaceTracking}
                         title={studio.titlePosition === 'none' ? undefined : titleRender.formatted}
