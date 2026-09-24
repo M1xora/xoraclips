@@ -133,3 +133,29 @@ def test_the_users_case_2m_clips_of_40s_come_back_at_least_90s(api):
     assert all(90 <= n <= 179 for n in lengths), lengths
     assert all(c["start_time"] <= c["hook_time"] <= c["end_time"] for c in clips)
     assert clips[2]["end_time"] - clips[2]["start_time"] == 95.0  # already long enough: untouched
+
+
+# --- review findings -----------------------------------------------------------------------
+
+def test_clips_gemini_made_overlapping_do_not_become_near_duplicates():
+    (a_s, a_e), (b_s, b_e) = stretch([(500.0, 540.0), (520.0, 545.0)])
+    overlap = min(a_e, b_e) - max(a_s, b_s)
+    assert overlap <= 20.0  # the 20s Gemini made, not more
+    assert a_s <= 500 and a_e >= 540 and b_s <= 520 and b_e >= 545  # neither shrinks
+
+
+def test_clips_with_broken_times_are_not_stretched():
+    assert stretch([(0.0, 0.0), (500.0, 400.0)]) == [(0.0, 0.0), (500.0, 400.0)]
+
+
+def test_a_sentence_end_just_before_the_wanted_end_does_not_leave_it_short():
+    # Every line ends a sentence and the next line starts right at the stop.
+    lines = Lines([{"start": i * 5.0, "end": (i + 1) * 5.0, "text": "selesai."} for i in range(400)])
+    (s, e), = stretch([(500.0, 540.0)], lines=lines)
+    assert e - s >= 90
+
+
+def test_walled_in_clips_are_counted_as_still_short():
+    from clip_lengths import still_short
+    out = stretch([(400.0, 500.0), (500.0, 540.0), (560.0, 700.0)])
+    assert out[1][1] - out[1][0] < 90 and still_short(out, "120s") == 1

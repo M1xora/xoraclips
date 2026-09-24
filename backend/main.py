@@ -2319,16 +2319,19 @@ async def analyze_video(
                 return 0.0
 
         raw_bounds = [(_seconds(c.get('start_time')), _seconds(c.get('end_time'))) for c in raw_clips]
-        snapped_bounds = clip_bounds.snap_clips(raw_bounds, enriched_transcript, start_bound, end_bound)
+        lines_index = clip_bounds.Lines(enriched_transcript)
+        snapped_bounds = clip_bounds.snap_clips(
+            raw_bounds, enriched_transcript, start_bound, end_bound, lines=lines_index)
         moved = sum(1 for r, s in zip(raw_bounds, snapped_bounds) if r != s)
         logger.info(f"Clip bounds: {moved}/{len(raw_bounds)} clip(s) moved to line/sentence edges.")
-        lines_index = clip_bounds.Lines(enriched_transcript)
         # Issue #38: 2m/3m clips Gemini made too short are widened to the minimum.
         stretched = clip_lengths.stretch_short_clips(
             snapped_bounds, lines_index, request.duration, start_bound, end_bound)
         widened = sum(1 for a, b in zip(snapped_bounds, stretched) if a != b)
-        if widened:
-            logger.info(f"Clip length: {widened} clip(s) widened to the {clip_lengths.label(request.duration)} minimum.")
+        short = clip_lengths.still_short(stretched, request.duration)
+        if widened or short:
+            logger.info(f"Clip length: {widened} clip(s) widened toward the {clip_lengths.label(request.duration)} "
+                        f"minimum; {short} still under it (no room next to other clips).")
         snapped_bounds = stretched
         # Issue #34: the length limit runs after snapping, which can lengthen a clip.
         capped_bounds = [(s, clip_lengths.cap_length(s, e, lines_index, end_bound)) for s, e in snapped_bounds]

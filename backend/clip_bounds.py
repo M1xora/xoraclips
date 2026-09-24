@@ -197,9 +197,13 @@ def snap_clips(
     transcript: Sequence[dict],
     lo: float,
     hi: float,
+    lines: Optional[Lines] = None,
 ) -> List[Tuple[float, float]]:
-    """Snap every (start, end), in input order, without creating new overlaps."""
-    lines = Lines(transcript)
+    """Snap every (start, end), in input order, without creating new overlaps.
+
+    Pass `lines` when the caller already built them from `transcript`.
+    """
+    lines = lines if lines is not None else Lines(transcript)
     snapped = [list(snap_clip(s, e, lines, lo, hi)) for s, e in clips]
 
     order = sorted(range(len(clips)), key=lambda k: clips[k][0])
