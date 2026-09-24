@@ -2311,10 +2311,13 @@ async def analyze_video(
         # the transcript has punctuation, the end to the next sentence end)
         # so a clip does not open or close mid-line.
         raw_clips = analysis_data.get('clips', [])
-        raw_bounds = [
-            (float(c.get('start_time', 0.0)), float(c.get('end_time', 0.0)))
-            for c in raw_clips
-        ]
+        def _seconds(value):
+            try:
+                return float(value)
+            except (TypeError, ValueError):
+                return 0.0
+
+        raw_bounds = [(_seconds(c.get('start_time')), _seconds(c.get('end_time'))) for c in raw_clips]
         snapped_bounds = clip_bounds.snap_clips(raw_bounds, enriched_transcript, start_bound, end_bound)
         moved = sum(1 for r, s in zip(raw_bounds, snapped_bounds) if r != s)
         logger.info(f"Clip bounds: {moved}/{len(raw_bounds)} clip(s) moved to line/sentence edges.")

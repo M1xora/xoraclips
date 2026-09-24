@@ -185,11 +185,25 @@ def test_the_search_range_still_holds(api):
     assert (clip["start_time"], clip["end_time"]) == (11.0, 28.0)
 
 
-def test_backup_clips_are_snapped_too(api):
+def test_backup_clips_are_snapped_too(api, monkeypatch):
+    # Lines of 4s every 7s: a 30s backup clip from a line start ends 2s into
+    # a line, so it has to be moved to that line's end.
+    monkeypatch.setattr(main, "fetch_transcript", lambda *a, **k: [
+        {"text": f"kalimat nomor {i}", "start": i * 7.0, "duration": 4.0} for i in range(17)])
     FakeGemini.payload = {"summary": "", "clips": []}
-    for clip in analyze(api)["clips"]:
-        assert clip["end_time"] <= 120.0
-        assert clip["start_time"] % 5 == 0  # backup clips start on a line start already
+    clips = analyze(api)["clips"]
+    assert clips
+    whole = [c for c in clips if c["start_time"] + 30 < 118]  # not cut off by the video's end
+    assert whole
+    for clip in whole:
+        assert clip["start_time"] % 7 == 0
+        assert round(clip["end_time"] - clip["start_time"], 2) == 32.4  # 30s -> end of line + tail
+
+
+def test_a_time_gemini_did_not_give_as_a_number_does_not_break_the_analysis(api):
+    FakeGemini.payload = {"summary": "s", "clips": [gemini_clip(None, "1:05", 1.0), gemini_clip(10.0, 27.0, 11.0)]}
+    clips = analyze(api)["clips"]
+    assert (clips[1]["start_time"], clips[1]["end_time"]) == (10.0, 29.4)
 
 
 # --- rounding in the prompt ---------------------------------------------------------------
@@ -255,3 +269,24 @@ def test_finishing_the_sentence_never_creates_an_overlap():
     # Clip B starts at 5, inside the sentence clip A would be extended into.
     (a_start, a_end), (b_start, _) = snap_clips([(0, 4), (5, 12)], PUNCT, 0, 100)
     assert a_end <= b_start
+
+
+# --- review findings -----------------------------------------------------------------------
+
+def test_the_edge_tolerance_never_leaves_the_users_range():
+    lines = [line(5, 10.96), line(11.5, 20), line(30.02, 35)]
+    s, e = snap(11.0, 29.97, lines, lo=11.0, hi=29.97)
+    assert s >= 11.0 and e <= 29.97
+
+
+def test_no_overlap_with_a_clip_further_along_either():
+    # B lies inside A (Gemini's own overlap); snapping A must still not run into C.
+    lines = [line(0, 4), line(4, 8), line(8, 14), line(14, 20)]
+    out = snap_clips([(0.5, 9.5), (5, 9), (12.5, 20)], lines, 0, 100)
+    assert out[0][1] <= out[2][0]
+
+
+def test_a_sentence_end_later_in_the_same_line_is_used():
+    # Gemini ends at 13.0, inside "enggak cukup. Apalagi lawan" (12-16): the
+    # sentence ends at ~13.93, not at the next stop at 20.
+    assert snap(8, 13.0, PUNCT)[1] == round(12 + 4 * 13 / 27 + MID_LINE_TAIL_SECONDS, 2)

@@ -106,7 +106,7 @@ class Lines:
         return min(hi, tailed)
 
     def snap_start(self, t: float, lo: float) -> float:
-        t = self._on_edge(t)
+        t = max(lo, self._on_edge(t))
         i = self._containing(t)
         if i is None:
             return t
@@ -116,7 +116,7 @@ class Lines:
         return max(lo, s)
 
     def snap_end(self, t: float, hi: float) -> float:
-        t = self._on_edge(t)
+        t = min(hi, self._on_edge(t))
         # A line that ends exactly at t still gets its tail; a line that
         # starts exactly at t is not part of the clip.
         i = bisect.bisect_left(self.starts, t) - 1
@@ -126,34 +126,43 @@ class Lines:
             return t
         return self._tail(i, hi)
 
-    def finish_sentence(self, t: float, original: float, hi: float) -> float:
-        """An end moved forward to the next sentence end (punctuated transcripts only)."""
-        if not self.punctuated:
-            return t
-        tol = EDGE_TOLERANCE_SECONDS
-        k = bisect.bisect_left(self._stop_times, t - TAIL_SECONDS - tol)
-        while k < len(self.stops):
-            at, i, at_line_end = self.stops[k]
-            tail = TAIL_SECONDS if at_line_end else MID_LINE_TAIL_SECONDS
-            if at - tol <= t <= at + tail + tol:
-                return t  # t already ends this sentence (maybe with its tail)
-            if at > t:
-                break
-            k += 1  # a stop before t with words after it: keep looking
-        else:
-            return t
-        if at > original + SENTENCE_REACH_SECONDS:
-            return t
+    def _stop_end(self, k: int, hi: float) -> float:
+        """Where a clip ending on stop k ends: its time plus the right tail."""
+        at, i, at_line_end = self.stops[k]
         if at_line_end:
             return self._tail(i, hi)
         # Inside a line the next word follows straight away: a short tail.
         return min(hi, at + MID_LINE_TAIL_SECONDS, self.ends[i])
 
+    def sentence_end(self, t: float, hi: float) -> Optional[float]:
+        """The end of the sentence running at t, or None.
+
+        None when the transcript has no punctuation or the sentence runs on
+        more than SENTENCE_REACH seconds.
+        """
+        if not self.punctuated:
+            return None
+        t = min(hi, self._on_edge(t))
+        tol = EDGE_TOLERANCE_SECONDS
+        k = bisect.bisect_left(self._stop_times, t - TAIL_SECONDS - tol)
+        while k < len(self.stops):
+            at, _, at_line_end = self.stops[k]
+            tail = TAIL_SECONDS if at_line_end else MID_LINE_TAIL_SECONDS
+            if at - tol <= t <= at + tail + tol:
+                return self._stop_end(k, hi)  # t already ends this sentence
+            if at > t:
+                if at > t + SENTENCE_REACH_SECONDS:
+                    return None
+                return self._stop_end(k, hi)
+            k += 1  # a stop before t with words after it: keep looking
+        return None
+
 
 def snap_clip(start: float, end: float, lines: Lines, lo: float, hi: float) -> Tuple[float, float]:
     """One clip's (start, end) moved to line and sentence edges; unchanged if that goes wrong."""
     s = lines.snap_start(start, lo)
-    e = lines.finish_sentence(lines.snap_end(end, hi), end, hi)
+    sentence = lines.sentence_end(end, hi)
+    e = sentence if sentence is not None else lines.snap_end(end, hi)
     if e <= s:
         return start, end
     return round(s, 2), round(e, 2)
@@ -170,12 +179,13 @@ def snap_clips(
     snapped = [list(snap_clip(s, e, lines, lo, hi)) for s, e in clips]
 
     order = sorted(range(len(clips)), key=lambda k: clips[k][0])
-    for a, b in zip(order, order[1:]):
-        a_end, b_start = clips[a][1], clips[b][0]
-        # Clips Gemini made overlapping stay as they are; only undo overlap
-        # that snapping caused.
-        if a_end <= b_start and snapped[a][1] > snapped[b][0]:
-            snapped[a][1] = min(snapped[a][1], b_start)
-            snapped[b][0] = max(snapped[b][0], snapped[a][1])
+    for n, a in enumerate(order):
+        for b in order[n + 1:]:
+            # Clips Gemini made overlapping stay as they are; only undo
+            # overlap that snapping caused.
+            a_end, b_start = clips[a][1], clips[b][0]
+            if a_end <= b_start and snapped[a][1] > snapped[b][0]:
+                snapped[a][1] = min(snapped[a][1], b_start)
+                snapped[b][0] = max(snapped[b][0], snapped[a][1])
 
     return [(s, e) for s, e in snapped]
