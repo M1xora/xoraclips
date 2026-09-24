@@ -197,6 +197,8 @@ def test_backup_clips_are_snapped_too(api, monkeypatch):
     for clip in clips:
         assert edges._containing(clip["start_time"]) is None or clip["start_time"] in edges.starts
         assert edges._containing(clip["end_time"] - 0.001) is None
+        # A 30s window, widened by at most one line on each side (+ tail).
+        assert 30 <= clip["end_time"] - clip["start_time"] <= 30 + 2 * 7 + TAIL_SECONDS
 
 
 def test_a_time_gemini_did_not_give_as_a_number_does_not_break_the_analysis(api):

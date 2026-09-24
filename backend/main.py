@@ -2019,14 +2019,14 @@ async def analyze_video(
             "message": f"Assembling prompt and engagement context for {requested_model}..."
         })
         if capped_count is not None:
-            minutes = (end_bound - start_bound) / 60
+            span_s = int(end_bound - start_bound)
             yield _sse({
                 "step": 4,
                 "step_progress": 12,
                 "overall_progress": 72,
                 "stage": "Clip Count",
-                "detail": (f"{request.target_clip_count} clips of {request.duration} do not fit in "
-                           f"{minutes:.0f} min without overlapping: asking for at most {capped_count}."),
+                "detail": (f"{request.target_clip_count} clips of {clip_lengths.label(request.duration)} do not fit in "
+                           f"{span_s // 60}:{span_s % 60:02d} of video: asking for at most {capped_count}."),
                 "model": requested_model,
                 "message": f"Asking for at most {capped_count} clip(s) so they do not overlap...",
             })
@@ -2323,8 +2323,8 @@ async def analyze_video(
         moved = sum(1 for r, s in zip(raw_bounds, snapped_bounds) if r != s)
         logger.info(f"Clip bounds: {moved}/{len(raw_bounds)} clip(s) moved to line/sentence edges.")
         # Issue #34: the length limit runs after snapping, which can lengthen a clip.
-        edges = clip_bounds.Lines(enriched_transcript).edges
-        capped_bounds = [(s, clip_lengths.cap_length(s, e, edges)) for s, e in snapped_bounds]
+        lines_index = clip_bounds.Lines(enriched_transcript)
+        capped_bounds = [(s, clip_lengths.cap_length(s, e, lines_index, end_bound)) for s, e in snapped_bounds]
         cut = sum(1 for a, b in zip(snapped_bounds, capped_bounds) if a != b)
         if cut:
             logger.info(f"Clip length: {cut} clip(s) cut back to {clip_lengths.MAX_CLIP_SECONDS:.0f}s.")

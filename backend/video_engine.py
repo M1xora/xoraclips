@@ -261,6 +261,15 @@ def download_timeouts(clip_duration: float) -> dict:
     }
 
 
+def render_timeouts(clip_duration: float) -> dict:
+    """Final render timeouts: 180s/240s were fixed, too short for 3-minute clips (#34)."""
+    d = max(1.0, clip_duration)
+    return {
+        "encoder": max(180, int(d * 3) + 60),
+        "cpu": max(240, int(d * 4) + 60),
+    }
+
+
 def streams_have_video(ffprobe_json: str) -> bool:
     """True if ffprobe's JSON lists a real video stream (cover art does not count)."""
     try:
@@ -1797,7 +1806,8 @@ def render_clip_to_mp4(
         raise RuntimeError("FFmpeg is not installed or not found in system PATH. Please install FFmpeg (e.g. 'winget install Gyan.FFmpeg') and restart your terminal.")
 
     logger.info(f"Rendering final vertical clip to {output_mp4_path} with {chosen_encoder_name} (Selection: {hardware_accel}, BGM: {bgm_enabled}, Watermark: {watermark_enabled})...")
-    res = subprocess.run(cmd, capture_output=True, text=True, timeout=180)
+    timeouts = render_timeouts(clip_duration)
+    res = subprocess.run(cmd, capture_output=True, text=True, timeout=timeouts["encoder"])
     if res.returncode != 0:
         logger.warning(f"Hardware encoder ({chosen_encoder_name}) failed (code {res.returncode}): {res.stderr[:250] if res.stderr else ''}")
         # Automatic fallback to universal CPU encoding (libx264) if chosen hardware encoder fails
@@ -1817,7 +1827,7 @@ def render_clip_to_mp4(
                 "-shortest",
                 str(output_mp4_path)
             ]
-            res_cpu = subprocess.run(cpu_cmd, capture_output=True, text=True, timeout=240)
+            res_cpu = subprocess.run(cpu_cmd, capture_output=True, text=True, timeout=timeouts["cpu"])
             if res_cpu.returncode == 0 and os.path.exists(output_mp4_path) and os.path.getsize(output_mp4_path) > 1000:
                 logger.info(f"Successfully rendered with CPU fallback: {output_mp4_path}")
                 return str(output_mp4_path)

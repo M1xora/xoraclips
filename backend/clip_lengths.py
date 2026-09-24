@@ -14,8 +14,12 @@ value silently became 30s. Now the request only accepts the values below.
 - Backup clips (when Gemini returns none) are placed around the peaks, do
   not overlap, and stay inside the searched span.
 """
-import bisect
 from typing import Dict, List, Literal, Optional, Sequence, Tuple
+
+try:
+    from backend.clip_bounds import Lines
+except ImportError:
+    from clip_bounds import Lines
 
 Duration = Literal["15s", "30s", "60s", "120s", "180s"]
 
@@ -25,7 +29,9 @@ DURATIONS: Dict[str, Tuple[int, int, int]] = {
     "30s": (20, 40, 30),
     "60s": (45, 75, 60),
     "120s": (90, 130, 120),
-    "180s": (140, 175, 180),
+    # The target stays under MAX_CLIP_SECONDS: backup clips and the clip
+    # count are built from it.
+    "180s": (140, 175, 175),
 }
 LONG_DURATIONS = ("120s", "180s")
 
@@ -33,6 +39,17 @@ LONG_DURATIONS = ("120s", "180s")
 MAX_CLIP_SECONDS = 179.0
 
 BACKUP_CLIPS = 5
+
+# Share of the searched span clips may cover: intros, outros and filler are
+# not clip material, and Gemini needs room to choose (10 x 3 minutes asked
+# from 15 minutes would force it to tile the whole video).
+MAX_COVERAGE = 0.6
+
+
+def label(duration: str) -> str:
+    """The label the form shows: 15s, 30s, 60s, 2m, 3m."""
+    seconds = int(duration.rstrip("s"))
+    return f"{seconds // 60}m" if seconds >= 120 else duration
 
 
 def prompt_range(duration: str) -> str:
@@ -48,8 +65,12 @@ def prompt_rules(duration: str) -> str:
     """Extra prompt rules for long clips; empty for the short ones."""
     if duration not in LONG_DURATIONS:
         return ""
+    shortest, longest, _ = DURATIONS[duration]
     return (
         "LONG CLIP RULES:\n"
+        f"- HARD RULE: every clip is {shortest}-{longest} seconds long (end_time - start_time). "
+        f"A clip under {shortest} seconds is wrong for this request: extend it with the lead-up "
+        "and the conclusion around the moment instead of returning a short clip.\n"
         "- Each clip must hold ONE complete idea, story or argument: how it starts, the point, "
         "and how it ends. Never stop in the middle of an explanation.\n"
         "- The first seconds must still hook the viewer.\n\n"
@@ -57,8 +78,8 @@ def prompt_rules(duration: str) -> str:
 
 
 def fitting_clips(span: float, duration: str) -> int:
-    """How many clips of the target length fit in span without overlapping."""
-    return max(1, int(span // target_seconds(duration)))
+    """How many clips of the target length fit in MAX_COVERAGE of span."""
+    return max(1, int(span * MAX_COVERAGE // target_seconds(duration)))
 
 
 def clip_count_range(
@@ -90,15 +111,15 @@ def clip_count_range(
     return f"{low}-{high}", capped
 
 
-def cap_length(start: float, end: float, edges: Sequence[float]) -> float:
-    """end, or the last line edge within MAX_CLIP_SECONDS of start."""
+def cap_length(start: float, end: float, lines: Lines, hi: float) -> float:
+    """end, or the last clean end (sentence, or line + tail) within MAX_CLIP_SECONDS."""
     if end - start <= MAX_CLIP_SECONDS:
         return end
     limit = start + MAX_CLIP_SECONDS
-    i = bisect.bisect_right(edges, limit) - 1
-    # An edge far back would throw away most of the clip; cut at the limit then.
-    if i >= 0 and edges[i] > start + MAX_CLIP_SECONDS / 2:
-        return round(edges[i], 2)
+    best = lines.last_end_before(limit, hi)
+    # An end far back would throw away most of the clip; cut at the limit then.
+    if best is not None and best > start + MAX_CLIP_SECONDS / 2:
+        return round(best, 2)
     return round(limit, 2)
 
 

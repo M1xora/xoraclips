@@ -373,6 +373,8 @@ export function AnalyzeForm({ onSubmit, busy, onKeyCleared }: AnalyzeFormProps) 
               options={durations}
               onChange={setDuration}
               disabled={busy}
+              // Five lengths (#34): the hints do not fit a 360px phone.
+              hideSubsOnPhone
             />
 
             <Slider

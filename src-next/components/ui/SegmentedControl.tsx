@@ -10,6 +10,8 @@ interface SegmentedControlProps<T extends string> {
   options: readonly Option<T>[];
   onChange: (value: T) => void;
   disabled?: boolean;
+  /** Drop the `sub` hints on phones so many options still fit one row. */
+  hideSubsOnPhone?: boolean;
 }
 
 /**
@@ -25,6 +27,7 @@ export function SegmentedControl<T extends string>({
   options,
   onChange,
   disabled,
+  hideSubsOnPhone = false,
 }: SegmentedControlProps<T>) {
   return (
     <div>
@@ -49,8 +52,11 @@ export function SegmentedControl<T extends string>({
                 ${active ? 'bg-accent text-on-accent' : 'text-ink-dim hover:text-ink'}`}
             >
               {opt.label}
-              {/* Hints are dropped on phones so five options still fit one row (#34). */}
-              {opt.sub && <span className="ml-1 hidden opacity-70 sm:inline">{opt.sub}</span>}
+              {opt.sub && (
+                <span className={`ml-1 opacity-70 ${hideSubsOnPhone ? 'hidden sm:inline' : ''}`}>
+                  {opt.sub}
+                </span>
+              )}
             </button>
           );
         })}
