@@ -6,7 +6,7 @@ title Xoraclips - Start
 
 :: Work from the folder this file is in, even from a desktop shortcut or
 :: another folder. Everything below uses paths relative to it, so folder
-:: names with spaces, "(", "&" or "!" are fine.
+:: names with spaces, "(" or "!" are fine ("&" is refused below).
 cd /d "%~dp0" || (
     echo [X] Folder Xoraclips tidak bisa dibuka.
     pause
