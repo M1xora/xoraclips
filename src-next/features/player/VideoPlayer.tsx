@@ -38,8 +38,8 @@ export function VideoPlayer({
     controls: true,
   });
 
-  // Jump to the clip without playing. Only the portrait preview plays, so
-  // the two players never sound at the same time.
+  // Jump to the clip without playing: the portrait preview is what plays.
+  // If both do play, lib/playbackGuard keeps only one of them audible (#40).
   useEffect(() => {
     if (!seekToClip || !ready || !bounds) return;
     seek(bounds.start, false);

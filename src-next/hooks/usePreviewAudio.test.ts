@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { bgmFade, bgmSeekTarget, FADE_SEC } from './usePreviewAudio';
+import { bgmFade, bgmSeekTarget, FADE_SEC, needsResync } from './usePreviewAudio';
 
 describe('bgmFade', () => {
   // video_engine.py:1692 fades out over the last 1.5s and is flat before it.
@@ -69,5 +69,16 @@ describe('bgmSeekTarget', () => {
     for (const len of [10, 30, 180, Number.NaN]) {
       expect(bgmSeekTarget(0, 0, len)).toBeGreaterThanOrEqual(0);
     }
+  });
+});
+
+describe('needsResync (#40)', () => {
+  it('leaves small drift alone, so the music does not stutter', () => {
+    expect(needsResync(12.3, 12.0)).toBe(false);
+  });
+
+  it('moves the music back after "replay from start"', () => {
+    // Video back at 0s, music still 20s in.
+    expect(needsResync(20, bgmSeekTarget(0, 0, 180))).toBe(true);
   });
 });

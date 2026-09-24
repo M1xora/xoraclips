@@ -12,10 +12,13 @@ export interface YTPlayer {
   playVideo(): void;
   pauseVideo(): void;
   seekTo(seconds: number, allowSeekAhead: boolean): void;
+  /** Loads a video at `startSeconds` without playing it. */
+  cueVideoById(options: { videoId: string; startSeconds?: number }): void;
   getCurrentTime(): number;
   getPlayerState(): number;
   mute(): void;
   unMute(): void;
+  isMuted(): boolean;
   /** 0-100. */
   setVolume(volume: number): void;
   destroy(): void;

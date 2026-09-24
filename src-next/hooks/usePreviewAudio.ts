@@ -167,6 +167,21 @@ export function usePreviewAudio({
     });
   }, [playing, bgmStartOffset, bgmOn]);
 
+  // A jump in the video (replay from start, the loop wrapping round) leaves
+  // the music behind; the effect above only runs when playback starts (#40).
+  useEffect(() => {
+    const el = bgmRef.current;
+    if (!el || !playing) return;
+    const target = bgmSeekTarget(bgmStartOffset, elapsed, el.duration);
+    if (needsResync(el.currentTime, target)) {
+      try {
+        el.currentTime = target;
+      } catch {
+        // Seeking before metadata loads throws; the next tick retries.
+      }
+    }
+  }, [playing, elapsed, bgmStartOffset]);
+
   // The SFX is a one-shot at the start of the clip, so it restarts whenever
   // playback returns to the beginning rather than following the playhead.
   const firedRef = useRef(false);
@@ -190,6 +205,13 @@ export function usePreviewAudio({
       firedRef.current = false;
     }
   }, [playing, elapsed]);
+}
+
+/** Drift in seconds the music may have before it is moved back in step. */
+export const RESYNC_SEC = 1;
+
+export function needsResync(current: number, target: number): boolean {
+  return Math.abs(current - target) > RESYNC_SEC;
 }
 
 function clamp01(v: number): number {

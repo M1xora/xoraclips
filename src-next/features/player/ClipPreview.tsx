@@ -191,6 +191,8 @@ export function ClipPreview({
     loop,
     muted: true,
     controls: false,
+    // Only ever started through play(), so a new clip is not cued (#40).
+    cueWhenIdle: false,
     pollMs: 120,
   });
 
@@ -201,8 +203,9 @@ export function ClipPreview({
   }, [ready, soundOn, volume, setSound]);
 
   const replay = () => seek(clip.start_time, true);
+  const sfxLoud = sfxEnabled && !!sfxUrl ? sfxVolume : 0;
   const soundTitle =
-    soundOn && boostedBeyondPreview(originalAudioVolume) && soundBoostNote
+    soundOn && boostedBeyondPreview(originalAudioVolume, sfxLoud) && soundBoostNote
       ? `${soundLabel ?? ''} (${soundBoostNote})`
       : soundLabel;
 
@@ -472,7 +475,7 @@ export function ClipPreview({
               aria-pressed={soundOn}
               className={`pressable grid size-8 place-items-center rounded hover:bg-surface-2
                 ${soundOn ? 'text-teal-text' : 'text-ink-faint hover:text-ink'}`}
-              aria-label={soundLabel}
+              aria-label={soundTitle}
               title={soundTitle}
             >
               {soundOn ? (

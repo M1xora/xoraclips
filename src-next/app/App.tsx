@@ -533,9 +533,12 @@ export function App() {
                     preview could never shrink to fit a phone (#20). */}
                 <aside className="top-[4.5rem] min-w-0 xl:sticky">
                   <Panel title={t.player.clipPreview} subtitle={t.player.clipPreviewHint}>
+                    {/* No key per clip: the same YouTube player moves to the new
+                        clip. Destroying an audible player and creating another
+                        one left YouTube stuck buffering when the source video
+                        had played (#40). */}
                     {activeClip ? (
                       <ClipPreview
-                        key={activeClip.id}
                         videoId={result.video_id}
                         clip={activeClip}
                         transcript={result.transcript}

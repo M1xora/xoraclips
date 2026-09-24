@@ -14,8 +14,15 @@ describe('previewVolume (#40)', () => {
     expect(boostedBeyondPreview(100)).toBe(false);
   });
 
-  it('never goes below 0 or breaks on a bad value', () => {
+  it('also notes a hook sound above 100%', () => {
+    expect(boostedBeyondPreview(100, 180)).toBe(true);
+  });
+
+  it('reads bad values the same way in both helpers', () => {
     expect(previewVolume(-10)).toBe(0);
     expect(previewVolume(Number.NaN)).toBe(100);
+    expect(boostedBeyondPreview(Number.NaN)).toBe(false);
+    expect(previewVolume(Number.POSITIVE_INFINITY)).toBe(100);
+    expect(boostedBeyondPreview(Number.POSITIVE_INFINITY)).toBe(false);
   });
 });
