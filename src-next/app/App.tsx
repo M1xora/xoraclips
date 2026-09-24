@@ -479,6 +479,7 @@ export function App() {
                     }
                     aiTitle={activeClip?.title_suggestion ?? activeClip?.title}
                     customTitle={activeClip ? (customTitles[activeClip.id] ?? '') : ''}
+                    titleOptions={activeClip?.title_options}
                     onCustomTitleChange={
                       activeClip
                         ? (value) =>

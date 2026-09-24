@@ -27,6 +27,7 @@ import type {
   TextCaseOption,
   TitleDurationOption,
 } from '../../lib/types';
+import { titleChoices } from './titleChoices';
 
 /**
  * Ratio choices, shown as a shape rather than a label.
@@ -73,6 +74,8 @@ interface StudioPanelProps {
   aiTitle?: string;
   /** Custom title for the active clip, empty when it uses the AI one. */
   customTitle?: string;
+  /** The AI's title options for the active clip, first = its default (#31). */
+  titleOptions?: string[];
   onCustomTitleChange?: (value: string) => void;
   onError: (message: string) => void;
 }
@@ -84,6 +87,7 @@ export function StudioPanel({
   sampleTitle,
   aiTitle,
   customTitle = '',
+  titleOptions,
   onCustomTitleChange,
   onError,
 }: StudioPanelProps) {
@@ -329,6 +333,28 @@ export function StudioPanel({
                     onChange={(e) => onCustomTitleChange(e.target.value)}
                     hint={aiTitle ? t.studio.clipTitleHint : t.studio.clipTitleNoClip}
                   />
+                  {/* The AI's other titles, one click away and no new request (#31). */}
+                  {titleChoices(titleOptions, customTitle).length > 0 && (
+                    <div className="mt-2" role="group" aria-label={t.studio.clipTitleOptions}>
+                      <p className="mb-1 text-[0.8rem] font-medium text-ink-dim">{t.studio.clipTitleOptions}</p>
+                      <div className="flex flex-col gap-1">
+                        {titleChoices(titleOptions, customTitle).map((choice) => (
+                          <button
+                            key={choice.text}
+                            type="button"
+                            aria-pressed={choice.active}
+                            onClick={() => onCustomTitleChange(choice.value)}
+                            className={`pressable rounded-[--radius-control] border px-2.5 py-1.5 text-left text-xs
+                              ${choice.active
+                                ? 'border-accent bg-accent/10 font-semibold text-ink'
+                                : 'border-hairline text-ink-dim hover:bg-surface-2 hover:text-ink'}`}
+                          >
+                            {choice.text}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                   {customTitle.trim() !== '' && (
                     <button
                       type="button"
