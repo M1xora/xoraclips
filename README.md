@@ -12,9 +12,14 @@ The script will automatically:
 1. Check and auto-install all prerequisites (**Git**, **Node.js LTS**, **Python 3.11**, **FFmpeg**, and **yt-dlp**) via `winget`.
 2. Clone the repository (if the script is run in an empty folder; if it already exists, it skips this step).
 3. Set up an isolated Python virtual environment (`venv`) and install all frontend & backend dependencies.
-4. Launch the application and open **`http://localhost:5173`** in your web browser!
+4. Launch the application (via `start-xoraclips.bat`) and open **`http://localhost:5174/preview.html`** in your web browser!
 
 > 💡 **Tip:** Subsequent launches skip dependency checks and start the app in ~1 second!
+
+#### Start & stop (Windows)
+After the first setup, use these two files in the project folder (they also work from a desktop shortcut):
+* **`start-xoraclips.bat`**: starts the backend (port 8000) and the app (port 5174) in their own windows, skips whatever is already running, and opens `http://localhost:5174/preview.html` once both are ready.
+* **`stop-xoraclips.bat`**: stops Xoraclips on ports 8000 and 5174 and closes its windows. Other programs, including other Node.js or Python programs, are left alone.
 
 ---
 
@@ -53,10 +58,13 @@ python -m pip install -r backend/requirements.txt
 *(On Mac, use `python3 -m pip install -r backend/requirements.txt`)*
 
 ### Step 4: Run the App
+In two terminals:
 ```bash
-npm run dev
+python -m uvicorn backend.main:app --port 8000
+npm run dev-next
 ```
-Open **`http://localhost:5173`** in your web browser!
+Open **`http://localhost:5174/preview.html`** in your web browser!
+*(The old interface is still available with `npm run dev` on `http://localhost:5173`.)*
 
 ---
 

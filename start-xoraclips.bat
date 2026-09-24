@@ -1,16 +1,26 @@
 @echo off
-setlocal EnableDelayedExpansion
+:: Delayed expansion stays off until the folder is entered: with it on, a
+:: "!" in the folder name would be dropped from the path.
+setlocal
 title Xoraclips - Start
 
-:: Work from the folder this file is in, even when opened from a desktop
-:: shortcut or from another folder. ROOT ends with a backslash.
-cd /d "%~dp0"
-set "ROOT=%~dp0"
+:: Work from the folder this file is in, even from a desktop shortcut or
+:: another folder. Everything below uses paths relative to it, so folder
+:: names with spaces, "(", "&" or "!" are fine.
+cd /d "%~dp0" || (
+    echo [X] Folder Xoraclips tidak bisa dibuka.
+    pause
+    exit /b 1
+)
+setlocal EnableDelayedExpansion
 
 set "BACKEND_PORT=8000"
 set "FRONTEND_PORT=5174"
 set "APP_URL=http://localhost:%FRONTEND_PORT%/preview.html"
-set "HEALTH_URL=http://127.0.0.1:%BACKEND_PORT%/api/health"
+rem The API description is answered locally; /api/health can wait on Supadata.
+set "API_URL=http://127.0.0.1:%BACKEND_PORT%/openapi.json"
+set "XC_LOCK=%TEMP%\xoraclips-start.lock"
+set "RC=0"
 
 echo.
 echo  ==============================================================
@@ -18,12 +28,33 @@ echo                    XORACLIPS - MENYALAKAN
 echo  ==============================================================
 echo.
 
+:: --- 0. Only one start at a time (a double-click on the shortcut) ---------
+mkdir "%XC_LOCK%" 2>nul
+if errorlevel 1 (
+    call :lock_is_stale
+    if "!STALE!"=="1" (
+        rd "%XC_LOCK%" 2>nul
+        mkdir "%XC_LOCK%" 2>nul
+    ) else (
+        echo [X] Start Xoraclips sedang berjalan di jendela lain. Tunggu sebentar.
+        ping -n 4 127.0.0.1 >nul
+        exit /b 1
+    )
+)
+
 :: --- 1. Everything installed? ------------------------------------------
-if not exist "%ROOT%venv\Scripts\python.exe" (
+rem npm's own helper files break on a folder path with "&"; say so now
+rem instead of waiting 90 seconds for a frontend that cannot start.
+echo "%CD%"| findstr /c:"&" >nul && (
+    echo [X] Nama folder mengandung tanda "&". npm tidak bisa berjalan di folder seperti itu.
+    echo     Ganti nama foldernya tanpa "&", lalu coba lagi.
+    goto :fail
+)
+if not exist "venv\Scripts\python.exe" (
     echo [X] Python venv belum ada. Jalankan setup_and_run.bat sekali dulu.
     goto :fail
 )
-if not exist "%ROOT%node_modules" (
+if not exist "node_modules" (
     echo [X] Paket frontend belum terpasang. Jalankan setup_and_run.bat sekali dulu.
     goto :fail
 )
@@ -37,29 +68,30 @@ where curl >nul 2>&1 || (
 )
 
 :: --- 2. Backend: already ours, busy with something else, or free? ---------
-call :port_busy %BACKEND_PORT%
-if "!PORT_BUSY!"=="1" (
+call :port_pid %BACKEND_PORT%
+if defined PORT_PID (
     call :backend_ours
     if "!OURS!"=="1" (
         echo [OK] Backend sudah menyala di port %BACKEND_PORT%. Tidak dijalankan lagi.
     ) else (
-        echo [X] Port %BACKEND_PORT% dipakai program lain, bukan backend Xoraclips.
+        echo [X] Port %BACKEND_PORT% dipakai program lain, bukan backend Xoraclips. PID !PORT_PID!.
         echo     Tutup program itu dulu, lalu coba lagi.
         goto :fail
     )
 ) else (
     echo [..] Menyalakan backend di jendela "Xoraclips Backend"...
-    start "Xoraclips Backend" /D "%ROOT%" cmd /k ""%ROOT%venv\Scripts\python.exe" -m uvicorn backend.main:app --port %BACKEND_PORT%"
+    rem XORACLIPS_ROLE marks the window, so stop-xoraclips.bat can find it.
+    start "Xoraclips Backend" cmd /k "set XORACLIPS_ROLE=backend&& venv\Scripts\python.exe -m uvicorn backend.main:app --port %BACKEND_PORT%"
 )
 
 :: --- 3. Frontend: same checks ---------------------------------------------
-call :port_busy %FRONTEND_PORT%
-if "!PORT_BUSY!"=="1" (
+call :port_pid %FRONTEND_PORT%
+if defined PORT_PID (
     call :frontend_ours
     if "!OURS!"=="1" (
         echo [OK] Frontend sudah menyala di port %FRONTEND_PORT%. Tidak dijalankan lagi.
     ) else (
-        echo [X] Port %FRONTEND_PORT% dipakai program lain, bukan frontend Xoraclips.
+        echo [X] Port %FRONTEND_PORT% dipakai program lain, bukan frontend Xoraclips. PID !PORT_PID!.
         echo     Tutup program itu dulu, lalu coba lagi.
         goto :fail
     )
@@ -67,22 +99,23 @@ if "!PORT_BUSY!"=="1" (
     echo [..] Menyalakan frontend di jendela "Xoraclips Frontend"...
     rem --no-open: the browser is opened below, once both are ready.
     rem --strictPort: fail instead of silently moving to another port.
-    start "Xoraclips Frontend" /D "%ROOT%" cmd /k "npm run dev-next -- --no-open --strictPort"
+    start "Xoraclips Frontend" cmd /k "set XORACLIPS_ROLE=frontend&& npm run dev-next -- --no-open --strictPort"
 )
 
-:: --- 4. Wait until both answer (up to 90 seconds) -------------------------
+:: --- 4. Wait until both answer: 90 seconds by the clock --------------------
 echo [..] Menunggu backend dan frontend siap...
-set /a WAITED=0
+call :now
+set /a DEADLINE=NOW+90
 :wait_loop
 call :backend_ours
 set "BACK_OK=!OURS!"
 call :frontend_ours
 set "FRONT_OK=!OURS!"
 if "!BACK_OK!!FRONT_OK!"=="11" goto :ready
-if !WAITED! geq 90 goto :too_slow
+call :now
+if !NOW! geq !DEADLINE! goto :too_slow
 rem About one second; ping also works when there is no keyboard input.
 ping -n 2 127.0.0.1 >nul
-set /a WAITED+=1
 goto :wait_loop
 
 :ready
@@ -95,7 +128,7 @@ if defined XORACLIPS_NO_BROWSER (
 echo.
 echo  Untuk mematikan: jalankan stop-xoraclips.bat
 echo.
-exit /b 0
+goto :finish
 
 :too_slow
 echo [X] Setelah 90 detik belum siap.
@@ -104,28 +137,42 @@ if "!FRONT_OK!"=="0" echo     - Frontend belum menjawab. Lihat pesan di jendela 
 goto :fail
 
 :fail
+set "RC=1"
 echo.
 pause
-exit /b 1
+
+:finish
+rd "%XC_LOCK%" 2>nul
+exit /b %RC%
 
 :: ---------------------------------------------------------------------------
-:: :port_busy PORT  ->  PORT_BUSY=1 if a program is listening on that port.
-:: Only LISTENING lines whose local address ends in exactly ":PORT".
-:port_busy
-set "PORT_BUSY=0"
-for /f "tokens=2" %%a in ('netstat -ano ^| findstr /c:"LISTENING"') do (
-    echo %%a| findstr /e /c:":%~1" >nul && set "PORT_BUSY=1"
-)
+:: :port_pid PORT  ->  PORT_PID = the program listening on PORT, or empty.
+:: Asks Windows directly, so it works whatever the Windows language is.
+:port_pid
+set "PORT_PID="
+for /f "usebackq delims=" %%p in (`powershell -NoProfile -Command "(Get-NetTCPConnection -State Listen -LocalPort %~1 -ErrorAction SilentlyContinue | Select-Object -First 1).OwningProcess"`) do set "PORT_PID=%%p"
 exit /b 0
 
 :: :backend_ours  ->  OURS=1 if the backend answers as Xoraclips.
 :backend_ours
 set "OURS=0"
-curl -s -m 3 "%HEALTH_URL%" 2>nul | findstr /i /c:"XORACLIPS" >nul && set "OURS=1"
+curl -s -m 5 --noproxy "*" "%API_URL%" 2>nul | findstr /c:"XORACLIPS API" >nul && set "OURS=1"
 exit /b 0
 
 :: :frontend_ours  ->  OURS=1 if the frontend serves the Xoraclips page.
 :frontend_ours
 set "OURS=0"
-curl -s -m 3 "%APP_URL%" 2>nul | findstr /i /c:"Xoraclips" >nul && set "OURS=1"
+curl -s -m 5 --noproxy "*" "%APP_URL%" 2>nul | findstr /i /c:"Xoraclips" >nul && set "OURS=1"
+exit /b 0
+
+:: :now  ->  NOW = seconds since 1970, for the 90-second limit.
+:now
+for /f %%t in ('powershell -NoProfile -Command "[DateTimeOffset]::UtcNow.ToUnixTimeSeconds()"') do set "NOW=%%t"
+exit /b 0
+
+:: :lock_is_stale  ->  STALE=1 if the lock is older than 2 minutes (a start
+:: that was closed halfway), so it does not block every later start.
+:lock_is_stale
+set "STALE=0"
+powershell -NoProfile -Command "exit [int](((Get-Date) - (Get-Item $env:XC_LOCK).CreationTime).TotalSeconds -lt 120)" && set "STALE=1"
 exit /b 0

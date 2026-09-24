@@ -1,9 +1,12 @@
 @echo off
-setlocal EnableDelayedExpansion
+:: Delayed expansion stays off until the folder is entered (see start).
+setlocal
 title Xoraclips - Stop
+cd /d "%~dp0" || exit /b 1
+setlocal EnableDelayedExpansion
 
-:: Work from the folder this file is in (also from a desktop shortcut).
-cd /d "%~dp0"
+set "API_URL=http://127.0.0.1:8000/openapi.json"
+set "APP_URL=http://localhost:5174/preview.html"
 
 echo.
 echo  ==============================================================
@@ -12,14 +15,15 @@ echo  ==============================================================
 echo.
 
 :: 1. Close the windows start-xoraclips.bat opened, with what runs in them.
-::    They are found by the exact command they run, not by window title
-::    (Windows Terminal hides console titles from taskkill).
-powershell -NoProfile -ExecutionPolicy Bypass -Command "Get-CimInstance Win32_Process -Filter \"Name='cmd.exe'\" | Where-Object { $_.CommandLine -like '*uvicorn backend.main:app*' -or $_.CommandLine -like '*dev-next -- --no-open --strictPort*' } | ForEach-Object { taskkill /PID $_.ProcessId /T /F | Out-Null; '[OK] Jendela Xoraclips ditutup (PID ' + $_.ProcessId + ').' }"
+::    They carry XORACLIPS_ROLE in their command; window titles are not
+::    used because Windows Terminal hides them from taskkill.
+powershell -NoProfile -ExecutionPolicy Bypass -Command "Get-CimInstance Win32_Process -Filter \"Name='cmd.exe'\" | Where-Object { $_.CommandLine -like '*XORACLIPS_ROLE=backend*' -or $_.CommandLine -like '*XORACLIPS_ROLE=frontend*' } | ForEach-Object { taskkill /PID $_.ProcessId /T /F | Out-Null; '[OK] Jendela Xoraclips ditutup. PID ' + $_.ProcessId }"
 
-:: 2. Whatever still listens on the two ports (for example started by hand)
-::    is stopped too. Other node.exe or python.exe programs are left alone.
-call :stop_port 8000 Backend
-call :stop_port 5174 Frontend
+:: 2. A Xoraclips still listening on its port (for example started by hand)
+::    is stopped too. Anything else on these ports is left alone, and so are
+::    all other node.exe and python.exe programs.
+call :stop_port 8000 Backend backend_ours
+call :stop_port 5174 Frontend frontend_ours
 
 echo.
 echo  Selesai.
@@ -27,20 +31,34 @@ ping -n 3 127.0.0.1 >nul
 exit /b 0
 
 :: ---------------------------------------------------------------------------
-:: :stop_port PORT NAME  ->  stops whatever listens on PORT, with its children.
+:: :stop_port PORT NAME CHECK  ->  stops what listens on PORT if CHECK says
+:: it is Xoraclips.
 :stop_port
-set "STOPPED=0"
-for /f "tokens=2,5" %%a in ('netstat -ano ^| findstr /c:"LISTENING"') do (
-    echo %%a| findstr /e /c:":%~1" >nul && (
-        rem PID 0 and 4 are Windows itself: never touch them.
-        if not "%%b"=="0" if not "%%b"=="4" (
-            taskkill /PID %%b /T /F >nul 2>&1 && set "STOPPED=1"
-        )
-    )
-)
-if "!STOPPED!"=="1" (
-    echo [OK] %~2 di port %~1 dimatikan.
-) else (
+call :port_pid %~1
+if not defined PORT_PID (
     echo [OK] Port %~1 untuk %~2 sudah bebas.
+    exit /b 0
 )
+call :%~3
+if "!OURS!"=="1" (
+    taskkill /PID !PORT_PID! /T /F >nul 2>&1
+    echo [OK] %~2 Xoraclips di port %~1 dimatikan.
+) else (
+    echo [--] Port %~1 dipakai program lain, bukan Xoraclips. PID !PORT_PID!, tidak dimatikan.
+)
+exit /b 0
+
+:port_pid
+set "PORT_PID="
+for /f "usebackq delims=" %%p in (`powershell -NoProfile -Command "(Get-NetTCPConnection -State Listen -LocalPort %~1 -ErrorAction SilentlyContinue | Select-Object -First 1).OwningProcess"`) do set "PORT_PID=%%p"
+exit /b 0
+
+:backend_ours
+set "OURS=0"
+curl -s -m 5 --noproxy "*" "%API_URL%" 2>nul | findstr /c:"XORACLIPS API" >nul && set "OURS=1"
+exit /b 0
+
+:frontend_ours
+set "OURS=0"
+curl -s -m 5 --noproxy "*" "%APP_URL%" 2>nul | findstr /i /c:"Xoraclips" >nul && set "OURS=1"
 exit /b 0
