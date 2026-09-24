@@ -13,13 +13,15 @@ value silently became 30s. Now the request only accepts the values below.
   span without overlap (10 clips of 3 minutes do not fit in 15 minutes).
 - Backup clips (when Gemini returns none) are placed around the peaks, do
   not overlap, and stay inside the searched span.
+- 2m/3m clips Gemini made too short are widened to the shortest length
+  (#38), ending on a sentence or line edge.
 """
 from typing import Dict, List, Literal, Optional, Sequence, Tuple
 
 try:
-    from backend.clip_bounds import Lines
+    from backend.clip_bounds import Lines, snap_clip
 except ImportError:
-    from clip_bounds import Lines
+    from clip_bounds import Lines, snap_clip
 
 Duration = Literal["15s", "30s", "60s", "120s", "180s"]
 
@@ -148,3 +150,63 @@ def backup_windows(
         if len(chosen) >= count:
             break
     return chosen
+
+
+# How the missing seconds of a too-short clip are split: most of it after
+# the clip (where the story goes on), the rest before it (the lead-up).
+STRETCH_AFTER_SHARE = 0.75
+
+
+def stretch_short_clips(
+    bounds: Sequence[Tuple[float, float]], lines: Lines, duration: str, lo: float, hi: float
+) -> List[Tuple[float, float]]:
+    """2m/3m clips under the shortest length, widened to reach it (#38).
+
+    Gemini (seen with gemini-3.5-flash-lite) can ignore the length rule and
+    return 40s clips for 2m. Like OpusClip, the length stays a preference,
+    but a clip is only widened up to the shortest length, not the target,
+    so as little as possible is added that Gemini did not pick. The new ends
+    are snapped like every other clip (clip_bounds.snap_clip), never grow
+    into another clip, and stay inside [lo, hi]. Other durations, and clips
+    with broken times (end <= start), are left alone.
+    """
+    out = [tuple(b) for b in bounds]
+    if duration not in LONG_DURATIONS:
+        return list(out)
+    shortest = float(DURATIONS[duration][0])
+
+    for k in sorted(range(len(out)), key=lambda n: out[n][0]):
+        s, e = out[k]
+        if e <= s or e - s >= shortest:
+            continue
+        others = [b for j, b in enumerate(out) if j != k]
+        # Every other clip is a wall, also one Gemini made overlap this
+        # one: widening must not turn an overlap into a near-duplicate.
+        before = max([lo] + [b_end for b_start, b_end in others if b_end <= e and b_start < s])
+        after = min([hi] + [b_start for b_start, b_end in others if b_start >= s and b_end > e])
+        room_before, room_after = max(0.0, s - before), max(0.0, after - e)
+        missing = shortest - (e - s)
+        # Most of it after the clip; a blocked side hands its share over.
+        add_after = min(room_after, max(missing * STRETCH_AFTER_SHARE, missing - room_before))
+        add_before = min(room_before, missing - add_after)
+
+        # A wall inside the clip (an overlap Gemini made) only stops growth
+        # on that side; it never shrinks the clip.
+        floor, ceiling = min(before, s), max(after, e)
+        wanted_end = e + add_after
+        new_s, new_e = snap_clip(s - add_before, wanted_end, lines, floor, ceiling)
+        if new_e < wanted_end - 0.01:
+            # A sentence end just before the wanted end (the next line starts
+            # right at the stop) would leave the clip short: use the line end.
+            new_e = lines.snap_end(wanted_end, ceiling)
+        if new_e > new_s:
+            out[k] = (round(new_s, 2), round(new_e, 2))
+    return list(out)
+
+
+def still_short(bounds: Sequence[Tuple[float, float]], duration: str) -> int:
+    """How many clips are under the shortest length (walled in on both sides)."""
+    if duration not in LONG_DURATIONS:
+        return 0
+    shortest = DURATIONS[duration][0]
+    return sum(1 for s, e in bounds if e > s and e - s < shortest - 0.5)
