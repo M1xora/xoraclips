@@ -5,8 +5,9 @@ for TikTok / Shorts / Reels, three options per clip.
 The limits live here, not in the analysis logic, and each can be overridden
 with an environment variable (for example XORACLIPS_MAX_TITLE_WORDS=6).
 The visual limits come from #21/#23: the ASS title path never shrinks, and
-only a single word of 17+ letters at the Big size ran past the frame; 45
-characters (at most 4 lines) and 14-letter words stay well inside it.
+only a single word of 17+ letters at the Big size ran past the frame (about
+60 px a letter). 50 characters wrap to at most 4 lines of ~15 letters
+(~900 px), and 14-letter words stay inside the 1010 px safe width.
 
 Gemini's titles are checked here one by one. A title that breaks a rule is
 logged with the reason and dropped; if none is left, a safe fallback is used.
@@ -32,12 +33,19 @@ def _int_setting(name: str, default: int, minimum: int) -> int:
 
 
 MAX_TITLE_WORDS = _int_setting("XORACLIPS_MAX_TITLE_WORDS", 7, 3)
-MAX_TITLE_CHARS = _int_setting("XORACLIPS_MAX_TITLE_CHARS", 45, 20)
+MAX_TITLE_CHARS = _int_setting("XORACLIPS_MAX_TITLE_CHARS", 50, 20)
 MAX_TITLE_WORD_CHARS = _int_setting("XORACLIPS_MAX_TITLE_WORD_CHARS", 14, 8)
 TITLE_OPTIONS = _int_setting("XORACLIPS_TITLE_OPTIONS", 3, 1)
 
 # Last resort when neither the new options nor the old titles are usable.
 GENERIC_FALLBACK = "Momen Penting dari Video Ini"
+
+# Words a title cannot end on after being cut ("Buka Pabrik di").
+_DANGLING = {
+    "di", "ke", "dari", "dan", "yang", "untuk", "soal", "dengan", "buat", "pada",
+    "atau", "dalam", "sama", "karena", "tapi", "bagi", "oleh", "para", "si", "sang",
+    "the", "a", "an", "of", "and", "to", "for", "in", "on", "with",
+}
 
 _QUOTES = "\"'“”‘’«»`"
 _FIRST_PERSON = re.compile(r"\b(me|my|mine|myself|saya|aku|gue|gw)\b", re.IGNORECASE)
@@ -116,7 +124,7 @@ def _shorten(title: str) -> str:
     an over-long word therefore cannot be shortened and returns "".
     """
     words = title.split()[:MAX_TITLE_WORDS]
-    while words and len(" ".join(words)) > MAX_TITLE_CHARS:
+    while words and (len(" ".join(words)) > MAX_TITLE_CHARS or words[-1].lower().strip(",;:-") in _DANGLING):
         words.pop()
     short = " ".join(words).rstrip(",;:-")
     return short if short and title_problem(short) is None else ""
@@ -196,8 +204,10 @@ def prompt_rules() -> str:
         f"2. For each clip give exactly {n} options in \"title_options\", each with a different angle "
         "(for example: a question, a surprising statement, the situation/context, or the reaction/emotion). "
         "The first option is used by default, so make it the strongest. Put the angle in \"angle\".\n"
-        f"3. Each title: at most {w} words and {c} characters, and no single word longer than {l} characters. "
-        "No hashtags, no emoji, no quotation marks.\n"
+        f"3. HARD LENGTH LIMIT: each title has at most {w} words and at most {c} characters, and no word "
+        f"longer than {l} characters. Count the words of every title before answering; if a title is too long, "
+        "rewrite it shorter (drop filler words, keep the hook). The app discards any title over the limit, so "
+        "an over-long title is wasted. No hashtags, no emoji, no quotation marks.\n"
         "4. Spark curiosity or emotion. Do NOT write like a news headline "
         "(avoid patterns like \"[Name] Jelaskan Bahaya ...\" or \"[Name] Explains ...\").\n"
         "5. Give just enough context that someone who has never seen the video understands the situation.\n"

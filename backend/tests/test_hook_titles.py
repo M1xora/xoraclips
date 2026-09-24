@@ -32,7 +32,7 @@ def test_good_titles_pass(title):
     ("", "empty"),
     ("Ini Adalah Judul Yang Punya Delapan Kata Panjang", "8 words"),
     ("Kenapa Pertanggungjawaban Itu Penting Banget", "word"),
-    ("Satu Studio Langsung Diam Dengar Jawaban Ini!!", "characters"),
+    ("Satu Studio Langsung Diam Mendengarkan Pengakuannya", "characters"),  # 6 words, 51 chars
     ("Ternyata Lari Tiap Hari #sehat", "hashtag"),
     ("Ternyata Lari Tiap Hari 🔥", "emoji"),
     ("Kenapa Saya Berhenti Lari Tiap Hari", "first person"),
@@ -99,8 +99,8 @@ def test_no_options_falls_back_to_the_old_title_fields():
 def test_an_old_title_that_is_too_long_is_shortened_as_a_last_resort():
     long_old = "Dr. Tirta Jelaskan Bahaya Memaksa Jantung Bekerja Terlalu Keras Saat Olahraga"
     titles, problems = pick_titles([], legacy_title=long_old)
-    # 7 words would be 49 characters, over the 45 limit: one more word goes.
-    assert titles == ["Dr. Tirta Jelaskan Bahaya Memaksa Jantung"]
+    # The first 7 words are 49 characters, inside the 50 limit.
+    assert titles == ["Dr. Tirta Jelaskan Bahaya Memaksa Jantung Bekerja"]
     assert title_problem(titles[0]) is None
     assert any("shortened" in p for p in problems)
 
@@ -228,7 +228,8 @@ def test_the_generic_fallback_obeys_stricter_settings(monkeypatch):
     reloaded = importlib.reload(title_rules)
     try:
         titles, _ = reloaded.pick_titles([])
-        assert titles == ["Momen Penting dari"]
+        # "Momen Penting dari" would end on "dari": cut one word more.
+        assert titles == ["Momen Penting"]
         assert reloaded.title_problem(titles[0]) is None
     finally:
         monkeypatch.delenv("XORACLIPS_MAX_TITLE_WORDS")
@@ -252,3 +253,14 @@ def test_backup_clips_keep_their_old_titles(api):
     assert clips and clips[0]["title"] == "Key Highlight #1"
     assert clips[0]["title_suggestion"] == "Must Watch Moment #1"
     assert clips[0]["title_options"] == []
+
+
+def test_a_shortened_title_never_ends_on_a_linking_word():
+    """Found in the evaluation: "Cerita Pengusaha Indonesia Buka Pabrik di"."""
+    titles, _ = pick_titles([], legacy_title="Cerita Pengusaha Kaya Indonesia Buka Pabrik di Vietnam")
+    assert titles == ["Cerita Pengusaha Kaya Indonesia Buka Pabrik"]
+
+
+def test_the_prompt_states_the_length_limit_as_hard():
+    text = prompt_rules()
+    assert "HARD LENGTH LIMIT" in text and "Count the words" in text and "discards" in text
