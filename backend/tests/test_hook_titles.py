@@ -214,7 +214,7 @@ def test_two_separately_quoted_words_keep_their_quotes():
 def test_every_character_the_renderer_draws_as_emoji_is_refused():
     # Sk (modifier symbol) and a variation selector: video_engine.has_emoji says yes.
     assert "emoji" in title_problem("Ternyata Lari ^ Tiap Hari")
-    assert "emoji" in title_problem("Ternyata Lari Tiap Hari️")
+    assert "emoji" in title_problem("Ternyata Lari Tiap Hari\ufe0f")
 
 
 def test_shortening_never_drops_a_word_from_the_middle():
