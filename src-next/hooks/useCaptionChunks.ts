@@ -66,5 +66,8 @@ export function useCaptionChunks(
   if (!enabled) return { chunks: [], status: 'off' };
   if (!active) return { chunks: [], status: 'renderOnly' };
   if (!loaded) return { chunks: [], status: 'loading' };
-  return { chunks: loaded.chunks, status: loaded.key === key ? loaded.status : 'loading' };
+  // Chunks of another clip or trim are never shown while these load: the
+  // preview player is reused per clip now (#40).
+  if (loaded.key !== key) return { chunks: [], status: 'loading' };
+  return { chunks: loaded.chunks, status: loaded.status };
 }

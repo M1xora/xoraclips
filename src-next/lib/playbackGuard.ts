@@ -31,9 +31,14 @@ function audible(player: Pausable): boolean {
   }
 }
 
-/** When `player` has sound, pauses every other player that has sound. */
-export function pauseOthers(player: Pausable): void {
-  if (!audible(player)) return;
+/**
+ * When `player` has sound, pauses every other player that has sound.
+ *
+ * `justUnmuted`: the caller unmuted it a moment ago. isMuted() answers from
+ * a value the player updates asynchronously, so it may still say muted.
+ */
+export function pauseOthers(player: Pausable, justUnmuted = false): void {
+  if (!justUnmuted && !audible(player)) return;
   for (const other of players) {
     if (other === player || !audible(other)) continue;
     try {

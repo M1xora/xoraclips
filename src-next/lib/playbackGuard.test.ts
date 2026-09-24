@@ -29,6 +29,14 @@ describe('playbackGuard (#40)', () => {
     expect(source.pauseVideo).not.toHaveBeenCalled();
   });
 
+  it('a player unmuted a moment ago counts as audible', () => {
+    // isMuted() still reports the old value right after unMute().
+    const source = player();
+    const preview = player(true);
+    pauseOthers(preview, true);
+    expect(source.pauseVideo).toHaveBeenCalledOnce();
+  });
+
   it('a muted player is not paused by one with sound', () => {
     const preview = player(true);
     const source = player();

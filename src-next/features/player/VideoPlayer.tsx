@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { PauseIcon, PlayIcon, WarningCircleIcon } from '@phosphor-icons/react';
 import { useYouTubePlayer, type ClipBounds } from '../../hooks/useYouTubePlayer';
 import { HeatmapTimeline } from './HeatmapTimeline';
@@ -38,13 +38,21 @@ export function VideoPlayer({
     controls: true,
   });
 
+  // App passes a new onPlayed each render; as a dependency it re-ran the
+  // seek on every render, so the source jumped back to the clip start
+  // whenever a Studio setting changed (#40).
+  const onPlayedRef = useRef(onPlayed);
+  useEffect(() => {
+    onPlayedRef.current = onPlayed;
+  }, [onPlayed]);
+
   // Jump to the clip without playing: the portrait preview is what plays.
   // If both do play, lib/playbackGuard keeps only one of them audible (#40).
   useEffect(() => {
     if (!seekToClip || !ready || !bounds) return;
     seek(bounds.start, false);
-    onPlayed();
-  }, [seekToClip, ready, bounds, seek, onPlayed]);
+    onPlayedRef.current();
+  }, [seekToClip, ready, bounds, seek]);
 
   return (
     <div>

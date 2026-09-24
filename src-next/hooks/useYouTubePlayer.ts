@@ -191,6 +191,9 @@ export function useYouTubePlayer({
               setState((s) => ({ ...s, playing }));
 
               if (playing) {
+                // Started (also with YouTube's own controls): a remembered
+                // cue spot no longer applies.
+                cuedRef.current = null;
                 // One sound at a time, so two players never talk over each other (#40).
                 pauseOthers(target);
                 startPolling();
@@ -243,7 +246,13 @@ export function useYouTubePlayer({
       const plan = planMove(player.getPlayerState(), current, seconds, cuedRef.current);
       if (plan === 'seek') {
         cuedRef.current = null;
+        // A poll tick right after the seek can still read the old time; it
+        // would pause a source player that seems past the new clip's end.
+        seekingRef.current = true;
         player.seekTo(seconds, true);
+        window.setTimeout(() => {
+          seekingRef.current = false;
+        }, 120);
       } else if (plan === 'cue') {
         cuedRef.current = seconds;
         if (cueWhenIdle) player.cueVideoById({ videoId, startSeconds: seconds });
@@ -335,7 +344,7 @@ export function useYouTubePlayer({
         player.unMute();
         player.setVolume(volume);
         // Now audible: another player with sound should stop.
-        if (player.getPlayerState() === PLAYER_STATE.PLAYING) pauseOthers(player);
+        if (player.getPlayerState() === PLAYER_STATE.PLAYING) pauseOthers(player, true);
       } else {
         player.mute();
       }

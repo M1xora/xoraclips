@@ -77,6 +77,12 @@ describe('needsResync (#40)', () => {
     expect(needsResync(12.3, 12.0)).toBe(false);
   });
 
+  it('measures around the loop point of the track', () => {
+    // 30s track: 0.1s and 29.9s are 0.2s apart.
+    expect(needsResync(0.1, 29.9, 30)).toBe(false);
+    expect(needsResync(10, 25, 30)).toBe(true);
+  });
+
   it('moves the music back after "replay from start"', () => {
     // Video back at 0s, music still 20s in.
     expect(needsResync(20, bgmSeekTarget(0, 0, 180))).toBe(true);

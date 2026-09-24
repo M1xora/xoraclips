@@ -196,7 +196,8 @@ export function ClipPreview({
     pollMs: 120,
   });
 
-  // Also when a new clip mounts a new (muted) player while sound is on.
+  // Applied once the player is ready, and whenever the sound or volume changes.
+  // The same player is reused across clips, so its sound carries over.
   const volume = previewVolume(originalAudioVolume);
   useEffect(() => {
     if (ready) setSound(soundOn, volume);
@@ -215,7 +216,7 @@ export function ClipPreview({
   // (video_engine.py:1590), so the preview follows the same rule.
   const tracks =
     streamerPreset !== 'none' || (enableFaceTracking && aspectRatio === '9:16');
-  const { box } = useFaceBox(videoId, sampleAt, tracks);
+  const { box } = useFaceBox(videoId, sampleAt, tracks, clip.id);
 
   // Captions come from the backend so they match the export exactly.
   const { t } = useLanguage();
