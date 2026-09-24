@@ -193,3 +193,62 @@ def test_the_prompt_sent_to_gemini_has_the_new_title_rules(api):
     assert "HOOK TITLE RULES" in prompt
     assert f"at most {title_rules.MAX_TITLE_WORDS} words" in prompt
     assert "Match output language to transcript language" not in prompt  # titles are always Indonesian now
+
+
+# --- review findings --------------------------------------------------------------------
+
+def test_a_quote_after_the_speakers_name_is_not_the_editor_speaking():
+    assert title_problem("dr. Tirta: Saya Nggak Pernah Lari Pagi") is None
+    assert "first person" in title_problem("Saya Nggak Pernah Lari Pagi")
+
+
+def test_a_roman_numeral_is_not_first_person():
+    assert title_problem("Perang Dunia I Ternyata Begini") is None
+
+
+def test_two_separately_quoted_words_keep_their_quotes():
+    assert title_rules.clean_title('"Sehat" Katanya, Padahal "Bahaya"') == '"Sehat" Katanya, Padahal "Bahaya"'
+    assert title_rules.clean_title('"Sehat Katanya"') == "Sehat Katanya"
+
+
+def test_every_character_the_renderer_draws_as_emoji_is_refused():
+    # Sk (modifier symbol) and a variation selector: video_engine.has_emoji says yes.
+    assert "emoji" in title_problem("Ternyata Lari ^ Tiap Hari")
+    assert "emoji" in title_problem("Ternyata Lari Tiap Hari️")
+
+
+def test_shortening_never_drops_a_word_from_the_middle():
+    titles, problems = pick_titles([], legacy_title="Kenapa Pertanggungjawaban Dokter Itu Penting")
+    assert titles == [GENERIC_FALLBACK]
+    assert any("generic fallback" in p for p in problems)
+
+
+def test_the_generic_fallback_obeys_stricter_settings(monkeypatch):
+    monkeypatch.setenv("XORACLIPS_MAX_TITLE_WORDS", "3")
+    reloaded = importlib.reload(title_rules)
+    try:
+        titles, _ = reloaded.pick_titles([])
+        assert titles == ["Momen Penting dari"]
+        assert reloaded.title_problem(titles[0]) is None
+    finally:
+        monkeypatch.delenv("XORACLIPS_MAX_TITLE_WORDS")
+        importlib.reload(title_rules)
+
+
+def test_title_options_are_required_in_the_structured_output():
+    schema = main.ViralClipGemini.model_json_schema()
+    assert "title_options" in schema["required"]
+
+
+def test_captions_keep_following_the_transcripts_language(api):
+    FakeGemini.payload = {"summary": "s", "clips": [gemini_clip(10, [{"text": GOOD[0]}])]}
+    analyze(api)
+    assert "caption_suggestion, key_quotes and hashtag_suggestion in the language of the transcript" in FakeGemini.prompts[-1]
+
+
+def test_backup_clips_keep_their_old_titles(api):
+    FakeGemini.payload = {"summary": "", "clips": []}  # every model: no clips
+    clips = analyze(api)["clips"]
+    assert clips and clips[0]["title"] == "Key Highlight #1"
+    assert clips[0]["title_suggestion"] == "Must Watch Moment #1"
+    assert clips[0]["title_options"] == []

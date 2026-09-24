@@ -92,6 +92,7 @@ export function StudioPanel({
   onError,
 }: StudioPanelProps) {
   const { t } = useLanguage();
+  const choices = titleChoices(titleOptions, customTitle);
   const max = getMaxPositions(state.aspectRatio, titleLines);
   const centre = getCenterBounds(state.aspectRatio);
 
@@ -334,11 +335,11 @@ export function StudioPanel({
                     hint={aiTitle ? t.studio.clipTitleHint : t.studio.clipTitleNoClip}
                   />
                   {/* The AI's other titles, one click away and no new request (#31). */}
-                  {titleChoices(titleOptions, customTitle).length > 0 && (
+                  {choices.length > 0 && (
                     <div className="mt-2" role="group" aria-label={t.studio.clipTitleOptions}>
                       <p className="mb-1 text-[0.8rem] font-medium text-ink-dim">{t.studio.clipTitleOptions}</p>
                       <div className="flex flex-col gap-1">
-                        {titleChoices(titleOptions, customTitle).map((choice) => (
+                        {choices.map((choice) => (
                           <button
                             key={choice.text}
                             type="button"
@@ -355,7 +356,7 @@ export function StudioPanel({
                       </div>
                     </div>
                   )}
-                  {customTitle.trim() !== '' && (
+                  {choices.length === 0 && customTitle.trim() !== '' && (
                     <button
                       type="button"
                       onClick={() => onCustomTitleChange('')}

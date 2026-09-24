@@ -174,7 +174,7 @@ class ViralClipGemini(BaseModel):
     title_suggestion: str = Field(default="", description="Leave empty: alternative titles go in title_options.")
     caption_suggestion: str = Field(default="", description="Engaging social media caption suggestion attributing insights or story to the speaker.")
     hashtag_suggestion: str = Field(default="", description="Relevant hashtags suggestion (e.g. #hashtag1 #hashtag2)")
-    title_options: List[TitleOption] = Field(default_factory=list, description="Exactly the number of hook titles the HOOK TITLE RULES ask for, strongest first, each with a different angle")
+    title_options: List[TitleOption] = Field(description="Exactly the number of hook titles the HOOK TITLE RULES ask for, strongest first, each with a different angle")
     content_type: str = Field(default="", description="Kind of content in this clip, e.g. lucu, edukasi/kesehatan, motivasi, kontroversi, cerita")
 
 class VideoAnalysis(BaseModel):
@@ -2001,7 +2001,8 @@ async def analyze_video(
             f"- Video Duration: {int(start_bound)}s to {int(end_bound)}s (Total: {int(duration)}s) | Target clip length: {dur_range}\n"
             f"- Heatmap: {heatmap_note}\n\n"
             f"{focus_instruction}"
-            f"{title_rules.prompt_rules()}\n"
+            f"{title_rules.prompt_rules()}"
+            f"Write caption_suggestion, key_quotes and hashtag_suggestion in the language of the transcript.\n\n"
             f"Transcript (start|end[|interest] text):\n---\n{transcript_text}\n---\n\n"
             f"Rules: use exact seconds from transcript; clips must start/end at sentence boundaries; do not overlap.\n"
             f"Return {clip_range} clips sorted by virality_score desc."
@@ -2148,13 +2149,13 @@ async def analyze_video(
                             "summary": getattr(parsed, 'summary', ''),
                             "clips": [
                                 {
-                                    "title": sanitize_first_person_title(getattr(c, 'title', ''), channel),
+                                    "title": getattr(c, 'title', ''),
                                     "start_time": getattr(c, 'start_time', 0.0),
                                     "end_time": getattr(c, 'end_time', 0.0),
                                     "hook_time": getattr(c, 'hook_time', None),
                                     "virality_score": getattr(c, 'virality_score', 0),
                                     "key_quotes": getattr(c, 'key_quotes', []),
-                                    "title_suggestion": sanitize_first_person_title(getattr(c, 'title_suggestion', ''), channel),
+                                    "title_suggestion": getattr(c, 'title_suggestion', ''),
                                     "caption_suggestion": getattr(c, 'caption_suggestion', ''),
                                     "hashtag_suggestion": getattr(c, 'hashtag_suggestion', ''),
                                     "title_options": [
@@ -2284,7 +2285,8 @@ async def analyze_video(
                     "key_quotes": [seg_text[:80]] if seg_text else [],
                     "title_suggestion": f"Must Watch Moment #{i+1}",
                     "caption_suggestion": f"Key highlight from video: {preview} #viral #trending",
-                    "hashtag_suggestion": "#viral #shorts #trending"
+                    "hashtag_suggestion": "#viral #shorts #trending",
+                    "is_fallback": True,
                 })
             analysis_data['clips'] = fallback_clips_list
             if not analysis_data.get('summary'):
@@ -2322,25 +2324,34 @@ async def analyze_video(
             caption_sug = lowercase_hashtags_in_string(raw_clip.get('caption_suggestion', ''))
             hashtag_sug = lowercase_hashtags_in_string(raw_clip.get('hashtag_suggestion', ''))
             
-            # Issue #31: every title Gemini wrote is checked against the rules;
-            # rejections are logged and a safe fallback keeps the clip usable.
-            titles, _ = title_rules.pick_titles(
-                raw_clip.get('title_options'),
-                legacy_title=raw_clip.get('title', ''),
-                legacy_suggestion=raw_clip.get('title_suggestion', ''),
-                sanitize=lambda t: sanitize_first_person_title(t, channel),
-                label=f"clip {clip_no} ({start:.1f}-{end:.1f}s)",
-            )
+            if raw_clip.get('is_fallback'):
+                # Backup clips made above when Gemini returned none: their
+                # titles ("Must Watch Moment #1") stay exactly as before.
+                clip_title = raw_clip.get('title', '')
+                clip_suggestion = raw_clip.get('title_suggestion', '')
+                titles = []
+            else:
+                # Issue #31: every title Gemini wrote is checked against the
+                # rules; rejections are logged and a safe fallback keeps the
+                # clip usable.
+                titles, _ = title_rules.pick_titles(
+                    raw_clip.get('title_options'),
+                    legacy_title=raw_clip.get('title', ''),
+                    legacy_suggestion=raw_clip.get('title_suggestion', ''),
+                    sanitize=lambda t: sanitize_first_person_title(t, channel),
+                    label=f"clip {clip_no} ({start:.1f}-{end:.1f}s)",
+                )
+                clip_title = clip_suggestion = titles[0]
 
             final_clips.append(ViralClip(
-                title=titles[0],
+                title=clip_title,
                 start_time=start,
                 end_time=end,
                 hook_time=hook,
                 virality_score=raw_clip.get('virality_score', 0),
                 key_quotes=raw_clip.get('key_quotes') or [],
                 transcript=" ".join(clip_lines),
-                title_suggestion=titles[0],
+                title_suggestion=clip_suggestion,
                 caption_suggestion=caption_sug,
                 hashtag_suggestion=hashtag_sug,
                 title_options=titles,

@@ -40,7 +40,13 @@ TITLE_OPTIONS = _int_setting("XORACLIPS_TITLE_OPTIONS", 3, 1)
 GENERIC_FALLBACK = "Momen Penting dari Video Ini"
 
 _QUOTES = "\"'“”‘’«»`"
-_FIRST_PERSON = re.compile(r"\b(i|me|my|mine|myself|saya|aku|gue|gw)\b", re.IGNORECASE)
+_FIRST_PERSON = re.compile(r"\b(me|my|mine|myself|saya|aku|gue|gw)\b", re.IGNORECASE)
+
+
+def _editor_voice(title: str) -> str:
+    """The part that speaks as the editor: after "Name:" it is a quote."""
+    head, sep, _quote = title.partition(":")
+    return head if sep else title
 
 
 def clean_title(text: object) -> str:
@@ -48,14 +54,23 @@ def clean_title(text: object) -> str:
     if not isinstance(text, str):
         return ""
     t = " ".join(text.split())
-    while len(t) >= 2 and t[0] in _QUOTES and t[-1] in _QUOTES:
+    while len(t) >= 2 and t[0] in _QUOTES and t[-1] in _QUOTES and not any(q in t[1:-1] for q in _QUOTES):
         t = t[1:-1].strip()
     return t
 
 
+def _is_emoji_char(ch: str) -> bool:
+    code = ord(ch)
+    if (0x1F000 <= code <= 0x1FAFF or 0x2600 <= code <= 0x27BF or 0x2300 <= code <= 0x23FF
+            or 0x2B50 <= code <= 0x2B55 or code == 0x200D or 0xFE00 <= code <= 0xFE0F or code == 0x20E3):
+        return True
+    return unicodedata.category(ch) in ("So", "Sk")
+
+
 def _has_emoji(text: str) -> bool:
-    # Symbols switch the render to the PNG path and are banned by the prompt.
-    return any(unicodedata.category(ch) == "So" for ch in text)
+    # Same test as video_engine.is_emoji_char: such a title is drawn as a
+    # PNG instead of by libass, and the prompt bans emoji anyway.
+    return any(_is_emoji_char(ch) for ch in text)
 
 
 def title_problem(title: str) -> Optional[str]:
@@ -74,7 +89,7 @@ def title_problem(title: str) -> Optional[str]:
         return "contains a hashtag"
     if _has_emoji(title):
         return "contains an emoji or symbol"
-    if _FIRST_PERSON.search(title):
+    if _FIRST_PERSON.search(_editor_voice(title)):
         return "first person (the editor is not the speaker)"
     return None
 
@@ -95,12 +110,16 @@ def _option_texts(options: object) -> List[object]:
 
 
 def _shorten(title: str) -> str:
-    """Cut at word boundaries until the length limits hold (last resort only)."""
-    words = [w for w in title.split() if len(w) <= MAX_TITLE_WORD_CHARS]
-    words = words[:MAX_TITLE_WORDS]
+    """
+    Cut words off the end until the limits hold (last resort only). Words are
+    never taken from the middle, which could change the meaning; a title with
+    an over-long word therefore cannot be shortened and returns "".
+    """
+    words = title.split()[:MAX_TITLE_WORDS]
     while words and len(" ".join(words)) > MAX_TITLE_CHARS:
         words.pop()
-    return " ".join(words).rstrip(",;:-")
+    short = " ".join(words).rstrip(",;:-")
+    return short if short and title_problem(short) is None else ""
 
 
 def pick_titles(
@@ -150,16 +169,21 @@ def pick_titles(
         # Fallback 2: the old title cut to fit, then a neutral generic title.
         base = clean_title(sanitize(clean_title(legacy_suggestion) or clean_title(legacy_title)))
         short = _shorten(base)
-        if short and title_problem(short) is None:
+        if short:
             problems.append(f"{label}: using the old title shortened to fit: {short!r}")
             picked.append(short)
         else:
             problems.append(f"{label}: no usable title; using the generic fallback")
-            picked.append(GENERIC_FALLBACK)
+            picked.append(generic_fallback())
 
     for p in problems:
         logger.warning(p)
     return picked, problems
+
+
+def generic_fallback() -> str:
+    """GENERIC_FALLBACK, cut to the configured limits if they are stricter."""
+    return _shorten(GENERIC_FALLBACK) or "Momen Penting"
 
 
 def prompt_rules() -> str:
