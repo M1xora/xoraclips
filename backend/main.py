@@ -96,6 +96,7 @@ try:
     from backend import youtube_errors
     from backend.youtube_errors import CaptionUnavailable, YouTubeBlocked
     from backend import title_rules
+    from backend import clip_bounds
 except ImportError:
     from secrets_guard import (
         GEMINI_KEY_HEADER, install_log_redaction, is_mock_mode, redact_data,
@@ -105,6 +106,7 @@ except ImportError:
     import youtube_errors
     from youtube_errors import CaptionUnavailable, YouTubeBlocked
     import title_rules
+    import clip_bounds
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
@@ -2305,11 +2307,22 @@ async def analyze_video(
         logger.info(f"Gemini analysis complete with {successful_model or requested_model}. Found {clip_count} clips.")
         logger.info(f"Gemini analysis complete with {successful_model or requested_model}. Found {clip_count} clips.")
 
+        # Issue #35: move clip starts/ends to transcript line edges (and, when
+        # the transcript has punctuation, the end to the next sentence end)
+        # so a clip does not open or close mid-line.
+        raw_clips = analysis_data.get('clips', [])
+        raw_bounds = [
+            (float(c.get('start_time', 0.0)), float(c.get('end_time', 0.0)))
+            for c in raw_clips
+        ]
+        snapped_bounds = clip_bounds.snap_clips(raw_bounds, enriched_transcript, start_bound, end_bound)
+        moved = sum(1 for r, s in zip(raw_bounds, snapped_bounds) if r != s)
+        logger.info(f"Clip bounds: {moved}/{len(raw_bounds)} clip(s) moved to line/sentence edges.")
+
         # Reconstruct clip transcripts from enriched_transcript
         final_clips = []
-        for clip_no, raw_clip in enumerate(analysis_data.get('clips', []), start=1):
-            start = raw_clip.get('start_time', 0.0)
-            end   = raw_clip.get('end_time', 0.0)
+        for clip_no, raw_clip in enumerate(raw_clips, start=1):
+            start, end = snapped_bounds[clip_no - 1]
             hook  = raw_clip.get('hook_time')
             if hook is None or not (start <= hook <= end):
                 hook = start
