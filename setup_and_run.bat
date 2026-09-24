@@ -261,27 +261,13 @@ if not exist "venv\.installed" (
 
 :: -------------------------------------------------------------------------
 :: STEP 4: Launch the App
+:: start-xoraclips.bat starts the backend and the new UI (port 5174) in
+:: their own windows, skips what is already running, and opens the browser
+:: once both are ready. The current folder is the repository here (it may be
+:: a fresh clone), so the file is called by its full path in this folder.
+:: The old UI (port 5173) can still be started by hand with: npm run dev
 :: -------------------------------------------------------------------------
 echo.
-echo ======================================================================
-echo                     STARTING XORACLIPS                           
-echo ======================================================================
-echo.
-echo   * Web App: http://localhost:5173
-echo   * Backend: http://localhost:8000
-echo.
-echo   Opening browser now...
-echo   Keep this window open. Press Ctrl+C anytime to stop the server.
-echo.
-
-:: Open default browser
-start "" http://localhost:5173
-
-:: Run frontend and backend concurrently
-call npm run dev
-
-if %errorlevel% neq 0 (
-    echo.
-    echo [NOTICE] Server stopped.
-    pause
-)
+echo [STEP 4/4] Starting Xoraclips...
+call "%CD%\start-xoraclips.bat"
+exit /b %errorlevel%
