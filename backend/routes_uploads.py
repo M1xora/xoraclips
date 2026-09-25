@@ -6,6 +6,7 @@ folder) are in uploads.py (#58).
 import asyncio
 import logging
 import os
+from pathlib import Path
 
 from fastapi import APIRouter, File, HTTPException, Request, UploadFile
 from fastapi.responses import FileResponse, JSONResponse
@@ -33,40 +34,59 @@ async def refuse_oversized_uploads(request: Request, call_next):
     """Middleware: an upload over its limit is refused from its Content-Length,
     before the body is read. By the time an endpoint runs, FastAPI has
     already received the whole file."""
-    upload = UPLOAD_PATHS.get(request.url.path)
+    path = request.url.path
+    root = request.scope.get("root_path") or ""
+    if root and path.startswith(root):
+        path = path[len(root):]   # behind a proxy prefix (uvicorn --root-path)
+    upload = UPLOAD_PATHS.get(path)
     if upload is not None and request.method == "POST":
         length = request.headers.get("content-length")
         if length is None:
             return JSONResponse({"detail": "Content-Length required"}, status_code=411)
-        if not length.isdigit() or int(length) > upload.max_bytes + MULTIPART_OVERHEAD_BYTES:
+        if not (length.isascii() and length.isdigit()) or int(length) > upload.max_bytes + MULTIPART_OVERHEAD_BYTES:
             return JSONResponse({"detail": _too_large(upload)}, status_code=413)
     return await call_next(request)
 
 
+class _TooLarge(Exception):
+    pass
+
+
+def _store(source, target: Path, max_bytes: int) -> int:
+    """Copies an upload that FastAPI has already received (spooled) to the
+    upload folder, counting as it goes; nothing is left behind on failure."""
+    target.parent.mkdir(parents=True, exist_ok=True)
+    size = 0
+    try:
+        with open(target, "wb") as out:
+            while chunk := source.read(CHUNK_BYTES):
+                size += len(chunk)
+                if size > max_bytes:
+                    raise _TooLarge()
+                out.write(chunk)
+    except BaseException:
+        target.unlink(missing_ok=True)
+        raise
+    return size
+
+
 async def _save_upload(file: UploadFile, upload: UploadKind) -> dict:
-    """Checks, names and stores one upload, and describes it. The file is
-    written in 1 MB pieces and counted again while writing."""
+    """Checks, names and stores one upload, and describes it. The size is
+    checked again here: the Content-Length check only saw the whole body."""
     if not file.filename:
         raise HTTPException(status_code=400, detail="No file provided")
     if extension(file.filename) not in upload.types:
         raise HTTPException(status_code=400,
                             detail=f"Unsupported {upload.kind} format. Allowed: {', '.join(upload.types)}")
+    if file.size is not None and file.size > upload.max_bytes:
+        raise HTTPException(status_code=413, detail=_too_large(upload))
 
     name = saved_name(file.filename, upload.prefix)
-    save_path = uploads_dir() / name
-    size = 0
     try:
-        with open(save_path, "wb") as out:
-            while chunk := await file.read(CHUNK_BYTES):
-                size += len(chunk)
-                if size > upload.max_bytes:
-                    raise HTTPException(status_code=413, detail=_too_large(upload))
-                await asyncio.to_thread(out.write, chunk)
-    except HTTPException:
-        save_path.unlink(missing_ok=True)
-        raise
+        size = await asyncio.to_thread(_store, file.file, uploads_dir() / name, upload.max_bytes)
+    except _TooLarge:
+        raise HTTPException(status_code=413, detail=_too_large(upload))
     except Exception as e:
-        save_path.unlink(missing_ok=True)
         logger.error(f"Failed to upload {upload.label}: {e}")
         # The details (paths, OS errors) stay in the log.
         raise HTTPException(status_code=500, detail=f"Could not save the {upload.kind} file")

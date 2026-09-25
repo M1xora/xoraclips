@@ -5,6 +5,7 @@ one table of media types, generic errors, and saved names instead of server
 paths. Uploads go to a temporary folder, never to backend/temp_clips/uploads.
 """
 import re
+from pathlib import Path
 
 import pytest
 from fastapi.testclient import TestClient
@@ -120,7 +121,7 @@ def test_a_file_just_over_the_limit_is_caught_while_writing_and_removed(uploads)
     # Inside the room left for the multipart envelope, so the first check lets it through.
     res = post("/api/upload-watermark", "pas.png", b"x" * (10 * MB + 1))
     assert res.status_code == 413
-    assert list(uploads.iterdir()) == []
+    assert not uploads.exists() or list(uploads.iterdir()) == []
 
 
 def test_a_file_at_the_limit_is_accepted(uploads):
@@ -188,12 +189,66 @@ def test_a_render_finds_an_upload_by_name_or_by_an_old_full_path(uploads):
     assert upload_rules.resolve_upload(f"/srv/app/temp_clips/uploads/{saved}", "bgm") == expected
 
 
+def test_no_reference_means_no_file():
+    assert upload_rules.resolve_upload(None, "bgm") is None
+    assert upload_rules.resolve_upload("", "bgm") is None
+
+
 @pytest.mark.parametrize("reference", [
-    None, "", "bgm_missing.mp3",
+    "bgm_missing.mp3",
     r"C:\Windows\win.ini", "/etc/passwd", r"..\..\cookies.txt",
     "wm_12345678_logo.png",       # an upload of another kind
 ])
-def test_anything_else_is_ignored(uploads, reference):
+def test_anything_else_is_refused_with_a_message_for_the_user(uploads, reference):
     uploads.mkdir(parents=True, exist_ok=True)
     (uploads / "wm_12345678_logo.png").write_bytes(b"png")
-    assert upload_rules.resolve_upload(reference, "bgm") is None
+    with pytest.raises(upload_rules.MissingUpload, match="Upload it again"):
+        upload_rules.resolve_upload(reference, "bgm")
+
+
+# --- review findings --------------------------------------------------------------------
+
+def test_a_refused_upload_still_carries_cors_headers(uploads):
+    origin = "http://localhost:5174"
+    res = client().post("/api/upload-watermark", files={"file": ("b.png", b"x" * (11 * MB))},
+                        headers={"Origin": origin})
+    assert res.status_code == 413
+    assert res.headers.get("access-control-allow-origin") == origin
+
+
+def test_every_limit_belongs_to_a_real_upload_route():
+    posts = {path for path, ops in main.app.openapi()["paths"].items() if "post" in ops}
+    assert set(upload_rules.UPLOAD_PATHS) <= posts
+
+
+def test_the_limit_holds_behind_a_path_prefix(uploads):
+    prefixed = TestClient(main.app, root_path="/xc")
+    res = prefixed.post("/xc/api/upload-watermark", files={"file": ("b.png", b"x" * (11 * MB))})
+    assert res.status_code == 413
+
+
+def test_a_strange_length_is_refused_not_a_crash(uploads):
+    import asyncio
+    from starlette.requests import Request
+
+    scope = {"type": "http", "method": "POST", "path": "/api/upload-bgm", "root_path": "",
+             "headers": [(b"content-length", "²".encode("latin-1"))], "query_string": b""}
+
+    async def never(_):
+        raise AssertionError("the endpoint must not run")
+
+    res = asyncio.run(routes_uploads.refuse_oversized_uploads(Request(scope), never))
+    assert res.status_code == 413
+
+
+def test_serving_does_not_create_the_upload_folder(uploads):
+    assert client().get("/api/audio/bgm_x_lagu.mp3").status_code == 404
+    assert not uploads.exists()
+
+
+def test_the_app_checks_the_same_limits_as_the_backend():
+    source = (Path(main.__file__).parent.parent / "src-next" / "api" / "client.ts").read_text(encoding="utf-8")
+    found = dict(re.findall(r"export const (MAX_\w*UPLOAD_BYTES) = (\d+) \* 1024 \* 1024;", source))
+    assert int(found["MAX_UPLOAD_BYTES"]) * MB == upload_rules.UPLOAD_KINDS["bgm"].max_bytes
+    assert int(found["MAX_UPLOAD_BYTES"]) * MB == upload_rules.UPLOAD_KINDS["sfx"].max_bytes
+    assert int(found["MAX_IMAGE_UPLOAD_BYTES"]) * MB == upload_rules.UPLOAD_KINDS["watermark"].max_bytes

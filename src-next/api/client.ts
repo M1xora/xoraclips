@@ -97,12 +97,7 @@ function postJson<T>(url: string, body: unknown, signal?: AbortSignal): Promise<
 }
 
 /** POST a single file as multipart/form-data, rejecting oversized files. */
-function postFile<T>(
-  url: string,
-  file: File,
-  signal?: AbortSignal,
-  maxBytes: number = MAX_UPLOAD_BYTES,
-): Promise<T> {
+function postFile<T>(url: string, file: File, signal: AbortSignal | undefined, maxBytes: number): Promise<T> {
   if (file.size > maxBytes) {
     return Promise.reject(new UploadTooLargeError(file.size, maxBytes));
   }
@@ -244,8 +239,10 @@ export const api = {
   },
 
   uploads: {
-    bgm: (file: File, signal?: AbortSignal) => postFile<UploadResult>('/api/upload-bgm', file, signal),
-    sfx: (file: File, signal?: AbortSignal) => postFile<UploadResult>('/api/upload-sfx', file, signal),
+    bgm: (file: File, signal?: AbortSignal) =>
+      postFile<UploadResult>('/api/upload-bgm', file, signal, MAX_UPLOAD_BYTES),
+    sfx: (file: File, signal?: AbortSignal) =>
+      postFile<UploadResult>('/api/upload-sfx', file, signal, MAX_UPLOAD_BYTES),
     watermark: (file: File, signal?: AbortSignal) =>
       postFile<UploadResult>('/api/upload-watermark', file, signal, MAX_IMAGE_UPLOAD_BYTES),
   },

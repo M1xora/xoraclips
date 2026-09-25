@@ -21,7 +21,7 @@ from pydantic import BaseModel, Field
 try:
     from backend import video_engine
     from backend.captions import caption_chunks_for_clip
-    from backend.uploads import resolve_upload
+    from backend.uploads import MissingUpload, resolve_upload
     from backend.video_engine import (
         ACTIVE_ENCODER_NAME, detect_hardware_support,
         download_clip_segment, generate_ass_file, has_emoji, render_clip_to_mp4,
@@ -30,7 +30,7 @@ try:
 except ImportError:
     import video_engine
     from captions import caption_chunks_for_clip
-    from uploads import resolve_upload
+    from uploads import MissingUpload, resolve_upload
     from video_engine import (
         ACTIVE_ENCODER_NAME, detect_hardware_support,
         download_clip_segment, generate_ass_file, has_emoji, render_clip_to_mp4,
@@ -105,9 +105,19 @@ async def process_batch_rendering(batch_id: str, request: RenderBatchRequest):
     clips = request.clips
     settings = request.settings
     # Uploaded files by their saved name, never a path from the request (#58).
-    watermark_path = resolve_upload(settings.watermark_file_path, "watermark") if settings.watermark_enabled else None
-    bgm_path = resolve_upload(settings.bgm_file_path, "bgm") if settings.bgm_enabled else None
-    hook_sfx_path = resolve_upload(settings.hook_sfx_file_path, "sfx") if settings.hook_sfx_enabled else None
+    # One that is gone fails the batch: a render without the music or logo
+    # the user chose would look finished but be wrong.
+    try:
+        image_watermark = settings.watermark_enabled and (settings.watermark_type or "image") == "image"
+        watermark_path = resolve_upload(settings.watermark_file_path, "watermark") if image_watermark else None
+        bgm_path = resolve_upload(settings.bgm_file_path, "bgm") if settings.bgm_enabled else None
+        hook_sfx_path = resolve_upload(settings.hook_sfx_file_path, "sfx") if settings.hook_sfx_enabled else None
+    except MissingUpload as e:
+        for clip_status in batch["clips"]:
+            clip_status.update(status="error", error=str(e), error_message=str(e))
+        batch["overall_status"] = "error"
+        batch["error_message"] = str(e)
+        return
 
     # Normalize video URL for history or direct URL
     target_url = (request.video_url or "").strip()

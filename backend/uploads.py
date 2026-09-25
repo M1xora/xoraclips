@@ -58,10 +58,9 @@ MULTIPART_OVERHEAD_BYTES = 64 * 1024
 
 
 def uploads_dir() -> Path:
-    """The upload folder, inside the temp folder that video_engine names."""
-    folder = video_engine.TEMP_DIR / "uploads"
-    folder.mkdir(parents=True, exist_ok=True)
-    return folder
+    """The upload folder, inside the temp folder that video_engine names.
+    Created when a file is saved, not here: serving must not create it."""
+    return video_engine.TEMP_DIR / "uploads"
 
 
 def extension(name: str) -> str:
@@ -78,16 +77,26 @@ def media_type(name: str, types: Dict[str, str]) -> Optional[str]:
     return types.get(extension(name))
 
 
+class MissingUpload(Exception):
+    """A render setting names an upload that is not (any more) on the server."""
+
+
 def resolve_upload(reference: Optional[str], kind: str) -> Optional[str]:
-    """The stored file a render setting refers to, or None. Only the last
-    part of the reference counts (older app versions sent the full server
-    path), and it must be an upload of this kind that exists."""
+    """The stored file a render setting refers to; None when there is no
+    reference. Only the last part of the reference counts (older app
+    versions sent the full server path), and it must be an existing upload
+    of this kind, else MissingUpload with a message for the user."""
     if not reference:
         return None
     upload = UPLOAD_KINDS[kind]
     name = re.split(r"[\\/]", reference)[-1]
     path = uploads_dir() / name
-    if name.startswith(upload.prefix) and extension(name) in upload.types and path.is_file():
+    try:
+        found = name.startswith(upload.prefix) and extension(name) in upload.types and path.is_file()
+    except OSError:
+        found = False
+    if found:
         return str(path)
-    logger.warning(f"Ignoring {upload.label} file {name!r}: not an upload of this kind")
-    return None
+    logger.warning(f"{upload.label} file {name!r} is not an upload of this kind on this server")
+    raise MissingUpload(f"The {upload.label} file is no longer on the server (temp files may have been "
+                        f"cleared). Upload it again in the Studio, then render.")
