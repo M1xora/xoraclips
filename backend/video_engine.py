@@ -31,6 +31,15 @@ EXPORTS_DIR = BASE_DIR / "exports"
 FONTS_DIR = BASE_DIR / "fonts"
 COOKIES_PATH = BASE_DIR / "cookies.txt"
 
+# Issue #42: a YouTube video ID is exactly 11 of these characters. The one
+# definition, used by main.py too.
+_VIDEO_ID_RE = re.compile(r"[A-Za-z0-9_-]{11}")
+
+
+def is_video_id(value: Optional[str]) -> bool:
+    """True for a well-formed YouTube video ID."""
+    return bool(value) and _VIDEO_ID_RE.fullmatch(value) is not None
+
 CASCADE_PATH = BASE_DIR / "haarcascade_frontalface_default.xml"
 TEMP_DIR.mkdir(parents=True, exist_ok=True)
 EXPORTS_DIR.mkdir(parents=True, exist_ok=True)
@@ -1846,12 +1855,16 @@ def extract_clip_frame(video_id: str, timestamp: float = 0.0) -> Optional[str]:
     Extracts a single JPEG image frame at timestamp for the real video preview.
     Caches the frame on disk in TEMP_DIR / 'frames'.
     Guarantees returning a real video frame, never a promotional thumbnail.
-    Takes a video ID, never a URL (issue #42): the caller validates the ID.
+    Takes a video ID, never a URL (issue #42), and returns None for anything
+    that is not a well-formed ID, whatever the caller checked.
     """
+    if not is_video_id(video_id):
+        return None
+
     frames_dir = TEMP_DIR / "frames"
     frames_dir.mkdir(parents=True, exist_ok=True)
 
-    safe_id = re.sub(r'[^a-zA-Z0-9_-]', '_', video_id)
+    safe_id = video_id
     target_ts = max(1.0, timestamp if timestamp > 0 else 5.0)
     sec = int(round(target_ts))
     frame_path = frames_dir / f"{safe_id}_{sec}.jpg"

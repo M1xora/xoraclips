@@ -26,8 +26,9 @@ BAD_IDS = [
 
 
 @pytest.fixture
-def frame_calls(monkeypatch):
-    """Records what the endpoints hand to extract_clip_frame (which does nothing)."""
+def frame_calls(monkeypatch, tmp_path):
+    """Records what the endpoints hand to extract_clip_frame (which does nothing).
+    Empty folders, so detect-face never finds a real video on this machine."""
     calls = []
 
     def fake_extract(*args):
@@ -35,6 +36,8 @@ def frame_calls(monkeypatch):
         return None
 
     monkeypatch.setattr(main, "extract_clip_frame", fake_extract)
+    monkeypatch.setattr(main, "TEMP_DIR", tmp_path)
+    monkeypatch.setattr(main, "EXPORTS_DIR", tmp_path)
     return calls
 
 
@@ -54,6 +57,14 @@ def test_a_video_url_from_the_browser_is_ignored(frame_calls, path):
     assert frame_calls == [(VALID_ID, 12.0)]
 
 
+@pytest.mark.parametrize("path", ["/api/clip-frame", "/api/detect-face"])
+@pytest.mark.parametrize("timestamp", ["inf", "nan", "-1", "90000"])
+def test_a_timestamp_outside_0_to_24_hours_is_refused(frame_calls, path, timestamp):
+    res = TestClient(main.app).get(path, params={"video_id": VALID_ID, "timestamp": timestamp})
+    assert res.status_code == 422
+    assert frame_calls == []
+
+
 @pytest.fixture
 def ytdlp_commands(monkeypatch, tmp_path):
     """Fakes yt-dlp, ffmpeg and the network; returns every yt-dlp command run."""
@@ -66,7 +77,8 @@ def ytdlp_commands(monkeypatch, tmp_path):
 
     class FakePopen:
         def __init__(self, cmd, *args, **kwargs):
-            commands.append(list(cmd))
+            if cmd[0] == "yt-dlp":
+                commands.append(list(cmd))
             self.stdout = io.StringIO("")
 
         def wait(self):
@@ -93,6 +105,13 @@ def test_frame_extraction_builds_the_url_from_the_id(ytdlp_commands):
     assert len(ytdlp_commands) == 1
     assert_url_is_last_after_separator(
         ytdlp_commands[0], f"https://www.youtube.com/watch?v={VALID_ID}")
+
+
+@pytest.mark.parametrize("bad_id", BAD_IDS)
+def test_frame_extraction_itself_refuses_a_bad_id(ytdlp_commands, bad_id):
+    # Safe even for a future caller that forgets require_video_id.
+    assert video_engine.extract_clip_frame(bad_id, 5.0) is None
+    assert ytdlp_commands == []
 
 
 def test_an_id_that_looks_like_an_option_stays_inside_the_url(ytdlp_commands):

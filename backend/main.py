@@ -33,7 +33,7 @@ from concurrent.futures import ThreadPoolExecutor
 from contextlib import asynccontextmanager
 from urllib.parse import quote, urlsplit
 from typing import List, Optional, Dict, Any, Tuple, Callable
-from fastapi import FastAPI, HTTPException, BackgroundTasks, UploadFile, File, Header
+from fastapi import FastAPI, HTTPException, BackgroundTasks, UploadFile, File, Header, Query
 from fastapi.responses import StreamingResponse, RedirectResponse, FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
@@ -62,6 +62,7 @@ try:
         ACTIVE_ENCODER_NAME,
         ACTIVE_ENCODER_ARGS,
         has_emoji,
+        is_video_id,
         render_title_overlay_png
     )
 except ImportError:
@@ -81,6 +82,7 @@ except ImportError:
         ACTIVE_ENCODER_NAME,
         ACTIVE_ENCODER_ARGS,
         has_emoji,
+        is_video_id,
         render_title_overlay_png
     )
 
@@ -363,7 +365,7 @@ def extract_video_id(url: str) -> Optional[str]:
         return None
     trimmed = url.strip()
     # Direct 11-char ID
-    if re.match(r"^[a-zA-Z0-9_-]{11}$", trimmed):
+    if is_video_id(trimmed):
         return trimmed
 
     patterns = [
@@ -382,14 +384,10 @@ def extract_video_id(url: str) -> Optional[str]:
     return None
 
 
-# Issue #42: a YouTube video ID is exactly 11 of these characters. Anything
-# else is refused before it can reach a yt-dlp command line.
-_VIDEO_ID_RE = re.compile(r"[A-Za-z0-9_-]{11}")
-
-
+# Issue #42: refused before it can reach a yt-dlp command line.
 def require_video_id(video_id: Optional[str]) -> str:
     """The video ID if it is a valid YouTube ID, else a 400 error."""
-    if not video_id or not _VIDEO_ID_RE.fullmatch(video_id):
+    if not is_video_id(video_id):
         raise HTTPException(status_code=400, detail="Invalid YouTube video ID")
     return video_id
 
@@ -3337,8 +3335,12 @@ async def get_raw_clip_download_status(job_id: str):
     return job
 
 
+# Seconds into the video: finite, 0 to 24 hours (issue #42).
+FRAME_TIMESTAMP = Query(0.0, ge=0, le=24 * 3600, allow_inf_nan=False)
+
+
 @app.get("/api/clip-frame")
-async def get_clip_frame(video_id: str, timestamp: float = 0.0):
+async def get_clip_frame(video_id: str, timestamp: float = FRAME_TIMESTAMP):
     """
     Returns an extracted real video frame at timestamp for the real video preview.
     Guarantees returning a real video frame, never a promotional thumbnail.
@@ -3356,7 +3358,7 @@ async def get_clip_frame(video_id: str, timestamp: float = 0.0):
 
 
 @app.get("/api/detect-face")
-async def detect_face(video_id: str, timestamp: float = 0.0):
+async def detect_face(video_id: str, timestamp: float = FRAME_TIMESTAMP):
     """
     Detects speaker face coordinates (cx, cy, w, h) on the video at timestamp.
     Returns normalized coordinates and the frame URL.
@@ -3380,8 +3382,7 @@ async def detect_face(video_id: str, timestamp: float = 0.0):
             return box
 
         # If frame extract didn't complete, check local candidates
-        safe_id = re.sub(r'[^a-zA-Z0-9_-]', '_', video_id)
-        local_candidates = list(TEMP_DIR.glob(f"*{safe_id}*.mp4")) + list(EXPORTS_DIR.glob(f"*{safe_id}*.mp4"))
+        local_candidates = list(TEMP_DIR.glob(f"*{video_id}*.mp4")) + list(EXPORTS_DIR.glob(f"*{video_id}*.mp4"))
         for candidate in local_candidates:
             if candidate.exists() and candidate.stat().st_size > 10000 and "slice_" not in candidate.name:
                 box = await asyncio.to_thread(detect_speaker_face_box, str(candidate))
