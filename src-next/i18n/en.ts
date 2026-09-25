@@ -130,6 +130,10 @@ export const en: Translations = {
     unmark: (n: number) => `Unmark clip ${n}`,
     copied: 'Timecode copied',
     copyFailed: 'Could not copy to clipboard',
+    postCaption: 'Caption for posting',
+    copyPost: 'Copy caption',
+    postCopied: 'Caption and hashtags copied',
+    showFullCaption: 'Show the full caption',
   },
 
   player: {

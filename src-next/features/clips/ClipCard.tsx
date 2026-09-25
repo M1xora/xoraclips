@@ -10,6 +10,7 @@ import { Button } from '../../components/ui/Button';
 import type { ViralClip } from '../../lib/types';
 import { formatTimecode } from '../../lib/format';
 import { useLanguage } from '../../i18n';
+import { postText } from './postText';
 
 interface ClipCardProps {
   clip: ViralClip;
@@ -36,6 +37,10 @@ export function ClipCard({
 }: ClipCardProps) {
   const { t } = useLanguage();
   const [open, setOpen] = useState(false);
+  const [captionOpen, setCaptionOpen] = useState(false);
+  const post = postText(clip);
+  const caption = clip.caption_suggestion?.trim();
+  const hashtags = clip.hashtag_suggestion?.trim();
   const duration = Math.round(clip.end_time - clip.start_time);
   const range = `${formatTimecode(clip.start_time)} - ${formatTimecode(clip.end_time)}`;
   const strong = clip.virality_score >= 90;
@@ -79,6 +84,43 @@ export function ClipCard({
             <p className="mt-2 border-l-2 border-hairline pl-2.5 text-xs italic text-ink-dim">
               {clip.key_quotes[0]}
             </p>
+          )}
+
+          {post && (
+            // The caption Gemini wrote for posting, ready to paste (#49).
+            <div
+              onClick={(e) => e.stopPropagation()}
+              className="mt-3 cursor-default rounded-md bg-surface-2 p-2.5"
+            >
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-[0.7rem] font-medium uppercase tracking-wide text-ink-faint">
+                  {t.results.postCaption}
+                </span>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => onCopy(post, t.results.postCopied)}
+                  icon={<CopyIcon size={13} />}
+                >
+                  {t.results.copyPost}
+                </Button>
+              </div>
+              {caption && (
+                <button
+                  type="button"
+                  aria-expanded={captionOpen}
+                  aria-label={captionOpen ? undefined : t.results.showFullCaption}
+                  onClick={() => setCaptionOpen((v) => !v)}
+                  className={`mt-1 w-full whitespace-pre-line text-left text-xs leading-relaxed
+                    text-ink-dim ${captionOpen ? '' : 'line-clamp-3'}`}
+                >
+                  {caption}
+                </button>
+              )}
+              {hashtags && (
+                <p className="mt-1.5 break-words text-xs text-ink-faint">{hashtags}</p>
+              )}
+            </div>
           )}
 
           <div className="mt-3 flex flex-wrap items-center gap-1.5">

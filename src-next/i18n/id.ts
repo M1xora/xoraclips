@@ -129,6 +129,10 @@ export const id = {
     unmark: (n: number) => `Hapus tanda klip ${n}`,
     copied: 'Kode waktu disalin',
     copyFailed: 'Gagal menyalin ke papan klip',
+    postCaption: 'Caption untuk posting',
+    copyPost: 'Salin caption',
+    postCopied: 'Caption dan hashtag disalin',
+    showFullCaption: 'Tampilkan caption lengkap',
   },
 
   player: {
