@@ -32,7 +32,7 @@ import html
 from concurrent.futures import ThreadPoolExecutor
 from contextlib import asynccontextmanager
 from urllib.parse import quote, urlsplit
-from typing import List, Optional, Dict, Any, Tuple, Callable
+from typing import List, Optional, Dict, Any, NamedTuple, Tuple, Callable
 from fastapi import FastAPI, HTTPException, BackgroundTasks, UploadFile, File, Header, Query, Request
 from fastapi.responses import StreamingResponse, RedirectResponse, FileResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -2938,22 +2938,29 @@ def get_hardware_acceleration_status():
     }
 
 
-# Issue #48: the three uploads were one block of code copied three times;
-# only these settings differ.
 AUDIO_UPLOAD_TYPES = (".mp3", ".wav", ".m4a", ".aac", ".ogg", ".flac")
 IMAGE_UPLOAD_TYPES = (".png", ".jpg", ".jpeg", ".webp", ".svg")
 
 
-async def _save_upload(
-    file: UploadFile,
-    *,
-    prefix: str,
-    allowed: Tuple[str, ...],
-    kind: str,
-    url_base: str,
-    label: str,
-) -> dict:
+class UploadKind(NamedTuple):
+    """What differs between the uploads; everything else is _save_upload (#48)."""
+    prefix: str                 # start of the saved file name
+    allowed: Tuple[str, ...]    # accepted extensions
+    kind: str                   # "audio" or "image", for the error message
+    url_base: str               # where the saved file is served
+    label: str                  # for the log
+
+
+UPLOAD_KINDS = {
+    "bgm": UploadKind("bgm_", AUDIO_UPLOAD_TYPES, "audio", "/api/audio/", "BGM"),
+    "sfx": UploadKind("sfx_", AUDIO_UPLOAD_TYPES, "audio", "/api/audio/", "Hook SFX"),
+    "watermark": UploadKind("wm_", IMAGE_UPLOAD_TYPES, "image", "/api/watermark/", "watermark"),
+}
+
+
+async def _save_upload(file: UploadFile, upload: UploadKind) -> dict:
     """Checks, names and stores one upload in UPLOADS_DIR, and describes it."""
+    prefix, allowed, kind, url_base, label = upload
     if not file.filename:
         raise HTTPException(status_code=400, detail="No file provided")
     ext = os.path.splitext(file.filename)[1].lower()
@@ -2983,8 +2990,7 @@ async def _save_upload(
 
 @app.post("/api/upload-bgm")
 async def upload_bgm(file: UploadFile = File(...)):
-    return await _save_upload(file, prefix="bgm_", allowed=AUDIO_UPLOAD_TYPES,
-                              kind="audio", url_base="/api/audio/", label="BGM")
+    return await _save_upload(file, UPLOAD_KINDS["bgm"])
 
 
 @app.get("/api/audio/{file_name}")
@@ -2999,14 +3005,12 @@ def get_audio_file(file_name: str):
 
 @app.post("/api/upload-sfx")
 async def upload_hook_sfx(file: UploadFile = File(...)):
-    return await _save_upload(file, prefix="sfx_", allowed=AUDIO_UPLOAD_TYPES,
-                              kind="audio", url_base="/api/audio/", label="Hook SFX")
+    return await _save_upload(file, UPLOAD_KINDS["sfx"])
 
 
 @app.post("/api/upload-watermark")
 async def upload_watermark(file: UploadFile = File(...)):
-    return await _save_upload(file, prefix="wm_", allowed=IMAGE_UPLOAD_TYPES,
-                              kind="image", url_base="/api/watermark/", label="watermark")
+    return await _save_upload(file, UPLOAD_KINDS["watermark"])
 
 
 @app.get("/api/watermark/{file_name}")
