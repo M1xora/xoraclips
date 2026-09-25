@@ -1,4 +1,5 @@
 import type { AnalyzeResponse, TranscriptLine, ViralClip } from '../../lib/types';
+import { postParts } from '../clips/postText';
 
 /**
  * Turning an analysis into files the user can keep.
@@ -132,8 +133,9 @@ export function buildMarkdown(result: AnalyzeResponse): string {
         `- Time: ${timestamp(c.start_time)} - ${timestamp(c.end_time)}`,
         `- Score: ${c.virality_score}`,
       ];
-      if (c.caption_suggestion?.trim()) parts.push(`- Caption: ${c.caption_suggestion.trim()}`);
-      if (c.hashtag_suggestion?.trim()) parts.push(`- Hashtags: ${c.hashtag_suggestion.trim()}`);
+      const { caption, hashtags } = postParts(c);
+      if (caption) parts.push(`- Caption: ${caption}`);
+      if (hashtags) parts.push(`- Hashtags: ${hashtags}`);
       if (c.key_quotes.length > 0) {
         parts.push('', '> ' + c.key_quotes.map((q) => q.trim()).join('\n> '));
       }

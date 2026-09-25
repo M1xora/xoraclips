@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   BookmarkSimpleIcon,
   CaretDownIcon,
@@ -10,6 +10,7 @@ import { Button } from '../../components/ui/Button';
 import type { ViralClip } from '../../lib/types';
 import { formatTimecode } from '../../lib/format';
 import { useLanguage } from '../../i18n';
+import { postParts, postText } from './postText';
 
 interface ClipCardProps {
   clip: ViralClip;
@@ -36,6 +37,23 @@ export function ClipCard({
 }: ClipCardProps) {
   const { t } = useLanguage();
   const [open, setOpen] = useState(false);
+  const [captionOpen, setCaptionOpen] = useState(false);
+  const [captionClamped, setCaptionClamped] = useState(false);
+  const captionRef = useRef<HTMLParagraphElement>(null);
+  const post = postText(clip);
+  const { caption, hashtags } = postParts(clip);
+
+  // "Show more" only when the 3-line clamp actually hides text. The observer
+  // also fires once right away, and again when the card width changes.
+  useEffect(() => {
+    const el = captionRef.current;
+    if (!el || captionOpen || typeof ResizeObserver === 'undefined') return;
+    const observer = new ResizeObserver(() => {
+      setCaptionClamped(el.scrollHeight > el.clientHeight + 1);
+    });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [caption, captionOpen]);
   const duration = Math.round(clip.end_time - clip.start_time);
   const range = `${formatTimecode(clip.start_time)} - ${formatTimecode(clip.end_time)}`;
   const strong = clip.virality_score >= 90;
@@ -79,6 +97,53 @@ export function ClipCard({
             <p className="mt-2 border-l-2 border-hairline pl-2.5 text-xs italic text-ink-dim">
               {clip.key_quotes[0]}
             </p>
+          )}
+
+          {post && (
+            // The caption Gemini wrote for posting, ready to paste (#49).
+            <div className="mt-3 rounded-md border border-hairline p-2.5">
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-[0.7rem] font-medium uppercase tracking-wide text-ink-faint">
+                  {t.results.postCaption}
+                </span>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onCopy(post, t.results.postCopied);
+                  }}
+                  icon={<CopyIcon size={13} />}
+                >
+                  {t.results.copyPost}
+                </Button>
+              </div>
+              {caption && (
+                <p
+                  ref={captionRef}
+                  className={`mt-1 whitespace-pre-line text-xs leading-relaxed text-ink-dim
+                    ${captionOpen ? '' : 'line-clamp-3'}`}
+                >
+                  {caption}
+                </p>
+              )}
+              {caption && (captionClamped || captionOpen) && (
+                <button
+                  type="button"
+                  aria-expanded={captionOpen}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setCaptionOpen((v) => !v);
+                  }}
+                  className="pressable mt-1 rounded text-xs font-medium text-ink-faint hover:text-ink"
+                >
+                  {captionOpen ? t.results.showLessCaption : t.results.showFullCaption}
+                </button>
+              )}
+              {hashtags && (
+                <p className="mt-1.5 break-words text-xs text-ink-faint">{hashtags}</p>
+              )}
+            </div>
           )}
 
           <div className="mt-3 flex flex-wrap items-center gap-1.5">

@@ -26,8 +26,9 @@ export interface ViralClip {
   key_quotes: string[];
   transcript: string;
   title_suggestion?: string;
-  caption_suggestion?: string;
-  hashtag_suggestion?: string;
+  /** null when read back from a JSON export (exporters.ts writes `?? null`). */
+  caption_suggestion?: string | null;
+  hashtag_suggestion?: string | null;
   /** Per-clip title override. Read by the backend at main.py:2274 and 2463. */
   custom_title?: string;
   /** Up to 3 checked hook titles, first = the AI's active one (#31). */
