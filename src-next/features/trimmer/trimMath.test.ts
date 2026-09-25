@@ -5,10 +5,17 @@ import {
   clampPlayhead,
   clampStart,
   CONTEXT_SECONDS,
+  lineEdges,
+  nudgeEnd,
+  nudgeStart,
+  playbackStretch,
+  playedPastEnd,
   MIN_CLIP_SECONDS,
   percentToTime,
   slideWindow,
   timeToPercent,
+  withEnd,
+  withStart,
 } from './trimMath';
 
 const tl = buildTimeline(200, 230, 600);
@@ -112,5 +119,103 @@ describe('slideWindow', () => {
       expect(start).toBeGreaterThanOrEqual(tl.min);
       expect(end).toBeLessThanOrEqual(tl.max);
     }
+  });
+});
+
+describe('withStart / withEnd (#56)', () => {
+  it('keeps hundredths instead of rounding to whole seconds', () => {
+    expect(withStart(210.284, 230, tl)).toEqual({ start: 210.28, end: 230 });
+    expect(withEnd(225.678, 210, tl)).toEqual({ start: 210, end: 225.68 });
+  });
+
+  it('moves the end along when the new start comes within 3s of it', () => {
+    expect(withStart(229, 230, tl)).toEqual({ start: 229, end: 229 + MIN_CLIP_SECONDS });
+    expect(withStart(300, 230, tl)).toEqual({ start: 300, end: 300 + MIN_CLIP_SECONDS });
+  });
+
+  it('moves the start back when the new end comes within 3s of it', () => {
+    expect(withEnd(211, 210, tl)).toEqual({ start: 211 - MIN_CLIP_SECONDS, end: 211 });
+  });
+
+  it('stays inside the timeline', () => {
+    expect(withStart(0, 230, tl).start).toBe(tl.min);
+    expect(withEnd(10_000, 210, tl).end).toBe(tl.max);
+    expect(withStart(10_000, 230, tl)).toEqual({ start: tl.max - MIN_CLIP_SECONDS, end: tl.max });
+  });
+});
+
+describe('lineEdges (#56)', () => {
+  it('ends a rolling auto caption at the next line start', () => {
+    const edges = lineEdges([
+      { start: 15.08, end: 19.24, text: 'yang namanya sehat itu susah kalau sakit' },
+      { start: 17.28, end: 21.72, text: 'mah gampang gitu kita tinggal keluar' },
+      { start: 19.24, end: 23.24, text: 'rumah langsung ketemu' },
+    ]);
+    expect(edges.map((l) => [l.start, l.end])).toEqual([[15.08, 17.28], [17.28, 19.24], [19.24, 23.24]]);
+  });
+
+  it('sorts lines and lets lines sharing a start look past each other', () => {
+    const edges = lineEdges([
+      { start: 10, end: 20, text: 'c' },
+      { start: 5, end: 12, text: 'a' },
+      { start: 5, end: 7, text: 'b' },
+    ]);
+    expect(edges.map((l) => [l.text, l.end])).toEqual([['a', 10], ['b', 7], ['c', 20]]);
+  });
+
+  it('drops empty lines and never ends a line before it starts', () => {
+    const edges = lineEdges([
+      { start: 1, end: 2, text: '  ' },
+      { start: 3, end: 2, text: 'rusak' },
+    ]);
+    expect(edges).toEqual([{ start: 3, end: 3, text: 'rusak' }]);
+  });
+});
+
+describe('playbackStretch (#56)', () => {
+  it('starts when playback starts, and again after a jump', () => {
+    expect(playbackStretch(null, 30, 30.2, true)).toBe(30.2);
+    expect(playbackStretch(30.2, 30.2, 30.4, true)).toBe(30.2);
+    expect(playbackStretch(30.2, 31, 47, true)).toBe(47); // a seek
+    expect(playbackStretch(30.2, 31, 31.2, false)).toBeNull();
+  });
+});
+
+describe('playedPastEnd (#56)', () => {
+  it('stops playback that began inside the selection at its end', () => {
+    expect(playedPastEnd(212, 229.9, 230.1, 200, 230)).toBe(true);
+    expect(playedPastEnd(200, 229.9, 230, 200, 230)).toBe(true);
+  });
+
+  it('leaves playback that began before the selection alone', () => {
+    // The lead-in: started at 150, flowed through the selection.
+    expect(playedPastEnd(150, 229.9, 230.1, 200, 230)).toBe(false);
+  });
+
+  it('leaves playback that began past the end alone', () => {
+    expect(playedPastEnd(231, 231, 232, 200, 230)).toBe(false);
+  });
+
+  it('ignores a jump across the end', () => {
+    expect(playedPastEnd(205, 205, 240, 200, 240)).toBe(false);
+  });
+
+  it('is false while not playing', () => {
+    expect(playedPastEnd(null, 229.9, 230.1, 200, 230)).toBe(false);
+  });
+});
+
+describe('nudgeStart / nudgeEnd (#56)', () => {
+  it('keeps hundredths and stops 3s before the other side', () => {
+    expect(nudgeStart(214.28, 230, tl)).toBe(214.28);
+    expect(nudgeStart(229, 230, tl)).toBe(230 - MIN_CLIP_SECONDS);
+    expect(nudgeEnd(215.5, 214.28, tl)).toBe(217.28);
+    expect(nudgeEnd(225.55, 210, tl)).toBe(225.55);
+  });
+});
+
+describe('slideWindow keeps a precise start (#56)', () => {
+  it('moves in whole seconds without rounding the start', () => {
+    expect(slideWindow(210.28, 10, 3.4, tl)).toEqual({ start: 213.28, end: 223.28 });
   });
 });

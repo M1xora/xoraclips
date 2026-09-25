@@ -373,6 +373,12 @@ export const id = {
     startShift: (d: number) => `Mulai ${d > 0 ? '+' : ''}${d}s`,
     endShift: (d: number) => `Selesai ${d > 0 ? '+' : ''}${d}s`,
     applied: 'Potongan disimpan',
+    startTime: 'Awal',
+    endTime: 'Akhir',
+    linesTitle: 'Baris subtitle',
+    linesHint: 'Klik baris untuk melompat ke sana',
+    setStart: 'Jadi awal',
+    setEnd: 'Jadi akhir',
   },
 
   errors: {
