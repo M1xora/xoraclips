@@ -1,81 +1,93 @@
 """
 Studio uploads: background music, hook sound effect and watermark image,
-and the endpoints that serve them back. Moved out of main.py unchanged (#60).
+and the endpoints that serve them back. The rules (types, sizes, names,
+folder) are in uploads.py (#58).
 """
+import asyncio
 import logging
 import os
-import re
-import uuid
-from typing import NamedTuple, Tuple
 
-from fastapi import APIRouter, File, HTTPException, UploadFile
-from fastapi.responses import FileResponse
+from fastapi import APIRouter, File, HTTPException, Request, UploadFile
+from fastapi.responses import FileResponse, JSONResponse
 
 try:
-    from backend import video_engine
+    from backend.uploads import (
+        AUDIO_TYPES, CHUNK_BYTES, IMAGE_TYPES, MB, MULTIPART_OVERHEAD_BYTES, UPLOAD_KINDS, UPLOAD_PATHS,
+        UploadKind, extension, media_type, saved_name, uploads_dir,
+    )
 except ImportError:
-    import video_engine
+    from uploads import (
+        AUDIO_TYPES, CHUNK_BYTES, IMAGE_TYPES, MB, MULTIPART_OVERHEAD_BYTES, UPLOAD_KINDS, UPLOAD_PATHS,
+        UploadKind, extension, media_type, saved_name, uploads_dir,
+    )
 
 logger = logging.getLogger("xoraclips")
 router = APIRouter()
 
 
-UPLOADS_DIR = video_engine.TEMP_DIR / "uploads"
+def _too_large(upload: UploadKind) -> str:
+    return f"File too large: {upload.kind} files can be at most {upload.max_bytes // MB} MB"
 
 
-UPLOADS_DIR.mkdir(parents=True, exist_ok=True)
-
-
-AUDIO_UPLOAD_TYPES = (".mp3", ".wav", ".m4a", ".aac", ".ogg", ".flac")
-
-
-IMAGE_UPLOAD_TYPES = (".png", ".jpg", ".jpeg", ".webp", ".svg")
-
-
-class UploadKind(NamedTuple):
-    """What differs between the uploads; everything else is _save_upload (#48)."""
-    prefix: str                 # start of the saved file name
-    allowed: Tuple[str, ...]    # accepted extensions
-    kind: str                   # "audio" or "image", for the error message
-    url_base: str               # where the saved file is served
-    label: str                  # for the log
-
-
-UPLOAD_KINDS = {
-    "bgm": UploadKind("bgm_", AUDIO_UPLOAD_TYPES, "audio", "/api/audio/", "BGM"),
-    "sfx": UploadKind("sfx_", AUDIO_UPLOAD_TYPES, "audio", "/api/audio/", "Hook SFX"),
-    "watermark": UploadKind("wm_", IMAGE_UPLOAD_TYPES, "image", "/api/watermark/", "watermark"),
-}
+async def refuse_oversized_uploads(request: Request, call_next):
+    """Middleware: an upload over its limit is refused from its Content-Length,
+    before the body is read. By the time an endpoint runs, FastAPI has
+    already received the whole file."""
+    upload = UPLOAD_PATHS.get(request.url.path)
+    if upload is not None and request.method == "POST":
+        length = request.headers.get("content-length")
+        if length is None:
+            return JSONResponse({"detail": "Content-Length required"}, status_code=411)
+        if not length.isdigit() or int(length) > upload.max_bytes + MULTIPART_OVERHEAD_BYTES:
+            return JSONResponse({"detail": _too_large(upload)}, status_code=413)
+    return await call_next(request)
 
 
 async def _save_upload(file: UploadFile, upload: UploadKind) -> dict:
-    """Checks, names and stores one upload in UPLOADS_DIR, and describes it."""
-    prefix, allowed, kind, url_base, label = upload
+    """Checks, names and stores one upload, and describes it. The file is
+    written in 1 MB pieces and counted again while writing."""
     if not file.filename:
         raise HTTPException(status_code=400, detail="No file provided")
-    ext = os.path.splitext(file.filename)[1].lower()
-    if ext not in allowed:
-        raise HTTPException(status_code=400, detail=f"Unsupported {kind} format. Allowed: {', '.join(allowed)}")
+    if extension(file.filename) not in upload.types:
+        raise HTTPException(status_code=400,
+                            detail=f"Unsupported {upload.kind} format. Allowed: {', '.join(upload.types)}")
 
-    clean_name = re.sub(r'[^a-zA-Z0-9_.-]', '_', file.filename)
-    unique_name = f"{prefix}{uuid.uuid4().hex[:8]}_{clean_name}"
-    save_path = UPLOADS_DIR / unique_name
-
+    name = saved_name(file.filename, upload.prefix)
+    save_path = uploads_dir() / name
+    size = 0
     try:
-        content = await file.read()
-        with open(save_path, "wb") as f:
-            f.write(content)
-        return {
-            "success": True,
-            "filename": file.filename,
-            "saved_name": unique_name,
-            "file_path": str(save_path),
-            "url": f"{url_base}{unique_name}",
-            "size_bytes": len(content)
-        }
+        with open(save_path, "wb") as out:
+            while chunk := await file.read(CHUNK_BYTES):
+                size += len(chunk)
+                if size > upload.max_bytes:
+                    raise HTTPException(status_code=413, detail=_too_large(upload))
+                await asyncio.to_thread(out.write, chunk)
+    except HTTPException:
+        save_path.unlink(missing_ok=True)
+        raise
     except Exception as e:
-        logger.error(f"Failed to upload {label}: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        save_path.unlink(missing_ok=True)
+        logger.error(f"Failed to upload {upload.label}: {e}")
+        # The details (paths, OS errors) stay in the log.
+        raise HTTPException(status_code=500, detail=f"Could not save the {upload.kind} file")
+    return {
+        "success": True,
+        "filename": file.filename,
+        "saved_name": name,
+        # The saved name, not a server path: a render refers to uploads by name.
+        "file_path": name,
+        "url": f"{upload.url_base}{name}",
+        "size_bytes": size,
+    }
+
+
+def _serve(file_name: str, types: dict, what: str):
+    clean_name = os.path.basename(file_name)
+    file_path = uploads_dir() / clean_name
+    kind = media_type(clean_name, types)
+    if kind is None or not file_path.is_file():
+        raise HTTPException(status_code=404, detail=f"{what} not found")
+    return FileResponse(file_path, media_type=kind, filename=clean_name)
 
 
 @router.post("/api/upload-bgm")
@@ -85,12 +97,7 @@ async def upload_bgm(file: UploadFile = File(...)):
 
 @router.get("/api/audio/{file_name}")
 def get_audio_file(file_name: str):
-    clean_name = os.path.basename(file_name)
-    file_path = UPLOADS_DIR / clean_name
-    if not file_path.exists():
-        raise HTTPException(status_code=404, detail="Audio file not found")
-    media_type = "audio/mpeg" if clean_name.endswith(".mp3") else "audio/wav" if clean_name.endswith(".wav") else "application/octet-stream"
-    return FileResponse(file_path, media_type=media_type, filename=clean_name)
+    return _serve(file_name, AUDIO_TYPES, "Audio file")
 
 
 @router.post("/api/upload-sfx")
@@ -105,9 +112,4 @@ async def upload_watermark(file: UploadFile = File(...)):
 
 @router.get("/api/watermark/{file_name}")
 def get_watermark_file(file_name: str):
-    clean_name = os.path.basename(file_name)
-    file_path = UPLOADS_DIR / clean_name
-    if not file_path.exists():
-        raise HTTPException(status_code=404, detail="Watermark file not found")
-    media_type = "image/png" if clean_name.endswith(".png") else "image/jpeg" if (clean_name.endswith(".jpg") or clean_name.endswith(".jpeg")) else "image/webp"
-    return FileResponse(file_path, media_type=media_type, filename=clean_name)
+    return _serve(file_name, IMAGE_TYPES, "Watermark file")

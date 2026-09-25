@@ -21,6 +21,7 @@ from pydantic import BaseModel, Field
 try:
     from backend import video_engine
     from backend.captions import caption_chunks_for_clip
+    from backend.uploads import resolve_upload
     from backend.video_engine import (
         ACTIVE_ENCODER_NAME, detect_hardware_support,
         download_clip_segment, generate_ass_file, has_emoji, render_clip_to_mp4,
@@ -29,6 +30,7 @@ try:
 except ImportError:
     import video_engine
     from captions import caption_chunks_for_clip
+    from uploads import resolve_upload
     from video_engine import (
         ACTIVE_ENCODER_NAME, detect_hardware_support,
         download_clip_segment, generate_ass_file, has_emoji, render_clip_to_mp4,
@@ -102,6 +104,10 @@ async def process_batch_rendering(batch_id: str, request: RenderBatchRequest):
 
     clips = request.clips
     settings = request.settings
+    # Uploaded files by their saved name, never a path from the request (#58).
+    watermark_path = resolve_upload(settings.watermark_file_path, "watermark") if settings.watermark_enabled else None
+    bgm_path = resolve_upload(settings.bgm_file_path, "bgm") if settings.bgm_enabled else None
+    hook_sfx_path = resolve_upload(settings.hook_sfx_file_path, "sfx") if settings.hook_sfx_enabled else None
 
     # Normalize video URL for history or direct URL
     target_url = (request.video_url or "").strip()
@@ -245,18 +251,18 @@ async def process_batch_rendering(batch_id: str, request: RenderBatchRequest):
                 title_duration=settings.title_duration if settings.title_duration else "entire",
                 watermark_enabled=bool(settings.watermark_enabled),
                 watermark_type=settings.watermark_type or "image",
-                watermark_image_path=settings.watermark_file_path,
+                watermark_image_path=watermark_path,
                 watermark_text=settings.watermark_text,
                 watermark_size=float(settings.watermark_size if settings.watermark_size is not None else 20.0),
                 watermark_opacity=float((settings.watermark_opacity if settings.watermark_opacity is not None else 80.0) / 100.0),
                 watermark_x_percent=float(settings.watermark_x if settings.watermark_x is not None else 90.0),
                 watermark_y_percent=float(settings.watermark_y if settings.watermark_y is not None else 8.0),
                 bgm_enabled=bool(settings.bgm_enabled),
-                bgm_path=settings.bgm_file_path,
+                bgm_path=bgm_path,
                 bgm_volume=float((settings.bgm_volume if settings.bgm_volume is not None else 25.0) / 100.0),
                 bgm_start_offset=float(settings.bgm_start_offset or 0.0),
                 hook_sfx_enabled=bool(settings.hook_sfx_enabled),
-                hook_sfx_path=settings.hook_sfx_file_path,
+                hook_sfx_path=hook_sfx_path,
                 hook_sfx_volume=float((settings.hook_sfx_volume if settings.hook_sfx_volume is not None else 100.0) / 100.0),
                 original_audio_volume=float((settings.original_audio_volume if settings.original_audio_volume is not None else 100.0) / 100.0),
                 hardware_accel=settings.hardware_accel or "auto"

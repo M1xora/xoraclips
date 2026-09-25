@@ -108,3 +108,6 @@ except ImportError:
 for _routes in (routes_system, routes_analyze, routes_render, routes_uploads, routes_cookies,
                 routes_media, routes_downloads):
     app.include_router(_routes.router)
+
+# Upload size limits, checked before the body is read (#58).
+app.middleware("http")(routes_uploads.refuse_oversized_uploads)

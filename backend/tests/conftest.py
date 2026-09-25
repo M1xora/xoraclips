@@ -52,7 +52,6 @@ _DATA_PATHS = {
     "COOKIES_PATH": "cookies.txt",
     "TEMP_DIR": "temp_clips",
     "EXPORTS_DIR": "exports",
-    "UPLOADS_DIR": "temp_clips/uploads",
     # The backend folder as a string: clear-temp also empties <it>/temp.
     "_base_dir": "",
 }
