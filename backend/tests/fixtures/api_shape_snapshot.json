@@ -1,0 +1,992 @@
+{
+ "models": {
+  "AnalyzeRequest": {
+   "properties": {
+    "custom_prompt": {
+     "anyOf": [
+      {
+       "type": "null"
+      },
+      {
+       "type": "string"
+      }
+     ]
+    },
+    "duration": {
+     "default": "30s",
+     "enum": [
+      "15s",
+      "30s",
+      "60s",
+      "120s",
+      "180s"
+     ],
+     "type": "string"
+    },
+    "model": {
+     "anyOf": [
+      {
+       "type": "null"
+      },
+      {
+       "type": "string"
+      }
+     ],
+     "default": "gemini-2.5-flash"
+    },
+    "proxy": {
+     "anyOf": [
+      {
+       "type": "null"
+      },
+      {
+       "type": "string"
+      }
+     ]
+    },
+    "range_end": {
+     "anyOf": [
+      {
+       "type": "null"
+      },
+      {
+       "type": "number"
+      }
+     ]
+    },
+    "range_start": {
+     "anyOf": [
+      {
+       "type": "null"
+      },
+      {
+       "type": "number"
+      }
+     ]
+    },
+    "subtitles": {
+     "anyOf": [
+      {
+       "type": "null"
+      },
+      {
+       "type": "string"
+      }
+     ]
+    },
+    "subtitles_filename": {
+     "anyOf": [
+      {
+       "type": "null"
+      },
+      {
+       "type": "string"
+      }
+     ]
+    },
+    "target_clip_count": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "url": {
+     "type": "string"
+    }
+   },
+   "required": [
+    "url"
+   ]
+  },
+  "Body_upload_bgm_api_upload_bgm_post": {
+   "properties": {
+    "file": {
+     "type": "string"
+    }
+   },
+   "required": [
+    "file"
+   ]
+  },
+  "Body_upload_hook_sfx_api_upload_sfx_post": {
+   "properties": {
+    "file": {
+     "type": "string"
+    }
+   },
+   "required": [
+    "file"
+   ]
+  },
+  "Body_upload_watermark_api_upload_watermark_post": {
+   "properties": {
+    "file": {
+     "type": "string"
+    }
+   },
+   "required": [
+    "file"
+   ]
+  },
+  "CaptionChunksRequest": {
+   "properties": {
+    "clip_end": {
+     "type": "number"
+    },
+    "clip_start": {
+     "type": "number"
+    },
+    "text_case": {
+     "default": "uppercase",
+     "type": "string"
+    },
+    "transcript": {
+     "items": {
+      "type": "object"
+     },
+     "type": "array"
+    }
+   },
+   "required": [
+    "clip_end",
+    "clip_start"
+   ]
+  },
+  "CookiesSaveRequest": {
+   "properties": {
+    "cookies": {
+     "anyOf": [
+      {
+       "type": "null"
+      },
+      {
+       "type": "string"
+      }
+     ]
+    },
+    "cookies_content": {
+     "anyOf": [
+      {
+       "type": "null"
+      },
+      {
+       "type": "string"
+      }
+     ]
+    }
+   },
+   "required": []
+  },
+  "RawClipDownloadRequest": {
+   "properties": {
+    "end_time": {
+     "type": "number"
+    },
+    "start_time": {
+     "type": "number"
+    },
+    "title": {
+     "type": "string"
+    },
+    "video_id": {
+     "type": "string"
+    },
+    "video_url": {
+     "type": "string"
+    }
+   },
+   "required": [
+    "end_time",
+    "start_time",
+    "title",
+    "video_id",
+    "video_url"
+   ]
+  },
+  "RawVideoDownloadRequest": {
+   "properties": {
+    "title": {
+     "anyOf": [
+      {
+       "type": "null"
+      },
+      {
+       "type": "string"
+      }
+     ]
+    },
+    "video_id": {
+     "type": "string"
+    },
+    "video_url": {
+     "type": "string"
+    }
+   },
+   "required": [
+    "video_id",
+    "video_url"
+   ]
+  },
+  "RenderBatchRequest": {
+   "properties": {
+    "clips": {
+     "items": {
+      "type": "object"
+     },
+     "type": "array"
+    },
+    "settings": {
+     "$ref": "#/components/schemas/RenderSettingsModel"
+    },
+    "transcript": {
+     "anyOf": [
+      {
+       "items": {
+        "type": "object"
+       },
+       "type": "array"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "video_id": {
+     "type": "string"
+    },
+    "video_url": {
+     "type": "string"
+    }
+   },
+   "required": [
+    "clips",
+    "settings",
+    "video_id",
+    "video_url"
+   ]
+  },
+  "RenderSettingsModel": {
+   "properties": {
+    "aspect_ratio": {
+     "default": "9:16",
+     "type": "string"
+    },
+    "background_style": {
+     "default": "black",
+     "type": "string"
+    },
+    "bgm_enabled": {
+     "anyOf": [
+      {
+       "type": "boolean"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": false
+    },
+    "bgm_file_path": {
+     "anyOf": [
+      {
+       "type": "null"
+      },
+      {
+       "type": "string"
+      }
+     ]
+    },
+    "bgm_start_offset": {
+     "anyOf": [
+      {
+       "type": "null"
+      },
+      {
+       "type": "number"
+      }
+     ],
+     "default": 0.0
+    },
+    "bgm_volume": {
+     "anyOf": [
+      {
+       "type": "null"
+      },
+      {
+       "type": "number"
+      }
+     ],
+     "default": 25.0
+    },
+    "caption_font": {
+     "default": "Outfit",
+     "type": "string"
+    },
+    "caption_style": {
+     "default": "viral_pop",
+     "type": "string"
+    },
+    "enable_face_tracking": {
+     "default": true,
+     "type": "boolean"
+    },
+    "file_name_prefix": {
+     "anyOf": [
+      {
+       "type": "null"
+      },
+      {
+       "type": "string"
+      }
+     ],
+     "default": ""
+    },
+    "file_name_suffix": {
+     "anyOf": [
+      {
+       "type": "null"
+      },
+      {
+       "type": "string"
+      }
+     ],
+     "default": ""
+    },
+    "font_size": {
+     "default": "medium",
+     "type": "string"
+    },
+    "hardware_accel": {
+     "anyOf": [
+      {
+       "type": "null"
+      },
+      {
+       "type": "string"
+      }
+     ],
+     "default": "auto"
+    },
+    "hook_sfx_enabled": {
+     "anyOf": [
+      {
+       "type": "boolean"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": false
+    },
+    "hook_sfx_file_path": {
+     "anyOf": [
+      {
+       "type": "null"
+      },
+      {
+       "type": "string"
+      }
+     ]
+    },
+    "hook_sfx_volume": {
+     "anyOf": [
+      {
+       "type": "null"
+      },
+      {
+       "type": "number"
+      }
+     ],
+     "default": 100.0
+    },
+    "original_audio_volume": {
+     "anyOf": [
+      {
+       "type": "null"
+      },
+      {
+       "type": "number"
+      }
+     ],
+     "default": 100.0
+    },
+    "streamer_preset": {
+     "default": "none",
+     "type": "string"
+    },
+    "subtitle_center_y_percent": {
+     "anyOf": [
+      {
+       "type": "null"
+      },
+      {
+       "type": "number"
+      }
+     ],
+     "default": 50.0
+    },
+    "subtitle_position_mode": {
+     "anyOf": [
+      {
+       "type": "null"
+      },
+      {
+       "type": "string"
+      }
+     ],
+     "default": "bottom"
+    },
+    "subtitle_y_percent": {
+     "anyOf": [
+      {
+       "type": "null"
+      },
+      {
+       "type": "number"
+      }
+     ],
+     "default": 18.0
+    },
+    "subtitles_enabled": {
+     "anyOf": [
+      {
+       "type": "boolean"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": true
+    },
+    "text_case": {
+     "default": "uppercase",
+     "type": "string"
+    },
+    "title_duration": {
+     "anyOf": [
+      {
+       "type": "null"
+      },
+      {
+       "type": "string"
+      }
+     ],
+     "default": "entire"
+    },
+    "title_font_size": {
+     "anyOf": [
+      {
+       "type": "null"
+      },
+      {
+       "type": "string"
+      }
+     ],
+     "default": "medium"
+    },
+    "title_position": {
+     "default": "auto",
+     "type": "string"
+    },
+    "title_prefix": {
+     "anyOf": [
+      {
+       "type": "null"
+      },
+      {
+       "type": "string"
+      }
+     ],
+     "default": ""
+    },
+    "title_suffix": {
+     "anyOf": [
+      {
+       "type": "null"
+      },
+      {
+       "type": "string"
+      }
+     ],
+     "default": ""
+    },
+    "title_text": {
+     "anyOf": [
+      {
+       "type": "null"
+      },
+      {
+       "type": "string"
+      }
+     ]
+    },
+    "title_y_percent": {
+     "anyOf": [
+      {
+       "type": "null"
+      },
+      {
+       "type": "number"
+      }
+     ],
+     "default": 14.0
+    },
+    "watermark_enabled": {
+     "anyOf": [
+      {
+       "type": "boolean"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": false
+    },
+    "watermark_file_path": {
+     "anyOf": [
+      {
+       "type": "null"
+      },
+      {
+       "type": "string"
+      }
+     ]
+    },
+    "watermark_opacity": {
+     "anyOf": [
+      {
+       "type": "null"
+      },
+      {
+       "type": "number"
+      }
+     ],
+     "default": 80.0
+    },
+    "watermark_size": {
+     "anyOf": [
+      {
+       "type": "null"
+      },
+      {
+       "type": "number"
+      }
+     ],
+     "default": 20.0
+    },
+    "watermark_text": {
+     "anyOf": [
+      {
+       "type": "null"
+      },
+      {
+       "type": "string"
+      }
+     ]
+    },
+    "watermark_type": {
+     "anyOf": [
+      {
+       "type": "null"
+      },
+      {
+       "type": "string"
+      }
+     ],
+     "default": "image"
+    },
+    "watermark_x": {
+     "anyOf": [
+      {
+       "type": "null"
+      },
+      {
+       "type": "number"
+      }
+     ],
+     "default": 90.0
+    },
+    "watermark_y": {
+     "anyOf": [
+      {
+       "type": "null"
+      },
+      {
+       "type": "number"
+      }
+     ],
+     "default": 8.0
+    }
+   },
+   "required": []
+  }
+ },
+ "operations": {
+  "DELETE /api/cookies": {
+   "body": {},
+   "body_required": false,
+   "operationId": "delete_youtube_cookies_api_cookies_delete",
+   "parameters": []
+  },
+  "GET /api/audio/{file_name}": {
+   "body": {},
+   "body_required": false,
+   "operationId": "get_audio_file_api_audio__file_name__get",
+   "parameters": [
+    [
+     "path",
+     "file_name",
+     true,
+     {
+      "type": "string"
+     }
+    ]
+   ]
+  },
+  "GET /api/clip-frame": {
+   "body": {},
+   "body_required": false,
+   "operationId": "get_clip_frame_api_clip_frame_get",
+   "parameters": [
+    [
+     "query",
+     "timestamp",
+     false,
+     {
+      "default": 0.0,
+      "maximum": 86400,
+      "minimum": 0,
+      "type": "number"
+     }
+    ],
+    [
+     "query",
+     "video_id",
+     true,
+     {
+      "type": "string"
+     }
+    ]
+   ]
+  },
+  "GET /api/cookies": {
+   "body": {},
+   "body_required": false,
+   "operationId": "get_youtube_cookies_status_api_cookies_get",
+   "parameters": []
+  },
+  "GET /api/detect-face": {
+   "body": {},
+   "body_required": false,
+   "operationId": "detect_face_api_detect_face_get",
+   "parameters": [
+    [
+     "query",
+     "timestamp",
+     false,
+     {
+      "default": 0.0,
+      "maximum": 86400,
+      "minimum": 0,
+      "type": "number"
+     }
+    ],
+    [
+     "query",
+     "video_id",
+     true,
+     {
+      "type": "string"
+     }
+    ]
+   ]
+  },
+  "GET /api/download-batch-zip/{batch_id}": {
+   "body": {},
+   "body_required": false,
+   "operationId": "download_batch_zip_api_download_batch_zip__batch_id__get",
+   "parameters": [
+    [
+     "path",
+     "batch_id",
+     true,
+     {
+      "type": "string"
+     }
+    ]
+   ]
+  },
+  "GET /api/download-raw-clip-status/{job_id}": {
+   "body": {},
+   "body_required": false,
+   "operationId": "get_raw_clip_download_status_api_download_raw_clip_status__job_id__get",
+   "parameters": [
+    [
+     "path",
+     "job_id",
+     true,
+     {
+      "type": "string"
+     }
+    ]
+   ]
+  },
+  "GET /api/download-raw-status/{job_id}": {
+   "body": {},
+   "body_required": false,
+   "operationId": "get_raw_download_status_api_download_raw_status__job_id__get",
+   "parameters": [
+    [
+     "path",
+     "job_id",
+     true,
+     {
+      "type": "string"
+     }
+    ]
+   ]
+  },
+  "GET /api/download-rendered/{file_name}": {
+   "body": {},
+   "body_required": false,
+   "operationId": "download_rendered_file_api_download_rendered__file_name__get",
+   "parameters": [
+    [
+     "path",
+     "file_name",
+     true,
+     {
+      "type": "string"
+     }
+    ],
+    [
+     "query",
+     "title",
+     false,
+     {
+      "anyOf": [
+       {
+        "type": "null"
+       },
+       {
+        "type": "string"
+       }
+      ]
+     }
+    ]
+   ]
+  },
+  "GET /api/hardware-accel": {
+   "body": {},
+   "body_required": false,
+   "operationId": "get_hardware_acceleration_status_api_hardware_accel_get",
+   "parameters": []
+  },
+  "GET /api/health": {
+   "body": {},
+   "body_required": false,
+   "operationId": "health_check_api_health_get",
+   "parameters": [
+    [
+     "query",
+     "refresh",
+     false,
+     {
+      "default": false,
+      "type": "boolean"
+     }
+    ]
+   ]
+  },
+  "GET /api/models": {
+   "body": {},
+   "body_required": false,
+   "operationId": "list_available_models_api_models_get",
+   "parameters": [
+    [
+     "header",
+     "X-Gemini-Api-Key",
+     false,
+     {
+      "anyOf": [
+       {
+        "type": "null"
+       },
+       {
+        "type": "string"
+       }
+      ]
+     }
+    ]
+   ]
+  },
+  "GET /api/render-progress/{batch_id}": {
+   "body": {},
+   "body_required": false,
+   "operationId": "get_render_progress_api_render_progress__batch_id__get",
+   "parameters": [
+    [
+     "path",
+     "batch_id",
+     true,
+     {
+      "type": "string"
+     }
+    ]
+   ]
+  },
+  "GET /api/supadata-usage": {
+   "body": {},
+   "body_required": false,
+   "operationId": "supadata_usage_endpoint_api_supadata_usage_get",
+   "parameters": [
+    [
+     "query",
+     "refresh",
+     false,
+     {
+      "default": false,
+      "type": "boolean"
+     }
+    ]
+   ]
+  },
+  "GET /api/temp-storage-info": {
+   "body": {},
+   "body_required": false,
+   "operationId": "get_temp_storage_info_api_temp_storage_info_get",
+   "parameters": []
+  },
+  "GET /api/watermark/{file_name}": {
+   "body": {},
+   "body_required": false,
+   "operationId": "get_watermark_file_api_watermark__file_name__get",
+   "parameters": [
+    [
+     "path",
+     "file_name",
+     true,
+     {
+      "type": "string"
+     }
+    ]
+   ]
+  },
+  "POST /api/analyze": {
+   "body": {
+    "application/json": {
+     "$ref": "#/components/schemas/AnalyzeRequest"
+    }
+   },
+   "body_required": true,
+   "operationId": "analyze_video_api_analyze_post",
+   "parameters": [
+    [
+     "header",
+     "X-Gemini-Api-Key",
+     false,
+     {
+      "anyOf": [
+       {
+        "type": "null"
+       },
+       {
+        "type": "string"
+       }
+      ]
+     }
+    ]
+   ]
+  },
+  "POST /api/caption-chunks": {
+   "body": {
+    "application/json": {
+     "$ref": "#/components/schemas/CaptionChunksRequest"
+    }
+   },
+   "body_required": true,
+   "operationId": "get_caption_chunks_api_caption_chunks_post",
+   "parameters": []
+  },
+  "POST /api/clear-temp": {
+   "body": {},
+   "body_required": false,
+   "operationId": "clear_temp_folder_api_clear_temp_post",
+   "parameters": []
+  },
+  "POST /api/cookies": {
+   "body": {
+    "application/json": {
+     "$ref": "#/components/schemas/CookiesSaveRequest"
+    }
+   },
+   "body_required": true,
+   "operationId": "save_youtube_cookies_api_cookies_post",
+   "parameters": []
+  },
+  "POST /api/download-raw-clip": {
+   "body": {
+    "application/json": {
+     "$ref": "#/components/schemas/RawClipDownloadRequest"
+    }
+   },
+   "body_required": true,
+   "operationId": "handle_download_raw_clip_api_download_raw_clip_post",
+   "parameters": []
+  },
+  "POST /api/download-raw-video": {
+   "body": {
+    "application/json": {
+     "$ref": "#/components/schemas/RawVideoDownloadRequest"
+    }
+   },
+   "body_required": true,
+   "operationId": "handle_download_raw_video_api_download_raw_video_post",
+   "parameters": []
+  },
+  "POST /api/render-batch": {
+   "body": {
+    "application/json": {
+     "$ref": "#/components/schemas/RenderBatchRequest"
+    }
+   },
+   "body_required": true,
+   "operationId": "start_batch_render_api_render_batch_post",
+   "parameters": []
+  },
+  "POST /api/upload-bgm": {
+   "body": {
+    "multipart/form-data": {
+     "$ref": "#/components/schemas/Body_upload_bgm_api_upload_bgm_post"
+    }
+   },
+   "body_required": true,
+   "operationId": "upload_bgm_api_upload_bgm_post",
+   "parameters": []
+  },
+  "POST /api/upload-sfx": {
+   "body": {
+    "multipart/form-data": {
+     "$ref": "#/components/schemas/Body_upload_hook_sfx_api_upload_sfx_post"
+    }
+   },
+   "body_required": true,
+   "operationId": "upload_hook_sfx_api_upload_sfx_post",
+   "parameters": []
+  },
+  "POST /api/upload-watermark": {
+   "body": {
+    "multipart/form-data": {
+     "$ref": "#/components/schemas/Body_upload_watermark_api_upload_watermark_post"
+    }
+   },
+   "body_required": true,
+   "operationId": "upload_watermark_api_upload_watermark_post",
+   "parameters": []
+  }
+ }
+}
