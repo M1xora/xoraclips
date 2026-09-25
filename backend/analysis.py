@@ -7,6 +7,7 @@ in routes_analyze.py runs these in order and streams progress.
 """
 import json
 import logging
+import math
 import re
 from typing import List, Optional, Tuple
 
@@ -331,9 +332,54 @@ def waiting_stage(elapsed: int, n_lines: int, model_name: str, clip_range: str) 
 
 # --- Gemini's answer ----------------------------------------------------------------------
 
+def _number(value, default=None):
+    """A finite number from a number or numeric text, else default."""
+    try:
+        number = float(value)
+    except (TypeError, ValueError):
+        return default
+    return number if math.isfinite(number) else default
+
+
+def _text(value) -> str:
+    return value if isinstance(value, str) else ("" if value is None else str(value))
+
+
+TEXT_FIELDS = ("title", "title_suggestion", "caption_suggestion", "hashtag_suggestion", "content_type")
+
+
+def clean_answer(parsed_data, model_name: str) -> Optional[dict]:
+    """Gemini's answer with every field the type the rest of the analysis
+    expects: numbers from numeric text, text from anything else, a missing or
+    unreadable hook as None, entries that are not clips dropped. An answer
+    that is not a JSON object is unreadable (None). JSON mode makes a wrong
+    type rare, but one used to break the stream without an error (#74)."""
+    if not isinstance(parsed_data, dict):
+        if parsed_data is not None:
+            logger.warning(f"{model_name} answered with a JSON {type(parsed_data).__name__}, not an object.")
+        return None
+    raw_clips = parsed_data.get("clips")
+    clips = []
+    for raw in (raw_clips if isinstance(raw_clips, list) else []):
+        if not isinstance(raw, dict):
+            continue
+        quotes = raw.get("key_quotes")
+        clips.append({
+            **raw,
+            "start_time": _number(raw.get("start_time"), 0.0),
+            "end_time": _number(raw.get("end_time"), 0.0),
+            "hook_time": _number(raw.get("hook_time")),
+            "virality_score": int(_number(raw.get("virality_score"), 0.0)),
+            "key_quotes": [_text(q) for q in quotes if q is not None] if isinstance(quotes, list) else [],
+            **{field: _text(raw[field]) for field in TEXT_FIELDS if field in raw},
+        })
+    return {**parsed_data, "summary": _text(parsed_data.get("summary")), "clips": clips}
+
+
 def parse_gemini_answer(resp_candidate, model_name: str):
-    """Gemini's answer as plain data: the SDK's parsed object when it made
-    one, else the JSON text (code fences removed). None when unreadable."""
+    """Gemini's answer as plain data (see clean_answer): the SDK's parsed
+    object when it made one, else the JSON text (code fences removed). None
+    when unreadable."""
     parsed_data = None
     if hasattr(resp_candidate, 'parsed') and resp_candidate.parsed is not None:
         parsed = resp_candidate.parsed
@@ -369,7 +415,7 @@ def parse_gemini_answer(resp_candidate, model_name: str):
         except Exception as json_err:
             logger.warning(f"JSON parsing error from {model_name}: {json_err}")
             parsed_data = None
-    return parsed_data
+    return clean_answer(parsed_data, model_name)
 
 
 def backup_clips(enriched_transcript: List[dict], clip_duration: str, start_bound: float,

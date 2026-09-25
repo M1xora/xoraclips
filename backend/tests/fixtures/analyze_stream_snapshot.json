@@ -3099,8 +3099,8 @@
   ],
   "sleeps": []
  },
- "hook_as_text_breaks_stream": {
-  "crash": "TypeError",
+ "hook_as_text": {
+  "crash": null,
   "events": [
    {
     "detail": "Connecting to YouTube & fetching video metadata...",
@@ -3176,6 +3176,185 @@
     "stage": "Clip Verification & Alignment",
     "step": 4,
     "step_progress": 98
+   },
+   {
+    "done": true,
+    "result": {
+     "channel": "Kanal",
+     "clips": [
+      {
+       "caption_suggestion": "Seru #viral #fyp",
+       "content_type": "edukasi",
+       "end_time": 40.0,
+       "hashtag_suggestion": "#podcast #kesehatan",
+       "hook_time": 12.0,
+       "key_quotes": [
+        "kutipan"
+       ],
+       "start_time": 10.0,
+       "title": "Ternyata Begini Cara Kerjanya",
+       "title_options": [
+        "Ternyata Begini Cara Kerjanya",
+        "Kok Bisa Sesederhana Itu?"
+       ],
+       "title_suggestion": "Ternyata Begini Cara Kerjanya",
+       "transcript": "kalimat nomor 2. kalimat nomor 3. kalimat nomor 4. kalimat nomor 5. kalimat nomor 6. kalimat nomor 7.",
+       "virality_score": 90
+      }
+     ],
+     "duration": 120.0,
+     "heatmap": [],
+     "model": "gemini-2.5-flash",
+     "summary": "s",
+     "title": "Uji",
+     "transcript": [
+      {
+       "end": 5.0,
+       "engagement": 0.0,
+       "start": 0.0,
+       "text": "kalimat nomor 0."
+      },
+      {
+       "end": 10.0,
+       "engagement": 0.0,
+       "start": 5.0,
+       "text": "kalimat nomor 1."
+      },
+      {
+       "end": 15.0,
+       "engagement": 0.0,
+       "start": 10.0,
+       "text": "kalimat nomor 2."
+      },
+      {
+       "end": 20.0,
+       "engagement": 0.0,
+       "start": 15.0,
+       "text": "kalimat nomor 3."
+      },
+      {
+       "end": 25.0,
+       "engagement": 0.0,
+       "start": 20.0,
+       "text": "kalimat nomor 4."
+      },
+      {
+       "end": 30.0,
+       "engagement": 0.0,
+       "start": 25.0,
+       "text": "kalimat nomor 5."
+      },
+      {
+       "end": 35.0,
+       "engagement": 0.0,
+       "start": 30.0,
+       "text": "kalimat nomor 6."
+      },
+      {
+       "end": 40.0,
+       "engagement": 0.0,
+       "start": 35.0,
+       "text": "kalimat nomor 7."
+      },
+      {
+       "end": 45.0,
+       "engagement": 0.0,
+       "start": 40.0,
+       "text": "kalimat nomor 8."
+      },
+      {
+       "end": 50.0,
+       "engagement": 0.0,
+       "start": 45.0,
+       "text": "kalimat nomor 9."
+      },
+      {
+       "end": 55.0,
+       "engagement": 0.0,
+       "start": 50.0,
+       "text": "kalimat nomor 10."
+      },
+      {
+       "end": 60.0,
+       "engagement": 0.0,
+       "start": 55.0,
+       "text": "kalimat nomor 11."
+      },
+      {
+       "end": 65.0,
+       "engagement": 0.0,
+       "start": 60.0,
+       "text": "kalimat nomor 12."
+      },
+      {
+       "end": 70.0,
+       "engagement": 0.0,
+       "start": 65.0,
+       "text": "kalimat nomor 13."
+      },
+      {
+       "end": 75.0,
+       "engagement": 0.0,
+       "start": 70.0,
+       "text": "kalimat nomor 14."
+      },
+      {
+       "end": 80.0,
+       "engagement": 0.0,
+       "start": 75.0,
+       "text": "kalimat nomor 15."
+      },
+      {
+       "end": 85.0,
+       "engagement": 0.0,
+       "start": 80.0,
+       "text": "kalimat nomor 16."
+      },
+      {
+       "end": 90.0,
+       "engagement": 0.0,
+       "start": 85.0,
+       "text": "kalimat nomor 17."
+      },
+      {
+       "end": 95.0,
+       "engagement": 0.0,
+       "start": 90.0,
+       "text": "kalimat nomor 18."
+      },
+      {
+       "end": 100.0,
+       "engagement": 0.0,
+       "start": 95.0,
+       "text": "kalimat nomor 19."
+      },
+      {
+       "end": 105.0,
+       "engagement": 0.0,
+       "start": 100.0,
+       "text": "kalimat nomor 20."
+      },
+      {
+       "end": 110.0,
+       "engagement": 0.0,
+       "start": 105.0,
+       "text": "kalimat nomor 21."
+      },
+      {
+       "end": 115.0,
+       "engagement": 0.0,
+       "start": 110.0,
+       "text": "kalimat nomor 22."
+      },
+      {
+       "end": 120.0,
+       "engagement": 0.0,
+       "start": 115.0,
+       "text": "kalimat nomor 23."
+      }
+     ],
+     "video_id": "dQw4w9WgXcQ"
+    }
    }
   ],
   "gemini_calls": [
@@ -4071,7 +4250,7 @@
   "logs": [
    "INFO xoraclips: Metadata fetched: title='Uji', duration=120.0s, heatmap_pts=0",
    "INFO xoraclips: Flash fallback chain prepared: ['gemini-2.5-flash', 'gemini-2.5-flash-lite', 'gemini-2.0-flash', 'gemini-2.0-flash-lite', 'gemini-1.5-flash', 'gemini-1.5-flash-8b']",
-   "WARNING xoraclips: Error from gemini-2.5-flash (attempt 1, ai_failed): 'list' object has no attribute 'get'",
+   "WARNING xoraclips: gemini-2.5-flash answered with a JSON list, not an object.",
    "INFO xoraclips: Gemini analysis complete with gemini-2.5-flash-lite. Found 2 clips.",
    "INFO xoraclips: Gemini analysis complete with gemini-2.5-flash-lite. Found 2 clips.",
    "INFO xoraclips: Clip bounds: 0/2 clip(s) moved to line/sentence edges."
@@ -8548,8 +8727,8 @@
   ],
   "sleeps": []
  },
- "score_null_breaks_stream": {
-  "crash": "ValidationError",
+ "score_null": {
+  "crash": null,
   "events": [
    {
     "detail": "Connecting to YouTube & fetching video metadata...",
@@ -8625,6 +8804,185 @@
     "stage": "Clip Verification & Alignment",
     "step": 4,
     "step_progress": 98
+   },
+   {
+    "done": true,
+    "result": {
+     "channel": "Kanal",
+     "clips": [
+      {
+       "caption_suggestion": "Seru #viral #fyp",
+       "content_type": "edukasi",
+       "end_time": 40.0,
+       "hashtag_suggestion": "#podcast #kesehatan",
+       "hook_time": 11.0,
+       "key_quotes": [
+        "kutipan"
+       ],
+       "start_time": 10.0,
+       "title": "Ternyata Begini Cara Kerjanya",
+       "title_options": [
+        "Ternyata Begini Cara Kerjanya",
+        "Kok Bisa Sesederhana Itu?"
+       ],
+       "title_suggestion": "Ternyata Begini Cara Kerjanya",
+       "transcript": "kalimat nomor 2. kalimat nomor 3. kalimat nomor 4. kalimat nomor 5. kalimat nomor 6. kalimat nomor 7.",
+       "virality_score": 0
+      }
+     ],
+     "duration": 120.0,
+     "heatmap": [],
+     "model": "gemini-2.5-flash",
+     "summary": "s",
+     "title": "Uji",
+     "transcript": [
+      {
+       "end": 5.0,
+       "engagement": 0.0,
+       "start": 0.0,
+       "text": "kalimat nomor 0."
+      },
+      {
+       "end": 10.0,
+       "engagement": 0.0,
+       "start": 5.0,
+       "text": "kalimat nomor 1."
+      },
+      {
+       "end": 15.0,
+       "engagement": 0.0,
+       "start": 10.0,
+       "text": "kalimat nomor 2."
+      },
+      {
+       "end": 20.0,
+       "engagement": 0.0,
+       "start": 15.0,
+       "text": "kalimat nomor 3."
+      },
+      {
+       "end": 25.0,
+       "engagement": 0.0,
+       "start": 20.0,
+       "text": "kalimat nomor 4."
+      },
+      {
+       "end": 30.0,
+       "engagement": 0.0,
+       "start": 25.0,
+       "text": "kalimat nomor 5."
+      },
+      {
+       "end": 35.0,
+       "engagement": 0.0,
+       "start": 30.0,
+       "text": "kalimat nomor 6."
+      },
+      {
+       "end": 40.0,
+       "engagement": 0.0,
+       "start": 35.0,
+       "text": "kalimat nomor 7."
+      },
+      {
+       "end": 45.0,
+       "engagement": 0.0,
+       "start": 40.0,
+       "text": "kalimat nomor 8."
+      },
+      {
+       "end": 50.0,
+       "engagement": 0.0,
+       "start": 45.0,
+       "text": "kalimat nomor 9."
+      },
+      {
+       "end": 55.0,
+       "engagement": 0.0,
+       "start": 50.0,
+       "text": "kalimat nomor 10."
+      },
+      {
+       "end": 60.0,
+       "engagement": 0.0,
+       "start": 55.0,
+       "text": "kalimat nomor 11."
+      },
+      {
+       "end": 65.0,
+       "engagement": 0.0,
+       "start": 60.0,
+       "text": "kalimat nomor 12."
+      },
+      {
+       "end": 70.0,
+       "engagement": 0.0,
+       "start": 65.0,
+       "text": "kalimat nomor 13."
+      },
+      {
+       "end": 75.0,
+       "engagement": 0.0,
+       "start": 70.0,
+       "text": "kalimat nomor 14."
+      },
+      {
+       "end": 80.0,
+       "engagement": 0.0,
+       "start": 75.0,
+       "text": "kalimat nomor 15."
+      },
+      {
+       "end": 85.0,
+       "engagement": 0.0,
+       "start": 80.0,
+       "text": "kalimat nomor 16."
+      },
+      {
+       "end": 90.0,
+       "engagement": 0.0,
+       "start": 85.0,
+       "text": "kalimat nomor 17."
+      },
+      {
+       "end": 95.0,
+       "engagement": 0.0,
+       "start": 90.0,
+       "text": "kalimat nomor 18."
+      },
+      {
+       "end": 100.0,
+       "engagement": 0.0,
+       "start": 95.0,
+       "text": "kalimat nomor 19."
+      },
+      {
+       "end": 105.0,
+       "engagement": 0.0,
+       "start": 100.0,
+       "text": "kalimat nomor 20."
+      },
+      {
+       "end": 110.0,
+       "engagement": 0.0,
+       "start": 105.0,
+       "text": "kalimat nomor 21."
+      },
+      {
+       "end": 115.0,
+       "engagement": 0.0,
+       "start": 110.0,
+       "text": "kalimat nomor 22."
+      },
+      {
+       "end": 120.0,
+       "engagement": 0.0,
+       "start": 115.0,
+       "text": "kalimat nomor 23."
+      }
+     ],
+     "video_id": "dQw4w9WgXcQ"
+    }
    }
   ],
   "gemini_calls": [

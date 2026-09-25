@@ -136,7 +136,8 @@ class Answer:
         self.parsed = parsed
 
 
-PAYLOAD = {"summary": "s", "clips": [{"title": "t", "start_time": 1, "end_time": 2}]}
+PAYLOAD = {"summary": "s", "clips": [{"title": "t", "start_time": 1.5, "end_time": 2.0, "hook_time": 1.6,
+                                      "virality_score": 80, "key_quotes": ["q"]}]}
 
 
 def test_the_answer_text_is_read_as_json_with_or_without_a_code_fence():
@@ -219,3 +220,37 @@ def test_the_response_has_the_whole_transcript_and_a_lowercase_summary():
     assert result.summary == "Ringkas #podcast" and result.model == "gemini-x"
     assert [p.model_dump() for p in result.heatmap] == [{"start_time": 0.0, "end_time": 5.0, "value": 1.0}]
     assert [l.text for l in result.transcript] == ["kalimat 0.", "kalimat 1."]
+
+
+# --- answers with the wrong shape (found in the #72 review) -----------------------------
+
+def test_an_answer_that_is_not_an_object_is_unreadable():
+    for text in ("[1, 2, 3]", '"just text"', "42", "null"):
+        assert analysis.parse_gemini_answer(Answer(text), "m") is None, text
+
+
+def test_clip_fields_of_the_wrong_type_are_cleaned_instead_of_breaking_the_analysis():
+    data = analysis.parse_gemini_answer(Answer(json.dumps({"summary": None, "clips": [
+        {"title": 7, "start_time": "10", "end_time": "25.5", "hook_time": "12", "virality_score": None,
+         "key_quotes": "one quote", "caption_suggestion": 5, "hashtag_suggestion": None},
+        {"start_time": 30, "end_time": 45, "hook_time": "soon", "virality_score": 87.6, "key_quotes": ["a", 2, None]},
+        "not a clip",
+    ]})), "m")
+    assert data["summary"] == ""
+    first, second = data["clips"]  # "not a clip" is dropped
+    assert (first["start_time"], first["end_time"], first["hook_time"]) == (10.0, 25.5, 12.0)
+    assert first["virality_score"] == 0 and first["key_quotes"] == []
+    assert (first["title"], first["caption_suggestion"], first["hashtag_suggestion"]) == ("7", "5", "")
+    assert second["hook_time"] is None and second["virality_score"] == 87 and second["key_quotes"] == ["a", "2"]
+
+
+def test_clips_that_are_not_a_list_count_as_none():
+    assert analysis.parse_gemini_answer(Answer('{"summary": "s", "clips": "none"}'), "m") == {"summary": "s", "clips": []}
+
+
+def test_cleaned_clips_finish_without_errors():
+    data = analysis.parse_gemini_answer(Answer(json.dumps({"summary": "s", "clips": [
+        {"start_time": "10", "end_time": "25", "hook_time": "12", "virality_score": None, "title_options": "x"},
+        {"start_time": float("inf"), "end_time": "nan", "hook_time": 1e400}]})), "m")
+    clips = analysis.finish_clips(data["clips"], enriched(12), "30s", 0.0, 60.0, "Kanal")
+    assert [(c.start_time, c.hook_time, c.virality_score) for c in clips][0] == (10.0, 12.0, 0)

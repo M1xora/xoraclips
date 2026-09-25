@@ -270,8 +270,8 @@ SCENARIOS = {
                                                               if k != "hook_time"}]}]},
     "times_as_text": {"answers": [{"summary": "s", "clips": [clip("10", "40", hook=12)]}]},
     "times_unreadable": {"answers": [{"summary": "s", "clips": [clip("abc", None, hook=0)]}]},
-    "hook_as_text_breaks_stream": {"answers": [{"summary": "s", "clips": [clip(10, 40, hook="12")]}]},
-    "score_null_breaks_stream": {"answers": [{"summary": "s", "clips": [clip(10, 40, score=None)]}]},
+    "hook_as_text": {"answers": [{"summary": "s", "clips": [clip(10, 40, hook="12")]}]},
+    "score_null": {"answers": [{"summary": "s", "clips": [clip(10, 40, score=None)]}]},
     "first_person_titles": {"answers": [{"summary": "s", "clips": [clip(10, 40, title_options=[
         {"text": "Saya Mencoba Lari Tiap Hari"}, {"text": "Aku Menyesal Makan Gorengan"}])]}]},
     "no_title_options": {"answers": [{"summary": "s", "clips": [clip(10, 40, title_options=[],
