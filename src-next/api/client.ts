@@ -213,14 +213,9 @@ export const api = {
   hardwareAccel: (signal?: AbortSignal) =>
     request<import('../lib/types').HardwareAccelInfo>('/api/hardware-accel', { signal }),
 
-  detectFace: (
-    videoId: string,
-    timestamp: number,
-    videoUrl?: string,
-    signal?: AbortSignal,
-  ) => {
+  /** The backend takes only the video ID and builds the YouTube URL itself (#42). */
+  detectFace: (videoId: string, timestamp: number, signal?: AbortSignal) => {
     const params = new URLSearchParams({ video_id: videoId, timestamp: String(timestamp) });
-    if (videoUrl) params.set('video_url', videoUrl);
     return request<FaceBox>(`/api/detect-face?${params}`, { signal });
   },
 
