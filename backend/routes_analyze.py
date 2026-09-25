@@ -378,11 +378,12 @@ def _models_to_try(requested_model: str, discovered_flash: List[str]) -> List[st
 async def _heartbeat(task: asyncio.Task, model_name: str, n_lines: int, clip_range: str):
     """Events every 2 s while Gemini works: they keep mobile connections open
     and move the progress bar."""
-    call_start = asyncio.get_event_loop().time()
+    loop = asyncio.get_running_loop()
+    call_start = loop.time()
     while not task.done():
         done, _ = await asyncio.wait([task], timeout=2.0)
         if not done:
-            elapsed = int(asyncio.get_event_loop().time() - call_start)
+            elapsed = int(loop.time() - call_start)
             stage, detail, step_prog = analysis.waiting_stage(elapsed, n_lines, model_name, clip_range)
             yield _event(4, step_prog, 70 + int(step_prog * 0.28), stage, detail,
                          f"[{model_name} | {elapsed}s] {stage}: {detail}",

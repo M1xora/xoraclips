@@ -254,3 +254,11 @@ def test_cleaned_clips_finish_without_errors():
         {"start_time": float("inf"), "end_time": "nan", "hook_time": 1e400}]})), "m")
     clips = analysis.finish_clips(data["clips"], enriched(12), "30s", 0.0, 60.0, "Kanal")
     assert [(c.start_time, c.hook_time, c.virality_score) for c in clips][0] == (10.0, 12.0, 0)
+
+
+def test_the_backend_asks_for_the_running_loop_not_the_old_get_event_loop():
+    # asyncio.get_event_loop() inside a coroutine is the old spelling; inside
+    # one the loop is always running (#74).
+    backend = Path(__file__).resolve().parents[1]
+    offenders = [p.name for p in backend.glob("*.py") if "get_event_loop()" in p.read_text(encoding="utf-8")]
+    assert offenders == []
