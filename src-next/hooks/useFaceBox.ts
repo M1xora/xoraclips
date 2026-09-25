@@ -32,7 +32,7 @@ export function useFaceBox(
     const controller = new AbortController();
 
     api
-      .detectFace(videoId, timestamp, undefined, controller.signal)
+      .detectFace(videoId, timestamp, controller.signal)
       .then((res) => {
         if (controller.signal.aborted) return;
         // `found` false means the detector ran and saw nothing, which is
