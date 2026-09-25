@@ -5,36 +5,25 @@ unchanged (#60).
 import asyncio
 import logging
 import os
-from typing import Optional
 
 from fastapi import APIRouter, HTTPException, Query
 from fastapi.responses import FileResponse
 
 try:
-    from backend.video_engine import (
-        EXPORTS_DIR, TEMP_DIR, detect_speaker_face_box, extract_clip_frame,
-        extract_clip_frame_info, is_video_id,
-    )
+    from backend import video_engine
+    from backend.validation import MAX_VIDEO_SECONDS, require_video_id
+    from backend.video_engine import detect_speaker_face_box, extract_clip_frame, extract_clip_frame_info
 except ImportError:
-    from video_engine import (
-        EXPORTS_DIR, TEMP_DIR, detect_speaker_face_box, extract_clip_frame,
-        extract_clip_frame_info, is_video_id,
-    )
+    import video_engine
+    from validation import MAX_VIDEO_SECONDS, require_video_id
+    from video_engine import detect_speaker_face_box, extract_clip_frame, extract_clip_frame_info
 
 logger = logging.getLogger("xoraclips")
 router = APIRouter()
 
 
-# Issue #42: refused before it can reach a yt-dlp command line.
-def require_video_id(video_id: Optional[str]) -> str:
-    """The video ID if it is a valid YouTube ID, else a 400 error."""
-    if not is_video_id(video_id):
-        raise HTTPException(status_code=400, detail="Invalid YouTube video ID")
-    return video_id
-
-
 # Seconds into the video: finite, 0 to 24 hours (issue #42).
-FRAME_TIMESTAMP = Query(0.0, ge=0, le=24 * 3600, allow_inf_nan=False)
+FRAME_TIMESTAMP = Query(0.0, ge=0, le=MAX_VIDEO_SECONDS, allow_inf_nan=False)
 
 
 @router.get("/api/clip-frame")
@@ -82,7 +71,7 @@ async def detect_face(video_id: str, timestamp: float = FRAME_TIMESTAMP):
             return box
 
         # If frame extract didn't complete, check local candidates
-        local_candidates = list(TEMP_DIR.glob(f"*{video_id}*.mp4")) + list(EXPORTS_DIR.glob(f"*{video_id}*.mp4"))
+        local_candidates = list(video_engine.TEMP_DIR.glob(f"*{video_id}*.mp4")) + list(video_engine.EXPORTS_DIR.glob(f"*{video_id}*.mp4"))
         for candidate in local_candidates:
             if candidate.exists() and candidate.stat().st_size > 10000 and "slice_" not in candidate.name:
                 box = await asyncio.to_thread(detect_speaker_face_box, str(candidate))

@@ -19,16 +19,18 @@ from fastapi.responses import FileResponse, StreamingResponse
 from pydantic import BaseModel, Field
 
 try:
+    from backend import video_engine
     from backend.captions import caption_chunks_for_clip
     from backend.video_engine import (
-        ACTIVE_ENCODER_NAME, EXPORTS_DIR, TEMP_DIR, detect_hardware_support,
+        ACTIVE_ENCODER_NAME, detect_hardware_support,
         download_clip_segment, generate_ass_file, has_emoji, render_clip_to_mp4,
         render_title_overlay_png, transcribe_clip_words,
     )
 except ImportError:
+    import video_engine
     from captions import caption_chunks_for_clip
     from video_engine import (
-        ACTIVE_ENCODER_NAME, EXPORTS_DIR, TEMP_DIR, detect_hardware_support,
+        ACTIVE_ENCODER_NAME, detect_hardware_support,
         download_clip_segment, generate_ass_file, has_emoji, render_clip_to_mp4,
         render_title_overlay_png, transcribe_clip_words,
     )
@@ -165,7 +167,7 @@ async def process_batch_rendering(batch_id: str, request: RenderBatchRequest):
             # Check if title has emoji -> render transparent color emoji PNG overlay
             if display_title and settings.title_position != "none" and has_emoji(display_title):
                 title_png_filename = f"{batch_id}_clip_{idx}_title.png"
-                title_png_path = str(TEMP_DIR / title_png_filename)
+                title_png_path = str(video_engine.TEMP_DIR / title_png_filename)
                 try:
                     rendered_overlay = await asyncio.to_thread(
                         render_title_overlay_png,
@@ -198,7 +200,7 @@ async def process_batch_rendering(batch_id: str, request: RenderBatchRequest):
                         end_t
                     )
                 ass_filename = f"{batch_id}_clip_{idx}.ass"
-                ass_path = str(TEMP_DIR / ass_filename)
+                ass_path = str(video_engine.TEMP_DIR / ass_filename)
                 await asyncio.to_thread(
                     generate_ass_file,
                     words=words,
@@ -225,7 +227,7 @@ async def process_batch_rendering(batch_id: str, request: RenderBatchRequest):
             clip_status["progress_percent"] = 70
 
             out_filename = f"clip_{idx+1}_{batch_id}.mp4"
-            out_path = str(EXPORTS_DIR / out_filename)
+            out_path = str(video_engine.EXPORTS_DIR / out_filename)
 
             await asyncio.to_thread(
                 render_clip_to_mp4,
@@ -279,12 +281,12 @@ async def process_batch_rendering(batch_id: str, request: RenderBatchRequest):
         completed_clips = [c for c in batch["clips"] if c.get("status") == "completed" and c.get("download_url")]
         if completed_clips:
             zip_filename = f"xoraclips_{batch_id}.zip"
-            zip_path = EXPORTS_DIR / zip_filename
+            zip_path = video_engine.EXPORTS_DIR / zip_filename
             title_counts: Dict[str, int] = {}
             with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zipf:
                 for c in completed_clips:
                     fname = c["download_url"].split("/")[-1]
-                    fpath = EXPORTS_DIR / fname
+                    fpath = video_engine.EXPORTS_DIR / fname
                     if fpath.exists():
                         raw_title = (c.get("base_title") or c.get("title") or "").strip()
                         clean_title = re.sub(r'[\\/*?:"<>|]', "", raw_title) or f"clip_{c.get('clip_index', 1)}"
@@ -402,7 +404,7 @@ async def get_render_progress(batch_id: str):
 def download_batch_zip(batch_id: str):
     clean_id = os.path.basename(batch_id)
     safe_name = f"xoraclips_{clean_id}.zip"
-    file_path = EXPORTS_DIR / safe_name
+    file_path = video_engine.EXPORTS_DIR / safe_name
     if not file_path.exists():
         # Attempt to package any completed clips for this batch on the fly
         job = RENDER_BATCHES.get(batch_id)
@@ -414,7 +416,7 @@ def download_batch_zip(batch_id: str):
                         c_out = c.get("output_path")
                         if not c_out and c.get("download_url"):
                             fname = c["download_url"].split("/")[-1]
-                            c_out = str(EXPORTS_DIR / fname)
+                            c_out = str(video_engine.EXPORTS_DIR / fname)
                         if c_out and os.path.exists(c_out):
                             raw_title = (c.get("title") or "").strip()
                             clean_title = re.sub(r'[\\/*?:"<>|]', "", raw_title) or os.path.splitext(os.path.basename(c_out))[0]

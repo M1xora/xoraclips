@@ -260,7 +260,20 @@ def test_saving_cookies_without_a_fake_never_touches_the_real_file(no_real_data_
 def test_clear_temp_in_a_test_never_empties_the_real_backend_folders(no_real_data_files):
     import routes_system
     assert not Path(routes_system._base_dir).samefile(BACKEND)
-    assert not Path(routes_system.TEMP_DIR).samefile(BACKEND / "temp_clips") if (BACKEND / "temp_clips").exists() else True
+    temp = Path(routes_system.video_engine.TEMP_DIR)
+    assert not temp.samefile(BACKEND / "temp_clips") if (BACKEND / "temp_clips").exists() else True
+
+
+def test_only_video_engine_holds_the_data_locations():
+    # A copy per module is how a test once overwrote the real cookies.txt:
+    # its fake reached one copy while the endpoint used another (#63, #64).
+    import importlib
+    for path in BACKEND.glob("*.py"):
+        if path.stem in ("video_engine", "__init__"):
+            continue
+        module = importlib.import_module(f"backend.{path.stem}")
+        copies = [n for n in ("COOKIES_PATH", "TEMP_DIR", "EXPORTS_DIR") if hasattr(module, n)]
+        assert copies == [], f"{path.name} keeps its own {copies}: read video_engine.<name> when used"
 
 
 def test_the_windows_hotfix_runs_before_yt_dlp_wherever_it_is_imported():

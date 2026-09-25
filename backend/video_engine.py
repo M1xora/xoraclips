@@ -43,6 +43,12 @@ def is_video_id(value: Optional[str]) -> bool:
     """True for a well-formed YouTube video ID."""
     return bool(value) and _VIDEO_ID_RE.fullmatch(value) is not None
 
+
+def watch_url(video_id: str) -> str:
+    """The YouTube page of a video. Routes build it from a checked ID and
+    never pass a URL from the request on to yt-dlp (#42, #64)."""
+    return f"https://www.youtube.com/watch?v={video_id}"
+
 CASCADE_PATH = BASE_DIR / "haarcascade_frontalface_default.xml"
 TEMP_DIR.mkdir(parents=True, exist_ok=True)
 EXPORTS_DIR.mkdir(parents=True, exist_ok=True)

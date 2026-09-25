@@ -31,11 +31,13 @@ from youtube_transcript_api.proxies import GenericProxyConfig, WebshareProxyConf
 
 try:
     from backend import youtube_errors
-    from backend.video_engine import COOKIES_PATH, is_video_id
+    from backend import video_engine
+    from backend.video_engine import is_video_id
     from backend.youtube_errors import CaptionUnavailable, YouTubeBlocked
 except ImportError:
     import youtube_errors
-    from video_engine import COOKIES_PATH, is_video_id
+    import video_engine
+    from video_engine import is_video_id
     from youtube_errors import CaptionUnavailable, YouTubeBlocked
 
 logger = logging.getLogger("xoraclips")
@@ -501,8 +503,8 @@ def fetch_video_metadata(url: str, custom_proxy: Optional[str] = None):
             'proxy': attempt_proxy,
             'socket_timeout': 10
         }
-        if COOKIES_PATH.exists() and COOKIES_PATH.stat().st_size > 0:
-            ydl_opts['cookiefile'] = str(COOKIES_PATH)
+        if video_engine.COOKIES_PATH.exists() and video_engine.COOKIES_PATH.stat().st_size > 0:
+            ydl_opts['cookiefile'] = str(video_engine.COOKIES_PATH)
 
         try:
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
@@ -754,8 +756,8 @@ def fetch_transcript_ytdlp(video_id: str, proxy: Optional[str] = None) -> List[d
         'proxy': proxy,
         'socket_timeout': 10
     }
-    if COOKIES_PATH.exists() and COOKIES_PATH.stat().st_size > 0:
-        ydl_opts['cookiefile'] = str(COOKIES_PATH)
+    if video_engine.COOKIES_PATH.exists() and video_engine.COOKIES_PATH.stat().st_size > 0:
+        ydl_opts['cookiefile'] = str(video_engine.COOKIES_PATH)
 
     try:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:

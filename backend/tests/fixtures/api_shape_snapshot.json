@@ -184,9 +184,13 @@
   "RawClipDownloadRequest": {
    "properties": {
     "end_time": {
+     "maximum": 86400.0,
+     "minimum": 0.0,
      "type": "number"
     },
     "start_time": {
+     "maximum": 86400.0,
+     "minimum": 0.0,
      "type": "number"
     },
     "title": {
@@ -196,15 +200,21 @@
      "type": "string"
     },
     "video_url": {
-     "type": "string"
+     "anyOf": [
+      {
+       "type": "null"
+      },
+      {
+       "type": "string"
+      }
+     ]
     }
    },
    "required": [
     "end_time",
     "start_time",
     "title",
-    "video_id",
-    "video_url"
+    "video_id"
    ]
   },
   "RawVideoDownloadRequest": {
@@ -223,12 +233,18 @@
      "type": "string"
     },
     "video_url": {
-     "type": "string"
+     "anyOf": [
+      {
+       "type": "null"
+      },
+      {
+       "type": "string"
+      }
+     ]
     }
    },
    "required": [
-    "video_id",
-    "video_url"
+    "video_id"
    ]
   },
   "RenderBatchRequest": {

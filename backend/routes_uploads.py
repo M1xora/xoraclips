@@ -12,15 +12,15 @@ from fastapi import APIRouter, File, HTTPException, UploadFile
 from fastapi.responses import FileResponse
 
 try:
-    from backend.video_engine import TEMP_DIR
+    from backend import video_engine
 except ImportError:
-    from video_engine import TEMP_DIR
+    import video_engine
 
 logger = logging.getLogger("xoraclips")
 router = APIRouter()
 
 
-UPLOADS_DIR = TEMP_DIR / "uploads"
+UPLOADS_DIR = video_engine.TEMP_DIR / "uploads"
 
 
 UPLOADS_DIR.mkdir(parents=True, exist_ok=True)
