@@ -6,6 +6,7 @@ Uses the ffprobe output recorded on 2026-09-23 (tests/fixtures/download).
 yt-dlp, ffmpeg and ffprobe are fakes: nothing here downloads anything.
 """
 import subprocess
+import sys
 from pathlib import Path
 
 import pytest
@@ -277,3 +278,37 @@ def test_the_retry_gets_enough_time_for_a_long_clip(tools):
     download_clip_segment("dQw4w9WgXcQ", 0.0, 90.0, "clip.mp4", sleep=lambda s: None, clock=fake.clock)
     assert fake.calls[1][1] == 2 * 90 + 30
 
+
+
+# --- issue #76: YouTube's JavaScript challenge ------------------------------------------
+
+def test_yt_dlp_runs_from_the_backends_own_python_not_whatever_is_on_path(monkeypatch):
+    # A yt-dlp on PATH may belong to another Python without yt-dlp-ejs (the
+    # challenge solver from requirements.txt), which broke downloads with cookies.
+    monkeypatch.setattr(video_engine.shutil, "which",
+                        lambda name: {"yt-dlp": r"C:\Other\Python\Scripts\yt-dlp.exe"}.get(name))
+    monkeypatch.setattr(video_engine, "COOKIES_PATH", Path("does-not-exist.txt"))
+    assert video_engine.get_yt_dlp_base_cmd()[:3] == [sys.executable, "-m", "yt_dlp"]
+
+
+def test_the_requirements_bring_the_challenge_solver():
+    requirements = (Path(video_engine.__file__).parent / "requirements.txt").read_text(encoding="utf-8")
+    assert any(line.startswith("yt-dlp[default]") for line in requirements.splitlines())
+
+
+def test_a_challenge_youtube_could_not_solve_gets_a_clear_message(tools, monkeypatch):
+    fake = tools([None, None, None])
+    real_run = fake.run
+
+    def challenge(cmd, **kwargs):
+        res = real_run(cmd, **kwargs)
+        if cmd[0] == "yt-dlp":
+            res = subprocess.CompletedProcess(cmd, 1, "", "ERROR: [youtube] p1t-074cn38: The page needs to be reloaded.\n")
+        return res
+
+    monkeypatch.setattr(video_engine.subprocess, "run", challenge)
+    with pytest.raises(RuntimeError) as caught:
+        download(fake)
+    message = str(caught.value)
+    assert "pip install -r backend/requirements.txt" in message
+    assert "The page needs to be reloaded" in message  # the real error stays visible

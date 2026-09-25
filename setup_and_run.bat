@@ -252,7 +252,7 @@ if not exist "venv\.installed" (
         pause
         exit /b 1
     )
-    python -m pip install --upgrade yt-dlp --quiet
+    python -m pip install --upgrade "yt-dlp[default]" --quiet
     echo installed > "venv\.installed"
     echo [OK] Backend dependencies installed successfully.
 ) else (

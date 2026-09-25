@@ -205,20 +205,19 @@ def get_yt_dlp_cookies_args() -> List[str]:
 def get_yt_dlp_base_cmd() -> List[str]:
     """
     Returns base command for yt-dlp with JavaScript runtime and cookies.
-    Tries standalone 'yt-dlp' executable first, then falls back to python module:
-    [sys.executable, "-m", "yt_dlp"] which works 100% of the time if installed via pip.
+    Always the backend's own Python (`python -m yt_dlp`), never a yt-dlp found
+    on PATH: that one may belong to another Python without yt-dlp-ejs, the
+    solver for YouTube's JavaScript challenge that requirements.txt installs
+    (issue #76).
     """
-    if shutil.which("yt-dlp"):
-        cmd = ["yt-dlp"]
-    else:
-        try:
-            import yt_dlp
-            cmd = [sys.executable, "-m", "yt_dlp"]
-        except ImportError:
-            raise RuntimeError(
-                "yt-dlp is not installed in this Python environment. "
-                "Please run 'pip install yt-dlp' or 'pip install -r backend/requirements.txt'."
-            )
+    try:
+        import yt_dlp  # noqa: F401
+    except ImportError:
+        raise RuntimeError(
+            "yt-dlp is not installed in this Python environment. "
+            "Please run 'pip install -r backend/requirements.txt'."
+        )
+    cmd = [sys.executable, "-m", "yt_dlp"]
 
     if shutil.which("node"):
         cmd.extend(["--js-runtimes", "node"])
@@ -238,6 +237,13 @@ def get_yt_dlp_base_cmd() -> List[str]:
 # audio format whose video codec is not stated. Every format choice below
 # demands a video codec, and since that may not be the only way, every
 # download is also checked for a video track before it is used.
+# Issue #76: with cookies YouTube sends a JavaScript challenge; without
+# yt-dlp-ejs yt-dlp cannot answer it and fails with "The page needs to be
+# reloaded".
+CHALLENGE_MESSAGE = (
+    "YouTube asked for a challenge this backend cannot solve yet. Stop the backend, run "
+    "'venv\\Scripts\\python -m pip install -r backend/requirements.txt', then start it again."
+)
 FORMAT_1080 = "bestvideo[height<=1080]+bestaudio/best[height<=1080][vcodec!=none]/bestvideo+bestaudio/best[vcodec!=none]"
 FORMAT_720 = "bestvideo[height<=720]+bestaudio/best[height<=720][vcodec!=none]/best[vcodec!=none]"
 # Issue #44: one preview frame needs no audio. YouTube stopped serving format
@@ -530,6 +536,8 @@ def download_clip_segment(
             return str(output_path)
 
     err_lower = state["err"].lower()
+    if "page needs to be reloaded" in err_lower or "challenge solving failed" in err_lower:
+        raise RuntimeError(f"{CHALLENGE_MESSAGE} ({state['err'].strip()[:200]})")
     if "confirm you're not a bot" in err_lower or "sign in" in err_lower or "login" in err_lower:
         raise RuntimeError("YouTube blocked video download (Bot verification). Please import/save your YouTube cookies using the 🍪 Cookies Manager button in the top navbar.")
     if state["audio_only"]:
