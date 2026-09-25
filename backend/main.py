@@ -33,8 +33,8 @@ from concurrent.futures import ThreadPoolExecutor
 from contextlib import asynccontextmanager
 from urllib.parse import quote, urlsplit
 from typing import List, Optional, Dict, Any, Tuple, Callable
-from fastapi import FastAPI, HTTPException, BackgroundTasks, UploadFile, File, Header, Query
-from fastapi.responses import StreamingResponse, RedirectResponse, FileResponse
+from fastapi import FastAPI, HTTPException, BackgroundTasks, UploadFile, File, Header, Query, Request
+from fastapi.responses import StreamingResponse, RedirectResponse, FileResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 import requests
@@ -139,14 +139,45 @@ app = FastAPI(
     lifespan=_lifespan,
 )
 
-# Configure CORS
+# CORS (issue #45): only the app itself may read API responses. The frontend
+# calls the API through the Vite proxy (same origin), so a browser tab on any
+# other site gets no Access-Control-Allow-Origin header. Set ALLOWED_ORIGINS
+# in .env (comma-separated) when the app is served from another address.
+DEFAULT_ALLOWED_ORIGINS = "http://localhost:5174,http://127.0.0.1:5174"
+
+
+def allowed_origins() -> List[str]:
+    raw = os.environ.get("ALLOWED_ORIGINS", "").strip() or DEFAULT_ALLOWED_ORIGINS
+    # A browser's Origin never ends in "/", so "https://site/" would never match.
+    origins = (origin.strip().rstrip("/") for origin in raw.split(","))
+    return [origin for origin in origins if origin]
+
+
+CORS_ORIGINS = allowed_origins()
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allows all origins in development
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_origins=CORS_ORIGINS,
+    allow_credentials=False,
+    allow_methods=["GET", "POST", "DELETE"],
+    allow_headers=["Content-Type", GEMINI_KEY_HEADER],
 )
+
+
+@app.middleware("http")
+async def refuse_writes_from_other_sites(request: Request, call_next):
+    """
+    CORS only stops other sites from READING responses; a page can still send
+    a POST without asking first (issue #45). A browser always sends Origin on
+    such a request, so anything that changes state is refused unless it comes
+    from an allowed origin. Requests without Origin (curl, scripts) pass; the
+    Vite proxy forwards the app's own Origin, which is allowed.
+    """
+    if request.method not in ("GET", "HEAD", "OPTIONS"):
+        origin = request.headers.get("origin")
+        if origin is not None and origin.rstrip("/") not in CORS_ORIGINS:
+            return JSONResponse(status_code=403, content={"detail": "Origin not allowed"})
+    return await call_next(request)
 
 # ----------------------------------------------------------------
 # Pydantic Schemas for Gemini Structured Output
@@ -3046,22 +3077,30 @@ def save_youtube_cookies(req: CookiesSaveRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 
+_COOKIE_DOMAIN_RE = re.compile(r"\.?[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)+")
+
+
 @app.get("/api/cookies")
 def get_youtube_cookies_status():
+    """Whether cookies are saved, their size and domains. Never their content:
+    the cookies are a YouTube login (issue #45)."""
     if COOKIES_PATH.exists() and COOKIES_PATH.stat().st_size > 0:
         sample_lines = []
-        cookies_content = ""
         try:
             with open(COOKIES_PATH, "r", encoding="utf-8", errors="ignore") as f:
-                cookies_content = f.read()
-                for line in cookies_content.splitlines():
+                for line in f:
                     line = line.strip()
-                    if line and not line.startswith("#"):
-                        domain = line.split("\t")[0]
-                        if domain not in sample_lines:
-                            sample_lines.append(domain)
-                        if len(sample_lines) >= 6:
-                            break
+                    if line.startswith("#HttpOnly_"):
+                        line = line[len("#HttpOnly_"):]
+                    if not line or line.startswith("#"):
+                        continue
+                    # Only something shaped like a domain: a line pasted with
+                    # spaces instead of tabs must not leak its values.
+                    domain = line.split()[0]
+                    if _COOKIE_DOMAIN_RE.fullmatch(domain) and domain not in sample_lines:
+                        sample_lines.append(domain)
+                    if len(sample_lines) >= 6:
+                        break
         except Exception:
             pass
         return {
@@ -3069,9 +3108,8 @@ def get_youtube_cookies_status():
             "has_cookies": True,
             "size": COOKIES_PATH.stat().st_size,
             "sample_lines": sample_lines,
-            "cookies_content": cookies_content
         }
-    return {"exists": False, "has_cookies": False, "size": 0, "sample_lines": [], "cookies_content": ""}
+    return {"exists": False, "has_cookies": False, "size": 0, "sample_lines": []}
 
 
 @app.delete("/api/cookies")
