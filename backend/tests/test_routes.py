@@ -107,6 +107,19 @@ def api_shape(openapi: dict) -> dict:
     return json.loads(json.dumps({"operations": operations, "models": models}))
 
 
+def api_routes(routes, prefix=""):
+    """Every APIRoute with its full path. Routers included from routes_* modules
+    (#60) are copied into app.routes by older FastAPI versions and kept as a
+    wrapper (with `original_router`) by newer ones; both are walked."""
+    for route in routes:
+        if isinstance(route, APIRoute):
+            yield prefix + route.path, route
+        inner = getattr(route, "original_router", None)
+        if inner is not None:
+            context = getattr(route, "include_context", None)
+            yield from api_routes(inner.routes, prefix + (getattr(context, "prefix", "") or ""))
+
+
 def route_rows():
     def params(route):
         d = route.dependant
@@ -117,8 +130,8 @@ def route_rows():
         return ",".join(sorted(found))
 
     return [
-        (method, route.path, route.endpoint.__name__, params(route))
-        for route in main.app.routes if isinstance(route, APIRoute)
+        (method, path, route.endpoint.__name__, params(route))
+        for path, route in api_routes(main.app.routes)
         for method in route.methods
     ]
 
@@ -127,6 +140,12 @@ def test_every_route_exists_exactly_once():
     rows = route_rows()
     assert [row for row, n in Counter(rows).items() if n > 1] == []
     assert sorted(rows) == sorted(ROUTES)
+
+
+def test_the_route_list_matches_what_the_app_serves():
+    # Public output, independent of how FastAPI stores included routers.
+    served = sorted((method.upper(), path) for path, ops in main.app.openapi()["paths"].items() for method in ops)
+    assert served == sorted((method, path) for method, path, _, _ in ROUTES)
 
 
 def test_the_api_shape_is_unchanged():
