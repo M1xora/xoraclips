@@ -4,6 +4,12 @@ video metadata and titles, and captions through seven tiers (Supadata,
 youtube_transcript_api over proxy and direct, its CLI, yt-dlp), plus manual
 subtitle parsing. Moved out of main.py unchanged (#60).
 """
+# Before yt-dlp is imported below: see compat.py.
+try:
+    from backend import compat  # noqa: F401
+except ImportError:
+    import compat  # noqa: F401
+
 import html
 import json
 import logging

@@ -385,6 +385,8 @@ def api(monkeypatch, clock):
     monkeypatch.setattr(main.genai, "Client", FakeGemini)
     monkeypatch.setattr(main, "fetch_video_metadata", metadata())
     monkeypatch.setattr(main, "get_supadata_keys", lambda: [])
+    # Also where the caption tiers look it up (youtube_source, #66).
+    monkeypatch.setattr(youtube_source, "get_supadata_keys", lambda: [])
     monkeypatch.delenv("MOCK_MODE", raising=False)
     return TestClient(main.app)
 

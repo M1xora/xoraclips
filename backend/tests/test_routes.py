@@ -255,3 +255,17 @@ def test_saving_cookies_without_a_fake_never_touches_the_real_file(no_real_data_
     res = TestClient(main.app).post("/api/cookies", json={"cookies_content": "dari test"})
     assert res.status_code == 200
     assert (real.read_bytes() if real.exists() else None) == before
+
+
+def test_clear_temp_in_a_test_never_empties_the_real_backend_folders(no_real_data_files):
+    import routes_system
+    assert not Path(routes_system._base_dir).samefile(BACKEND)
+    assert not Path(routes_system.TEMP_DIR).samefile(BACKEND / "temp_clips") if (BACKEND / "temp_clips").exists() else True
+
+
+def test_the_windows_hotfix_runs_before_yt_dlp_wherever_it_is_imported():
+    # youtube_source imports yt-dlp; it must load compat first (#66).
+    names = imported_names((BACKEND / "youtube_source.py").read_text(encoding="utf-8"))
+    source = (BACKEND / "youtube_source.py").read_text(encoding="utf-8")
+    assert "backend.compat" in names or "compat" in names
+    assert source.index("import compat") < source.index("import yt_dlp")

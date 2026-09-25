@@ -1,14 +1,10 @@
 import os
 
-# Windows Python 3.14 compatibility hotfix for unix RTLD flags and uname used in yt-dlp plugins
-for flag in ('RTLD_LAZY', 'RTLD_NOW', 'RTLD_GLOBAL', 'RTLD_LOCAL', 'RTLD_NODELETE', 'RTLD_NOLOAD', 'RTLD_DEEPBIND'):
-    if not hasattr(os, flag):
-        setattr(os, flag, 1)
-
-if not hasattr(os, 'uname'):
-    from collections import namedtuple
-    UnameResult = namedtuple('UnameResult', ['sysname', 'nodename', 'release', 'version', 'machine'])
-    os.uname = lambda: UnameResult('Windows', 'localhost', '10', '10.0', 'AMD64')
+# Before anything imports yt-dlp (youtube_source does): see compat.py.
+try:
+    from backend import compat  # noqa: F401
+except ImportError:
+    import compat  # noqa: F401
 
 from dotenv import load_dotenv
 
