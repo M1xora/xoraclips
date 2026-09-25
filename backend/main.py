@@ -32,7 +32,7 @@ import html
 from concurrent.futures import ThreadPoolExecutor
 from contextlib import asynccontextmanager
 from urllib.parse import quote, urlsplit
-from typing import List, Optional, Dict, Any, Tuple, Callable
+from typing import List, Optional, Dict, Any, NamedTuple, Tuple, Callable
 from fastapi import FastAPI, HTTPException, BackgroundTasks, UploadFile, File, Header, Query, Request
 from fastapi.responses import StreamingResponse, RedirectResponse, FileResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -2940,19 +2940,39 @@ def get_hardware_acceleration_status():
     }
 
 
-@app.post("/api/upload-bgm")
-async def upload_bgm(file: UploadFile = File(...)):
+AUDIO_UPLOAD_TYPES = (".mp3", ".wav", ".m4a", ".aac", ".ogg", ".flac")
+IMAGE_UPLOAD_TYPES = (".png", ".jpg", ".jpeg", ".webp", ".svg")
+
+
+class UploadKind(NamedTuple):
+    """What differs between the uploads; everything else is _save_upload (#48)."""
+    prefix: str                 # start of the saved file name
+    allowed: Tuple[str, ...]    # accepted extensions
+    kind: str                   # "audio" or "image", for the error message
+    url_base: str               # where the saved file is served
+    label: str                  # for the log
+
+
+UPLOAD_KINDS = {
+    "bgm": UploadKind("bgm_", AUDIO_UPLOAD_TYPES, "audio", "/api/audio/", "BGM"),
+    "sfx": UploadKind("sfx_", AUDIO_UPLOAD_TYPES, "audio", "/api/audio/", "Hook SFX"),
+    "watermark": UploadKind("wm_", IMAGE_UPLOAD_TYPES, "image", "/api/watermark/", "watermark"),
+}
+
+
+async def _save_upload(file: UploadFile, upload: UploadKind) -> dict:
+    """Checks, names and stores one upload in UPLOADS_DIR, and describes it."""
+    prefix, allowed, kind, url_base, label = upload
     if not file.filename:
         raise HTTPException(status_code=400, detail="No file provided")
     ext = os.path.splitext(file.filename)[1].lower()
-    allowed = [".mp3", ".wav", ".m4a", ".aac", ".ogg", ".flac"]
     if ext not in allowed:
-        raise HTTPException(status_code=400, detail=f"Unsupported audio format. Allowed: {', '.join(allowed)}")
-    
+        raise HTTPException(status_code=400, detail=f"Unsupported {kind} format. Allowed: {', '.join(allowed)}")
+
     clean_name = re.sub(r'[^a-zA-Z0-9_.-]', '_', file.filename)
-    unique_name = f"bgm_{uuid.uuid4().hex[:8]}_{clean_name}"
+    unique_name = f"{prefix}{uuid.uuid4().hex[:8]}_{clean_name}"
     save_path = UPLOADS_DIR / unique_name
-    
+
     try:
         content = await file.read()
         with open(save_path, "wb") as f:
@@ -2962,12 +2982,17 @@ async def upload_bgm(file: UploadFile = File(...)):
             "filename": file.filename,
             "saved_name": unique_name,
             "file_path": str(save_path),
-            "url": f"/api/audio/{unique_name}",
+            "url": f"{url_base}{unique_name}",
             "size_bytes": len(content)
         }
     except Exception as e:
-        logger.error(f"Failed to upload BGM: {e}")
+        logger.error(f"Failed to upload {label}: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/api/upload-bgm")
+async def upload_bgm(file: UploadFile = File(...)):
+    return await _save_upload(file, UPLOAD_KINDS["bgm"])
 
 
 @app.get("/api/audio/{file_name}")
@@ -2982,62 +3007,12 @@ def get_audio_file(file_name: str):
 
 @app.post("/api/upload-sfx")
 async def upload_hook_sfx(file: UploadFile = File(...)):
-    if not file.filename:
-        raise HTTPException(status_code=400, detail="No file provided")
-    ext = os.path.splitext(file.filename)[1].lower()
-    allowed = [".mp3", ".wav", ".m4a", ".aac", ".ogg", ".flac"]
-    if ext not in allowed:
-        raise HTTPException(status_code=400, detail=f"Unsupported audio format. Allowed: {', '.join(allowed)}")
-
-    clean_name = re.sub(r'[^a-zA-Z0-9_.-]', '_', file.filename)
-    unique_name = f"sfx_{uuid.uuid4().hex[:8]}_{clean_name}"
-    save_path = UPLOADS_DIR / unique_name
-
-    try:
-        content = await file.read()
-        with open(save_path, "wb") as f:
-            f.write(content)
-        return {
-            "success": True,
-            "filename": file.filename,
-            "saved_name": unique_name,
-            "file_path": str(save_path),
-            "url": f"/api/audio/{unique_name}",
-            "size_bytes": len(content)
-        }
-    except Exception as e:
-        logger.error(f"Failed to upload Hook SFX: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+    return await _save_upload(file, UPLOAD_KINDS["sfx"])
 
 
 @app.post("/api/upload-watermark")
 async def upload_watermark(file: UploadFile = File(...)):
-    if not file.filename:
-        raise HTTPException(status_code=400, detail="No file provided")
-    ext = os.path.splitext(file.filename)[1].lower()
-    allowed = [".png", ".jpg", ".jpeg", ".webp", ".svg"]
-    if ext not in allowed:
-        raise HTTPException(status_code=400, detail=f"Unsupported image format. Allowed: {', '.join(allowed)}")
-    
-    clean_name = re.sub(r'[^a-zA-Z0-9_.-]', '_', file.filename)
-    unique_name = f"wm_{uuid.uuid4().hex[:8]}_{clean_name}"
-    save_path = UPLOADS_DIR / unique_name
-    
-    try:
-        content = await file.read()
-        with open(save_path, "wb") as f:
-            f.write(content)
-        return {
-            "success": True,
-            "filename": file.filename,
-            "saved_name": unique_name,
-            "file_path": str(save_path),
-            "url": f"/api/watermark/{unique_name}",
-            "size_bytes": len(content)
-        }
-    except Exception as e:
-        logger.error(f"Failed to upload watermark: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+    return await _save_upload(file, UPLOAD_KINDS["watermark"])
 
 
 @app.get("/api/watermark/{file_name}")
