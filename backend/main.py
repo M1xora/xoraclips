@@ -33,8 +33,8 @@ from concurrent.futures import ThreadPoolExecutor
 from contextlib import asynccontextmanager
 from urllib.parse import quote, urlsplit
 from typing import List, Optional, Dict, Any, Tuple, Callable
-from fastapi import FastAPI, HTTPException, BackgroundTasks, UploadFile, File, Header
-from fastapi.responses import StreamingResponse, RedirectResponse, FileResponse
+from fastapi import FastAPI, HTTPException, BackgroundTasks, UploadFile, File, Header, Request
+from fastapi.responses import StreamingResponse, RedirectResponse, FileResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 import requests
@@ -146,16 +146,36 @@ DEFAULT_ALLOWED_ORIGINS = "http://localhost:5174,http://127.0.0.1:5174"
 
 def allowed_origins() -> List[str]:
     raw = os.environ.get("ALLOWED_ORIGINS", "").strip() or DEFAULT_ALLOWED_ORIGINS
-    return [origin.strip() for origin in raw.split(",") if origin.strip()]
+    # A browser's Origin never ends in "/", so "https://site/" would never match.
+    origins = (origin.strip().rstrip("/") for origin in raw.split(","))
+    return [origin for origin in origins if origin]
 
+
+CORS_ORIGINS = allowed_origins()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=allowed_origins(),
+    allow_origins=CORS_ORIGINS,
     allow_credentials=False,
     allow_methods=["GET", "POST", "DELETE"],
     allow_headers=["Content-Type", GEMINI_KEY_HEADER],
 )
+
+
+@app.middleware("http")
+async def refuse_writes_from_other_sites(request: Request, call_next):
+    """
+    CORS only stops other sites from READING responses; a page can still send
+    a POST without asking first (issue #45). A browser always sends Origin on
+    such a request, so anything that changes state is refused unless it comes
+    from an allowed origin. Requests without Origin (curl, scripts) pass; the
+    Vite proxy forwards the app's own Origin, which is allowed.
+    """
+    if request.method not in ("GET", "HEAD", "OPTIONS"):
+        origin = request.headers.get("origin")
+        if origin is not None and origin.rstrip("/") not in CORS_ORIGINS:
+            return JSONResponse(status_code=403, content={"detail": "Origin not allowed"})
+    return await call_next(request)
 
 # ----------------------------------------------------------------
 # Pydantic Schemas for Gemini Structured Output
@@ -3047,6 +3067,9 @@ def save_youtube_cookies(req: CookiesSaveRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 
+_COOKIE_DOMAIN_RE = re.compile(r"\.?[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)+")
+
+
 @app.get("/api/cookies")
 def get_youtube_cookies_status():
     """Whether cookies are saved, their size and domains. Never their content:
@@ -3055,14 +3078,19 @@ def get_youtube_cookies_status():
         sample_lines = []
         try:
             with open(COOKIES_PATH, "r", encoding="utf-8", errors="ignore") as f:
-                for line in f.read().splitlines():
+                for line in f:
                     line = line.strip()
-                    if line and not line.startswith("#"):
-                        domain = line.split("\t")[0]
-                        if domain not in sample_lines:
-                            sample_lines.append(domain)
-                        if len(sample_lines) >= 6:
-                            break
+                    if line.startswith("#HttpOnly_"):
+                        line = line[len("#HttpOnly_"):]
+                    if not line or line.startswith("#"):
+                        continue
+                    # Only something shaped like a domain: a line pasted with
+                    # spaces instead of tabs must not leak its values.
+                    domain = line.split()[0]
+                    if _COOKIE_DOMAIN_RE.fullmatch(domain) and domain not in sample_lines:
+                        sample_lines.append(domain)
+                    if len(sample_lines) >= 6:
+                        break
         except Exception:
             pass
         return {
