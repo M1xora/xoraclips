@@ -1233,6 +1233,22 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
     return output_ass_path
 
 
+# Issue #53: OpenCV 5 dropped CascadeClassifier, so face tracking silently
+# fell back to the centre for every clip. Said once, loudly, instead.
+_cascade_missing_logged = False
+
+
+def _log_cascade_missing_once(cv2_version: str) -> None:
+    global _cascade_missing_logged
+    if not _cascade_missing_logged:
+        _cascade_missing_logged = True
+        logger.error(
+            f"Face tracking is OFF: OpenCV {cv2_version} has no CascadeClassifier "
+            "(removed in OpenCV 5). Fix: pip install \"opencv-python>=4.8,<5\" "
+            "(backend/requirements.txt), then restart the backend."
+        )
+
+
 def detect_speaker_face_box(source_path: str) -> Dict[str, Any]:
     """
     Detects speaker face bounding box using OpenCV Haar Cascade Classifier.
@@ -1256,6 +1272,10 @@ def detect_speaker_face_box(source_path: str) -> Dict[str, Any]:
 
         if not CASCADE_PATH.exists():
             logger.warning(f"Haar cascade XML not found at {CASCADE_PATH}")
+            return default_res
+
+        if not hasattr(cv2, "CascadeClassifier"):
+            _log_cascade_missing_once(getattr(cv2, "__version__", "?"))
             return default_res
 
         cascade = cv2.CascadeClassifier(str(CASCADE_PATH))
