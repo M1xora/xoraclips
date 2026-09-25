@@ -100,27 +100,38 @@ KNOWN_FLASH_MODELS = [
 ]
 
 
+# Non-text, specialized, or non-generative models.
+EXCLUDED_MODEL_WORDS = (
+    'tuning', 'thinking', 'vision', 'image', 'tts',
+    'omni', 'customtools', 'embed', 'realtime', 'robotics',
+)
+
+
+def _text_models(models_page) -> List[str]:
+    """Short names of the listed Gemini models that can write text, in listed
+    order, each once."""
+    names = []
+    for m in models_page:
+        short_name = (m.name or "").split('/')[-1]
+        lower = short_name.lower()
+        if "gemini" not in lower:
+            continue
+        if m.supported_actions and "generateContent" not in m.supported_actions:
+            continue
+        if any(x in lower for x in EXCLUDED_MODEL_WORDS):
+            continue
+        if short_name not in names:
+            names.append(short_name)
+    return names
+
+
 def get_flash_models_for_key(client: genai.Client) -> List[str]:
     """Dynamically query all available flash models for the given API key.
     Discovers newer versions (e.g., 3.7, 3.6, 3.5) and earlier versions (2.5, 2.0, 1.5),
     merging with known fallback models and sorting in descending order of version/capability."""
     discovered = []
     try:
-        models_page = client.models.list()
-        for m in models_page:
-            name = m.name or ""
-            short_name = name.split('/')[-1]
-            if "gemini" in short_name.lower() and "flash" in short_name.lower():
-                if m.supported_actions and "generateContent" not in m.supported_actions:
-                    continue
-                # Exclude non-text, specialized, or non-generative tasks
-                exclude_keywords = [
-                    'tuning', 'thinking', 'vision', 'image', 'tts',
-                    'omni', 'customtools', 'embed', 'realtime', 'robotics'
-                ]
-                if not any(x in short_name.lower() for x in exclude_keywords):
-                    if short_name not in discovered:
-                        discovered.append(short_name)
+        discovered = [n for n in _text_models(client.models.list()) if "flash" in n.lower()]
     except Exception as e:
         logger.warning(f"Could not dynamically list models: {e}")
 
@@ -154,36 +165,12 @@ def list_available_models(x_gemini_api_key: Optional[str] = Header(None, alias=G
 def _list_models_for_key(key_to_use: str, default_models: List[str]):
     try:
         client = genai.Client(api_key=key_to_use)
-        models_page = client.models.list()
-        
-        flash_models = []
-        pro_models = []
-        other_models = []
-        
-        for m in models_page:
-            name = m.name or ""
-            if "gemini" in name.lower():
-                if m.supported_actions and "generateContent" not in m.supported_actions:
-                    continue
-                
-                short_name = name.split('/')[-1]
-                exclude_keywords = [
-                    'tuning', 'thinking', 'vision', 'image', 'tts',
-                    'omni', 'customtools', 'embed', 'realtime', 'robotics'
-                ]
-                if any(x in short_name.lower() for x in exclude_keywords):
-                    continue
-                
-                if "flash" in short_name.lower():
-                    if short_name not in flash_models:
-                        flash_models.append(short_name)
-                elif "pro" in short_name.lower():
-                    if short_name not in pro_models:
-                        pro_models.append(short_name)
-                elif any(x in short_name.lower() for x in ['lite', 'exp']):
-                    if short_name not in other_models:
-                        other_models.append(short_name)
-        
+        names = _text_models(client.models.list())
+        flash_models = [n for n in names if "flash" in n.lower()]
+        pro_models = [n for n in names if "flash" not in n.lower() and "pro" in n.lower()]
+        other_models = [n for n in names if "flash" not in n.lower() and "pro" not in n.lower()
+                        and any(x in n.lower() for x in ['lite', 'exp'])]
+
         # Sort flash models by version descending (e.g. 3.7, 3.6, 3.5, 2.5, 2.0, 1.5)
         ordered_flash = sorted(
             list(dict.fromkeys(flash_models + KNOWN_FLASH_MODELS)),
