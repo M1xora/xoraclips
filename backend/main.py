@@ -381,6 +381,18 @@ def extract_video_id(url: str) -> Optional[str]:
 
     return None
 
+
+# Issue #42: a YouTube video ID is exactly 11 of these characters. Anything
+# else is refused before it can reach a yt-dlp command line.
+_VIDEO_ID_RE = re.compile(r"[A-Za-z0-9_-]{11}")
+
+
+def require_video_id(video_id: Optional[str]) -> str:
+    """The video ID if it is a valid YouTube ID, else a 400 error."""
+    if not video_id or not _VIDEO_ID_RE.fullmatch(video_id):
+        raise HTTPException(status_code=400, detail="Invalid YouTube video ID")
+    return video_id
+
 class TimeoutSession(requests.Session):
     """requests.Session that enforces a default timeout to avoid hanging indefinitely on slow proxies."""
     def __init__(self, timeout: float = 12.0):
@@ -3326,13 +3338,15 @@ async def get_raw_clip_download_status(job_id: str):
 
 
 @app.get("/api/clip-frame")
-async def get_clip_frame(video_id: str, timestamp: float = 0.0, video_url: Optional[str] = None):
+async def get_clip_frame(video_id: str, timestamp: float = 0.0):
     """
     Returns an extracted real video frame at timestamp for the real video preview.
     Guarantees returning a real video frame, never a promotional thumbnail.
+    Takes only a video ID (issue #42): the YouTube URL is built here, never sent.
     """
+    require_video_id(video_id)
     try:
-        frame_path = await asyncio.to_thread(extract_clip_frame, video_url or "", video_id, timestamp)
+        frame_path = await asyncio.to_thread(extract_clip_frame, video_id, timestamp)
         if frame_path and os.path.exists(frame_path):
             return FileResponse(frame_path, media_type="image/jpeg", headers={"Cache-Control": "public, max-age=86400"})
     except Exception as e:
@@ -3342,11 +3356,13 @@ async def get_clip_frame(video_id: str, timestamp: float = 0.0, video_url: Optio
 
 
 @app.get("/api/detect-face")
-async def detect_face(video_id: str, timestamp: float = 0.0, video_url: Optional[str] = None):
+async def detect_face(video_id: str, timestamp: float = 0.0):
     """
     Detects speaker face coordinates (cx, cy, w, h) on the video at timestamp.
     Returns normalized coordinates and the frame URL.
+    Takes only a video ID (issue #42): the YouTube URL is built here, never sent.
     """
+    require_video_id(video_id)
     default_res = {
         "found": False,
         "cx": 0.5,
@@ -3357,7 +3373,7 @@ async def detect_face(video_id: str, timestamp: float = 0.0, video_url: Optional
     }
     try:
         # First try to extract or get the cached frame
-        frame_path = await asyncio.to_thread(extract_clip_frame, video_url or "", video_id, timestamp)
+        frame_path = await asyncio.to_thread(extract_clip_frame, video_id, timestamp)
         if frame_path and os.path.exists(frame_path):
             box = await asyncio.to_thread(detect_speaker_face_box, frame_path)
             box["frame_url"] = f"/api/clip-frame?video_id={video_id}&timestamp={timestamp}"

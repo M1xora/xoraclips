@@ -442,7 +442,7 @@ def download_clip_segment(
             "-o", str(output_path),
             "--merge-output-format", "mp4",
             "--no-warnings",
-            clean_url
+            "--", clean_url
         ]
         logger.info(f"Downloading HD section ({clip_duration:.1f}s) {t_start_fmt} -> {t_end_fmt} for {clean_url} (timeout: {timeout_sec}s)")
         res = subprocess.run(cmd, capture_output=True, text=True, timeout=min(timeout_sec, cap or timeout_sec))
@@ -451,7 +451,7 @@ def download_clip_segment(
 
     # Method 2: Fallback - Extract direct stream URLs with yt-dlp and slice using FFmpeg
     def method_2(cap: Optional[int] = None) -> None:
-        url_cmd = [*base_cmd, "-g", "-f", FORMAT_1080, clean_url]
+        url_cmd = [*base_cmd, "-g", "-f", FORMAT_1080, "--", clean_url]
         url_res = subprocess.run(url_cmd, capture_output=True, text=True, timeout=STREAM_URL_TIMEOUT)
         if url_res.returncode != 0 or not url_res.stdout.strip():
             state["err"] = (url_res.stderr or "no stream URLs")[:300]
@@ -491,7 +491,7 @@ def download_clip_segment(
             "-o", str(output_path),
             "--merge-output-format", "mp4",
             "--no-warnings",
-            clean_url
+            "--", clean_url
         ]
         timeout_720p = timeouts["720p"]
         res_720p = subprocess.run(cmd_720p, capture_output=True, text=True, timeout=min(timeout_720p, cap or timeout_720p))
@@ -539,7 +539,7 @@ def download_full_raw_video(video_url: str, output_path: str, progress_callback=
         "--merge-output-format", "mp4",
         "--newline",
         "--progress-template", "download:%(progress._percent_str)s|%(progress._downloaded_bytes_str)s|%(progress._total_bytes_str)s|%(progress._speed_str)s|%(progress._eta_str)s",
-        clean_url
+        "--", clean_url
     ]
     logger.info(f"Downloading full raw video from {clean_url} to {output_path}...")
 
@@ -1841,11 +1841,12 @@ def render_clip_to_mp4(
     return str(output_mp4_path)
 
 
-def extract_clip_frame(video_url: str, video_id: str, timestamp: float = 0.0) -> Optional[str]:
+def extract_clip_frame(video_id: str, timestamp: float = 0.0) -> Optional[str]:
     """
     Extracts a single JPEG image frame at timestamp for the real video preview.
     Caches the frame on disk in TEMP_DIR / 'frames'.
     Guarantees returning a real video frame, never a promotional thumbnail.
+    Takes a video ID, never a URL (issue #42): the caller validates the ID.
     """
     frames_dir = TEMP_DIR / "frames"
     frames_dir.mkdir(parents=True, exist_ok=True)
@@ -1876,7 +1877,7 @@ def extract_clip_frame(video_url: str, video_id: str, timestamp: float = 0.0) ->
 
     # 2. Extract a tiny 1-second slice of format 18 (fast 360p mp4) using yt-dlp + ffmpeg
     try:
-        clean_url = video_url.strip() if video_url else f"https://www.youtube.com/watch?v={video_id}"
+        clean_url = f"https://www.youtube.com/watch?v={video_id}"
         base_cmd = get_yt_dlp_base_cmd()
         temp_slice = frames_dir / f"slice_{safe_id}_{sec}.mp4"
 
@@ -1891,7 +1892,7 @@ def extract_clip_frame(video_url: str, video_id: str, timestamp: float = 0.0) ->
             "--download-sections", f"*{t_start_fmt}-{t_end_fmt}",
             "-o", str(temp_slice),
             "--no-warnings",
-            clean_url
+            "--", clean_url
         ]
         subprocess.run(slice_cmd, capture_output=True, text=True, timeout=20)
         if temp_slice.exists() and temp_slice.stat().st_size > 1000:
