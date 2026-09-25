@@ -369,6 +369,12 @@ export const en: Translations = {
     startShift: (d: number) => `Start ${d > 0 ? '+' : ''}${d}s`,
     endShift: (d: number) => `End ${d > 0 ? '+' : ''}${d}s`,
     applied: 'Trim saved',
+    startTime: 'Start',
+    endTime: 'End',
+    linesTitle: 'Transcript lines',
+    linesHint: 'Click a line to jump there',
+    setStart: 'Start here',
+    setEnd: 'End here',
   },
 
   errors: {

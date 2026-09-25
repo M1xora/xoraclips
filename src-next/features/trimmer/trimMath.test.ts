@@ -5,10 +5,16 @@ import {
   clampPlayhead,
   clampStart,
   CONTEXT_SECONDS,
+  crossedEnd,
+  formatTrimTime,
+  lineEdges,
   MIN_CLIP_SECONDS,
+  parseTimecode,
   percentToTime,
   slideWindow,
   timeToPercent,
+  withEnd,
+  withStart,
 } from './trimMath';
 
 const tl = buildTimeline(200, 230, 600);
@@ -111,6 +117,104 @@ describe('slideWindow', () => {
       const { start, end } = slideWindow(200, 30, delta, tl);
       expect(start).toBeGreaterThanOrEqual(tl.min);
       expect(end).toBeLessThanOrEqual(tl.max);
+    }
+  });
+});
+
+describe('parseTimecode (#56)', () => {
+  it.each([
+    ['83', 83],
+    ['83.5', 83.5],
+    ['1:23', 83],
+    ['1:23.5', 83.5],
+    ['1:23,5', 83.5],
+    ['01:23', 83],
+    ['1:01:23', 3683],
+    [' 2:05 ', 125],
+  ])('%s is %d seconds', (text, seconds) => {
+    expect(parseTimecode(text)).toBeCloseTo(seconds, 5);
+  });
+
+  it.each(['', 'abc', '1:2:3:4', '1:75', '1:60:00', '-5', '1.2.3', '1:'])('%j is not a time', (text) => {
+    expect(parseTimecode(text)).toBeNull();
+  });
+});
+
+describe('withStart / withEnd (#56)', () => {
+  it('keeps hundredths instead of rounding to whole seconds', () => {
+    expect(withStart(210.284, 230, tl)).toEqual({ start: 210.28, end: 230 });
+    expect(withEnd(225.678, 210, tl)).toEqual({ start: 210, end: 225.68 });
+  });
+
+  it('moves the end along when the new start comes within 3s of it', () => {
+    expect(withStart(229, 230, tl)).toEqual({ start: 229, end: 229 + MIN_CLIP_SECONDS });
+    expect(withStart(300, 230, tl)).toEqual({ start: 300, end: 300 + MIN_CLIP_SECONDS });
+  });
+
+  it('moves the start back when the new end comes within 3s of it', () => {
+    expect(withEnd(211, 210, tl)).toEqual({ start: 211 - MIN_CLIP_SECONDS, end: 211 });
+  });
+
+  it('stays inside the timeline', () => {
+    expect(withStart(0, 230, tl).start).toBe(tl.min);
+    expect(withEnd(10_000, 210, tl).end).toBe(tl.max);
+    expect(withStart(10_000, 230, tl)).toEqual({ start: tl.max - MIN_CLIP_SECONDS, end: tl.max });
+  });
+});
+
+describe('lineEdges (#56)', () => {
+  it('ends a rolling auto caption at the next line start', () => {
+    const edges = lineEdges([
+      { start: 15.08, end: 19.24, text: 'yang namanya sehat itu susah kalau sakit' },
+      { start: 17.28, end: 21.72, text: 'mah gampang gitu kita tinggal keluar' },
+      { start: 19.24, end: 23.24, text: 'rumah langsung ketemu' },
+    ]);
+    expect(edges.map((l) => [l.start, l.end])).toEqual([[15.08, 17.28], [17.28, 19.24], [19.24, 23.24]]);
+  });
+
+  it('sorts lines and lets lines sharing a start look past each other', () => {
+    const edges = lineEdges([
+      { start: 10, end: 20, text: 'c' },
+      { start: 5, end: 12, text: 'a' },
+      { start: 5, end: 7, text: 'b' },
+    ]);
+    expect(edges.map((l) => [l.text, l.end])).toEqual([['a', 10], ['b', 7], ['c', 20]]);
+  });
+
+  it('drops empty lines and never ends a line before it starts', () => {
+    const edges = lineEdges([
+      { start: 1, end: 2, text: '  ' },
+      { start: 3, end: 2, text: 'rusak' },
+    ]);
+    expect(edges).toEqual([{ start: 3, end: 3, text: 'rusak' }]);
+  });
+});
+
+describe('crossedEnd (#56)', () => {
+  it('is true only when playback runs from inside the selection to its end', () => {
+    expect(crossedEnd(229.9, 230.1, 230)).toBe(true);
+    expect(crossedEnd(229.9, 230, 230)).toBe(true);
+    expect(crossedEnd(231, 232, 230)).toBe(false); // started past the end
+    expect(crossedEnd(200, 210, 230)).toBe(false);
+  });
+});
+
+describe('formatTrimTime (#56)', () => {
+  it.each([
+    [83, '1:23'],
+    [83.5, '1:23.5'],
+    [83.25, '1:23.25'],
+    [17.28, '0:17.28'],
+    [3683, '1:01:23'],
+    [0, '0:00'],
+    [59.999, '1:00'],
+  ])('%d is %s', (seconds, text) => {
+    expect(formatTrimTime(seconds)).toBe(text);
+  });
+
+  it('reads back to the same time', () => {
+    for (const t of [0, 7.5, 83.25, 599.99, 3683.1]) {
+      expect(parseTimecode(formatTrimTime(t))).toBeCloseTo(t, 2);
     }
   });
 });

@@ -621,6 +621,7 @@ export function App() {
           clip={trimClip}
           videoId={result.video_id}
           videoDuration={result.duration}
+          transcript={result.transcript}
           onApply={applyTrim}
           onClose={() => setTrimClip(null)}
         />
