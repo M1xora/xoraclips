@@ -7,6 +7,7 @@ Nothing here reaches the network: YouTube, the CLI, yt-dlp and requests are
 fakes, and any real connection attempt fails the test.
 """
 import json
+import time
 import socket
 from pathlib import Path
 
@@ -381,7 +382,7 @@ class InstantAsyncio:
 @pytest.fixture
 def api(monkeypatch, clock):
     monkeypatch.setattr(main, "asyncio", InstantAsyncio(main.asyncio))
-    monkeypatch.setattr(main.time, "sleep", lambda *_: None)
+    monkeypatch.setattr(time, "sleep", lambda *_: None)
     monkeypatch.setattr(main.genai, "Client", FakeGemini)
     monkeypatch.setattr(main, "fetch_video_metadata", metadata())
     monkeypatch.setattr(main, "get_supadata_keys", lambda: [])

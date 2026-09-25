@@ -4,6 +4,7 @@ only in the X-Gemini-Api-Key header. Gemini and YouTube are fakes: nothing
 here touches the network.
 """
 import json
+import time
 import logging
 
 import pytest
@@ -75,7 +76,7 @@ def client(monkeypatch):
     monkeypatch.setattr(main.genai, "Client", FakeGemini)
     monkeypatch.setattr(main, "fetch_video_metadata", no_youtube)
     monkeypatch.setattr(main, "fetch_transcript", no_youtube)
-    monkeypatch.setattr(main.time, "sleep", lambda *_: None)
+    monkeypatch.setattr(time, "sleep", lambda *_: None)
     monkeypatch.setattr(main, "asyncio", InstantAsyncio())
     monkeypatch.delenv("MOCK_MODE", raising=False)
     # A key in .env must be ignored completely.
