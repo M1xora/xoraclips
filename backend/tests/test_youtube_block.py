@@ -15,6 +15,7 @@ from fastapi.testclient import TestClient
 from youtube_transcript_api._errors import IpBlocked, TranscriptsDisabled
 
 import main
+import routes_analyze
 import youtube_source
 import youtube_errors
 from youtube_errors import BlockMemory, CaptionUnavailable, YouTubeBlocked
@@ -380,10 +381,10 @@ class InstantAsyncio:
 
 @pytest.fixture
 def api(monkeypatch, clock):
-    monkeypatch.setattr(main, "asyncio", InstantAsyncio(main.asyncio))
-    monkeypatch.setattr(main.genai, "Client", FakeGemini)
-    monkeypatch.setattr(main, "fetch_video_metadata", metadata())
-    monkeypatch.setattr(main, "get_supadata_keys", lambda: [])
+    monkeypatch.setattr(routes_analyze, "asyncio", InstantAsyncio(routes_analyze.asyncio))
+    monkeypatch.setattr(routes_analyze.genai, "Client", FakeGemini)
+    monkeypatch.setattr(routes_analyze, "fetch_video_metadata", metadata())
+    monkeypatch.setattr(routes_analyze, "get_supadata_keys", lambda: [])
     # Also where the caption tiers look it up (youtube_source, #66).
     monkeypatch.setattr(youtube_source, "get_supadata_keys", lambda: [])
     monkeypatch.delenv("MOCK_MODE", raising=False)
@@ -405,7 +406,7 @@ def raising(error):
 
 def test_blocked_analysis_shows_one_short_line_and_when_to_retry(api, monkeypatch):
     blocked = YouTubeBlocked("Tier 5a: IpBlocked (...)", retry_after=600)
-    monkeypatch.setattr(main, "fetch_transcript", raising(blocked))
+    monkeypatch.setattr(routes_analyze, "fetch_transcript", raising(blocked))
     errors, text = analyze(api)
     assert errors == [{
         "error": youtube_errors.MESSAGES["youtube_blocked"],
@@ -417,8 +418,8 @@ def test_blocked_analysis_shows_one_short_line_and_when_to_retry(api, monkeypatc
 def test_remembered_block_answers_before_touching_youtube(api, monkeypatch, clock):
     youtube_errors.block_memory.remember()
     clock.now += 100
-    monkeypatch.setattr(main, "fetch_video_metadata", no_youtube)
-    monkeypatch.setattr(main, "fetch_transcript", no_youtube)
+    monkeypatch.setattr(routes_analyze, "fetch_video_metadata", no_youtube)
+    monkeypatch.setattr(routes_analyze, "fetch_transcript", no_youtube)
     errors, _ = analyze(api)
     assert [(e["code"], e["retry_after"]) for e in errors] == [("youtube_blocked", 500)]
 
@@ -432,15 +433,15 @@ def test_an_invalid_link_is_still_called_invalid_during_a_block(api):
 
 def test_manual_subtitles_still_work_during_a_remembered_block(api, monkeypatch):
     youtube_errors.block_memory.remember()
-    monkeypatch.setattr(main, "fetch_transcript", no_youtube)
+    monkeypatch.setattr(routes_analyze, "fetch_transcript", no_youtube)
     srt = "1\n00:00:01,000 --> 00:00:04,000\nhalo semua\n\n2\n00:00:05,000 --> 00:00:08,000\napa kabar\n"
     errors, _ = analyze(api, subtitles=srt, subtitles_filename="x.srt")
     assert "youtube_blocked" not in [e.get("code") for e in errors]
 
 
 def test_a_block_beats_the_live_video_message(api, monkeypatch):
-    monkeypatch.setattr(main, "fetch_video_metadata", metadata(live=True))
-    monkeypatch.setattr(main, "fetch_transcript", raising(YouTubeBlocked("x", retry_after=600)))
+    monkeypatch.setattr(routes_analyze, "fetch_video_metadata", metadata(live=True))
+    monkeypatch.setattr(routes_analyze, "fetch_transcript", raising(YouTubeBlocked("x", retry_after=600)))
     errors, _ = analyze(api)
     assert errors[0]["code"] == "youtube_blocked"
 
@@ -451,7 +452,7 @@ def test_a_block_beats_the_live_video_message(api, monkeypatch):
     (RuntimeError("Traceback-ish internal detail /home/x/secret/path"), "captions_unavailable"),
 ])
 def test_other_caption_failures_are_short_too(api, monkeypatch, error, code):
-    monkeypatch.setattr(main, "fetch_transcript", raising(error))
+    monkeypatch.setattr(routes_analyze, "fetch_transcript", raising(error))
     errors, text = analyze(api)
     assert [e["code"] for e in errors] == [code]
     assert errors[0]["error"] == youtube_errors.MESSAGES[code]
@@ -459,7 +460,7 @@ def test_other_caption_failures_are_short_too(api, monkeypatch, error, code):
 
 
 def test_live_video_without_captions_gets_its_code(api, monkeypatch):
-    monkeypatch.setattr(main, "fetch_video_metadata", metadata(live=True))
-    monkeypatch.setattr(main, "fetch_transcript", raising(CaptionUnavailable("captions_unavailable", "x")))
+    monkeypatch.setattr(routes_analyze, "fetch_video_metadata", metadata(live=True))
+    monkeypatch.setattr(routes_analyze, "fetch_transcript", raising(CaptionUnavailable("captions_unavailable", "x")))
     errors, _ = analyze(api)
     assert errors[0]["code"] == "video_live"
