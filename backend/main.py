@@ -57,6 +57,7 @@ try:
         generate_ass_file,
         render_clip_to_mp4,
         extract_clip_frame,
+        extract_clip_frame_info,
         detect_speaker_face_box,
         detect_hardware_support,
         ACTIVE_ENCODER_NAME,
@@ -77,6 +78,7 @@ except ImportError:
         generate_ass_file,
         render_clip_to_mp4,
         extract_clip_frame,
+        extract_clip_frame_info,
         detect_speaker_face_box,
         detect_hardware_support,
         ACTIVE_ENCODER_NAME,
@@ -3380,15 +3382,17 @@ FRAME_TIMESTAMP = Query(0.0, ge=0, le=24 * 3600, allow_inf_nan=False)
 @app.get("/api/clip-frame")
 async def get_clip_frame(video_id: str, timestamp: float = FRAME_TIMESTAMP):
     """
-    Returns an extracted real video frame at timestamp for the real video preview.
-    Guarantees returning a real video frame, never a promotional thumbnail.
+    The video frame at timestamp for the preview backdrop. When YouTube gives
+    no frame for that second, a stand-in (another second, or the thumbnail)
+    that the browser must not keep (issue #44).
     Takes only a video ID (issue #42): the YouTube URL is built here, never sent.
     """
     require_video_id(video_id)
     try:
-        frame_path = await asyncio.to_thread(extract_clip_frame, video_id, timestamp)
+        frame_path, exact = await asyncio.to_thread(extract_clip_frame_info, video_id, timestamp)
         if frame_path and os.path.exists(frame_path):
-            return FileResponse(frame_path, media_type="image/jpeg", headers={"Cache-Control": "public, max-age=86400"})
+            cache = "public, max-age=86400" if exact else "no-store"
+            return FileResponse(frame_path, media_type="image/jpeg", headers={"Cache-Control": cache})
     except Exception as e:
         logger.warning(f"Failed to serve extracted frame for {video_id}: {e}")
 

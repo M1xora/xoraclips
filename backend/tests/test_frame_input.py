@@ -35,7 +35,12 @@ def frame_calls(monkeypatch, tmp_path):
         calls.append(args)
         return None
 
+    def fake_extract_info(*args):
+        calls.append(args)
+        return None, False
+
     monkeypatch.setattr(main, "extract_clip_frame", fake_extract)
+    monkeypatch.setattr(main, "extract_clip_frame_info", fake_extract_info)
     monkeypatch.setattr(main, "TEMP_DIR", tmp_path)
     monkeypatch.setattr(main, "EXPORTS_DIR", tmp_path)
     return calls
@@ -89,6 +94,7 @@ def ytdlp_commands(monkeypatch, tmp_path):
 
     monkeypatch.setattr(video_engine, "TEMP_DIR", tmp_path)
     monkeypatch.setattr(video_engine, "EXPORTS_DIR", tmp_path / "exports")
+    monkeypatch.setattr(video_engine, "_frame_failures", {})
     monkeypatch.setattr(video_engine, "get_yt_dlp_base_cmd", lambda: ["yt-dlp"])
     monkeypatch.setattr(video_engine.subprocess, "run", fake_run)
     monkeypatch.setattr(video_engine.subprocess, "Popen", FakePopen)
@@ -139,3 +145,101 @@ def test_full_video_download_ends_with_the_separator(ytdlp_commands, tmp_path):
         video_engine.download_full_raw_video(url, str(tmp_path / "full.mp4"))
     assert len(ytdlp_commands) == 1
     assert_url_is_last_after_separator(ytdlp_commands[0], url)
+
+
+# --- Issue #44: real frames again, and a stand-in is never cached as one ---
+
+def test_frame_extraction_does_not_ask_for_format_18(ytdlp_commands):
+    video_engine.extract_clip_frame(VALID_ID, 5.0)
+    cmd = ytdlp_commands[0]
+    assert cmd[cmd.index("-f") + 1] == video_engine.FRAME_FORMAT == "bv*/b"  # video-only is enough
+    assert "18" not in cmd[cmd.index("-f") + 1]  # YouTube stopped serving format 18
+    # "res" is the short side, so a vertical Short is not cut down to 270px wide.
+    assert cmd[cmd.index("-S") + 1].startswith("res:480")
+
+
+class FakeThumbnail:
+    """What urllib.request.urlopen returns for i.ytimg.com."""
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *exc):
+        return False
+
+    def read(self):
+        return b"\xff\xd8" + b"x" * 5000
+
+
+def test_a_thumbnail_is_a_stand_in_saved_under_its_own_name(ytdlp_commands, monkeypatch, tmp_path):
+    monkeypatch.setattr("urllib.request.urlopen", lambda *a, **k: FakeThumbnail())
+    path, exact = video_engine.extract_clip_frame_info(VALID_ID, 5.0)
+    assert path is not None and path.endswith(f"{VALID_ID}_thumb.jpg")
+    assert exact is False
+    # Not cached as the frame of second 5, so a later try can cut the real one.
+    assert not (tmp_path / "frames" / f"{VALID_ID}_5.jpg").exists()
+
+
+def test_the_nearest_real_frame_of_the_video_is_the_first_stand_in(ytdlp_commands, tmp_path):
+    frames = tmp_path / "frames"
+    frames.mkdir()
+    for sec in (10, 50, 90):
+        (frames / f"{VALID_ID}_{sec}.jpg").write_bytes(b"x" * 5000)
+    (frames / f"{VALID_ID}_thumb.jpg").write_bytes(b"x" * 5000)
+    path, exact = video_engine.extract_clip_frame_info(VALID_ID, 60.0)
+    assert path.endswith(f"{VALID_ID}_50.jpg") and exact is False
+    assert not (frames / f"{VALID_ID}_60.jpg").exists()
+
+
+def test_a_cached_frame_is_exact_and_asks_youtube_nothing(ytdlp_commands, tmp_path):
+    frames = tmp_path / "frames"
+    frames.mkdir()
+    (frames / f"{VALID_ID}_7.jpg").write_bytes(b"x" * 5000)
+    path, exact = video_engine.extract_clip_frame_info(VALID_ID, 7.0)
+    assert path.endswith(f"{VALID_ID}_7.jpg") and exact is True
+    assert ytdlp_commands == []
+
+
+def test_a_refused_second_is_not_asked_again_for_a_while(ytdlp_commands):
+    now = [1000.0]
+    clock = lambda: now[0]
+    video_engine.extract_clip_frame_info(VALID_ID, 5.0, clock=clock)
+    video_engine.extract_clip_frame_info(VALID_ID, 5.0, clock=clock)
+    assert len(ytdlp_commands) == 1
+    now[0] += video_engine.FRAME_FAILURE_TTL + 1
+    video_engine.extract_clip_frame_info(VALID_ID, 5.0, clock=clock)
+    assert len(ytdlp_commands) == 2
+
+
+def test_each_request_uses_its_own_temporary_slice(ytdlp_commands):
+    video_engine.extract_clip_frame_info(VALID_ID, 5.0, clock=lambda: 0.0)
+    video_engine.extract_clip_frame_info(VALID_ID, 5.0, clock=lambda: 10_000.0)
+    outputs = [cmd[cmd.index("-o") + 1] for cmd in ytdlp_commands]
+    assert len(outputs) == 2 and outputs[0] != outputs[1]
+
+
+def test_a_rendered_clip_on_disk_is_never_used_as_a_frame(monkeypatch, tmp_path):
+    # The old step 1 took second 1 of any local mp4 with the ID in its name,
+    # renders included, and cached it as the frame of the asked second.
+    exports = tmp_path / "exports"
+    exports.mkdir()
+    (exports / f"clip_1_batch_{VALID_ID}.mp4").write_bytes(b"x" * 20000)
+    commands = []
+    monkeypatch.setattr(video_engine, "TEMP_DIR", tmp_path)
+    monkeypatch.setattr(video_engine, "EXPORTS_DIR", exports)
+    monkeypatch.setattr(video_engine, "_frame_failures", {})
+    monkeypatch.setattr(video_engine, "get_yt_dlp_base_cmd", lambda: ["yt-dlp"])
+    monkeypatch.setattr(video_engine.subprocess, "run",
+                        lambda cmd, *a, **k: commands.append(cmd) or subprocess.CompletedProcess(cmd, 1, "", ""))
+    monkeypatch.setattr("urllib.request.urlopen", lambda *a, **k: (_ for _ in ()).throw(OSError()))
+    video_engine.extract_clip_frame_info(VALID_ID, 5.0)
+    assert not any("clip_1_batch" in " ".join(map(str, cmd)) for cmd in commands)
+
+
+@pytest.mark.parametrize("exact, cache", [(False, "no-store"), (True, "public, max-age=86400")])
+def test_clip_frame_does_not_let_the_browser_keep_a_stand_in(monkeypatch, tmp_path, exact, cache):
+    frame = tmp_path / f"{VALID_ID}_12.jpg"
+    frame.write_bytes(b"\xff\xd8" + b"x" * 5000)
+    monkeypatch.setattr(main, "extract_clip_frame_info", lambda *a: (str(frame), exact))
+    res = TestClient(main.app).get("/api/clip-frame", params={"video_id": VALID_ID, "timestamp": 12})
+    assert res.status_code == 200
+    assert res.headers["cache-control"] == cache

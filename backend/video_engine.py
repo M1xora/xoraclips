@@ -8,6 +8,7 @@ import logging
 import subprocess
 import threading
 import unicodedata
+import uuid
 import math
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional, Tuple
@@ -239,6 +240,14 @@ def get_yt_dlp_base_cmd() -> List[str]:
 # download is also checked for a video track before it is used.
 FORMAT_1080 = "bestvideo[height<=1080]+bestaudio/best[height<=1080][vcodec!=none]/bestvideo+bestaudio/best[vcodec!=none]"
 FORMAT_720 = "bestvideo[height<=720]+bestaudio/best[height<=720][vcodec!=none]/best[vcodec!=none]"
+# Issue #44: one preview frame needs no audio. YouTube stopped serving format
+# 18 (360p mp4 with audio), so "18/..." failed and every preview frame was
+# the video's thumbnail. Video-only is enough; -S "res" is the SHORT side, so
+# a vertical Short gets about 480px across too, and H.264 decodes anywhere.
+FRAME_FORMAT = "bv*/b"
+FRAME_SORT = "res:480,vcodec:h264,ext:mp4"
+# A second YouTube would not give is not asked again for this long (#44).
+FRAME_FAILURE_TTL = 600.0
 
 AUDIO_ONLY_MESSAGE = (
     "YouTube only sent audio for this clip (no video track). "
@@ -1891,105 +1900,134 @@ def render_clip_to_mp4(
     return str(output_mp4_path)
 
 
+_frame_failures: Dict[Tuple[str, int], float] = {}
+_frame_locks: Dict[Tuple[str, int], threading.Lock] = {}
+_frame_locks_guard = threading.Lock()
+
+
+def _frame_lock(key: Tuple[str, int]) -> threading.Lock:
+    """One lock per (video, second): the backdrop and detect-face ask at once."""
+    with _frame_locks_guard:
+        return _frame_locks.setdefault(key, threading.Lock())
+
+
 def extract_clip_frame(video_id: str, timestamp: float = 0.0) -> Optional[str]:
+    """The preview JPEG for `timestamp` (see extract_clip_frame_info), path only."""
+    return extract_clip_frame_info(video_id, timestamp)[0]
+
+
+def extract_clip_frame_info(
+    video_id: str,
+    timestamp: float = 0.0,
+    clock: Callable[[], float] = time.monotonic,
+) -> Tuple[Optional[str], bool]:
     """
-    Extracts a single JPEG image frame at timestamp for the real video preview.
-    Caches the frame on disk in TEMP_DIR / 'frames'.
-    Guarantees returning a real video frame, never a promotional thumbnail.
-    Takes a video ID, never a URL (issue #42), and returns None for anything
-    that is not a well-formed ID, whatever the caller checked.
+    A JPEG for the preview at `timestamp`, and whether it is exact.
+
+    Exact: this second's frame, cut from a 1-second YouTube slice and cached
+    as frames/<id>_<sec>.jpg. Otherwise a stand-in that is never stored as
+    this second (issue #44): the nearest cached frame of the same video, else
+    its thumbnail (frames/<id>_thumb.jpg). (None, False) when there is none.
+
+    A second YouTube refused is not asked again for FRAME_FAILURE_TTL. Takes
+    a video ID, never a URL (issue #42), and returns (None, False) for
+    anything that is not a well-formed ID, whatever the caller checked.
     """
     if not is_video_id(video_id):
-        return None
+        return None, False
 
     frames_dir = TEMP_DIR / "frames"
     frames_dir.mkdir(parents=True, exist_ok=True)
-
-    safe_id = video_id
     target_ts = max(1.0, timestamp if timestamp > 0 else 5.0)
     sec = int(round(target_ts))
-    frame_path = frames_dir / f"{safe_id}_{sec}.jpg"
+    frame_path = frames_dir / f"{video_id}_{sec}.jpg"
 
-    if frame_path.exists() and frame_path.stat().st_size > 2000:
-        return str(frame_path)
+    def cached() -> bool:
+        return frame_path.exists() and frame_path.stat().st_size > 2000
 
-    # 1. Check local sliced clips or exports
-    local_candidates = list(TEMP_DIR.glob(f"*{safe_id}*.mp4")) + list(EXPORTS_DIR.glob(f"*{safe_id}*.mp4"))
-    for candidate in local_candidates:
-        if candidate.exists() and candidate.stat().st_size > 10000 and "slice_" not in candidate.name:
-            cmd = [
-                "ffmpeg", "-y", "-hide_banner", "-loglevel", "error",
-                "-ss", "00:00:01.00",
-                "-i", str(candidate),
-                "-vframes", "1",
-                "-strict", "-1",
-                str(frame_path)
-            ]
-            subprocess.run(cmd, capture_output=True, timeout=10)
-            if frame_path.exists() and frame_path.stat().st_size > 2000:
-                return str(frame_path)
+    if cached():
+        return str(frame_path), True
 
-    # 2. Extract a tiny 1-second slice of format 18 (fast 360p mp4) using yt-dlp + ffmpeg
+    key = (video_id, sec)
+    with _frame_lock(key):
+        if cached():  # the other request cut it while this one waited
+            return str(frame_path), True
+        failed_at = _frame_failures.get(key)
+        if failed_at is None or clock() - failed_at > FRAME_FAILURE_TTL:
+            if _cut_frame(video_id, target_ts, frame_path):
+                _frame_failures.pop(key, None)
+                return str(frame_path), True
+            _frame_failures[key] = clock()
+
+    return _stand_in_frame(frames_dir, video_id, sec), False
+
+
+def _cut_frame(video_id: str, target_ts: float, frame_path: Path) -> bool:
+    """Cuts one frame at target_ts from a 1-second YouTube slice. True on success."""
+    frames_dir = frame_path.parent
+    # Own names per call: two requests must never share a slice or half a JPEG.
+    token = uuid.uuid4().hex[:8]
+    temp_slice = frames_dir / f"slice_{video_id}_{int(target_ts)}_{token}.mp4"
+    temp_jpg = frames_dir / f"tmp_{video_id}_{int(target_ts)}_{token}.jpg"
     try:
-        clean_url = f"https://www.youtube.com/watch?v={video_id}"
-        base_cmd = get_yt_dlp_base_cmd()
-        temp_slice = frames_dir / f"slice_{safe_id}_{sec}.mp4"
-
-        t_start = target_ts
-        t_end = target_ts + 1.0
-        t_start_fmt = format_section_time(t_start)
-        t_end_fmt = format_section_time(t_end)
-
         slice_cmd = [
-            *base_cmd,
-            "-f", "18/best[height<=720]/best",
-            "--download-sections", f"*{t_start_fmt}-{t_end_fmt}",
+            *get_yt_dlp_base_cmd(),
+            "-f", FRAME_FORMAT,
+            "-S", FRAME_SORT,
+            "--download-sections",
+            f"*{format_section_time(target_ts)}-{format_section_time(target_ts + 1.0)}",
             "-o", str(temp_slice),
             "--no-warnings",
-            "--", clean_url
+            "--", f"https://www.youtube.com/watch?v={video_id}",
         ]
         subprocess.run(slice_cmd, capture_output=True, text=True, timeout=20)
-        if temp_slice.exists() and temp_slice.stat().st_size > 1000:
-            ff_cmd = [
-                "ffmpeg", "-y", "-hide_banner", "-loglevel", "error",
-                "-ss", "00:00:00.20",
-                "-i", str(temp_slice),
-                "-vframes", "1",
-                "-strict", "-1",
-                str(frame_path)
-            ]
-            subprocess.run(ff_cmd, capture_output=True, timeout=5)
-            try:
-                temp_slice.unlink()
-            except Exception:
-                pass
-
-        if frame_path.exists() and frame_path.stat().st_size > 2000:
-            return str(frame_path)
+        if not (temp_slice.exists() and temp_slice.stat().st_size > 1000):
+            return False
+        subprocess.run([
+            "ffmpeg", "-y", "-hide_banner", "-loglevel", "error",
+            "-ss", "00:00:00.20", "-i", str(temp_slice),
+            "-vframes", "1", "-strict", "-1", str(temp_jpg),
+        ], capture_output=True, timeout=5)
+        if temp_jpg.exists() and temp_jpg.stat().st_size > 2000:
+            os.replace(temp_jpg, frame_path)
+            return True
+        return False
     except Exception as e:
-        logger.warning(f"Slice frame extraction failed for {video_id}: {e}")
+        logger.warning(f"Frame extraction failed for {video_id} at {target_ts:.1f}s: {e}")
+        return False
+    finally:
+        _remove(temp_slice)
+        _remove(temp_jpg)
 
-    # 3. Check any existing frame for this video in frames_dir as fallback
-    existing_frames = list(frames_dir.glob(f"{safe_id}_*.jpg"))
-    if existing_frames:
-        return str(existing_frames[0])
 
-    # 4. Instant high-res thumbnail fallback (guarantees frame preview NEVER gets stuck)
+def _stand_in_frame(frames_dir: Path, video_id: str, sec: int) -> Optional[str]:
+    """The nearest cached real frame of this video, else its thumbnail."""
+    seconds = []
+    for path in frames_dir.glob(f"{video_id}_*.jpg"):
+        suffix = path.stem[len(video_id) + 1:]
+        if suffix.isdigit() and path.stat().st_size > 2000:
+            seconds.append(int(suffix))
+    if seconds:
+        nearest = min(seconds, key=lambda s: abs(s - sec))
+        return str(frames_dir / f"{video_id}_{nearest}.jpg")
+
+    thumb_path = frames_dir / f"{video_id}_thumb.jpg"
+    if thumb_path.exists() and thumb_path.stat().st_size > 2000:
+        return str(thumb_path)
     try:
         import urllib.request
-        for thumb_url in [
+        for thumb_url in (
             f"https://i.ytimg.com/vi/{video_id}/maxresdefault.jpg",
             f"https://i.ytimg.com/vi/{video_id}/hqdefault.jpg",
-        ]:
+        ):
             try:
                 req = urllib.request.Request(thumb_url, headers={"User-Agent": "Mozilla/5.0"})
-                with urllib.request.urlopen(req, timeout=3) as resp, open(frame_path, "wb") as f_out:
+                with urllib.request.urlopen(req, timeout=3) as resp, open(thumb_path, "wb") as f_out:
                     f_out.write(resp.read())
-                if frame_path.exists() and frame_path.stat().st_size > 2000:
-                    return str(frame_path)
+                if thumb_path.exists() and thumb_path.stat().st_size > 2000:
+                    return str(thumb_path)
             except Exception:
                 continue
     except Exception as e:
         logger.warning(f"Thumbnail fallback failed for {video_id}: {e}")
-
     return None
