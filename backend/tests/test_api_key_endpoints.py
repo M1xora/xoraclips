@@ -75,7 +75,6 @@ def client(monkeypatch):
     monkeypatch.setattr(main.genai, "Client", FakeGemini)
     monkeypatch.setattr(main, "fetch_video_metadata", no_youtube)
     monkeypatch.setattr(main, "fetch_transcript", no_youtube)
-    monkeypatch.setattr(main.time, "sleep", lambda *_: None)
     monkeypatch.setattr(main, "asyncio", InstantAsyncio())
     monkeypatch.delenv("MOCK_MODE", raising=False)
     # A key in .env must be ignored completely.
