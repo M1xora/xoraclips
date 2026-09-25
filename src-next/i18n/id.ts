@@ -132,7 +132,8 @@ export const id = {
     postCaption: 'Caption untuk posting',
     copyPost: 'Salin caption',
     postCopied: 'Caption dan hashtag disalin',
-    showFullCaption: 'Tampilkan caption lengkap',
+    showFullCaption: 'Selengkapnya',
+    showLessCaption: 'Ringkas',
   },
 
   player: {

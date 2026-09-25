@@ -133,7 +133,8 @@ export const en: Translations = {
     postCaption: 'Caption for posting',
     copyPost: 'Copy caption',
     postCopied: 'Caption and hashtags copied',
-    showFullCaption: 'Show the full caption',
+    showFullCaption: 'Show more',
+    showLessCaption: 'Show less',
   },
 
   player: {

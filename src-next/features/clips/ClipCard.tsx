@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   BookmarkSimpleIcon,
   CaretDownIcon,
@@ -10,7 +10,7 @@ import { Button } from '../../components/ui/Button';
 import type { ViralClip } from '../../lib/types';
 import { formatTimecode } from '../../lib/format';
 import { useLanguage } from '../../i18n';
-import { postText } from './postText';
+import { postParts, postText } from './postText';
 
 interface ClipCardProps {
   clip: ViralClip;
@@ -38,9 +38,22 @@ export function ClipCard({
   const { t } = useLanguage();
   const [open, setOpen] = useState(false);
   const [captionOpen, setCaptionOpen] = useState(false);
+  const [captionClamped, setCaptionClamped] = useState(false);
+  const captionRef = useRef<HTMLParagraphElement>(null);
   const post = postText(clip);
-  const caption = clip.caption_suggestion?.trim();
-  const hashtags = clip.hashtag_suggestion?.trim();
+  const { caption, hashtags } = postParts(clip);
+
+  // "Show more" only when the 3-line clamp actually hides text. The observer
+  // also fires once right away, and again when the card width changes.
+  useEffect(() => {
+    const el = captionRef.current;
+    if (!el || captionOpen || typeof ResizeObserver === 'undefined') return;
+    const observer = new ResizeObserver(() => {
+      setCaptionClamped(el.scrollHeight > el.clientHeight + 1);
+    });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [caption, captionOpen]);
   const duration = Math.round(clip.end_time - clip.start_time);
   const range = `${formatTimecode(clip.start_time)} - ${formatTimecode(clip.end_time)}`;
   const strong = clip.virality_score >= 90;
@@ -88,10 +101,7 @@ export function ClipCard({
 
           {post && (
             // The caption Gemini wrote for posting, ready to paste (#49).
-            <div
-              onClick={(e) => e.stopPropagation()}
-              className="mt-3 cursor-default rounded-md bg-surface-2 p-2.5"
-            >
+            <div className="mt-3 rounded-md border border-hairline p-2.5">
               <div className="flex items-center justify-between gap-2">
                 <span className="text-[0.7rem] font-medium uppercase tracking-wide text-ink-faint">
                   {t.results.postCaption}
@@ -99,22 +109,35 @@ export function ClipCard({
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => onCopy(post, t.results.postCopied)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onCopy(post, t.results.postCopied);
+                  }}
                   icon={<CopyIcon size={13} />}
                 >
                   {t.results.copyPost}
                 </Button>
               </div>
               {caption && (
+                <p
+                  ref={captionRef}
+                  className={`mt-1 whitespace-pre-line text-xs leading-relaxed text-ink-dim
+                    ${captionOpen ? '' : 'line-clamp-3'}`}
+                >
+                  {caption}
+                </p>
+              )}
+              {caption && (captionClamped || captionOpen) && (
                 <button
                   type="button"
                   aria-expanded={captionOpen}
-                  aria-label={captionOpen ? undefined : t.results.showFullCaption}
-                  onClick={() => setCaptionOpen((v) => !v)}
-                  className={`mt-1 w-full whitespace-pre-line text-left text-xs leading-relaxed
-                    text-ink-dim ${captionOpen ? '' : 'line-clamp-3'}`}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setCaptionOpen((v) => !v);
+                  }}
+                  className="pressable mt-1 rounded text-xs font-medium text-ink-faint hover:text-ink"
                 >
-                  {caption}
+                  {captionOpen ? t.results.showLessCaption : t.results.showFullCaption}
                 </button>
               )}
               {hashtags && (

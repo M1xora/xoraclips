@@ -19,6 +19,11 @@ describe('postText', () => {
     expect(postText({ caption_suggestion: '  ', hashtag_suggestion: '\n' })).toBe('');
   });
 
+  it('treats null from an imported JSON export as missing', () => {
+    expect(postText({ caption_suggestion: null, hashtag_suggestion: '#a' })).toBe('#a');
+    expect(postText({ caption_suggestion: null, hashtag_suggestion: null })).toBe('');
+  });
+
   it('trims spaces and line breaks around each part', () => {
     expect(postText({ caption_suggestion: '  Caption \n', hashtag_suggestion: ' #a #b  ' })).toBe(
       'Caption\n\n#a #b',
