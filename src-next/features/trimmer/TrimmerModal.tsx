@@ -1,24 +1,26 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ArrowCounterClockwiseIcon } from '@phosphor-icons/react';
 import { Button } from '../../components/ui/Button';
 import { Modal } from '../../components/ui/Modal';
 import { useYouTubePlayer } from '../../hooks/useYouTubePlayer';
-import { formatTimecode } from '../../lib/format';
+import { formatPreciseTimecode, formatTimecode, parseTimecode } from '../../lib/format';
 import { useLanguage } from '../../i18n';
 import {
   buildTimeline,
   clampEnd,
   clampPlayhead,
   clampStart,
-  crossedEnd,
-  formatTrimTime,
   lineEdges,
-  parseTimecode,
+  nudgeEnd,
+  nudgeStart,
   percentToTime,
+  playbackStretch,
+  playedPastEnd,
   slideWindow,
   timeToPercent,
   withEnd,
   withStart,
+  type LineEdge,
 } from './trimMath';
 import type { TranscriptLine, ViralClip } from '../../lib/types';
 
@@ -69,7 +71,7 @@ function TimeField({
     <label className="flex items-center gap-1.5 text-xs text-ink-faint">
       {label}
       <input
-        value={draft ?? formatTrimTime(value)}
+        value={draft ?? formatPreciseTimecode(value)}
         onChange={(e) => setTyped({ text: e.target.value, over: value })}
         onBlur={commit}
         onKeyDown={(e) => {
@@ -82,6 +84,85 @@ function TimeField({
       />
     </label>
   );
+}
+
+interface TranscriptLinesProps {
+  lines: LineEdge[];
+  start: number;
+  end: number;
+  labels: { title: string; hint: string; setStart: string; setEnd: string };
+  onSeek: (time: number) => void;
+  onSetStart: (time: number) => void;
+  onSetEnd: (time: number) => void;
+}
+
+/**
+ * The transcript lines around the clip (#56). Memoised: the modal re-renders
+ * on every playback poll, and this list only changes with the selection.
+ */
+const TranscriptLines = memo(function TranscriptLines({
+  lines,
+  start,
+  end,
+  labels,
+  onSeek,
+  onSetStart,
+  onSetEnd,
+}: TranscriptLinesProps) {
+  // Opens scrolled to the clip's own lines, not two minutes before them.
+  const listRef = useRef<HTMLOListElement>(null);
+  useEffect(() => {
+    const list = listRef.current;
+    const first = list?.querySelector<HTMLElement>('[data-inside="true"]');
+    if (list && first) list.scrollTop = Math.max(0, first.offsetTop - list.clientHeight / 3);
+  }, []);
+
+  return (
+    <section className="mt-4">
+      <div className="mb-1.5 flex flex-wrap items-baseline justify-between gap-x-3 text-xs">
+        <h3 className="font-medium text-ink-dim">{labels.title}</h3>
+        <span className="text-ink-faint">{labels.hint}</span>
+      </div>
+      <ol
+        ref={listRef}
+        className="relative max-h-56 divide-y divide-hairline overflow-y-auto
+          rounded-[--radius-control] border border-hairline"
+      >
+        {lines.map((line, i) => {
+          const inside = line.start >= start - 0.005 && line.end <= end + 0.005;
+          return (
+            <li
+              key={`${line.start}-${i}`}
+              data-inside={inside}
+              className={`flex items-center gap-2 px-2.5 py-1 text-xs ${inside ? 'bg-accent/10' : ''}`}
+            >
+              <button
+                type="button"
+                onClick={() => onSeek(line.start)}
+                className="flex min-w-0 flex-1 items-baseline gap-2 text-left hover:text-ink"
+              >
+                <span className="tabular shrink-0 font-mono text-ink-faint">
+                  {formatTimecode(line.start)}
+                </span>
+                <span className={inside ? 'text-ink' : 'text-ink-dim'}>{line.text}</span>
+              </button>
+              <Button variant="ghost" size="sm" onClick={() => onSetStart(line.start)}>
+                {labels.setStart}
+              </Button>
+              <Button variant="ghost" size="sm" onClick={() => onSetEnd(line.end)}>
+                {labels.setEnd}
+              </Button>
+            </li>
+          );
+        })}
+      </ol>
+    </section>
+  );
+});
+
+/** "12.7s": the length to a tenth, since typed and line times are not whole seconds. */
+function formatLength(seconds: number): string {
+  return `${Math.round(Math.max(0, seconds) * 10) / 10}s`;
 }
 
 /**
@@ -105,45 +186,44 @@ export function TrimmerModal({
   onClose,
 }: TrimmerModalProps) {
   const { t } = useLanguage();
-  const tl = buildTimeline(clip.start_time, clip.end_time, videoDuration);
+  const tl = useMemo(
+    () => buildTimeline(clip.start_time, clip.end_time, videoDuration),
+    [clip.start_time, clip.end_time, videoDuration],
+  );
 
   const [start, setStart] = useState(clip.start_time);
   const [end, setEnd] = useState(clip.end_time);
   const [head, setHead] = useState(clip.start_time);
+  const [dragging, setDragging] = useState(false);
 
   const trackRef = useRef<HTMLDivElement>(null);
   const dragRef = useRef<DragInfo | null>(null);
   const seekTimer = useRef<number | null>(null);
 
-  // No `bounds`: its effect moves the player back to the start whenever the
-  // end changes, which fights dragging the end handle. The stop at the end is
-  // done below instead (#56).
+  // No `bounds`: that shared hook moves the player back to the start whenever
+  // the end changes, which fights dragging the end handle. The stop at the
+  // end is done below instead (#56).
   const { hostRef, ready, seek, pause, playing, currentTime } = useYouTubePlayer({
     videoId,
     bounds: null,
     controls: true,
   });
 
-  // Playback that runs from inside the selection to its end stops and goes
-  // back to the start, so the trim can be heard exactly (#56). Playing from
-  // outside the selection is left alone.
+  // Playback that began inside the selection stops at its end and goes back
+  // to the start, so the trim can be heard exactly (#56). Playback that began
+  // before the selection, and jumps (a line click, YouTube's seek bar, moving
+  // the end), are left alone.
   const lastTime = useRef(currentTime);
+  const stretch = useRef<number | null>(null);
   useEffect(() => {
     const previous = lastTime.current;
     lastTime.current = currentTime;
-    if (playing && crossedEnd(previous, currentTime, end)) {
+    stretch.current = playbackStretch(stretch.current, previous, currentTime, playing);
+    if (playing && playedPastEnd(stretch.current, previous, currentTime, start, end)) {
       pause();
       seek(start, false);
     }
   }, [playing, currentTime, start, end, pause, seek]);
-
-  // Opens scrolled to the clip's own lines, not two minutes before them.
-  const listRef = useRef<HTMLOListElement>(null);
-  useEffect(() => {
-    const list = listRef.current;
-    const first = list?.querySelector<HTMLElement>('[data-inside="true"]');
-    if (list && first) list.scrollTop = Math.max(0, first.offsetTop - list.clientHeight / 3);
-  }, []);
 
   const lines = useMemo(
     () => lineEdges(transcript ?? []).filter((l) => l.end > tl.min && l.start < tl.max),
@@ -188,6 +268,7 @@ export function TrimmerModal({
 
   const beginDrag = (kind: DragKind, e: React.PointerEvent) => {
     e.preventDefault();
+    setDragging(true);
     dragRef.current = {
       kind,
       startClientX: e.clientX,
@@ -234,6 +315,7 @@ export function TrimmerModal({
     const onUp = () => {
       const info = dragRef.current;
       dragRef.current = null;
+      setDragging(false);
       ac.abort();
 
       // Cancel the pending throttled seek and land exactly.
@@ -241,7 +323,7 @@ export function TrimmerModal({
         window.clearTimeout(seekTimer.current);
         seekTimer.current = null;
       }
-      if (info) seek(info.kind === 'end' ? end : start, false);
+      if (info) seek(info.kind === 'end' ? end : info.kind === 'playhead' ? head : start, false);
     };
 
     window.addEventListener('pointermove', onMove, { signal });
@@ -250,12 +332,39 @@ export function TrimmerModal({
   };
 
   /** A precise edit (typed time or a transcript line), not rounded to seconds. */
-  const setRange = (next: { start: number; end: number }, seekTo: number) => {
-    setStart(next.start);
-    setEnd(next.end);
-    setHead(seekTo);
-    seek(seekTo, false);
-  };
+  const setRange = useCallback(
+    (next: { start: number; end: number }, seekTo: number) => {
+      setStart(next.start);
+      setEnd(next.end);
+      seek(seekTo, false);
+    },
+    [seek],
+  );
+
+  const seekToLine = useCallback((time: number) => seek(time, false), [seek]);
+  const startAtLine = useCallback(
+    (time: number) => {
+      const next = withStart(time, end, tl);
+      setRange(next, next.start);
+    },
+    [end, tl, setRange],
+  );
+  const endAtLine = useCallback(
+    (time: number) => {
+      const next = withEnd(time, start, tl);
+      setRange(next, next.end);
+    },
+    [start, tl, setRange],
+  );
+  const lineLabels = useMemo(
+    () => ({
+      title: t.trimmer.linesTitle,
+      hint: t.trimmer.linesHint,
+      setStart: t.trimmer.setStart,
+      setEnd: t.trimmer.setEnd,
+    }),
+    [t],
+  );
 
   const reset = () => {
     setStart(clip.start_time);
@@ -271,6 +380,9 @@ export function TrimmerModal({
 
   const changed = start !== clip.start_time || end !== clip.end_time;
   const pct = (time: number) => timeToPercent(time, tl);
+  // The red line is where the video is; while a handle is dragged it follows
+  // the pointer, since the player catches up only every 120ms.
+  const playhead = dragging || !ready ? head : clampPlayhead(currentTime, tl);
 
   return (
     <Modal
@@ -324,7 +436,7 @@ export function TrimmerModal({
           />
         </div>
         <span className="tabular font-mono text-ink-faint">
-          {t.trimmer.duration}: {Math.round(end - start)}s
+          {t.trimmer.duration}: {formatLength(end - start)}
         </span>
       </div>
 
@@ -383,10 +495,9 @@ export function TrimmerModal({
           style={{ left: `${pct(end)}%` }}
         />
 
-        {/* Follows the video while it plays. */}
         <div
           className="pointer-events-none absolute inset-y-0 w-0.5 bg-critical"
-          style={{ left: `${pct(playing ? clampPlayhead(currentTime, tl) : head)}%` }}
+          style={{ left: `${pct(playhead)}%` }}
         />
       </div>
 
@@ -395,13 +506,14 @@ export function TrimmerModal({
         <span className="tabular font-mono">{formatTimecode(tl.max)}</span>
       </div>
 
+      {/* Nudges keep hundredths set by a typed time or a line (#56). */}
       <div className="mt-3 flex flex-wrap gap-1.5">
         {[-15, -5, 5, 15].map((d) => (
           <Button
             key={`s${d}`}
             variant="secondary"
             size="sm"
-            onClick={() => setStart(clampStart(start + d, end, tl))}
+            onClick={() => setStart(nudgeStart(start + d, end, tl))}
           >
             {t.trimmer.startShift(d)}
           </Button>
@@ -413,7 +525,7 @@ export function TrimmerModal({
             key={`e${d}`}
             variant="secondary"
             size="sm"
-            onClick={() => setEnd(clampEnd(end + d, start, tl))}
+            onClick={() => setEnd(nudgeEnd(end + d, start, tl))}
           >
             {t.trimmer.endShift(d)}
           </Button>
@@ -421,59 +533,15 @@ export function TrimmerModal({
       </div>
 
       {lines.length > 0 && (
-        <section className="mt-4">
-          <div className="mb-1.5 flex flex-wrap items-baseline justify-between gap-x-3 text-xs">
-            <h3 className="font-medium text-ink-dim">{t.trimmer.linesTitle}</h3>
-            <span className="text-ink-faint">{t.trimmer.linesHint}</span>
-          </div>
-          <ol
-            ref={listRef}
-            className="relative max-h-56 divide-y divide-hairline overflow-y-auto
-              rounded-[--radius-control] border border-hairline"
-          >
-            {lines.map((line, i) => {
-              const inside = line.start >= start - 0.005 && line.end <= end + 0.005;
-              return (
-                <li
-                  key={`${line.start}-${i}`}
-                  data-inside={inside}
-                  className={`flex items-center gap-2 px-2.5 py-1 text-xs ${inside ? 'bg-accent/10' : ''}`}
-                >
-                  <button
-                    type="button"
-                    onClick={() => seek(line.start, false)}
-                    className="flex min-w-0 flex-1 items-baseline gap-2 text-left hover:text-ink"
-                  >
-                    <span className="tabular shrink-0 font-mono text-ink-faint">
-                      {formatTimecode(line.start)}
-                    </span>
-                    <span className={inside ? 'text-ink' : 'text-ink-dim'}>{line.text}</span>
-                  </button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => {
-                      const next = withStart(line.start, end, tl);
-                      setRange(next, next.start);
-                    }}
-                  >
-                    {t.trimmer.setStart}
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => {
-                      const next = withEnd(line.end, start, tl);
-                      setRange(next, next.end);
-                    }}
-                  >
-                    {t.trimmer.setEnd}
-                  </Button>
-                </li>
-              );
-            })}
-          </ol>
-        </section>
+        <TranscriptLines
+          lines={lines}
+          start={start}
+          end={end}
+          labels={lineLabels}
+          onSeek={seekToLine}
+          onSetStart={startAtLine}
+          onSetEnd={endAtLine}
+        />
       )}
     </Modal>
   );

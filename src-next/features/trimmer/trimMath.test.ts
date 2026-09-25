@@ -5,11 +5,12 @@ import {
   clampPlayhead,
   clampStart,
   CONTEXT_SECONDS,
-  crossedEnd,
-  formatTrimTime,
   lineEdges,
+  nudgeEnd,
+  nudgeStart,
+  playbackStretch,
+  playedPastEnd,
   MIN_CLIP_SECONDS,
-  parseTimecode,
   percentToTime,
   slideWindow,
   timeToPercent,
@@ -121,25 +122,6 @@ describe('slideWindow', () => {
   });
 });
 
-describe('parseTimecode (#56)', () => {
-  it.each([
-    ['83', 83],
-    ['83.5', 83.5],
-    ['1:23', 83],
-    ['1:23.5', 83.5],
-    ['1:23,5', 83.5],
-    ['01:23', 83],
-    ['1:01:23', 3683],
-    [' 2:05 ', 125],
-  ])('%s is %d seconds', (text, seconds) => {
-    expect(parseTimecode(text)).toBeCloseTo(seconds, 5);
-  });
-
-  it.each(['', 'abc', '1:2:3:4', '1:75', '1:60:00', '-5', '1.2.3', '1:'])('%j is not a time', (text) => {
-    expect(parseTimecode(text)).toBeNull();
-  });
-});
-
 describe('withStart / withEnd (#56)', () => {
   it('keeps hundredths instead of rounding to whole seconds', () => {
     expect(withStart(210.284, 230, tl)).toEqual({ start: 210.28, end: 230 });
@@ -190,31 +172,50 @@ describe('lineEdges (#56)', () => {
   });
 });
 
-describe('crossedEnd (#56)', () => {
-  it('is true only when playback runs from inside the selection to its end', () => {
-    expect(crossedEnd(229.9, 230.1, 230)).toBe(true);
-    expect(crossedEnd(229.9, 230, 230)).toBe(true);
-    expect(crossedEnd(231, 232, 230)).toBe(false); // started past the end
-    expect(crossedEnd(200, 210, 230)).toBe(false);
+describe('playbackStretch (#56)', () => {
+  it('starts when playback starts, and again after a jump', () => {
+    expect(playbackStretch(null, 30, 30.2, true)).toBe(30.2);
+    expect(playbackStretch(30.2, 30.2, 30.4, true)).toBe(30.2);
+    expect(playbackStretch(30.2, 31, 47, true)).toBe(47); // a seek
+    expect(playbackStretch(30.2, 31, 31.2, false)).toBeNull();
   });
 });
 
-describe('formatTrimTime (#56)', () => {
-  it.each([
-    [83, '1:23'],
-    [83.5, '1:23.5'],
-    [83.25, '1:23.25'],
-    [17.28, '0:17.28'],
-    [3683, '1:01:23'],
-    [0, '0:00'],
-    [59.999, '1:00'],
-  ])('%d is %s', (seconds, text) => {
-    expect(formatTrimTime(seconds)).toBe(text);
+describe('playedPastEnd (#56)', () => {
+  it('stops playback that began inside the selection at its end', () => {
+    expect(playedPastEnd(212, 229.9, 230.1, 200, 230)).toBe(true);
+    expect(playedPastEnd(200, 229.9, 230, 200, 230)).toBe(true);
   });
 
-  it('reads back to the same time', () => {
-    for (const t of [0, 7.5, 83.25, 599.99, 3683.1]) {
-      expect(parseTimecode(formatTrimTime(t))).toBeCloseTo(t, 2);
-    }
+  it('leaves playback that began before the selection alone', () => {
+    // The lead-in: started at 150, flowed through the selection.
+    expect(playedPastEnd(150, 229.9, 230.1, 200, 230)).toBe(false);
+  });
+
+  it('leaves playback that began past the end alone', () => {
+    expect(playedPastEnd(231, 231, 232, 200, 230)).toBe(false);
+  });
+
+  it('ignores a jump across the end', () => {
+    expect(playedPastEnd(205, 205, 240, 200, 240)).toBe(false);
+  });
+
+  it('is false while not playing', () => {
+    expect(playedPastEnd(null, 229.9, 230.1, 200, 230)).toBe(false);
+  });
+});
+
+describe('nudgeStart / nudgeEnd (#56)', () => {
+  it('keeps hundredths and stops 3s before the other side', () => {
+    expect(nudgeStart(214.28, 230, tl)).toBe(214.28);
+    expect(nudgeStart(229, 230, tl)).toBe(230 - MIN_CLIP_SECONDS);
+    expect(nudgeEnd(215.5, 214.28, tl)).toBe(217.28);
+    expect(nudgeEnd(225.55, 210, tl)).toBe(225.55);
+  });
+});
+
+describe('slideWindow keeps a precise start (#56)', () => {
+  it('moves in whole seconds without rounding the start', () => {
+    expect(slideWindow(210.28, 10, 3.4, tl)).toEqual({ start: 213.28, end: 223.28 });
   });
 });

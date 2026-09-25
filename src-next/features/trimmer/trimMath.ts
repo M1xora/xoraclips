@@ -61,7 +61,8 @@ export function slideWindow(
   deltaSeconds: number,
   tl: Timeline,
 ): { start: number; end: number } {
-  let start = Math.round(initialStart + deltaSeconds);
+  // Whole-second steps that keep a precise start's hundredths (#56).
+  let start = Math.round((initialStart + Math.round(deltaSeconds)) * 100) / 100;
   let end = start + duration;
 
   if (start < tl.min) {
@@ -83,22 +84,6 @@ export function slideWindow(
 const round2 = (t: number) => Math.round(t * 100) / 100;
 
 /**
- * "83", "83.5", "1:23", "1:23.5" or "1:01:23" to seconds; null for anything
- * else. A comma works as the decimal mark too ("1:23,5").
- */
-export function parseTimecode(text: string): number | null {
-  const raw = text.trim().replace(',', '.');
-  if (!/^\d+(:\d{1,2}){0,2}(\.\d+)?$/.test(raw)) return null;
-  const parts = raw.split(':');
-  const seconds = Number(parts.pop());
-  if (parts.length > 0 && seconds >= 60) return null;
-  const minutes = parts.length > 0 ? Number(parts.pop()) : 0;
-  if (parts.length > 0 && minutes >= 60) return null;
-  const hours = parts.length > 0 ? Number(parts.pop()) : 0;
-  return hours * 3600 + minutes * 60 + seconds;
-}
-
-/**
  * A new start, kept inside the timeline. When it lands within 3s of the end
  * (or past it), the end moves along instead of the start being refused.
  */
@@ -109,6 +94,16 @@ export function withStart(
 ): { start: number; end: number } {
   const start = round2(Math.max(tl.min, Math.min(tl.max - MIN_CLIP_SECONDS, candidate)));
   return { start, end: Math.min(tl.max, Math.max(end, start + MIN_CLIP_SECONDS)) };
+}
+
+/** A nudged start (±5s, ±15s): stops 3s before the end, keeps hundredths. */
+export function nudgeStart(candidate: number, end: number, tl: Timeline): number {
+  return round2(Math.max(tl.min, Math.min(end - MIN_CLIP_SECONDS, candidate)));
+}
+
+/** A nudged end: stops 3s after the start, keeps hundredths. */
+export function nudgeEnd(candidate: number, start: number, tl: Timeline): number {
+  return round2(Math.min(tl.max, Math.max(start + MIN_CLIP_SECONDS, candidate)));
 }
 
 /** A new end; the start moves back when the end lands within 3s of it. */
@@ -151,20 +146,43 @@ export function lineEdges(lines: { start: number; end: number; text: string }[])
   return sorted;
 }
 
-/** True when playback just ran from inside the selection to its end or past it. */
-export function crossedEnd(previous: number, now: number, end: number): boolean {
-  return previous < end && now >= end;
+/** A playback poll further than this from the last one is a jump, not playback. */
+export const MAX_PLAYBACK_STEP = 1.5;
+
+/**
+ * Where the current stretch of playback began: reset when playback stops,
+ * and started again at `now` after a jump (a seek moves further than one
+ * playback poll). null while not playing.
+ */
+export function playbackStretch(
+  stretch: number | null,
+  previous: number,
+  now: number,
+  playing: boolean,
+): number | null {
+  if (!playing) return null;
+  if (stretch === null || Math.abs(now - previous) > MAX_PLAYBACK_STEP) return now;
+  return stretch;
 }
 
-/** Seconds as "1:23", "1:23.5" or "1:01:23.25": what the time fields show. */
-export function formatTrimTime(seconds: number): string {
-  const total = Math.max(0, round2(seconds));
-  const whole = Math.floor(total);
-  const fraction = round2(total - whole);
-  const h = Math.floor(whole / 3600);
-  const m = Math.floor((whole % 3600) / 60);
-  const sec = whole % 60;
-  const ss = String(sec).padStart(2, '0');
-  const tail = fraction > 0 ? String(fraction.toFixed(2)).slice(1).replace(/0+$/, '') : '';
-  return h > 0 ? `${h}:${String(m).padStart(2, '0')}:${ss}${tail}` : `${m}:${ss}${tail}`;
+/**
+ * True when playback that began inside the selection just flowed to its end
+ * or past it (#56). Playback that began before the selection, or a jump
+ * across the end, does not count.
+ */
+export function playedPastEnd(
+  stretch: number | null,
+  previous: number,
+  now: number,
+  start: number,
+  end: number,
+): boolean {
+  return (
+    stretch !== null &&
+    stretch >= start - 0.05 &&
+    stretch < end &&
+    previous < end &&
+    now >= end &&
+    now - previous <= MAX_PLAYBACK_STEP
+  );
 }

@@ -21,8 +21,8 @@ function render(transcript?: TranscriptLine[]) {
 describe('TrimmerModal (#56)', () => {
   it('shows the typed start and end with hundredths', () => {
     const html = render();
-    expect(html).toContain('value="0:17.28"');
-    expect(html).toContain('value="0:30"');
+    expect(html).toContain('value="00:17.28"');
+    expect(html).toContain('value="00:30"');
   });
 
   it('lists transcript lines with start/end buttons and marks those inside the clip', () => {
