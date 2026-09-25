@@ -140,7 +140,7 @@ def test_a_finished_job_is_forgotten_after_an_hour_and_a_running_one_is_not():
     now[0] = 3600
     assert jobs.lookup("done") is None
     assert jobs.lookup("running") == {"status": "downloading"}
-    now[0] = 10 ** 6
+    now[0] = 3 * 3600   # still under the six hours a running job may take
     jobs.add("new", {})
     assert set(jobs) == {"running", "new"}
 
@@ -162,3 +162,40 @@ def test_a_local_full_video_is_trimmed_instead_of_downloading_again(api):
     assert api.get(f"/api/download-raw-clip-status/{job['job_id']}").json()["status"] == "ready"
     assert api.calls["clip"] == []
     assert api.calls["ffmpeg"][0][api.calls["ffmpeg"][0].index("-i") + 1] == str(full)
+
+
+# --- review findings --------------------------------------------------------------------
+
+def test_a_stuck_job_is_forgotten_after_six_hours():
+    now = [0.0]
+    jobs = JobStore(clock=lambda: now[0])
+    jobs.add("stuck", {"status": "downloading"})
+    now[0] = 6 * 3600 - 1
+    assert jobs.lookup("stuck")
+    now[0] = 6 * 3600
+    assert jobs.lookup("stuck") is None
+
+
+def test_a_raw_clip_longer_than_thirty_minutes_is_refused(api):
+    res = api.post("/api/download-raw-clip", json=clip_body(start_time=0, end_time=30 * 60 + 1), headers=ORIGIN)
+    assert res.status_code == 422
+    assert "at most 30 minutes" in res.json()["detail"][0]["msg"]
+    ok = api.post("/api/download-raw-clip", json=clip_body(start_time=0, end_time=30 * 60), headers=ORIGIN)
+    assert ok.status_code == 200
+
+
+def test_yt_dlp_leftovers_are_never_used_as_the_full_video(api):
+    big = b"F" * (6 * 1024 * 1024)
+    for name in (f"{VIDEO_ID}_raw_1.f137.mp4", f"{VIDEO_ID}_raw_1.temp.mp4", f"x{VIDEO_ID}_raw_1.mp4"):
+        (video_engine.EXPORTS_DIR / name).write_bytes(big)
+    job = api.post("/api/download-raw-clip", json=clip_body(), headers=ORIGIN).json()
+    assert api.get(f"/api/download-raw-clip-status/{job['job_id']}").json()["status"] == "ready"
+    assert len(api.calls["clip"]) == 1  # downloaded, not trimmed from a leftover
+
+
+def test_two_jobs_in_the_same_second_write_different_files(api):
+    urls = []
+    for _ in range(2):
+        job = api.post("/api/download-raw-video", json={"video_id": VIDEO_ID}, headers=ORIGIN).json()
+        urls.append(api.get(f"/api/download-raw-status/{job['job_id']}").json()["download_url"])
+    assert urls[0] != urls[1]

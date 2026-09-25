@@ -6,6 +6,7 @@ builds the URL (#64). Finished jobs are forgotten after an hour.
 import asyncio
 import logging
 import os
+import re
 import shutil
 import subprocess
 import time
@@ -37,6 +38,8 @@ logger = logging.getLogger("xoraclips")
 router = APIRouter()
 
 VIDEO_SECONDS = Field(ge=0, le=MAX_VIDEO_SECONDS, allow_inf_nan=False)
+# A raw clip is a piece of the video; the whole video has its own download.
+MAX_RAW_CLIP_SECONDS = 30 * 60
 CPU_ENCODER_ARGS = ["-c:v", "libx264", "-preset", "veryfast", "-crf", "20"]
 
 
@@ -54,10 +57,6 @@ def download_rendered_file(file_name: str, title: Optional[str] = None):
         dl_filename = f"{clean_title}.mp4" if not clean_title.lower().endswith(".mp4") else clean_title
 
     return FileResponse(file_path, media_type="video/mp4", filename=dl_filename)
-
-
-def _mp4_name(title: str) -> str:
-    return title if title.endswith(".mp4") else f"{title}.mp4"
 
 
 # ── Raw source video ─────────────────────────────────────────────────────────
@@ -92,7 +91,6 @@ async def run_raw_download_job(job_id: str, v_url: str, out_path: str, filename:
         job["status"] = "ready"
         job["progress_percent"] = 100.0
         job["download_url"] = f"/api/download-rendered/{filename}?title={quote(download_title)}"
-        job["filename"] = _mp4_name(download_title)
     except Exception as e:
         logger.error(f"Raw video download job {job_id} failed: {e}")
         job["status"] = "failed"
@@ -105,7 +103,8 @@ async def run_raw_download_job(job_id: str, v_url: str, out_path: str, filename:
 async def handle_download_raw_video(req: RawVideoDownloadRequest, background_tasks: BackgroundTasks):
     video_id = require_video_id(req.video_id)
     job_id = new_job_id()
-    filename = f"{video_id}_raw_{int(time.time())}.mp4"
+    # The job ID keeps two downloads started in the same second apart.
+    filename = f"{video_id}_raw_{int(time.time())}_{job_id[:8]}.mp4"
     out_path = str(video_engine.EXPORTS_DIR / filename)
     download_title = raw_video_title(req.title, video_id)
 
@@ -118,7 +117,7 @@ async def handle_download_raw_video(req: RawVideoDownloadRequest, background_tas
         "speed": "",
         "eta": "",
         "download_url": None,
-        "filename": _mp4_name(download_title),
+        "filename": f"{download_title}.mp4",
         "error": None
     })
 
@@ -146,6 +145,8 @@ class RawClipDownloadRequest(BaseModel):
     @model_validator(mode="after")
     def _end_after_start(self):
         check_time_range(self.start_time, self.end_time)
+        if self.end_time - self.start_time > MAX_RAW_CLIP_SECONDS:
+            raise ValueError(f"A raw clip can be at most {MAX_RAW_CLIP_SECONDS // 60} minutes long")
         return self
 
 
@@ -173,22 +174,21 @@ def _trim_command(source: str, start_time: float, duration_sec: float, out_path:
     ]
 
 
-def _local_full_video(video_id: str, seg_filename: str) -> Optional[str]:
-    """A full raw video of this video already on disk, not a clip of it."""
-    candidates = (list(video_engine.EXPORTS_DIR.glob(f"*{video_id}*.mp4"))
-                  + list(video_engine.TEMP_DIR.glob(f"*{video_id}*.mp4")))
-    for candidate in candidates:
-        if candidate.exists() and candidate.stat().st_size > 5 * 1024 * 1024:
-            # Avoid using a small trimmed clip segment as source
-            if "_clip_" not in candidate.name and candidate.name != seg_filename:
-                return str(candidate)
+def _local_full_video(video_id: str) -> Optional[str]:
+    """A finished full raw video of this video already on disk. Only the
+    app's own finished downloads count: yt-dlp's video-only streams
+    (`.f137.mp4`) and half-merged files (`.temp.mp4`) have other names."""
+    finished = re.compile(re.escape(video_id) + r"_raw_\d+(_[0-9a-f]{8})?\.mp4")
+    for candidate in video_engine.EXPORTS_DIR.glob(f"{video_id}_raw_*.mp4"):
+        if finished.fullmatch(candidate.name) and candidate.stat().st_size > 5 * 1024 * 1024:
+            return str(candidate)
     return None
 
 
 async def run_raw_clip_download_job(job_id: str, video_id: str, start_time: float, end_time: float,
                                     download_title: str):
     job = raw_clip_download_jobs[job_id]
-    seg_filename = f"{video_id}_clip_{int(start_time)}_{int(end_time)}_{int(time.time())}_raw.mp4"
+    seg_filename = f"{video_id}_clip_{int(start_time)}_{int(end_time)}_{job_id[:8]}_raw.mp4"
     out_path = video_engine.EXPORTS_DIR / seg_filename
 
     def usable() -> bool:
@@ -203,7 +203,7 @@ async def run_raw_clip_download_job(job_id: str, video_id: str, start_time: floa
         trim_timeout = download_timeouts(duration_sec)["trim"]
 
         success = False
-        source_video = _local_full_video(video_id, seg_filename)
+        source_video = _local_full_video(video_id)
         if source_video:
             for encoder_name, encoder_args in ((ACTIVE_ENCODER_NAME, ACTIVE_ENCODER_ARGS), ("CPU libx264", CPU_ENCODER_ARGS)):
                 try:
@@ -274,7 +274,7 @@ async def handle_download_raw_clip(req: RawClipDownloadRequest, background_tasks
         "progress_percent": 0.0,
         "title": download_title,
         "download_url": None,
-        "filename": _mp4_name(download_title),
+        "filename": f"{download_title}.mp4",
         "error": None
     })
 

@@ -33,8 +33,9 @@ export function geminiKeyHeaders(apiKey?: string): Record<string, string> {
 
 /**
  * Reads the backend's error body and turns it into an ApiError.
- * FastAPI reports problems as `{ "detail": "..." }`, or as
- * `{ "detail": { "code": "...", "message": "..." } }` for coded errors.
+ * FastAPI reports problems as `{ "detail": "..." }`, as
+ * `{ "detail": { "code": "...", "message": "..." } }` for coded errors, or
+ * as a list of `{ "msg": "..." }` when a request fails validation (422).
  */
 async function toApiError(res: Response): Promise<ApiError> {
   let detail = `Request failed with status ${res.status}`;
@@ -45,6 +46,9 @@ async function toApiError(res: Response): Promise<ApiError> {
     else if (body?.detail && typeof body.detail === 'object') {
       if (typeof body.detail.message === 'string') detail = body.detail.message;
       if (typeof body.detail.code === 'string') code = body.detail.code;
+      if (Array.isArray(body.detail) && typeof body.detail[0]?.msg === 'string') {
+        detail = body.detail[0].msg.replace(/^Value error, /, '');
+      }
     }
   } catch {
     // Body was not JSON - keep the status-based message.
