@@ -7,6 +7,7 @@ import shutil
 import logging
 import subprocess
 import threading
+import importlib.util
 import unicodedata
 import uuid
 import math
@@ -237,13 +238,28 @@ def get_yt_dlp_base_cmd() -> List[str]:
 # audio format whose video codec is not stated. Every format choice below
 # demands a video codec, and since that may not be the only way, every
 # download is also checked for a video track before it is used.
-# Issue #76: with cookies YouTube sends a JavaScript challenge; without
-# yt-dlp-ejs yt-dlp cannot answer it and fails with "The page needs to be
-# reloaded".
-CHALLENGE_MESSAGE = (
-    "YouTube asked for a challenge this backend cannot solve yet. Stop the backend, run "
-    "'venv\\Scripts\\python -m pip install -r backend/requirements.txt', then start it again."
-)
+# Issue #76: with cookies YouTube sends a JavaScript challenge. yt-dlp answers
+# it with yt-dlp-ejs and Node.js or Deno; without them it fails with "The page
+# needs to be reloaded", the same way on every method, so the download stops.
+def _challenge_solver_installed() -> bool:
+    return importlib.util.find_spec("yt_dlp_ejs") is not None
+
+
+def is_challenge_error(text: Optional[str]) -> bool:
+    return "page needs to be reloaded" in (text or "").lower()
+
+
+def challenge_hint() -> str:
+    """What to do about YouTube's challenge on this machine."""
+    if not _challenge_solver_installed():
+        return (f"The YouTube challenge solver (yt-dlp-ejs) is not installed: stop the backend, run "
+                f"'{sys.executable} -m pip install -r backend/requirements.txt', then start it again.")
+    if not (shutil.which("node") or shutil.which("deno")):
+        return "The YouTube challenge solver needs Node.js or Deno: install one, then restart the backend."
+    return ("YouTube refused this session: re-import your YouTube cookies with the Cookies button, "
+            "or try again later.")
+
+
 FORMAT_1080 = "bestvideo[height<=1080]+bestaudio/best[height<=1080][vcodec!=none]/bestvideo+bestaudio/best[vcodec!=none]"
 FORMAT_720 = "bestvideo[height<=720]+bestaudio/best[height<=720][vcodec!=none]/best[vcodec!=none]"
 # Issue #44: one preview frame needs no audio. YouTube stopped serving format
@@ -413,7 +429,7 @@ def download_clip_segment(
     timeouts = download_timeouts(clip_duration)
     timeout_sec = timeouts["hd"]
 
-    state = {"err": "unknown", "audio_only": False, "retried": False}
+    state = {"err": "unknown", "audio_only": False, "retried": False, "challenge": None}
 
     def attempt(method: int, label: str, run: Callable[[Optional[int]], None]) -> bool:
         """Runs one method; after a quick audio-only rejection, once more (once per clip)."""
@@ -534,10 +550,14 @@ def download_clip_segment(
             notify({"code": "next_method", "method": number, "methods": DOWNLOAD_METHODS})
         if attempt(number, label, run):
             return str(output_path)
+        if is_challenge_error(state["err"]):
+            # Every method runs the same yt-dlp: the others would fail the same way.
+            state["challenge"] = state["err"]
+            break
 
+    if state["challenge"]:
+        raise RuntimeError(f"YouTube asked for a challenge ({state['challenge'].strip()[:200]}). {challenge_hint()}")
     err_lower = state["err"].lower()
-    if "page needs to be reloaded" in err_lower or "challenge solving failed" in err_lower:
-        raise RuntimeError(f"{CHALLENGE_MESSAGE} ({state['err'].strip()[:200]})")
     if "confirm you're not a bot" in err_lower or "sign in" in err_lower or "login" in err_lower:
         raise RuntimeError("YouTube blocked video download (Bot verification). Please import/save your YouTube cookies using the 🍪 Cookies Manager button in the top navbar.")
     if state["audio_only"]:
@@ -571,11 +591,14 @@ def download_full_raw_video(video_url: str, output_path: str, progress_callback=
     logger.info(f"Downloading full raw video from {clean_url} to {output_path}...")
 
     process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, bufsize=1)
+    last_error = ""
     for line in iter(process.stdout.readline, ''):
         raw_line = line.strip()
         if not raw_line:
             continue
         clean_line = re.sub(r'\x1b\[[0-9;]*[a-zA-Z]', '', raw_line).strip()
+        if clean_line.startswith("ERROR:"):
+            last_error = clean_line
 
         if clean_line.startswith("download:") and progress_callback:
             raw_data = clean_line[len("download:"):].strip()
@@ -622,6 +645,8 @@ def download_full_raw_video(video_url: str, output_path: str, progress_callback=
     if verdict == "unreadable":
         raise RuntimeError("The downloaded video file is damaged and cannot be read. Please try again.")
 
+    if is_challenge_error(last_error):
+        raise RuntimeError(f"YouTube asked for a challenge ({last_error[:200]}). {challenge_hint()}")
     raise RuntimeError(f"Failed to download raw video. Process exited with code: {returncode}")
 
 

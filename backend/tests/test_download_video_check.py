@@ -296,19 +296,85 @@ def test_the_requirements_bring_the_challenge_solver():
     assert any(line.startswith("yt-dlp[default]") for line in requirements.splitlines())
 
 
-def test_a_challenge_youtube_could_not_solve_gets_a_clear_message(tools, monkeypatch):
-    fake = tools([None, None, None])
+def challenge_everywhere(fake, monkeypatch):
     real_run = fake.run
 
-    def challenge(cmd, **kwargs):
-        res = real_run(cmd, **kwargs)
+    def run(cmd, **kwargs):
         if cmd[0] == "yt-dlp":
-            res = subprocess.CompletedProcess(cmd, 1, "", "ERROR: [youtube] p1t-074cn38: The page needs to be reloaded.\n")
-        return res
+            fake.calls.append(("urls" if "-g" in cmd else "hd", kwargs.get("timeout")))
+            return subprocess.CompletedProcess(cmd, 1, "", "ERROR: [youtube] p1t-074cn38: The page needs to be reloaded.\n")
+        return real_run(cmd, **kwargs)
 
-    monkeypatch.setattr(video_engine.subprocess, "run", challenge)
+    monkeypatch.setattr(video_engine.subprocess, "run", run)
+
+
+def test_a_challenge_stops_the_download_at_once_with_what_to_do(tools, monkeypatch):
+    fake = tools([None, None, None])
+    challenge_everywhere(fake, monkeypatch)
+    monkeypatch.setattr(video_engine, "_challenge_solver_installed", lambda: False)
     with pytest.raises(RuntimeError) as caught:
         download(fake)
     message = str(caught.value)
-    assert "pip install -r backend/requirements.txt" in message
+    # Methods 2 and 3 run the same yt-dlp: they are not tried.
+    assert [c[0] for c in fake.calls] == ["hd"]
     assert "The page needs to be reloaded" in message  # the real error stays visible
+    assert f"{sys.executable} -m pip install -r backend/requirements.txt" in message
+
+
+def test_the_advice_follows_what_this_machine_is_missing(monkeypatch):
+    monkeypatch.setattr(video_engine, "_challenge_solver_installed", lambda: True)
+    monkeypatch.setattr(video_engine.shutil, "which", lambda name: None)
+    assert "Node.js or Deno" in video_engine.challenge_hint()
+    monkeypatch.setattr(video_engine.shutil, "which", lambda name: "node" if name == "node" else None)
+    assert "re-import your YouTube cookies" in video_engine.challenge_hint()
+    monkeypatch.setattr(video_engine, "_challenge_solver_installed", lambda: False)
+    assert "yt-dlp-ejs" in video_engine.challenge_hint()
+
+
+def test_other_errors_keep_the_old_messages(tools, monkeypatch):
+    fake = tools([None, None, None])
+    real_run = fake.run
+
+    def forbidden(cmd, **kwargs):
+        res = real_run(cmd, **kwargs)
+        if cmd[0] == "yt-dlp" and "-g" not in cmd:
+            res.stderr = "ERROR: HTTP Error 403: Forbidden"
+        return res
+
+    monkeypatch.setattr(video_engine.subprocess, "run", forbidden)
+    with pytest.raises(RuntimeError, match="Failed to download video clip segment"):
+        download(fake)
+
+
+class FakePopen:
+    def __init__(self, cmd, **kwargs):
+        self.stdout = iter_lines(["[youtube] p1t-074cn38: Downloading webpage",
+                                  "ERROR: [youtube] p1t-074cn38: The page needs to be reloaded."])
+
+    def wait(self):
+        return 1
+
+
+class iter_lines:
+    def __init__(self, lines):
+        self._lines = [line + "\n" for line in lines]
+
+    def readline(self):
+        return self._lines.pop(0) if self._lines else ""
+
+    def close(self):
+        pass
+
+
+def test_a_full_video_download_explains_a_challenge_too(monkeypatch, tmp_path):
+    monkeypatch.setattr(video_engine, "get_yt_dlp_base_cmd", lambda: ["yt-dlp"])
+    monkeypatch.setattr(video_engine.subprocess, "Popen", FakePopen)
+    monkeypatch.setattr(video_engine, "_challenge_solver_installed", lambda: False)
+    with pytest.raises(RuntimeError, match="yt-dlp-ejs") as caught:
+        video_engine.download_full_raw_video("p1t-074cn38", str(tmp_path / "raw.mp4"))
+    assert "The page needs to be reloaded" in str(caught.value)
+
+
+def test_the_challenge_solver_is_installed_where_the_tests_run():
+    # CI installs requirements-dev.txt: it must bring yt-dlp-ejs like requirements.txt.
+    assert video_engine._challenge_solver_installed()

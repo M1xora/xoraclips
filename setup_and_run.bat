@@ -242,7 +242,13 @@ if not exist "venv\Scripts\activate.bat" (
 
 call venv\Scripts\activate.bat
 
-if not exist "venv\.installed" (
+:: venv\.installed holds a copy of the requirements it installed: when
+:: backend\requirements.txt changes, existing installs get the new packages too (#76).
+set "NEED_DEPS=0"
+if not exist "venv\.installed" set "NEED_DEPS=1"
+if exist "venv\.installed" fc /b "backend\requirements.txt" "venv\.installed" >nul 2>&1 || set "NEED_DEPS=1"
+
+if "!NEED_DEPS!"=="1" (
     echo [INFO] Installing Python dependencies from backend\requirements.txt...
     echo [INFO] Note: First time installation may take a few minutes.
     python -m pip install --upgrade pip --quiet
@@ -253,7 +259,10 @@ if not exist "venv\.installed" (
         exit /b 1
     )
     python -m pip install --upgrade "yt-dlp[default]" --quiet
-    echo installed > "venv\.installed"
+    if !errorlevel! neq 0 (
+        echo [WARN] Could not upgrade yt-dlp - keeping the version from requirements.txt.
+    )
+    copy /y "backend\requirements.txt" "venv\.installed" >nul
     echo [OK] Backend dependencies installed successfully.
 ) else (
     echo [OK] Backend dependencies already installed - venv ready.
