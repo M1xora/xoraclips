@@ -357,3 +357,37 @@ def test_without_a_clip_all_lines_keep_absolute_times():
 def test_a_line_whose_start_is_not_a_finite_number_is_ignored(bad):
     lines = [{"start": bad, "end": 3.0, "text": "rusak"}] + EDGE_LINES
     assert "RUSAK" not in " ".join(_chunk_texts(lines, 0.0, 12.0))
+
+
+# A fast line: 8 words in 0.5s. Found by /code-review: with a 0.12s floor per
+# word the last words ran past the line and fell outside a clip ending there.
+FAST_LINES = [
+    {"start": 10.0, "end": 10.5, "text": "satu dua tiga empat lima enam tujuh delapan"},
+    {"start": 10.5, "end": 12.0, "text": "sembilan sepuluh"},
+]
+
+
+def test_a_fast_line_keeps_all_its_words_when_the_clip_ends_with_it():
+    words = words_from_transcript(FAST_LINES, 9.0, 10.5)
+    assert [w["word"] for w in words] == "satu dua tiga empat lima enam tujuh delapan".split()
+
+
+def test_words_stay_in_order_and_inside_their_line():
+    words = words_from_transcript(FAST_LINES, 9.0, 20.0)
+    starts = [w["start"] for w in words]
+    assert starts == sorted(starts)
+    delapan = next(w for w in words if w["word"] == "delapan")
+    sembilan = next(w for w in words if w["word"] == "sembilan")
+    assert delapan["end"] <= sembilan["start"]
+
+
+def test_a_clip_with_a_start_but_no_end_has_no_words():
+    # Not "no clip": absolute times would put the words past the clip.
+    assert words_from_transcript(EDGE_LINES, 12.0, 0.0) == []
+
+
+def test_a_start_that_is_not_a_number_is_skipped_and_logged(caplog):
+    lines = [{"start": "abc", "end": 3.0, "text": "rusak"}, {"start": "", "end": 3.0, "text": "kosong"}]
+    with caplog.at_level("WARNING"):
+        assert words_from_transcript(lines + EDGE_LINES, 0.0, 12.0)[0]["word"] == "kalimat"
+    assert "Skipped 2 transcript line(s) whose start is not a number" in caplog.text

@@ -187,6 +187,7 @@ def _resolve_line_times(
       it. YouTube auto captions overlap like this routinely.
     """
     parsed = []
+    bad_start = []
     for line in lines:
         text = str(line.get("text") or "").strip()
         if not text:
@@ -194,13 +195,21 @@ def _resolve_line_times(
         start = _to_float(line.get("start"))
         if start is None:
             if line.get("start") is not None:
-                continue  # a start that is not a finite number (issue #51)
+                # Not a finite number ("", "abc", NaN, inf): no time to show it at (#51).
+                bad_start.append(text)
+                continue
             start = 0.0
         end = _to_float(line.get("end"))
         if end is None or end <= start:
             duration = _to_float(line.get("duration"))
             end = start + duration if duration is not None and duration > 0 else None
         parsed.append({"text": text, "start": start, "end": end})
+
+    if bad_start:
+        logger.warning(
+            f"Skipped {len(bad_start)} transcript line(s) whose start is not a number. "
+            f"Examples: {', '.join(repr(t[:30]) for t in bad_start[:3])}"
+        )
 
     parsed.sort(key=lambda l: l["start"])
 
@@ -250,27 +259,29 @@ def words_from_transcript(
 ) -> List[Dict[str, Any]]:
     """
     Maps transcript lines to display words timed relative to the clip
-    (0.0s = clip_start_time). Words are spread evenly over their line's own
-    time, and only the words spoken inside the clip are kept: a word whose
+    (0.0s = clip_start_time).
+
+    Each line's words share the line's own time evenly, never running past
+    its end, and only the words spoken inside the clip are kept: a word whose
     middle falls in [clip_start, clip_end) (issue #51). Before, every line
     ending up to 0.2s before the clip (the normal case: clips start at a line
-    start and the previous line is trimmed to it) was squeezed into the
-    first 0.15s, so captions opened with words from the sentence before.
+    start and the previous line is trimmed to it) was squeezed into the first
+    0.15s, so captions opened with words from the sentence before.
 
-    clip_end_time 0 (the default) means no clip: absolute times, all lines.
-    A clip that ends at or before its start has no words.
+    With no clip (both times 0, the default) every line is kept at absolute
+    times. A clip that ends at or before its start has no words.
     """
-    if clip_end_time <= 0:
-        return _words_without_clip(transcript)
-    if clip_end_time <= clip_start_time:
+    has_clip = clip_start_time > 0 or clip_end_time > 0
+    if has_clip and clip_end_time <= clip_start_time:
         return []
+    origin = clip_start_time if has_clip else 0.0
+    limit = clip_end_time - clip_start_time if has_clip else math.inf
 
-    clip_length = clip_end_time - clip_start_time
     words = []
     for line in _resolve_line_times(transcript or [], clip_end_time):
         l_start = line["start"]
         l_end = line["end"]
-        if l_end <= clip_start_time or l_start >= clip_end_time:
+        if has_clip and (l_end <= clip_start_time or l_start >= clip_end_time):
             continue
 
         # Tokenize only lines touching the clip: the preview asks on every trim.
@@ -278,17 +289,20 @@ def words_from_transcript(
         if not line_words:
             continue
 
-        w_duration = max(0.12, (l_end - l_start) / len(line_words))
+        # No minimum per word: a floor pushed the words of a fast line past
+        # its end, where they overlapped the next line or fell outside the
+        # clip. Readable timing is build_caption_chunks' job (min chunk length).
+        step = (l_end - l_start) / len(line_words)
         kept = []
         for i, w in enumerate(line_words):
-            w_s = l_start + i * w_duration
-            w_e = w_s + w_duration
-            if not clip_start_time <= (w_s + w_e) / 2 < clip_end_time:
+            w_s = l_start + i * step
+            w_e = w_s + step
+            if has_clip and not clip_start_time <= (w_s + w_e) / 2 < clip_end_time:
                 continue
             kept.append({
                 "word": w["word"],
-                "start": round(max(0.0, w_s - clip_start_time), 2),
-                "end": round(min(clip_length, w_e - clip_start_time), 2),
+                "start": round(max(0.0, w_s - origin), 2),
+                "end": round(min(limit, w_e - origin), 2),
                 "break_after": w["break_after"],
             })
         if kept:
@@ -296,27 +310,6 @@ def words_from_transcript(
             # off the end of this one.
             kept[-1]["break_after"] = True
             words.extend(kept)
-    return words
-
-
-def _words_without_clip(transcript: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    """Every line's words at absolute times (no clip range given)."""
-    words = []
-    for line in _resolve_line_times(transcript or []):
-        rel_start = max(0.0, line["start"])
-        rel_end = max(rel_start + 0.15, line["end"])
-        line_words = tokenize_caption_text(line["text"])
-        if not line_words:
-            continue
-        w_duration = max(0.12, (rel_end - rel_start) / len(line_words))
-        for i, w in enumerate(line_words):
-            w_s = rel_start + (i * w_duration)
-            words.append({
-                "word": w["word"],
-                "start": round(w_s, 2),
-                "end": round(w_s + w_duration, 2),
-                "break_after": w["break_after"],
-            })
     return words
 
 
