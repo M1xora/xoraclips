@@ -10,6 +10,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 import main
+import routes_analyze
 
 USER_KEY = "AIzaSyFAKE_USER_KEY_0123456789abcdefgh"
 ODD_KEY = "user-pasted-key-without-google-shape-777"
@@ -52,17 +53,17 @@ def no_youtube(*args, **kwargs):
 
 
 class InstantAsyncio:
-    """main.py's asyncio, with retry back-off and progress pauses made instant."""
+    """routes_analyze's asyncio, with retry back-off and progress pauses made instant."""
 
     def __getattr__(self, name):
-        return getattr(main_asyncio, name)
+        return getattr(real_asyncio, name)
 
     @staticmethod
     async def sleep(*args, **kwargs):
         return None
 
 
-main_asyncio = main.asyncio
+real_asyncio = routes_analyze.asyncio
 
 
 @pytest.fixture
@@ -72,10 +73,10 @@ def client(monkeypatch):
     FakeGemini.list_failure = None
     FakeGemini.failure = "503 UNAVAILABLE. The model is overloaded."
     FakeGemini.per_model = {}
-    monkeypatch.setattr(main.genai, "Client", FakeGemini)
-    monkeypatch.setattr(main, "fetch_video_metadata", no_youtube)
-    monkeypatch.setattr(main, "fetch_transcript", no_youtube)
-    monkeypatch.setattr(main, "asyncio", InstantAsyncio())
+    monkeypatch.setattr(routes_analyze.genai, "Client", FakeGemini)
+    monkeypatch.setattr(routes_analyze, "fetch_video_metadata", no_youtube)
+    monkeypatch.setattr(routes_analyze, "fetch_transcript", no_youtube)
+    monkeypatch.setattr(routes_analyze, "asyncio", InstantAsyncio())
     monkeypatch.delenv("MOCK_MODE", raising=False)
     # A key in .env must be ignored completely.
     monkeypatch.setenv("GEMINI_API_KEY", "AIzaSyENV_KEY_MUST_NEVER_BE_USED_xxxxx")
@@ -84,11 +85,11 @@ def client(monkeypatch):
 
 @pytest.fixture
 def youtube_ok(monkeypatch):
-    monkeypatch.setattr(main, "fetch_video_metadata", lambda *a, **k: {
+    monkeypatch.setattr(routes_analyze, "fetch_video_metadata", lambda *a, **k: {
         "title": "Uji", "channel": "Kanal", "duration": 120.0, "heatmap": [],
         "is_live": False, "live_status": "not_live",
     })
-    monkeypatch.setattr(main, "fetch_transcript", lambda *a, **k: [
+    monkeypatch.setattr(routes_analyze, "fetch_transcript", lambda *a, **k: [
         {"text": f"kalimat nomor {i}", "start": i * 5.0, "duration": 5.0} for i in range(20)
     ])
 
@@ -235,7 +236,7 @@ def test_key_never_reaches_logs_or_the_user(client, youtube_ok, caplog, key):
 def test_scrubbed_errors_are_still_valid_json(client, monkeypatch):
     def blocked(*args, **kwargs):
         raise RuntimeError(f'403 for "https://www.youtube.com/youtubei/v1/player?key={USER_KEY}" blocked')
-    monkeypatch.setattr(main, "fetch_video_metadata", blocked)
+    monkeypatch.setattr(routes_analyze, "fetch_video_metadata", blocked)
     res = analyze(client, key=USER_KEY)
     errs = errors(res)  # json.loads on every frame: raises if any frame is invalid
     assert errs and errs[-1]["error"].endswith('" blocked')
@@ -268,5 +269,5 @@ class _ClosingModels:
 
 def test_key_check_keeps_the_client_alive(monkeypatch):
     """Found in live testing: a temporary Client closed itself before the request."""
-    monkeypatch.setattr(main.genai, "Client", ClosingGemini)
-    assert main._gemini_key_problem(USER_KEY) == "key_invalid"
+    monkeypatch.setattr(routes_analyze.genai, "Client", ClosingGemini)
+    assert routes_analyze._gemini_key_problem(USER_KEY) == "key_invalid"

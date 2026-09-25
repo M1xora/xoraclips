@@ -9,6 +9,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 import main
+import routes_analyze
 from clip_bounds import EDGE_TOLERANCE_SECONDS, MAX_SHIFT_SECONDS, TAIL_SECONDS, Lines, snap_clip, snap_clips
 
 FIXTURES = Path(__file__).parent / "fixtures" / "transcripts"
@@ -144,13 +145,13 @@ def gemini_clip(start, end, hook):
 
 @pytest.fixture
 def api(monkeypatch):
-    monkeypatch.setattr(main.genai, "Client", FakeGemini)
-    monkeypatch.setattr(main, "get_flash_models_for_key", lambda client: [])
-    monkeypatch.setattr(main, "fetch_video_metadata", lambda *a, **k: {
+    monkeypatch.setattr(routes_analyze.genai, "Client", FakeGemini)
+    monkeypatch.setattr(routes_analyze, "get_flash_models_for_key", lambda client: [])
+    monkeypatch.setattr(routes_analyze, "fetch_video_metadata", lambda *a, **k: {
         "title": "Uji", "channel": "Kanal", "duration": 120.0, "heatmap": [],
         "is_live": False, "live_status": "not_live"})
     # Lines of 4s every 5s: 1s of silence after each.
-    monkeypatch.setattr(main, "fetch_transcript", lambda *a, **k: [
+    monkeypatch.setattr(routes_analyze, "fetch_transcript", lambda *a, **k: [
         {"text": f"kalimat nomor {i}", "start": i * 5.0, "duration": 4.0} for i in range(24)])
     monkeypatch.delenv("MOCK_MODE", raising=False)
     return TestClient(main.app)
@@ -189,7 +190,7 @@ def test_backup_clips_are_snapped_too(api, monkeypatch):
     # Lines of 4s every 7s: a 30s backup window mostly starts or ends inside
     # a line, and has to be moved to that line's edge.
     lines = [{"text": f"kalimat nomor {i}", "start": i * 7.0, "duration": 4.0} for i in range(17)]
-    monkeypatch.setattr(main, "fetch_transcript", lambda *a, **k: [dict(l) for l in lines])
+    monkeypatch.setattr(routes_analyze, "fetch_transcript", lambda *a, **k: [dict(l) for l in lines])
     FakeGemini.payload = {"summary": "", "clips": []}
     clips = analyze(api)["clips"]
     assert clips

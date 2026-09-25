@@ -11,6 +11,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 import main
+import routes_analyze
 import title_rules
 from title_rules import GENERIC_FALLBACK, pick_titles, prompt_rules, title_problem
 
@@ -150,12 +151,12 @@ def gemini_clip(start, options, **extra):
 @pytest.fixture
 def api(monkeypatch):
     FakeGemini.prompts = []
-    monkeypatch.setattr(main.genai, "Client", FakeGemini)
-    monkeypatch.setattr(main, "get_flash_models_for_key", lambda client: [])
-    monkeypatch.setattr(main, "fetch_video_metadata", lambda *a, **k: {
+    monkeypatch.setattr(routes_analyze.genai, "Client", FakeGemini)
+    monkeypatch.setattr(routes_analyze, "get_flash_models_for_key", lambda client: [])
+    monkeypatch.setattr(routes_analyze, "fetch_video_metadata", lambda *a, **k: {
         "title": "Uji", "channel": "Kanal", "duration": 120.0, "heatmap": [],
         "is_live": False, "live_status": "not_live"})
-    monkeypatch.setattr(main, "fetch_transcript", lambda *a, **k: [
+    monkeypatch.setattr(routes_analyze, "fetch_transcript", lambda *a, **k: [
         {"text": f"kalimat nomor {i}", "start": i * 5.0, "duration": 5.0} for i in range(24)])
     monkeypatch.delenv("MOCK_MODE", raising=False)
     return TestClient(main.app)
@@ -237,7 +238,7 @@ def test_the_generic_fallback_obeys_stricter_settings(monkeypatch):
 
 
 def test_title_options_are_required_in_the_structured_output():
-    schema = main.ViralClipGemini.model_json_schema()
+    schema = routes_analyze.ViralClipGemini.model_json_schema()
     assert "title_options" in schema["required"]
 
 

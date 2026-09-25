@@ -8,6 +8,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 import main
+import routes_analyze
 from clip_bounds import TAIL_SECONDS, Lines
 from clip_lengths import (
     DURATIONS, MAX_CLIP_SECONDS, backup_windows, cap_length, clip_count_range,
@@ -169,13 +170,13 @@ def gemini_clip(start, end):
 @pytest.fixture
 def api(monkeypatch):
     FakeGemini.prompts = []
-    monkeypatch.setattr(main.genai, "Client", FakeGemini)
-    monkeypatch.setattr(main, "get_flash_models_for_key", lambda client: [])
-    monkeypatch.setattr(main, "fetch_video_metadata", lambda *a, **k: {
+    monkeypatch.setattr(routes_analyze.genai, "Client", FakeGemini)
+    monkeypatch.setattr(routes_analyze, "get_flash_models_for_key", lambda client: [])
+    monkeypatch.setattr(routes_analyze, "fetch_video_metadata", lambda *a, **k: {
         "title": "Uji", "channel": "Kanal", "duration": 900.0, "heatmap": [],
         "is_live": False, "live_status": "not_live"})
     # Back-to-back 5s lines over 15 minutes.
-    monkeypatch.setattr(main, "fetch_transcript", lambda *a, **k: [
+    monkeypatch.setattr(routes_analyze, "fetch_transcript", lambda *a, **k: [
         {"text": f"kalimat nomor {i}", "start": i * 5.0, "duration": 5.0} for i in range(180)])
     monkeypatch.delenv("MOCK_MODE", raising=False)
     return TestClient(main.app)
