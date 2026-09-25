@@ -53,17 +53,17 @@ def no_youtube(*args, **kwargs):
 
 
 class InstantAsyncio:
-    """main.py's asyncio, with retry back-off and progress pauses made instant."""
+    """routes_analyze's asyncio, with retry back-off and progress pauses made instant."""
 
     def __getattr__(self, name):
-        return getattr(main_asyncio, name)
+        return getattr(real_asyncio, name)
 
     @staticmethod
     async def sleep(*args, **kwargs):
         return None
 
 
-main_asyncio = routes_analyze.asyncio
+real_asyncio = routes_analyze.asyncio
 
 
 @pytest.fixture

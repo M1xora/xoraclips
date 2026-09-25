@@ -366,7 +366,7 @@ def no_youtube(*args, **kwargs):
 
 
 class InstantAsyncio:
-    """main.py's asyncio with retry back-off made instant."""
+    """routes_analyze's asyncio with retry back-off made instant."""
 
     def __init__(self, real):
         self._real = real
