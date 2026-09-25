@@ -15,6 +15,7 @@ from fastapi.testclient import TestClient
 from youtube_transcript_api._errors import IpBlocked, TranscriptsDisabled
 
 import main
+import youtube_source
 import youtube_errors
 from youtube_errors import BlockMemory, CaptionUnavailable, YouTubeBlocked
 
@@ -175,14 +176,14 @@ def install_fakes(monkeypatch, script):
         script.calls.append(f"get:{url}")
         return script.http(url)
 
-    monkeypatch.setattr(main, "YouTubeTranscriptApi", FakeApi)
-    monkeypatch.setattr(main, "create_http_client", lambda **kw: FakeClient())
-    monkeypatch.setattr(main.yt_dlp, "YoutubeDL", FakeYDL)
-    monkeypatch.setattr(main.subprocess, "run", fake_run)
-    monkeypatch.setattr(main.requests, "get", fake_get)
-    monkeypatch.setattr(main, "get_supadata_keys", lambda: [])
-    monkeypatch.setattr(main, "get_proxy_url", lambda: None)
-    monkeypatch.setattr(main, "get_youtube_transcript_proxy_config", lambda *a, **k: None)
+    monkeypatch.setattr(youtube_source, "YouTubeTranscriptApi", FakeApi)
+    monkeypatch.setattr(youtube_source, "create_http_client", lambda **kw: FakeClient())
+    monkeypatch.setattr(youtube_source.yt_dlp, "YoutubeDL", FakeYDL)
+    monkeypatch.setattr(youtube_source.subprocess, "run", fake_run)
+    monkeypatch.setattr(youtube_source.requests, "get", fake_get)
+    monkeypatch.setattr(youtube_source, "get_supadata_keys", lambda: [])
+    monkeypatch.setattr(youtube_source, "get_proxy_url", lambda: None)
+    monkeypatch.setattr(youtube_source, "get_youtube_transcript_proxy_config", lambda *a, **k: None)
 
 
 @pytest.fixture
@@ -210,7 +211,7 @@ def many_languages(n=159):
 def test_python_api_block_stops_everything(script):
     script.api_fetch_error = IpBlocked(VIDEO)
     with pytest.raises(YouTubeBlocked) as caught:
-        main.fetch_transcript(VIDEO)
+        youtube_source.fetch_transcript(VIDEO)
     assert script.calls == ["api.fetch"]
     assert caught.value.retry_after == 600
 
@@ -218,14 +219,14 @@ def test_python_api_block_stops_everything(script):
 def test_block_on_one_track_stops_the_other_tracks(script):
     script.tracks = [FakeTrack(script, "id", IpBlocked(VIDEO)), FakeTrack(script, "en", IpBlocked(VIDEO))]
     with pytest.raises(YouTubeBlocked):
-        main.fetch_transcript(VIDEO)
+        youtube_source.fetch_transcript(VIDEO)
     assert script.calls == ["api.fetch", "api.list", "track:id"]
 
 
 def test_cli_block_printed_with_exit_code_zero_stops_yt_dlp(script):
     script.cli = (0, CLI_BLOCKED, "")
     with pytest.raises(YouTubeBlocked):
-        main.fetch_transcript(VIDEO)
+        youtube_source.fetch_transcript(VIDEO)
     assert "ytdlp.info" not in script.calls
     assert script.calls[-1] == "cli"
 
@@ -233,7 +234,7 @@ def test_cli_block_printed_with_exit_code_zero_stops_yt_dlp(script):
 def test_cli_output_that_is_not_json_is_reported_as_it_is(script):
     script.cli = (0, "\nSomething else went wrong in the CLI\n", "")
     with pytest.raises(CaptionUnavailable) as caught:
-        main.fetch_transcript(VIDEO)
+        youtube_source.fetch_transcript(VIDEO)
     assert "Something else went wrong in the CLI" in caught.value.detail
     assert "JSONDecodeError" not in caught.value.detail
 
@@ -242,14 +243,14 @@ def test_yt_dlp_asks_once_when_blocked_even_with_159_languages(script):
     script.ydl_info = many_languages()
     script.http = lambda url: FakeResponse(429, "text/html; charset=UTF-8", SORRY_PAGE)
     with pytest.raises(YouTubeBlocked):
-        main.fetch_transcript(VIDEO)
+        youtube_source.fetch_transcript(VIDEO)
     assert [c for c in script.calls if c.startswith("get:")] == ["get:https://yt/id-orig"]
 
 
 def test_yt_dlp_asks_at_most_three_times_without_a_block(script):
     script.ydl_info = many_languages()
     with pytest.raises(CaptionUnavailable) as caught:
-        main.fetch_transcript(VIDEO)
+        youtube_source.fetch_transcript(VIDEO)
     assert caught.value.code == youtube_errors.CAPTIONS_UNAVAILABLE
     assert len([c for c in script.calls if c.startswith("get:")]) == 3
 
@@ -257,19 +258,19 @@ def test_yt_dlp_asks_at_most_three_times_without_a_block(script):
 def test_yt_dlp_bot_check_is_a_block(script):
     script.ydl_error = Exception("ERROR: [youtube] x: Sign in to confirm you're not a bot.")
     with pytest.raises(YouTubeBlocked):
-        main.fetch_transcript(VIDEO)
+        youtube_source.fetch_transcript(VIDEO)
 
 
 def test_caption_candidates_order():
     subtitles = {"ja": [{"ext": "json3", "url": "u-ja"}], "en-US": [{"ext": "json3", "url": "u-en-man"}]}
     auto = many_languages(20)["automatic_captions"]
-    picked = main.ytdlp_caption_candidates(subtitles, auto)
+    picked = youtube_source.ytdlp_caption_candidates(subtitles, auto)
     assert [(lang, is_auto) for lang, is_auto, _ in picked] == [("en-US", False), ("ja", False), ("id-orig", True)]
 
 
 def test_a_human_track_in_another_language_is_still_tried():
     subtitles = {"ja": [{"ext": "json3", "url": "u-ja"}]}
-    picked = main.ytdlp_caption_candidates(subtitles, {})
+    picked = youtube_source.ytdlp_caption_candidates(subtitles, {})
     assert [(lang, is_auto) for lang, is_auto, _ in picked] == [("ja", False)]
 
 
@@ -281,7 +282,7 @@ def test_proxy_wording_of_the_block_is_recognised():
 def test_a_users_own_proxy_being_refused_does_not_lock_everyone_out(script):
     script.api_fetch_error = IpBlocked(VIDEO)
     with pytest.raises(YouTubeBlocked) as caught:
-        main.fetch_transcript(VIDEO, custom_proxy="http://user-proxy:8080")
+        youtube_source.fetch_transcript(VIDEO, custom_proxy="http://user-proxy:8080")
     assert caught.value.retry_after == 0
     assert youtube_errors.block_memory.remaining() == 0
 
@@ -292,42 +293,42 @@ def test_a_block_found_by_another_analysis_stops_this_one_between_tiers(script):
         script.calls.append("api.list")
         youtube_errors.block_memory.remember()
         raise Exception("No transcripts were found")
-    main.YouTubeTranscriptApi.list = lambda self, video_id: list_then_block(video_id)
+    youtube_source.YouTubeTranscriptApi.list = lambda self, video_id: list_then_block(video_id)
     with pytest.raises(YouTubeBlocked):
-        main.fetch_transcript(VIDEO)
+        youtube_source.fetch_transcript(VIDEO)
     assert "cli" not in script.calls and "ytdlp.info" not in script.calls
 
 
 def test_a_block_seen_while_reading_video_details_is_remembered(script, monkeypatch):
     script.ydl_error = Exception("ERROR: [youtube] x: Sign in to confirm you're not a bot.")
-    monkeypatch.setattr(main, "get_youtube_oembed_title", lambda *a, **k: None)
-    main.fetch_video_metadata(f"https://www.youtube.com/watch?v={VIDEO}")
+    monkeypatch.setattr(youtube_source, "get_youtube_oembed_title", lambda *a, **k: None)
+    youtube_source.fetch_video_metadata(f"https://www.youtube.com/watch?v={VIDEO}")
     assert youtube_errors.block_memory.remaining() == 600
 
 
 def test_a_block_is_remembered_and_youtube_is_left_alone(script, clock):
     script.api_fetch_error = IpBlocked(VIDEO)
     with pytest.raises(YouTubeBlocked):
-        main.fetch_transcript(VIDEO)
+        youtube_source.fetch_transcript(VIDEO)
     calls_after_block = list(script.calls)
 
     clock.now += 60
     with pytest.raises(YouTubeBlocked) as again:
-        main.fetch_transcript(VIDEO)
+        youtube_source.fetch_transcript(VIDEO)
     assert script.calls == calls_after_block  # nothing sent to YouTube
     assert again.value.retry_after == 540
 
     clock.now += 541  # the wait is over: YouTube is tried again
     with pytest.raises(YouTubeBlocked):
-        main.fetch_transcript(VIDEO)
+        youtube_source.fetch_transcript(VIDEO)
     assert len(script.calls) > len(calls_after_block)
 
 
 def test_supadata_still_works_while_youtube_is_remembered_as_blocked(script, monkeypatch):
     youtube_errors.block_memory.remember()
-    monkeypatch.setattr(main, "get_supadata_keys", lambda: ["sd_test"])
-    monkeypatch.setattr(main, "fetch_transcript_supadata", lambda *a, **k: [{"text": "halo", "start": 0.0, "duration": 1.0}])
-    assert main.fetch_transcript(VIDEO)[0]["text"] == "halo"
+    monkeypatch.setattr(youtube_source, "get_supadata_keys", lambda: ["sd_test"])
+    monkeypatch.setattr(youtube_source, "fetch_transcript_supadata", lambda *a, **k: [{"text": "halo", "start": 0.0, "duration": 1.0}])
+    assert youtube_source.fetch_transcript(VIDEO)[0]["text"] == "halo"
     assert script.calls == []
 
 
@@ -335,7 +336,7 @@ def test_captions_turned_off_gets_its_own_code(script):
     script.api_fetch_error = TranscriptsDisabled(VIDEO)
     script.api_list_error = TranscriptsDisabled(VIDEO)
     with pytest.raises(CaptionUnavailable) as caught:
-        main.fetch_transcript(VIDEO)
+        youtube_source.fetch_transcript(VIDEO)
     assert caught.value.code == youtube_errors.CAPTIONS_DISABLED
 
 
