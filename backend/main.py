@@ -57,6 +57,7 @@ try:
         generate_ass_file,
         render_clip_to_mp4,
         extract_clip_frame,
+        is_thumbnail_frame,
         detect_speaker_face_box,
         detect_hardware_support,
         ACTIVE_ENCODER_NAME,
@@ -77,6 +78,7 @@ except ImportError:
         generate_ass_file,
         render_clip_to_mp4,
         extract_clip_frame,
+        is_thumbnail_frame,
         detect_speaker_face_box,
         detect_hardware_support,
         ACTIVE_ENCODER_NAME,
@@ -3388,7 +3390,9 @@ async def get_clip_frame(video_id: str, timestamp: float = FRAME_TIMESTAMP):
     try:
         frame_path = await asyncio.to_thread(extract_clip_frame, video_id, timestamp)
         if frame_path and os.path.exists(frame_path):
-            return FileResponse(frame_path, media_type="image/jpeg", headers={"Cache-Control": "public, max-age=86400"})
+            # A thumbnail stand-in is not this second's frame: let the browser ask again (#44).
+            cache = "no-store" if is_thumbnail_frame(frame_path) else "public, max-age=86400"
+            return FileResponse(frame_path, media_type="image/jpeg", headers={"Cache-Control": cache})
     except Exception as e:
         logger.warning(f"Failed to serve extracted frame for {video_id}: {e}")
 

@@ -238,6 +238,10 @@ def get_yt_dlp_base_cmd() -> List[str]:
 # download is also checked for a video track before it is used.
 FORMAT_1080 = "bestvideo[height<=1080]+bestaudio/best[height<=1080][vcodec!=none]/bestvideo+bestaudio/best[vcodec!=none]"
 FORMAT_720 = "bestvideo[height<=720]+bestaudio/best[height<=720][vcodec!=none]/best[vcodec!=none]"
+# Issue #44: one preview frame needs no audio. YouTube stopped serving format
+# 18 (360p mp4 with audio), so "18/..." failed and every preview frame was
+# the video's thumbnail. Video-only DASH up to 480p is enough and quick.
+FRAME_FORMAT = "bv*[height<=480][ext=mp4]/bv*[height<=480]/b[height<=720]/b"
 
 AUDIO_ONLY_MESSAGE = (
     "YouTube only sent audio for this clip (no video track). "
@@ -1850,6 +1854,11 @@ def render_clip_to_mp4(
     return str(output_mp4_path)
 
 
+def is_thumbnail_frame(path: Optional[str]) -> bool:
+    """True for the thumbnail stand-in extract_clip_frame returns when no real frame could be cut."""
+    return bool(path) and Path(path).name.endswith("_thumb.jpg")
+
+
 def extract_clip_frame(video_id: str, timestamp: float = 0.0) -> Optional[str]:
     """
     Extracts a single JPEG image frame at timestamp for the real video preview.
@@ -1901,7 +1910,7 @@ def extract_clip_frame(video_id: str, timestamp: float = 0.0) -> Optional[str]:
 
         slice_cmd = [
             *base_cmd,
-            "-f", "18/best[height<=720]/best",
+            "-f", FRAME_FORMAT,
             "--download-sections", f"*{t_start_fmt}-{t_end_fmt}",
             "-o", str(temp_slice),
             "--no-warnings",
@@ -1933,7 +1942,12 @@ def extract_clip_frame(video_id: str, timestamp: float = 0.0) -> Optional[str]:
     if existing_frames:
         return str(existing_frames[0])
 
-    # 4. Instant high-res thumbnail fallback (guarantees frame preview NEVER gets stuck)
+    # 4. Instant high-res thumbnail fallback (guarantees frame preview NEVER gets stuck).
+    # Saved under its own name (issue #44): cached as "<id>_<sec>.jpg" it was
+    # served as the frame of that second for good.
+    thumb_path = frames_dir / f"{safe_id}_thumb.jpg"
+    if thumb_path.exists() and thumb_path.stat().st_size > 2000:
+        return str(thumb_path)
     try:
         import urllib.request
         for thumb_url in [
@@ -1942,10 +1956,10 @@ def extract_clip_frame(video_id: str, timestamp: float = 0.0) -> Optional[str]:
         ]:
             try:
                 req = urllib.request.Request(thumb_url, headers={"User-Agent": "Mozilla/5.0"})
-                with urllib.request.urlopen(req, timeout=3) as resp, open(frame_path, "wb") as f_out:
+                with urllib.request.urlopen(req, timeout=3) as resp, open(thumb_path, "wb") as f_out:
                     f_out.write(resp.read())
-                if frame_path.exists() and frame_path.stat().st_size > 2000:
-                    return str(frame_path)
+                if thumb_path.exists() and thumb_path.stat().st_size > 2000:
+                    return str(thumb_path)
             except Exception:
                 continue
     except Exception as e:

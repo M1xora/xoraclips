@@ -139,3 +139,48 @@ def test_full_video_download_ends_with_the_separator(ytdlp_commands, tmp_path):
         video_engine.download_full_raw_video(url, str(tmp_path / "full.mp4"))
     assert len(ytdlp_commands) == 1
     assert_url_is_last_after_separator(ytdlp_commands[0], url)
+
+
+# --- Issue #44: real frames again, and a thumbnail is never cached as one ---
+
+def test_frame_extraction_does_not_ask_for_format_18(ytdlp_commands):
+    video_engine.extract_clip_frame(VALID_ID, 5.0)
+    cmd = ytdlp_commands[0]
+    fmt = cmd[cmd.index("-f") + 1]
+    assert fmt == video_engine.FRAME_FORMAT
+    assert not fmt.startswith("18")  # YouTube stopped serving format 18
+    assert fmt.startswith("bv*")     # video-only is enough for one frame
+
+
+class FakeThumbnail:
+    """What urllib.request.urlopen returns for i.ytimg.com."""
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *exc):
+        return False
+
+    def read(self):
+        return b"\xff\xd8" + b"x" * 5000
+
+
+def test_a_thumbnail_is_saved_under_its_own_name(ytdlp_commands, monkeypatch, tmp_path):
+    monkeypatch.setattr("urllib.request.urlopen", lambda *a, **k: FakeThumbnail())
+    path = video_engine.extract_clip_frame(VALID_ID, 5.0)
+    assert path is not None and path.endswith(f"{VALID_ID}_thumb.jpg")
+    assert video_engine.is_thumbnail_frame(path)
+    # Not cached as the frame of second 5, so a later try can cut the real one.
+    assert not (tmp_path / "frames" / f"{VALID_ID}_5.jpg").exists()
+
+
+@pytest.mark.parametrize("name, cache", [
+    (f"{VALID_ID}_thumb.jpg", "no-store"),
+    (f"{VALID_ID}_12.jpg", "public, max-age=86400"),
+])
+def test_clip_frame_does_not_let_the_browser_keep_a_thumbnail(monkeypatch, tmp_path, name, cache):
+    frame = tmp_path / name
+    frame.write_bytes(b"\xff\xd8" + b"x" * 5000)
+    monkeypatch.setattr(main, "extract_clip_frame", lambda *a: str(frame))
+    res = TestClient(main.app).get("/api/clip-frame", params={"video_id": VALID_ID, "timestamp": 12})
+    assert res.status_code == 200
+    assert res.headers["cache-control"] == cache
