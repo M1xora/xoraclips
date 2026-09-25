@@ -6,6 +6,7 @@ import re
 from typing import Optional
 
 from fastapi import HTTPException
+from pydantic import Field
 
 try:
     from backend.video_engine import is_video_id
@@ -14,6 +15,7 @@ except ImportError:
 
 # Seconds into a video: finite, 0 to 24 hours (issue #42).
 MAX_VIDEO_SECONDS = 24 * 3600
+VIDEO_SECONDS = Field(ge=0, le=MAX_VIDEO_SECONDS, allow_inf_nan=False)
 
 
 def require_video_id(video_id: Optional[str]) -> str:
