@@ -15,6 +15,7 @@ from captions import (
     caption_chunks_for_clip,
     clean_display_word,
     tokenize_caption_text,
+    words_from_transcript,
 )
 
 FIXTURE = json.loads(
@@ -281,3 +282,112 @@ def test_rupiah_is_never_split_from_its_amount_across_chunks():
 ])
 def test_amount_stays_with_its_unit(text, expected):
     assert [w["word"] for w in tokenize_caption_text(text)] == expected
+
+
+# --- Clip edges (issue #51) --------------------------------------------------
+# Clips start at a line start and the line before is trimmed to end there, so
+# "ends exactly at the clip start" is the normal case, not an edge case.
+
+EDGE_LINES = [
+    {"start": 5.0, "end": 10.0, "text": "kalimat sebelumnya"},
+    {"start": 10.0, "end": 14.0, "text": "awal klip ini"},
+    {"start": 14.0, "end": 18.0, "text": "sesudah klip"},
+]
+
+
+def _chunk_texts(lines, start, end):
+    return [c["text"] for c in caption_chunks_for_clip(lines, start, end, "uppercase")]
+
+
+def test_lines_touching_the_clip_edges_stay_out():
+    # Before #51: KALIMAT AWAL / SEBELUMNYA / KLIP INI / SESUDAH KLIP (4.0-8.0s).
+    assert _chunk_texts(EDGE_LINES, 10.0, 14.0) == ["AWAL KLIP INI"]
+
+
+def test_overlapping_auto_captions_do_not_leak_into_the_clip():
+    # YouTube auto captions roll: each line runs past the next one's start.
+    rolling = [
+        {"start": 15.08, "duration": 4.16, "text": "yang namanya sehat itu susah kalau sakit"},
+        {"start": 17.28, "duration": 4.44, "text": "mah gampang gitu kita tinggal keluar"},
+        {"start": 19.24, "duration": 4.0, "text": "rumah langsung ketemu"},
+    ]
+    text = " ".join(_chunk_texts(rolling, 17.28, 19.24))
+    assert text == "MAH GAMPANG GITU KITA TINGGAL KELUAR"
+
+
+def test_a_line_cut_by_the_clip_start_keeps_only_the_words_inside():
+    lines = [{"start": 0.0, "end": 4.0, "text": "satu dua tiga empat"}]
+    # Words at 0-1, 1-2, 2-3, 3-4: middles 0.5, 1.5, 2.5, 3.5.
+    words = words_from_transcript(lines, 2.0, 10.0)
+    assert [w["word"] for w in words] == ["tiga", "empat"]
+    assert words[0]["start"] == 0.0
+
+
+def test_a_line_cut_by_the_clip_end_keeps_only_the_words_inside():
+    lines = [{"start": 0.0, "end": 4.0, "text": "satu dua tiga empat"}]
+    words = words_from_transcript(lines, 0.0, 2.0)
+    assert [w["word"] for w in words] == ["satu", "dua"]
+    # The clip cut the line: its last kept word still ends a chunk.
+    assert words[-1]["break_after"] is True
+
+
+def test_every_word_time_is_inside_the_clip():
+    lines = [
+        {"start": 0.0, "end": 6.0, "text": "a b c d e f g h i j"},
+        {"start": 6.0, "end": 9.0, "text": "k l m n o p"},
+    ]
+    start, end = 2.3, 7.7
+    for w in words_from_transcript(lines, start, end):
+        assert 0.0 <= w["start"] < w["end"] <= round(end - start, 2)
+
+
+def test_a_clip_that_ends_at_or_before_its_start_has_no_words():
+    assert words_from_transcript(EDGE_LINES, 14.0, 14.0) == []
+    assert words_from_transcript(EDGE_LINES, 14.0, 10.0) == []
+    assert caption_chunks_for_clip(EDGE_LINES, 100.0, 100.0, "uppercase") == []
+
+
+def test_without_a_clip_all_lines_keep_absolute_times():
+    words = words_from_transcript(EDGE_LINES)
+    assert words[0]["word"] == "kalimat" and words[0]["start"] == 5.0
+    assert words[-1]["word"] == "klip"
+
+
+@pytest.mark.parametrize("bad", ["nan", float("nan"), "inf", float("-inf")])
+def test_a_line_whose_start_is_not_a_finite_number_is_ignored(bad):
+    lines = [{"start": bad, "end": 3.0, "text": "rusak"}] + EDGE_LINES
+    assert "RUSAK" not in " ".join(_chunk_texts(lines, 0.0, 12.0))
+
+
+# A fast line: 8 words in 0.5s. Found by /code-review: with a 0.12s floor per
+# word the last words ran past the line and fell outside a clip ending there.
+FAST_LINES = [
+    {"start": 10.0, "end": 10.5, "text": "satu dua tiga empat lima enam tujuh delapan"},
+    {"start": 10.5, "end": 12.0, "text": "sembilan sepuluh"},
+]
+
+
+def test_a_fast_line_keeps_all_its_words_when_the_clip_ends_with_it():
+    words = words_from_transcript(FAST_LINES, 9.0, 10.5)
+    assert [w["word"] for w in words] == "satu dua tiga empat lima enam tujuh delapan".split()
+
+
+def test_words_stay_in_order_and_inside_their_line():
+    words = words_from_transcript(FAST_LINES, 9.0, 20.0)
+    starts = [w["start"] for w in words]
+    assert starts == sorted(starts)
+    delapan = next(w for w in words if w["word"] == "delapan")
+    sembilan = next(w for w in words if w["word"] == "sembilan")
+    assert delapan["end"] <= sembilan["start"]
+
+
+def test_a_clip_with_a_start_but_no_end_has_no_words():
+    # Not "no clip": absolute times would put the words past the clip.
+    assert words_from_transcript(EDGE_LINES, 12.0, 0.0) == []
+
+
+def test_a_start_that_is_not_a_number_is_skipped_and_logged(caplog):
+    lines = [{"start": "abc", "end": 3.0, "text": "rusak"}, {"start": "", "end": 3.0, "text": "kosong"}]
+    with caplog.at_level("WARNING"):
+        assert words_from_transcript(lines + EDGE_LINES, 0.0, 12.0)[0]["word"] == "kalimat"
+    assert "Skipped 2 transcript line(s) whose start is not a number" in caplog.text

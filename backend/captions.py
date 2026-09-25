@@ -7,6 +7,7 @@ This module is the single source of truth for what a subtitle shows:
 Change a rule here and both follow.
 """
 import logging
+import math
 import re
 import unicodedata
 from dataclasses import dataclass
@@ -163,10 +164,12 @@ def tokenize_caption_text(text: str, break_at_end: bool = True) -> List[Dict[str
 
 
 def _to_float(value: Any) -> Optional[float]:
+    """A finite float, else None (NaN and inf are not times, issue #51)."""
     try:
-        return float(value)
+        number = float(value)
     except (TypeError, ValueError):
         return None
+    return number if math.isfinite(number) else None
 
 
 def _resolve_line_times(
@@ -184,16 +187,29 @@ def _resolve_line_times(
       it. YouTube auto captions overlap like this routinely.
     """
     parsed = []
+    bad_start = []
     for line in lines:
         text = str(line.get("text") or "").strip()
         if not text:
             continue
-        start = _to_float(line.get("start")) or 0.0
+        start = _to_float(line.get("start"))
+        if start is None:
+            if line.get("start") is not None:
+                # Not a finite number ("", "abc", NaN, inf): no time to show it at (#51).
+                bad_start.append(text)
+                continue
+            start = 0.0
         end = _to_float(line.get("end"))
         if end is None or end <= start:
             duration = _to_float(line.get("duration"))
             end = start + duration if duration is not None and duration > 0 else None
         parsed.append({"text": text, "start": start, "end": end})
+
+    if bad_start:
+        logger.warning(
+            f"Skipped {len(bad_start)} transcript line(s) whose start is not a number. "
+            f"Examples: {', '.join(repr(t[:30]) for t in bad_start[:3])}"
+        )
 
     parsed.sort(key=lambda l: l["start"])
 
@@ -243,38 +259,57 @@ def words_from_transcript(
 ) -> List[Dict[str, Any]]:
     """
     Maps transcript lines to display words timed relative to the clip
-    (0.0s = clip_start_time). Words are spread evenly within their line.
+    (0.0s = clip_start_time).
+
+    Each line's words share the line's own time evenly, never running past
+    its end, and only the words spoken inside the clip are kept: a word whose
+    middle falls in [clip_start, clip_end) (issue #51). Before, every line
+    ending up to 0.2s before the clip (the normal case: clips start at a line
+    start and the previous line is trimmed to it) was squeezed into the first
+    0.15s, so captions opened with words from the sentence before.
+
+    With no clip (both times 0, the default) every line is kept at absolute
+    times. A clip that ends at or before its start has no words.
     """
+    has_clip = clip_start_time > 0 or clip_end_time > 0
+    if has_clip and clip_end_time <= clip_start_time:
+        return []
+    origin = clip_start_time if has_clip else 0.0
+    limit = clip_end_time - clip_start_time if has_clip else math.inf
+
     words = []
     for line in _resolve_line_times(transcript or [], clip_end_time):
         l_start = line["start"]
         l_end = line["end"]
+        if has_clip and (l_end <= clip_start_time or l_start >= clip_end_time):
+            continue
 
-        # If clip range is defined, filter lines overlapping the clip
-        if clip_end_time > clip_start_time:
-            if l_end < clip_start_time - 0.2 or l_start > clip_end_time + 0.2:
-                continue
-            # Shift timestamps relative to clip start (0.0)
-            rel_start = max(0.0, l_start - clip_start_time)
-            rel_end = max(rel_start + 0.15, l_end - clip_start_time)
-        else:
-            rel_start = max(0.0, l_start)
-            rel_end = max(rel_start + 0.15, l_end)
-
-        # Tokenize only lines inside the clip: the preview asks on every trim.
+        # Tokenize only lines touching the clip: the preview asks on every trim.
         line_words = tokenize_caption_text(line["text"])
         if not line_words:
             continue
 
-        w_duration = max(0.12, (rel_end - rel_start) / len(line_words))
+        # No minimum per word: a floor pushed the words of a fast line past
+        # its end, where they overlapped the next line or fell outside the
+        # clip. Readable timing is build_caption_chunks' job (min chunk length).
+        step = (l_end - l_start) / len(line_words)
+        kept = []
         for i, w in enumerate(line_words):
-            w_s = rel_start + (i * w_duration)
-            words.append({
+            w_s = l_start + i * step
+            w_e = w_s + step
+            if has_clip and not clip_start_time <= (w_s + w_e) / 2 < clip_end_time:
+                continue
+            kept.append({
                 "word": w["word"],
-                "start": round(w_s, 2),
-                "end": round(w_s + w_duration, 2),
+                "start": round(max(0.0, w_s - origin), 2),
+                "end": round(min(limit, w_e - origin), 2),
                 "break_after": w["break_after"],
             })
+        if kept:
+            # A chunk never spans two caption lines, also when the clip cut
+            # off the end of this one.
+            kept[-1]["break_after"] = True
+            words.extend(kept)
     return words
 
 

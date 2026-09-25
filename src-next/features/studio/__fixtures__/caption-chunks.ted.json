@@ -340,11 +340,11 @@
     {
      "text": "BERTANYA",
      "start": 15.6,
-     "end": 16.12
+     "end": 16.11
     },
     {
      "text": "CELCIUS",
-     "start": 16.12,
+     "start": 16.11,
      "end": 16.63
     }
    ]
@@ -402,18 +402,6 @@
      "text": "PERTEMUAN",
      "start": 19.33,
      "end": 19.75
-    }
-   ]
-  },
-  {
-   "start": 19.75,
-   "end": 20.17,
-   "text": "KEDUANYA",
-   "words": [
-    {
-     "text": "KEDUANYA",
-     "start": 19.75,
-     "end": 20.17
     }
    ]
   }
