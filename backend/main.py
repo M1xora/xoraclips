@@ -2938,19 +2938,32 @@ def get_hardware_acceleration_status():
     }
 
 
-@app.post("/api/upload-bgm")
-async def upload_bgm(file: UploadFile = File(...)):
+# Issue #48: the three uploads were one block of code copied three times;
+# only these settings differ.
+AUDIO_UPLOAD_TYPES = (".mp3", ".wav", ".m4a", ".aac", ".ogg", ".flac")
+IMAGE_UPLOAD_TYPES = (".png", ".jpg", ".jpeg", ".webp", ".svg")
+
+
+async def _save_upload(
+    file: UploadFile,
+    *,
+    prefix: str,
+    allowed: Tuple[str, ...],
+    kind: str,
+    url_base: str,
+    label: str,
+) -> dict:
+    """Checks, names and stores one upload in UPLOADS_DIR, and describes it."""
     if not file.filename:
         raise HTTPException(status_code=400, detail="No file provided")
     ext = os.path.splitext(file.filename)[1].lower()
-    allowed = [".mp3", ".wav", ".m4a", ".aac", ".ogg", ".flac"]
     if ext not in allowed:
-        raise HTTPException(status_code=400, detail=f"Unsupported audio format. Allowed: {', '.join(allowed)}")
-    
+        raise HTTPException(status_code=400, detail=f"Unsupported {kind} format. Allowed: {', '.join(allowed)}")
+
     clean_name = re.sub(r'[^a-zA-Z0-9_.-]', '_', file.filename)
-    unique_name = f"bgm_{uuid.uuid4().hex[:8]}_{clean_name}"
+    unique_name = f"{prefix}{uuid.uuid4().hex[:8]}_{clean_name}"
     save_path = UPLOADS_DIR / unique_name
-    
+
     try:
         content = await file.read()
         with open(save_path, "wb") as f:
@@ -2960,12 +2973,18 @@ async def upload_bgm(file: UploadFile = File(...)):
             "filename": file.filename,
             "saved_name": unique_name,
             "file_path": str(save_path),
-            "url": f"/api/audio/{unique_name}",
+            "url": f"{url_base}{unique_name}",
             "size_bytes": len(content)
         }
     except Exception as e:
-        logger.error(f"Failed to upload BGM: {e}")
+        logger.error(f"Failed to upload {label}: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/api/upload-bgm")
+async def upload_bgm(file: UploadFile = File(...)):
+    return await _save_upload(file, prefix="bgm_", allowed=AUDIO_UPLOAD_TYPES,
+                              kind="audio", url_base="/api/audio/", label="BGM")
 
 
 @app.get("/api/audio/{file_name}")
@@ -2980,62 +2999,14 @@ def get_audio_file(file_name: str):
 
 @app.post("/api/upload-sfx")
 async def upload_hook_sfx(file: UploadFile = File(...)):
-    if not file.filename:
-        raise HTTPException(status_code=400, detail="No file provided")
-    ext = os.path.splitext(file.filename)[1].lower()
-    allowed = [".mp3", ".wav", ".m4a", ".aac", ".ogg", ".flac"]
-    if ext not in allowed:
-        raise HTTPException(status_code=400, detail=f"Unsupported audio format. Allowed: {', '.join(allowed)}")
-
-    clean_name = re.sub(r'[^a-zA-Z0-9_.-]', '_', file.filename)
-    unique_name = f"sfx_{uuid.uuid4().hex[:8]}_{clean_name}"
-    save_path = UPLOADS_DIR / unique_name
-
-    try:
-        content = await file.read()
-        with open(save_path, "wb") as f:
-            f.write(content)
-        return {
-            "success": True,
-            "filename": file.filename,
-            "saved_name": unique_name,
-            "file_path": str(save_path),
-            "url": f"/api/audio/{unique_name}",
-            "size_bytes": len(content)
-        }
-    except Exception as e:
-        logger.error(f"Failed to upload Hook SFX: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+    return await _save_upload(file, prefix="sfx_", allowed=AUDIO_UPLOAD_TYPES,
+                              kind="audio", url_base="/api/audio/", label="Hook SFX")
 
 
 @app.post("/api/upload-watermark")
 async def upload_watermark(file: UploadFile = File(...)):
-    if not file.filename:
-        raise HTTPException(status_code=400, detail="No file provided")
-    ext = os.path.splitext(file.filename)[1].lower()
-    allowed = [".png", ".jpg", ".jpeg", ".webp", ".svg"]
-    if ext not in allowed:
-        raise HTTPException(status_code=400, detail=f"Unsupported image format. Allowed: {', '.join(allowed)}")
-    
-    clean_name = re.sub(r'[^a-zA-Z0-9_.-]', '_', file.filename)
-    unique_name = f"wm_{uuid.uuid4().hex[:8]}_{clean_name}"
-    save_path = UPLOADS_DIR / unique_name
-    
-    try:
-        content = await file.read()
-        with open(save_path, "wb") as f:
-            f.write(content)
-        return {
-            "success": True,
-            "filename": file.filename,
-            "saved_name": unique_name,
-            "file_path": str(save_path),
-            "url": f"/api/watermark/{unique_name}",
-            "size_bytes": len(content)
-        }
-    except Exception as e:
-        logger.error(f"Failed to upload watermark: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+    return await _save_upload(file, prefix="wm_", allowed=IMAGE_UPLOAD_TYPES,
+                              kind="image", url_base="/api/watermark/", label="watermark")
 
 
 @app.get("/api/watermark/{file_name}")
