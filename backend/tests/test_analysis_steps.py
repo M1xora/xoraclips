@@ -239,13 +239,23 @@ def test_clip_fields_of_the_wrong_type_are_cleaned_instead_of_breaking_the_analy
     assert data["summary"] == ""
     first, second = data["clips"]  # "not a clip" is dropped
     assert (first["start_time"], first["end_time"], first["hook_time"]) == (10.0, 25.5, 12.0)
-    assert first["virality_score"] == 0 and first["key_quotes"] == []
+    assert first["virality_score"] == 0 and first["key_quotes"] == ["one quote"]
     assert (first["title"], first["caption_suggestion"], first["hashtag_suggestion"]) == ("7", "5", "")
     assert second["hook_time"] is None and second["virality_score"] == 87 and second["key_quotes"] == ["a", "2"]
 
 
-def test_clips_that_are_not_a_list_count_as_none():
-    assert analysis.parse_gemini_answer(Answer('{"summary": "s", "clips": "none"}'), "m") == {"summary": "s", "clips": []}
+def test_clips_that_are_not_a_list_or_not_clips_make_the_answer_unreadable():
+    for clips in ('"none"', "null", '["a", 1]'):
+        assert analysis.parse_gemini_answer(Answer('{"summary": "s", "clips": %s}' % clips), "m") is None, clips
+    # No clips at all is a real answer: the next model is asked, then backup clips.
+    assert analysis.parse_gemini_answer(Answer('{"summary": "s"}'), "m") == {"summary": "s", "clips": []}
+    assert analysis.parse_gemini_answer(Answer('{"summary": "s", "clips": []}'), "m") == {"summary": "s", "clips": []}
+
+
+def test_gemini_cannot_mark_its_own_clip_as_a_backup_clip():
+    data = analysis.parse_gemini_answer(Answer(json.dumps({"summary": "s", "clips": [
+        {"start_time": 10, "end_time": 25, "is_fallback": True}]})), "m")
+    assert "is_fallback" not in data["clips"][0]
 
 
 def test_cleaned_clips_finish_without_errors():

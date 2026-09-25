@@ -345,34 +345,55 @@ def _text(value) -> str:
     return value if isinstance(value, str) else ("" if value is None else str(value))
 
 
-TEXT_FIELDS = ("title", "title_suggestion", "caption_suggestion", "hashtag_suggestion", "content_type")
+# The field types come from the schema Gemini is asked to follow, so a new
+# field is cleaned without a second list to keep in step.
+_GEMINI_FIELDS = ViralClipGemini.model_fields
+TEXT_FIELDS = tuple(n for n, f in _GEMINI_FIELDS.items() if f.annotation is str)
+NUMBER_FIELDS = tuple(n for n, f in _GEMINI_FIELDS.items() if f.annotation in (int, float))
+TEXT_LIST_FIELDS = tuple(n for n, f in _GEMINI_FIELDS.items() if f.annotation == List[str])
+OPTIONAL_NUMBERS = ("hook_time",)   # None when missing: the clip's start is used
+
+
+def _clean_clip(raw: dict) -> dict:
+    # is_fallback marks the backend's own backup clips (their titles skip the
+    # title rules); Gemini never gets to set it.
+    clip = {k: v for k, v in raw.items() if k != "is_fallback"}
+    for name in NUMBER_FIELDS:
+        number = _number(raw.get(name), None if name in OPTIONAL_NUMBERS else 0.0)
+        if number is not None and _GEMINI_FIELDS[name].annotation is int:
+            number = int(number)
+        clip[name] = number
+    for name in TEXT_LIST_FIELDS:
+        value = raw.get(name)
+        if isinstance(value, list):
+            clip[name] = [_text(v) for v in value if v is not None]
+        else:
+            clip[name] = [value] if isinstance(value, str) and value else []
+    for name in TEXT_FIELDS:
+        if name in raw:
+            clip[name] = _text(raw[name])
+    return clip
 
 
 def clean_answer(parsed_data, model_name: str) -> Optional[dict]:
     """Gemini's answer with every field the type the rest of the analysis
     expects: numbers from numeric text, text from anything else, a missing or
-    unreadable hook as None, entries that are not clips dropped. An answer
-    that is not a JSON object is unreadable (None). JSON mode makes a wrong
-    type rare, but one used to break the stream without an error (#74)."""
+    unreadable hook as None, entries that are not clips dropped. None when
+    the answer is unreadable: not a JSON object, clips that are not a list,
+    or only entries that are not clips. JSON mode makes a wrong type rare,
+    but one used to break the stream without an error (#74)."""
     if not isinstance(parsed_data, dict):
         if parsed_data is not None:
             logger.warning(f"{model_name} answered with a JSON {type(parsed_data).__name__}, not an object.")
         return None
-    raw_clips = parsed_data.get("clips")
-    clips = []
-    for raw in (raw_clips if isinstance(raw_clips, list) else []):
-        if not isinstance(raw, dict):
-            continue
-        quotes = raw.get("key_quotes")
-        clips.append({
-            **raw,
-            "start_time": _number(raw.get("start_time"), 0.0),
-            "end_time": _number(raw.get("end_time"), 0.0),
-            "hook_time": _number(raw.get("hook_time")),
-            "virality_score": int(_number(raw.get("virality_score"), 0.0)),
-            "key_quotes": [_text(q) for q in quotes if q is not None] if isinstance(quotes, list) else [],
-            **{field: _text(raw[field]) for field in TEXT_FIELDS if field in raw},
-        })
+    raw_clips = parsed_data.get("clips", [])
+    if not isinstance(raw_clips, list):
+        logger.warning(f"{model_name} answered with clips that are not a list.")
+        return None
+    clips = [_clean_clip(raw) for raw in raw_clips if isinstance(raw, dict)]
+    if raw_clips and not clips:
+        logger.warning(f"{model_name} answered with {len(raw_clips)} clip(s), none of them readable.")
+        return None
     return {**parsed_data, "summary": _text(parsed_data.get("summary")), "clips": clips}
 
 
@@ -383,28 +404,7 @@ def parse_gemini_answer(resp_candidate, model_name: str):
     parsed_data = None
     if hasattr(resp_candidate, 'parsed') and resp_candidate.parsed is not None:
         parsed = resp_candidate.parsed
-        parsed_data = {
-            "summary": getattr(parsed, 'summary', ''),
-            "clips": [
-                {
-                    "title": getattr(c, 'title', ''),
-                    "start_time": getattr(c, 'start_time', 0.0),
-                    "end_time": getattr(c, 'end_time', 0.0),
-                    "hook_time": getattr(c, 'hook_time', None),
-                    "virality_score": getattr(c, 'virality_score', 0),
-                    "key_quotes": getattr(c, 'key_quotes', []),
-                    "title_suggestion": getattr(c, 'title_suggestion', ''),
-                    "caption_suggestion": getattr(c, 'caption_suggestion', ''),
-                    "hashtag_suggestion": getattr(c, 'hashtag_suggestion', ''),
-                    "title_options": [
-                        {"text": getattr(o, 'text', ''), "angle": getattr(o, 'angle', '')}
-                        for o in (getattr(c, 'title_options', []) or [])
-                    ],
-                    "content_type": getattr(c, 'content_type', ''),
-                }
-                for c in (getattr(parsed, 'clips', []) or [])
-            ]
-        }
+        parsed_data = parsed.model_dump() if hasattr(parsed, "model_dump") else parsed
     elif resp_candidate.text:
         raw_text = resp_candidate.text.strip()
         if raw_text.startswith("```"):
@@ -451,13 +451,6 @@ def backup_clips(enriched_transcript: List[dict], clip_duration: str, start_boun
 
 # --- finishing ----------------------------------------------------------------------------
 
-def _seconds(value):
-    try:
-        return float(value)
-    except (TypeError, ValueError):
-        return 0.0
-
-
 def fit_bounds(raw_clips: List[dict], enriched_transcript: List[dict], clip_duration: str,
                start_bound: float, end_bound: float) -> List[Tuple[float, float]]:
     """Each clip's start and end on transcript line edges, widened to the
@@ -465,7 +458,7 @@ def fit_bounds(raw_clips: List[dict], enriched_transcript: List[dict], clip_dura
     # Issue #35: move clip starts/ends to transcript line edges (and, when
     # the transcript has punctuation, the end to the next sentence end)
     # so a clip does not open or close mid-line.
-    raw_bounds = [(_seconds(c.get('start_time')), _seconds(c.get('end_time'))) for c in raw_clips]
+    raw_bounds = [(_number(c.get('start_time'), 0.0), _number(c.get('end_time'), 0.0)) for c in raw_clips]
     lines_index = clip_bounds.Lines(enriched_transcript)
     snapped_bounds = clip_bounds.snap_clips(
         raw_bounds, enriched_transcript, start_bound, end_bound, lines=lines_index)

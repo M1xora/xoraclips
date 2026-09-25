@@ -1299,6 +1299,216 @@
   ],
   "sleeps": []
  },
+ "clips_null_on_the_last_model": {
+  "crash": null,
+  "events": [
+   {
+    "detail": "Connecting to YouTube & fetching video metadata...",
+    "message": "Connecting to YouTube — fetching video title and duration...",
+    "overall_progress": 8,
+    "stage": "Connecting to YouTube",
+    "step": 1,
+    "step_progress": 30
+   },
+   {
+    "detail": "Loaded metadata for \"Uji\" (120s)",
+    "message": "Connected — \"Uji\" (120s)",
+    "overall_progress": 25,
+    "stage": "Video Verified",
+    "step": 1,
+    "step_progress": 100
+   },
+   {
+    "detail": "Extracting viewer replay telemetry and retention curve...",
+    "message": "Scraping player viewer retention curve...",
+    "overall_progress": 35,
+    "stage": "Scraping Retention",
+    "step": 2,
+    "step_progress": 40
+   },
+   {
+    "detail": "No heatmap curve available — relying on full transcript dialogue analysis.",
+    "message": "No heatmap available for this video — will rely on transcript content analysis.",
+    "overall_progress": 50,
+    "stage": "Dialogue Fallback",
+    "step": 2,
+    "step_progress": 100
+   },
+   {
+    "detail": "Initializing multi-tier subtitle extraction pipeline...",
+    "message": "Initializing multi-tier subtitle extraction pipeline...",
+    "overall_progress": 55,
+    "stage": "Fetching Subtitles",
+    "step": 3,
+    "step_progress": 25
+   },
+   {
+    "detail": "Subtitles loaded — 24 dialogue sentences with timestamps ready.",
+    "message": "Subtitles loaded — 24 lines parsed successfully.",
+    "overall_progress": 70,
+    "stage": "Subtitles Ready",
+    "step": 3,
+    "step_progress": 100
+   },
+   {
+    "detail": "Aligning 24 dialogue segments with engagement data for gemini-2.5-flash...",
+    "message": "Assembling prompt and engagement context for gemini-2.5-flash...",
+    "model": "gemini-2.5-flash",
+    "overall_progress": 72,
+    "stage": "Context Assembly",
+    "step": 4,
+    "step_progress": 10
+   },
+   {
+    "detail": "Dispatched 24 lines to gemini-2.5-flash (attempt 1)...",
+    "message": "Calling gemini-2.5-flash (attempt 1/2)...",
+    "model": "gemini-2.5-flash",
+    "overall_progress": 74,
+    "stage": "Neural Model Dispatch",
+    "step": 4,
+    "step_progress": 18
+   },
+   {
+    "detail": "gemini-2.5-flash not available or deprecated — switching to fallback gemini-2.5-flash-lite...",
+    "message": "gemini-2.5-flash not available or deprecated — switching to flash fallback model gemini-2.5-flash-lite...",
+    "model": "gemini-2.5-flash-lite",
+    "overall_progress": 76,
+    "stage": "Flash Fallback",
+    "step": 4,
+    "step_progress": 35
+   },
+   {
+    "detail": "Dispatched 24 lines to gemini-2.5-flash-lite (attempt 1)...",
+    "message": "Calling gemini-2.5-flash-lite (attempt 1/2)...",
+    "model": "gemini-2.5-flash-lite",
+    "overall_progress": 74,
+    "stage": "Neural Model Dispatch",
+    "step": 4,
+    "step_progress": 18
+   },
+   {
+    "detail": "gemini-2.5-flash-lite not available or deprecated — switching to fallback gemini-2.0-flash...",
+    "message": "gemini-2.5-flash-lite not available or deprecated — switching to flash fallback model gemini-2.0-flash...",
+    "model": "gemini-2.0-flash",
+    "overall_progress": 76,
+    "stage": "Flash Fallback",
+    "step": 4,
+    "step_progress": 35
+   },
+   {
+    "detail": "Dispatched 24 lines to gemini-2.0-flash (attempt 1)...",
+    "message": "Calling gemini-2.0-flash (attempt 1/2)...",
+    "model": "gemini-2.0-flash",
+    "overall_progress": 74,
+    "stage": "Neural Model Dispatch",
+    "step": 4,
+    "step_progress": 18
+   },
+   {
+    "detail": "gemini-2.0-flash not available or deprecated — switching to fallback gemini-2.0-flash-lite...",
+    "message": "gemini-2.0-flash not available or deprecated — switching to flash fallback model gemini-2.0-flash-lite...",
+    "model": "gemini-2.0-flash-lite",
+    "overall_progress": 76,
+    "stage": "Flash Fallback",
+    "step": 4,
+    "step_progress": 35
+   },
+   {
+    "detail": "Dispatched 24 lines to gemini-2.0-flash-lite (attempt 1)...",
+    "message": "Calling gemini-2.0-flash-lite (attempt 1/2)...",
+    "model": "gemini-2.0-flash-lite",
+    "overall_progress": 74,
+    "stage": "Neural Model Dispatch",
+    "step": 4,
+    "step_progress": 18
+   },
+   {
+    "detail": "gemini-2.0-flash-lite not available or deprecated — switching to fallback gemini-1.5-flash...",
+    "message": "gemini-2.0-flash-lite not available or deprecated — switching to flash fallback model gemini-1.5-flash...",
+    "model": "gemini-1.5-flash",
+    "overall_progress": 76,
+    "stage": "Flash Fallback",
+    "step": 4,
+    "step_progress": 35
+   },
+   {
+    "detail": "Dispatched 24 lines to gemini-1.5-flash (attempt 1)...",
+    "message": "Calling gemini-1.5-flash (attempt 1/2)...",
+    "model": "gemini-1.5-flash",
+    "overall_progress": 74,
+    "stage": "Neural Model Dispatch",
+    "step": 4,
+    "step_progress": 18
+   },
+   {
+    "detail": "gemini-1.5-flash not available or deprecated — switching to fallback gemini-1.5-flash-8b...",
+    "message": "gemini-1.5-flash not available or deprecated — switching to flash fallback model gemini-1.5-flash-8b...",
+    "model": "gemini-1.5-flash-8b",
+    "overall_progress": 76,
+    "stage": "Flash Fallback",
+    "step": 4,
+    "step_progress": 35
+   },
+   {
+    "detail": "Dispatched 24 lines to gemini-1.5-flash-8b (attempt 1)...",
+    "message": "Calling gemini-1.5-flash-8b (attempt 1/2)...",
+    "model": "gemini-1.5-flash-8b",
+    "overall_progress": 74,
+    "stage": "Neural Model Dispatch",
+    "step": 4,
+    "step_progress": 18
+   },
+   {
+    "code": "ai_failed",
+    "error": "The AI analysis failed. Please try again in a few moments.",
+    "status": 500
+   }
+  ],
+  "gemini_calls": [
+   {
+    "model": "gemini-2.5-flash",
+    "prompt_chars": 3550,
+    "prompt_sha256": "0a7de10b32aed6f80ae975c4fb1e0a1d7088b0243bb1ba780529a6e4c96ff867"
+   },
+   {
+    "model": "gemini-2.5-flash-lite",
+    "prompt_chars": 3550,
+    "prompt_sha256": "0a7de10b32aed6f80ae975c4fb1e0a1d7088b0243bb1ba780529a6e4c96ff867"
+   },
+   {
+    "model": "gemini-2.0-flash",
+    "prompt_chars": 3550,
+    "prompt_sha256": "0a7de10b32aed6f80ae975c4fb1e0a1d7088b0243bb1ba780529a6e4c96ff867"
+   },
+   {
+    "model": "gemini-2.0-flash-lite",
+    "prompt_chars": 3550,
+    "prompt_sha256": "0a7de10b32aed6f80ae975c4fb1e0a1d7088b0243bb1ba780529a6e4c96ff867"
+   },
+   {
+    "model": "gemini-1.5-flash",
+    "prompt_chars": 3550,
+    "prompt_sha256": "0a7de10b32aed6f80ae975c4fb1e0a1d7088b0243bb1ba780529a6e4c96ff867"
+   },
+   {
+    "model": "gemini-1.5-flash-8b",
+    "prompt_chars": 3550,
+    "prompt_sha256": "0a7de10b32aed6f80ae975c4fb1e0a1d7088b0243bb1ba780529a6e4c96ff867"
+   }
+  ],
+  "logs": [
+   "INFO xoraclips: Metadata fetched: title='Uji', duration=120.0s, heatmap_pts=0",
+   "INFO xoraclips: Flash fallback chain prepared: ['gemini-2.5-flash', 'gemini-2.5-flash-lite', 'gemini-2.0-flash', 'gemini-2.0-flash-lite', 'gemini-1.5-flash', 'gemini-1.5-flash-8b']",
+   "WARNING xoraclips: Error from gemini-2.5-flash (attempt 1, model_unavailable): 404 NOT_FOUND. models/x is not found for API version v1beta",
+   "WARNING xoraclips: Error from gemini-2.5-flash-lite (attempt 1, model_unavailable): 404 NOT_FOUND. models/x is not found for API version v1beta",
+   "WARNING xoraclips: Error from gemini-2.0-flash (attempt 1, model_unavailable): 404 NOT_FOUND. models/x is not found for API version v1beta",
+   "WARNING xoraclips: Error from gemini-2.0-flash-lite (attempt 1, model_unavailable): 404 NOT_FOUND. models/x is not found for API version v1beta",
+   "WARNING xoraclips: Error from gemini-1.5-flash (attempt 1, model_unavailable): 404 NOT_FOUND. models/x is not found for API version v1beta",
+   "WARNING xoraclips: gemini-1.5-flash-8b answered with clips that are not a list.",
+   "ERROR xoraclips: Gemini analysis failed (ai_failed): gemini-1.5-flash-8b returned empty or unparseable response"
+  ],
+  "sleeps": []
+ },
  "discovered_models_all_missing": {
   "crash": null,
   "events": [
@@ -1919,8 +2129,8 @@
     "step_progress": 18
    },
    {
-    "detail": "gemini-2.5-flash temporarily busy — switching to fallback gemini-2.5-flash-lite...",
-    "message": "gemini-2.5-flash temporarily busy — switching to flash fallback model gemini-2.5-flash-lite...",
+    "detail": "gemini-2.5-flash failed — switching to fallback gemini-2.5-flash-lite...",
+    "message": "gemini-2.5-flash failed — switching to flash fallback model gemini-2.5-flash-lite...",
     "model": "gemini-2.5-flash-lite",
     "overall_progress": 76,
     "stage": "Flash Fallback",
@@ -2553,6 +2763,278 @@
        "title_options": [
         "Kanal Mencoba Lari Tiap Hari",
         "Kanal Menyesal Makan Gorengan"
+       ],
+       "title_suggestion": "Kanal Mencoba Lari Tiap Hari",
+       "transcript": "kalimat nomor 2. kalimat nomor 3. kalimat nomor 4. kalimat nomor 5. kalimat nomor 6. kalimat nomor 7.",
+       "virality_score": 90
+      }
+     ],
+     "duration": 120.0,
+     "heatmap": [],
+     "model": "gemini-2.5-flash",
+     "summary": "s",
+     "title": "Uji",
+     "transcript": [
+      {
+       "end": 5.0,
+       "engagement": 0.0,
+       "start": 0.0,
+       "text": "kalimat nomor 0."
+      },
+      {
+       "end": 10.0,
+       "engagement": 0.0,
+       "start": 5.0,
+       "text": "kalimat nomor 1."
+      },
+      {
+       "end": 15.0,
+       "engagement": 0.0,
+       "start": 10.0,
+       "text": "kalimat nomor 2."
+      },
+      {
+       "end": 20.0,
+       "engagement": 0.0,
+       "start": 15.0,
+       "text": "kalimat nomor 3."
+      },
+      {
+       "end": 25.0,
+       "engagement": 0.0,
+       "start": 20.0,
+       "text": "kalimat nomor 4."
+      },
+      {
+       "end": 30.0,
+       "engagement": 0.0,
+       "start": 25.0,
+       "text": "kalimat nomor 5."
+      },
+      {
+       "end": 35.0,
+       "engagement": 0.0,
+       "start": 30.0,
+       "text": "kalimat nomor 6."
+      },
+      {
+       "end": 40.0,
+       "engagement": 0.0,
+       "start": 35.0,
+       "text": "kalimat nomor 7."
+      },
+      {
+       "end": 45.0,
+       "engagement": 0.0,
+       "start": 40.0,
+       "text": "kalimat nomor 8."
+      },
+      {
+       "end": 50.0,
+       "engagement": 0.0,
+       "start": 45.0,
+       "text": "kalimat nomor 9."
+      },
+      {
+       "end": 55.0,
+       "engagement": 0.0,
+       "start": 50.0,
+       "text": "kalimat nomor 10."
+      },
+      {
+       "end": 60.0,
+       "engagement": 0.0,
+       "start": 55.0,
+       "text": "kalimat nomor 11."
+      },
+      {
+       "end": 65.0,
+       "engagement": 0.0,
+       "start": 60.0,
+       "text": "kalimat nomor 12."
+      },
+      {
+       "end": 70.0,
+       "engagement": 0.0,
+       "start": 65.0,
+       "text": "kalimat nomor 13."
+      },
+      {
+       "end": 75.0,
+       "engagement": 0.0,
+       "start": 70.0,
+       "text": "kalimat nomor 14."
+      },
+      {
+       "end": 80.0,
+       "engagement": 0.0,
+       "start": 75.0,
+       "text": "kalimat nomor 15."
+      },
+      {
+       "end": 85.0,
+       "engagement": 0.0,
+       "start": 80.0,
+       "text": "kalimat nomor 16."
+      },
+      {
+       "end": 90.0,
+       "engagement": 0.0,
+       "start": 85.0,
+       "text": "kalimat nomor 17."
+      },
+      {
+       "end": 95.0,
+       "engagement": 0.0,
+       "start": 90.0,
+       "text": "kalimat nomor 18."
+      },
+      {
+       "end": 100.0,
+       "engagement": 0.0,
+       "start": 95.0,
+       "text": "kalimat nomor 19."
+      },
+      {
+       "end": 105.0,
+       "engagement": 0.0,
+       "start": 100.0,
+       "text": "kalimat nomor 20."
+      },
+      {
+       "end": 110.0,
+       "engagement": 0.0,
+       "start": 105.0,
+       "text": "kalimat nomor 21."
+      },
+      {
+       "end": 115.0,
+       "engagement": 0.0,
+       "start": 110.0,
+       "text": "kalimat nomor 22."
+      },
+      {
+       "end": 120.0,
+       "engagement": 0.0,
+       "start": 115.0,
+       "text": "kalimat nomor 23."
+      }
+     ],
+     "video_id": "dQw4w9WgXcQ"
+    }
+   }
+  ],
+  "gemini_calls": [
+   {
+    "model": "gemini-2.5-flash",
+    "prompt_chars": 3550,
+    "prompt_sha256": "0a7de10b32aed6f80ae975c4fb1e0a1d7088b0243bb1ba780529a6e4c96ff867"
+   }
+  ],
+  "logs": [
+   "INFO xoraclips: Metadata fetched: title='Uji', duration=120.0s, heatmap_pts=0",
+   "INFO xoraclips: Flash fallback chain prepared: ['gemini-2.5-flash', 'gemini-2.5-flash-lite', 'gemini-2.0-flash', 'gemini-2.0-flash-lite', 'gemini-1.5-flash', 'gemini-1.5-flash-8b']",
+   "INFO xoraclips: Gemini analysis complete with gemini-2.5-flash. Found 1 clips.",
+   "INFO xoraclips: Clip bounds: 0/1 clip(s) moved to line/sentence edges."
+  ],
+  "sleeps": []
+ },
+ "gemini_claims_a_backup_clip": {
+  "crash": null,
+  "events": [
+   {
+    "detail": "Connecting to YouTube & fetching video metadata...",
+    "message": "Connecting to YouTube — fetching video title and duration...",
+    "overall_progress": 8,
+    "stage": "Connecting to YouTube",
+    "step": 1,
+    "step_progress": 30
+   },
+   {
+    "detail": "Loaded metadata for \"Uji\" (120s)",
+    "message": "Connected — \"Uji\" (120s)",
+    "overall_progress": 25,
+    "stage": "Video Verified",
+    "step": 1,
+    "step_progress": 100
+   },
+   {
+    "detail": "Extracting viewer replay telemetry and retention curve...",
+    "message": "Scraping player viewer retention curve...",
+    "overall_progress": 35,
+    "stage": "Scraping Retention",
+    "step": 2,
+    "step_progress": 40
+   },
+   {
+    "detail": "No heatmap curve available — relying on full transcript dialogue analysis.",
+    "message": "No heatmap available for this video — will rely on transcript content analysis.",
+    "overall_progress": 50,
+    "stage": "Dialogue Fallback",
+    "step": 2,
+    "step_progress": 100
+   },
+   {
+    "detail": "Initializing multi-tier subtitle extraction pipeline...",
+    "message": "Initializing multi-tier subtitle extraction pipeline...",
+    "overall_progress": 55,
+    "stage": "Fetching Subtitles",
+    "step": 3,
+    "step_progress": 25
+   },
+   {
+    "detail": "Subtitles loaded — 24 dialogue sentences with timestamps ready.",
+    "message": "Subtitles loaded — 24 lines parsed successfully.",
+    "overall_progress": 70,
+    "stage": "Subtitles Ready",
+    "step": 3,
+    "step_progress": 100
+   },
+   {
+    "detail": "Aligning 24 dialogue segments with engagement data for gemini-2.5-flash...",
+    "message": "Assembling prompt and engagement context for gemini-2.5-flash...",
+    "model": "gemini-2.5-flash",
+    "overall_progress": 72,
+    "stage": "Context Assembly",
+    "step": 4,
+    "step_progress": 10
+   },
+   {
+    "detail": "Dispatched 24 lines to gemini-2.5-flash (attempt 1)...",
+    "message": "Calling gemini-2.5-flash (attempt 1/2)...",
+    "model": "gemini-2.5-flash",
+    "overall_progress": 74,
+    "stage": "Neural Model Dispatch",
+    "step": 4,
+    "step_progress": 18
+   },
+   {
+    "detail": "Verified 1 clip segments with precise video timestamps and key quotes.",
+    "message": "Found 1 viral clip candidates with gemini-2.5-flash — reconstructing transcripts...",
+    "model": "gemini-2.5-flash",
+    "overall_progress": 98,
+    "stage": "Clip Verification & Alignment",
+    "step": 4,
+    "step_progress": 98
+   },
+   {
+    "done": true,
+    "result": {
+     "channel": "Kanal",
+     "clips": [
+      {
+       "caption_suggestion": "Seru #viral #fyp",
+       "content_type": "edukasi",
+       "end_time": 40.0,
+       "hashtag_suggestion": "#podcast #kesehatan",
+       "hook_time": 11.0,
+       "key_quotes": [
+        "kutipan"
+       ],
+       "start_time": 10.0,
+       "title": "Kanal Mencoba Lari Tiap Hari",
+       "title_options": [
+        "Kanal Mencoba Lari Tiap Hari"
        ],
        "title_suggestion": "Kanal Mencoba Lari Tiap Hari",
        "transcript": "kalimat nomor 2. kalimat nomor 3. kalimat nomor 4. kalimat nomor 5. kalimat nomor 6. kalimat nomor 7.",
@@ -3999,8 +4481,8 @@
     "step_progress": 18
    },
    {
-    "detail": "gemini-2.5-flash temporarily busy — switching to fallback gemini-2.5-flash-lite...",
-    "message": "gemini-2.5-flash temporarily busy — switching to flash fallback model gemini-2.5-flash-lite...",
+    "detail": "gemini-2.5-flash failed — switching to fallback gemini-2.5-flash-lite...",
+    "message": "gemini-2.5-flash failed — switching to flash fallback model gemini-2.5-flash-lite...",
     "model": "gemini-2.5-flash-lite",
     "overall_progress": 76,
     "stage": "Flash Fallback",
@@ -4577,6 +5059,279 @@
   "gemini_calls": [],
   "logs": [
    "WARNING xoraclips: Gemini key check failed (key_quota): 429 RESOURCE_EXHAUSTED. You exceeded your current quota"
+  ],
+  "sleeps": []
+ },
+ "key_quotes_as_text": {
+  "crash": null,
+  "events": [
+   {
+    "detail": "Connecting to YouTube & fetching video metadata...",
+    "message": "Connecting to YouTube — fetching video title and duration...",
+    "overall_progress": 8,
+    "stage": "Connecting to YouTube",
+    "step": 1,
+    "step_progress": 30
+   },
+   {
+    "detail": "Loaded metadata for \"Uji\" (120s)",
+    "message": "Connected — \"Uji\" (120s)",
+    "overall_progress": 25,
+    "stage": "Video Verified",
+    "step": 1,
+    "step_progress": 100
+   },
+   {
+    "detail": "Extracting viewer replay telemetry and retention curve...",
+    "message": "Scraping player viewer retention curve...",
+    "overall_progress": 35,
+    "stage": "Scraping Retention",
+    "step": 2,
+    "step_progress": 40
+   },
+   {
+    "detail": "No heatmap curve available — relying on full transcript dialogue analysis.",
+    "message": "No heatmap available for this video — will rely on transcript content analysis.",
+    "overall_progress": 50,
+    "stage": "Dialogue Fallback",
+    "step": 2,
+    "step_progress": 100
+   },
+   {
+    "detail": "Initializing multi-tier subtitle extraction pipeline...",
+    "message": "Initializing multi-tier subtitle extraction pipeline...",
+    "overall_progress": 55,
+    "stage": "Fetching Subtitles",
+    "step": 3,
+    "step_progress": 25
+   },
+   {
+    "detail": "Subtitles loaded — 24 dialogue sentences with timestamps ready.",
+    "message": "Subtitles loaded — 24 lines parsed successfully.",
+    "overall_progress": 70,
+    "stage": "Subtitles Ready",
+    "step": 3,
+    "step_progress": 100
+   },
+   {
+    "detail": "Aligning 24 dialogue segments with engagement data for gemini-2.5-flash...",
+    "message": "Assembling prompt and engagement context for gemini-2.5-flash...",
+    "model": "gemini-2.5-flash",
+    "overall_progress": 72,
+    "stage": "Context Assembly",
+    "step": 4,
+    "step_progress": 10
+   },
+   {
+    "detail": "Dispatched 24 lines to gemini-2.5-flash (attempt 1)...",
+    "message": "Calling gemini-2.5-flash (attempt 1/2)...",
+    "model": "gemini-2.5-flash",
+    "overall_progress": 74,
+    "stage": "Neural Model Dispatch",
+    "step": 4,
+    "step_progress": 18
+   },
+   {
+    "detail": "Verified 1 clip segments with precise video timestamps and key quotes.",
+    "message": "Found 1 viral clip candidates with gemini-2.5-flash — reconstructing transcripts...",
+    "model": "gemini-2.5-flash",
+    "overall_progress": 98,
+    "stage": "Clip Verification & Alignment",
+    "step": 4,
+    "step_progress": 98
+   },
+   {
+    "done": true,
+    "result": {
+     "channel": "Kanal",
+     "clips": [
+      {
+       "caption_suggestion": "Seru #viral #fyp",
+       "content_type": "edukasi",
+       "end_time": 40.0,
+       "hashtag_suggestion": "#podcast #kesehatan",
+       "hook_time": 11.0,
+       "key_quotes": [
+        "Ternyata gula itu racun"
+       ],
+       "start_time": 10.0,
+       "title": "Ternyata Begini Cara Kerjanya",
+       "title_options": [
+        "Ternyata Begini Cara Kerjanya",
+        "Kok Bisa Sesederhana Itu?"
+       ],
+       "title_suggestion": "Ternyata Begini Cara Kerjanya",
+       "transcript": "kalimat nomor 2. kalimat nomor 3. kalimat nomor 4. kalimat nomor 5. kalimat nomor 6. kalimat nomor 7.",
+       "virality_score": 90
+      }
+     ],
+     "duration": 120.0,
+     "heatmap": [],
+     "model": "gemini-2.5-flash",
+     "summary": "s",
+     "title": "Uji",
+     "transcript": [
+      {
+       "end": 5.0,
+       "engagement": 0.0,
+       "start": 0.0,
+       "text": "kalimat nomor 0."
+      },
+      {
+       "end": 10.0,
+       "engagement": 0.0,
+       "start": 5.0,
+       "text": "kalimat nomor 1."
+      },
+      {
+       "end": 15.0,
+       "engagement": 0.0,
+       "start": 10.0,
+       "text": "kalimat nomor 2."
+      },
+      {
+       "end": 20.0,
+       "engagement": 0.0,
+       "start": 15.0,
+       "text": "kalimat nomor 3."
+      },
+      {
+       "end": 25.0,
+       "engagement": 0.0,
+       "start": 20.0,
+       "text": "kalimat nomor 4."
+      },
+      {
+       "end": 30.0,
+       "engagement": 0.0,
+       "start": 25.0,
+       "text": "kalimat nomor 5."
+      },
+      {
+       "end": 35.0,
+       "engagement": 0.0,
+       "start": 30.0,
+       "text": "kalimat nomor 6."
+      },
+      {
+       "end": 40.0,
+       "engagement": 0.0,
+       "start": 35.0,
+       "text": "kalimat nomor 7."
+      },
+      {
+       "end": 45.0,
+       "engagement": 0.0,
+       "start": 40.0,
+       "text": "kalimat nomor 8."
+      },
+      {
+       "end": 50.0,
+       "engagement": 0.0,
+       "start": 45.0,
+       "text": "kalimat nomor 9."
+      },
+      {
+       "end": 55.0,
+       "engagement": 0.0,
+       "start": 50.0,
+       "text": "kalimat nomor 10."
+      },
+      {
+       "end": 60.0,
+       "engagement": 0.0,
+       "start": 55.0,
+       "text": "kalimat nomor 11."
+      },
+      {
+       "end": 65.0,
+       "engagement": 0.0,
+       "start": 60.0,
+       "text": "kalimat nomor 12."
+      },
+      {
+       "end": 70.0,
+       "engagement": 0.0,
+       "start": 65.0,
+       "text": "kalimat nomor 13."
+      },
+      {
+       "end": 75.0,
+       "engagement": 0.0,
+       "start": 70.0,
+       "text": "kalimat nomor 14."
+      },
+      {
+       "end": 80.0,
+       "engagement": 0.0,
+       "start": 75.0,
+       "text": "kalimat nomor 15."
+      },
+      {
+       "end": 85.0,
+       "engagement": 0.0,
+       "start": 80.0,
+       "text": "kalimat nomor 16."
+      },
+      {
+       "end": 90.0,
+       "engagement": 0.0,
+       "start": 85.0,
+       "text": "kalimat nomor 17."
+      },
+      {
+       "end": 95.0,
+       "engagement": 0.0,
+       "start": 90.0,
+       "text": "kalimat nomor 18."
+      },
+      {
+       "end": 100.0,
+       "engagement": 0.0,
+       "start": 95.0,
+       "text": "kalimat nomor 19."
+      },
+      {
+       "end": 105.0,
+       "engagement": 0.0,
+       "start": 100.0,
+       "text": "kalimat nomor 20."
+      },
+      {
+       "end": 110.0,
+       "engagement": 0.0,
+       "start": 105.0,
+       "text": "kalimat nomor 21."
+      },
+      {
+       "end": 115.0,
+       "engagement": 0.0,
+       "start": 110.0,
+       "text": "kalimat nomor 22."
+      },
+      {
+       "end": 120.0,
+       "engagement": 0.0,
+       "start": 115.0,
+       "text": "kalimat nomor 23."
+      }
+     ],
+     "video_id": "dQw4w9WgXcQ"
+    }
+   }
+  ],
+  "gemini_calls": [
+   {
+    "model": "gemini-2.5-flash",
+    "prompt_chars": 3550,
+    "prompt_sha256": "0a7de10b32aed6f80ae975c4fb1e0a1d7088b0243bb1ba780529a6e4c96ff867"
+   }
+  ],
+  "logs": [
+   "INFO xoraclips: Metadata fetched: title='Uji', duration=120.0s, heatmap_pts=0",
+   "INFO xoraclips: Flash fallback chain prepared: ['gemini-2.5-flash', 'gemini-2.5-flash-lite', 'gemini-2.0-flash', 'gemini-2.0-flash-lite', 'gemini-1.5-flash', 'gemini-1.5-flash-8b']",
+   "INFO xoraclips: Gemini analysis complete with gemini-2.5-flash. Found 1 clips.",
+   "INFO xoraclips: Clip bounds: 0/1 clip(s) moved to line/sentence edges."
   ],
   "sleeps": []
  },
@@ -5248,6 +6003,60 @@
    "INFO xoraclips: Flash fallback chain prepared: ['gemini-2.5-flash', 'gemini-2.5-flash-lite', 'gemini-2.0-flash', 'gemini-2.0-flash-lite', 'gemini-1.5-flash', 'gemini-1.5-flash-8b']",
    "INFO xoraclips: Gemini analysis complete with gemini-2.5-flash. Found 2 clips.",
    "INFO xoraclips: Clip bounds: 0/2 clip(s) moved to line/sentence edges."
+  ],
+  "sleeps": []
+ },
+ "manual_subtitles_parser_error": {
+  "crash": null,
+  "events": [
+   {
+    "detail": "Connecting to YouTube & fetching video metadata...",
+    "message": "Connecting to YouTube — fetching video title and duration...",
+    "overall_progress": 8,
+    "stage": "Connecting to YouTube",
+    "step": 1,
+    "step_progress": 30
+   },
+   {
+    "detail": "Loaded metadata for \"Uji\" (120s)",
+    "message": "Connected — \"Uji\" (120s)",
+    "overall_progress": 25,
+    "stage": "Video Verified",
+    "step": 1,
+    "step_progress": 100
+   },
+   {
+    "detail": "Extracting viewer replay telemetry and retention curve...",
+    "message": "Scraping player viewer retention curve...",
+    "overall_progress": 35,
+    "stage": "Scraping Retention",
+    "step": 2,
+    "step_progress": 40
+   },
+   {
+    "detail": "No heatmap curve available — relying on full transcript dialogue analysis.",
+    "message": "No heatmap available for this video — will rely on transcript content analysis.",
+    "overall_progress": 50,
+    "stage": "Dialogue Fallback",
+    "step": 2,
+    "step_progress": 100
+   },
+   {
+    "detail": "Parsing custom SRT/TXT subtitle timestamps...",
+    "message": "Parsing manual subtitles...",
+    "overall_progress": 55,
+    "stage": "Parsing Subtitles",
+    "step": 3,
+    "step_progress": 30
+   },
+   {
+    "error": "Failed to parse manual subtitles: bad SRT",
+    "status": 400
+   }
+  ],
+  "gemini_calls": [],
+  "logs": [
+   "INFO xoraclips: Metadata fetched: title='Uji', duration=120.0s, heatmap_pts=0"
   ],
   "sleeps": []
  },
@@ -14217,6 +15026,62 @@
   ],
   "sleeps": []
  },
+ "transcript_returns_nothing": {
+  "crash": null,
+  "events": [
+   {
+    "detail": "Connecting to YouTube & fetching video metadata...",
+    "message": "Connecting to YouTube — fetching video title and duration...",
+    "overall_progress": 8,
+    "stage": "Connecting to YouTube",
+    "step": 1,
+    "step_progress": 30
+   },
+   {
+    "detail": "Loaded metadata for \"Uji\" (120s)",
+    "message": "Connected — \"Uji\" (120s)",
+    "overall_progress": 25,
+    "stage": "Video Verified",
+    "step": 1,
+    "step_progress": 100
+   },
+   {
+    "detail": "Extracting viewer replay telemetry and retention curve...",
+    "message": "Scraping player viewer retention curve...",
+    "overall_progress": 35,
+    "stage": "Scraping Retention",
+    "step": 2,
+    "step_progress": 40
+   },
+   {
+    "detail": "No heatmap curve available — relying on full transcript dialogue analysis.",
+    "message": "No heatmap available for this video — will rely on transcript content analysis.",
+    "overall_progress": 50,
+    "stage": "Dialogue Fallback",
+    "step": 2,
+    "step_progress": 100
+   },
+   {
+    "detail": "Initializing multi-tier subtitle extraction pipeline...",
+    "message": "Initializing multi-tier subtitle extraction pipeline...",
+    "overall_progress": 55,
+    "stage": "Fetching Subtitles",
+    "step": 3,
+    "step_progress": 25
+   },
+   {
+    "code": "captions_unavailable",
+    "error": "No subtitles could be fetched for this video. Upload subtitles manually.",
+    "status": 400
+   }
+  ],
+  "gemini_calls": [],
+  "logs": [
+   "INFO xoraclips: Metadata fetched: title='Uji', duration=120.0s, heatmap_pts=0",
+   "ERROR xoraclips: Subtitle retrieval failed unexpectedly for dQw4w9WgXcQ"
+  ],
+  "sleeps": []
+ },
  "transcript_unexpected_error": {
   "crash": null,
   "events": [
@@ -14343,8 +15208,8 @@
     "step_progress": 18
    },
    {
-    "detail": "gemini-2.5-flash temporarily busy — switching to fallback gemini-2.5-flash-lite...",
-    "message": "gemini-2.5-flash temporarily busy — switching to flash fallback model gemini-2.5-flash-lite...",
+    "detail": "gemini-2.5-flash failed — switching to fallback gemini-2.5-flash-lite...",
+    "message": "gemini-2.5-flash failed — switching to flash fallback model gemini-2.5-flash-lite...",
     "model": "gemini-2.5-flash-lite",
     "overall_progress": 76,
     "stage": "Flash Fallback",
@@ -14361,8 +15226,8 @@
     "step_progress": 18
    },
    {
-    "detail": "gemini-2.5-flash-lite temporarily busy — switching to fallback gemini-2.0-flash...",
-    "message": "gemini-2.5-flash-lite temporarily busy — switching to flash fallback model gemini-2.0-flash...",
+    "detail": "gemini-2.5-flash-lite failed — switching to fallback gemini-2.0-flash...",
+    "message": "gemini-2.5-flash-lite failed — switching to flash fallback model gemini-2.0-flash...",
     "model": "gemini-2.0-flash",
     "overall_progress": 76,
     "stage": "Flash Fallback",
@@ -14379,8 +15244,8 @@
     "step_progress": 18
    },
    {
-    "detail": "gemini-2.0-flash temporarily busy — switching to fallback gemini-2.0-flash-lite...",
-    "message": "gemini-2.0-flash temporarily busy — switching to flash fallback model gemini-2.0-flash-lite...",
+    "detail": "gemini-2.0-flash failed — switching to fallback gemini-2.0-flash-lite...",
+    "message": "gemini-2.0-flash failed — switching to flash fallback model gemini-2.0-flash-lite...",
     "model": "gemini-2.0-flash-lite",
     "overall_progress": 76,
     "stage": "Flash Fallback",
@@ -14397,8 +15262,8 @@
     "step_progress": 18
    },
    {
-    "detail": "gemini-2.0-flash-lite temporarily busy — switching to fallback gemini-1.5-flash...",
-    "message": "gemini-2.0-flash-lite temporarily busy — switching to flash fallback model gemini-1.5-flash...",
+    "detail": "gemini-2.0-flash-lite failed — switching to fallback gemini-1.5-flash...",
+    "message": "gemini-2.0-flash-lite failed — switching to flash fallback model gemini-1.5-flash...",
     "model": "gemini-1.5-flash",
     "overall_progress": 76,
     "stage": "Flash Fallback",
@@ -14415,8 +15280,8 @@
     "step_progress": 18
    },
    {
-    "detail": "gemini-1.5-flash temporarily busy — switching to fallback gemini-1.5-flash-8b...",
-    "message": "gemini-1.5-flash temporarily busy — switching to flash fallback model gemini-1.5-flash-8b...",
+    "detail": "gemini-1.5-flash failed — switching to fallback gemini-1.5-flash-8b...",
+    "message": "gemini-1.5-flash failed — switching to flash fallback model gemini-1.5-flash-8b...",
     "model": "gemini-1.5-flash-8b",
     "overall_progress": 76,
     "stage": "Flash Fallback",
@@ -14553,8 +15418,8 @@
     "step_progress": 18
    },
    {
-    "detail": "gemini-2.5-flash temporarily busy — switching to fallback gemini-2.5-flash-lite...",
-    "message": "gemini-2.5-flash temporarily busy — switching to flash fallback model gemini-2.5-flash-lite...",
+    "detail": "gemini-2.5-flash failed — switching to fallback gemini-2.5-flash-lite...",
+    "message": "gemini-2.5-flash failed — switching to flash fallback model gemini-2.5-flash-lite...",
     "model": "gemini-2.5-flash-lite",
     "overall_progress": 76,
     "stage": "Flash Fallback",
@@ -14796,6 +15661,426 @@
    "WARNING xoraclips: JSON parsing error from gemini-2.5-flash: Expecting value: line 1 column 1 (char 0)",
    "INFO xoraclips: Gemini analysis complete with gemini-2.5-flash-lite. Found 2 clips.",
    "INFO xoraclips: Clip bounds: 0/2 clip(s) moved to line/sentence edges."
+  ],
+  "sleeps": []
+ },
+ "unreadable_answer_everywhere": {
+  "crash": null,
+  "events": [
+   {
+    "detail": "Connecting to YouTube & fetching video metadata...",
+    "message": "Connecting to YouTube — fetching video title and duration...",
+    "overall_progress": 8,
+    "stage": "Connecting to YouTube",
+    "step": 1,
+    "step_progress": 30
+   },
+   {
+    "detail": "Loaded metadata for \"Uji\" (120s)",
+    "message": "Connected — \"Uji\" (120s)",
+    "overall_progress": 25,
+    "stage": "Video Verified",
+    "step": 1,
+    "step_progress": 100
+   },
+   {
+    "detail": "Extracting viewer replay telemetry and retention curve...",
+    "message": "Scraping player viewer retention curve...",
+    "overall_progress": 35,
+    "stage": "Scraping Retention",
+    "step": 2,
+    "step_progress": 40
+   },
+   {
+    "detail": "No heatmap curve available — relying on full transcript dialogue analysis.",
+    "message": "No heatmap available for this video — will rely on transcript content analysis.",
+    "overall_progress": 50,
+    "stage": "Dialogue Fallback",
+    "step": 2,
+    "step_progress": 100
+   },
+   {
+    "detail": "Initializing multi-tier subtitle extraction pipeline...",
+    "message": "Initializing multi-tier subtitle extraction pipeline...",
+    "overall_progress": 55,
+    "stage": "Fetching Subtitles",
+    "step": 3,
+    "step_progress": 25
+   },
+   {
+    "detail": "Subtitles loaded — 24 dialogue sentences with timestamps ready.",
+    "message": "Subtitles loaded — 24 lines parsed successfully.",
+    "overall_progress": 70,
+    "stage": "Subtitles Ready",
+    "step": 3,
+    "step_progress": 100
+   },
+   {
+    "detail": "Aligning 24 dialogue segments with engagement data for gemini-2.5-flash...",
+    "message": "Assembling prompt and engagement context for gemini-2.5-flash...",
+    "model": "gemini-2.5-flash",
+    "overall_progress": 72,
+    "stage": "Context Assembly",
+    "step": 4,
+    "step_progress": 10
+   },
+   {
+    "detail": "Dispatched 24 lines to gemini-2.5-flash (attempt 1)...",
+    "message": "Calling gemini-2.5-flash (attempt 1/2)...",
+    "model": "gemini-2.5-flash",
+    "overall_progress": 74,
+    "stage": "Neural Model Dispatch",
+    "step": 4,
+    "step_progress": 18
+   },
+   {
+    "detail": "gemini-2.5-flash failed — switching to fallback gemini-2.5-flash-lite...",
+    "message": "gemini-2.5-flash failed — switching to flash fallback model gemini-2.5-flash-lite...",
+    "model": "gemini-2.5-flash-lite",
+    "overall_progress": 76,
+    "stage": "Flash Fallback",
+    "step": 4,
+    "step_progress": 35
+   },
+   {
+    "detail": "Dispatched 24 lines to gemini-2.5-flash-lite (attempt 1)...",
+    "message": "Calling gemini-2.5-flash-lite (attempt 1/2)...",
+    "model": "gemini-2.5-flash-lite",
+    "overall_progress": 74,
+    "stage": "Neural Model Dispatch",
+    "step": 4,
+    "step_progress": 18
+   },
+   {
+    "detail": "gemini-2.5-flash-lite failed — switching to fallback gemini-2.0-flash...",
+    "message": "gemini-2.5-flash-lite failed — switching to flash fallback model gemini-2.0-flash...",
+    "model": "gemini-2.0-flash",
+    "overall_progress": 76,
+    "stage": "Flash Fallback",
+    "step": 4,
+    "step_progress": 35
+   },
+   {
+    "detail": "Dispatched 24 lines to gemini-2.0-flash (attempt 1)...",
+    "message": "Calling gemini-2.0-flash (attempt 1/2)...",
+    "model": "gemini-2.0-flash",
+    "overall_progress": 74,
+    "stage": "Neural Model Dispatch",
+    "step": 4,
+    "step_progress": 18
+   },
+   {
+    "detail": "gemini-2.0-flash failed — switching to fallback gemini-2.0-flash-lite...",
+    "message": "gemini-2.0-flash failed — switching to flash fallback model gemini-2.0-flash-lite...",
+    "model": "gemini-2.0-flash-lite",
+    "overall_progress": 76,
+    "stage": "Flash Fallback",
+    "step": 4,
+    "step_progress": 35
+   },
+   {
+    "detail": "Dispatched 24 lines to gemini-2.0-flash-lite (attempt 1)...",
+    "message": "Calling gemini-2.0-flash-lite (attempt 1/2)...",
+    "model": "gemini-2.0-flash-lite",
+    "overall_progress": 74,
+    "stage": "Neural Model Dispatch",
+    "step": 4,
+    "step_progress": 18
+   },
+   {
+    "detail": "gemini-2.0-flash-lite failed — switching to fallback gemini-1.5-flash...",
+    "message": "gemini-2.0-flash-lite failed — switching to flash fallback model gemini-1.5-flash...",
+    "model": "gemini-1.5-flash",
+    "overall_progress": 76,
+    "stage": "Flash Fallback",
+    "step": 4,
+    "step_progress": 35
+   },
+   {
+    "detail": "Dispatched 24 lines to gemini-1.5-flash (attempt 1)...",
+    "message": "Calling gemini-1.5-flash (attempt 1/2)...",
+    "model": "gemini-1.5-flash",
+    "overall_progress": 74,
+    "stage": "Neural Model Dispatch",
+    "step": 4,
+    "step_progress": 18
+   },
+   {
+    "detail": "gemini-1.5-flash failed — switching to fallback gemini-1.5-flash-8b...",
+    "message": "gemini-1.5-flash failed — switching to flash fallback model gemini-1.5-flash-8b...",
+    "model": "gemini-1.5-flash-8b",
+    "overall_progress": 76,
+    "stage": "Flash Fallback",
+    "step": 4,
+    "step_progress": 35
+   },
+   {
+    "detail": "Dispatched 24 lines to gemini-1.5-flash-8b (attempt 1)...",
+    "message": "Calling gemini-1.5-flash-8b (attempt 1/2)...",
+    "model": "gemini-1.5-flash-8b",
+    "overall_progress": 74,
+    "stage": "Neural Model Dispatch",
+    "step": 4,
+    "step_progress": 18
+   },
+   {
+    "code": "ai_failed",
+    "error": "The AI analysis failed. Please try again in a few moments.",
+    "status": 500
+   }
+  ],
+  "gemini_calls": [
+   {
+    "model": "gemini-2.5-flash",
+    "prompt_chars": 3550,
+    "prompt_sha256": "0a7de10b32aed6f80ae975c4fb1e0a1d7088b0243bb1ba780529a6e4c96ff867"
+   },
+   {
+    "model": "gemini-2.5-flash-lite",
+    "prompt_chars": 3550,
+    "prompt_sha256": "0a7de10b32aed6f80ae975c4fb1e0a1d7088b0243bb1ba780529a6e4c96ff867"
+   },
+   {
+    "model": "gemini-2.0-flash",
+    "prompt_chars": 3550,
+    "prompt_sha256": "0a7de10b32aed6f80ae975c4fb1e0a1d7088b0243bb1ba780529a6e4c96ff867"
+   },
+   {
+    "model": "gemini-2.0-flash-lite",
+    "prompt_chars": 3550,
+    "prompt_sha256": "0a7de10b32aed6f80ae975c4fb1e0a1d7088b0243bb1ba780529a6e4c96ff867"
+   },
+   {
+    "model": "gemini-1.5-flash",
+    "prompt_chars": 3550,
+    "prompt_sha256": "0a7de10b32aed6f80ae975c4fb1e0a1d7088b0243bb1ba780529a6e4c96ff867"
+   },
+   {
+    "model": "gemini-1.5-flash-8b",
+    "prompt_chars": 3550,
+    "prompt_sha256": "0a7de10b32aed6f80ae975c4fb1e0a1d7088b0243bb1ba780529a6e4c96ff867"
+   }
+  ],
+  "logs": [
+   "INFO xoraclips: Metadata fetched: title='Uji', duration=120.0s, heatmap_pts=0",
+   "INFO xoraclips: Flash fallback chain prepared: ['gemini-2.5-flash', 'gemini-2.5-flash-lite', 'gemini-2.0-flash', 'gemini-2.0-flash-lite', 'gemini-1.5-flash', 'gemini-1.5-flash-8b']",
+   "WARNING xoraclips: gemini-2.5-flash answered with a JSON list, not an object.",
+   "WARNING xoraclips: gemini-2.5-flash-lite answered with a JSON list, not an object.",
+   "WARNING xoraclips: gemini-2.0-flash answered with a JSON list, not an object.",
+   "WARNING xoraclips: gemini-2.0-flash-lite answered with a JSON list, not an object.",
+   "WARNING xoraclips: gemini-1.5-flash answered with a JSON list, not an object.",
+   "WARNING xoraclips: gemini-1.5-flash-8b answered with a JSON list, not an object.",
+   "ERROR xoraclips: Gemini analysis failed (ai_failed): gemini-1.5-flash-8b returned empty or unparseable response"
+  ],
+  "sleeps": []
+ },
+ "unreadable_then_missing_models": {
+  "crash": null,
+  "events": [
+   {
+    "detail": "Connecting to YouTube & fetching video metadata...",
+    "message": "Connecting to YouTube — fetching video title and duration...",
+    "overall_progress": 8,
+    "stage": "Connecting to YouTube",
+    "step": 1,
+    "step_progress": 30
+   },
+   {
+    "detail": "Loaded metadata for \"Uji\" (120s)",
+    "message": "Connected — \"Uji\" (120s)",
+    "overall_progress": 25,
+    "stage": "Video Verified",
+    "step": 1,
+    "step_progress": 100
+   },
+   {
+    "detail": "Extracting viewer replay telemetry and retention curve...",
+    "message": "Scraping player viewer retention curve...",
+    "overall_progress": 35,
+    "stage": "Scraping Retention",
+    "step": 2,
+    "step_progress": 40
+   },
+   {
+    "detail": "No heatmap curve available — relying on full transcript dialogue analysis.",
+    "message": "No heatmap available for this video — will rely on transcript content analysis.",
+    "overall_progress": 50,
+    "stage": "Dialogue Fallback",
+    "step": 2,
+    "step_progress": 100
+   },
+   {
+    "detail": "Initializing multi-tier subtitle extraction pipeline...",
+    "message": "Initializing multi-tier subtitle extraction pipeline...",
+    "overall_progress": 55,
+    "stage": "Fetching Subtitles",
+    "step": 3,
+    "step_progress": 25
+   },
+   {
+    "detail": "Subtitles loaded — 24 dialogue sentences with timestamps ready.",
+    "message": "Subtitles loaded — 24 lines parsed successfully.",
+    "overall_progress": 70,
+    "stage": "Subtitles Ready",
+    "step": 3,
+    "step_progress": 100
+   },
+   {
+    "detail": "Aligning 24 dialogue segments with engagement data for gemini-2.5-flash...",
+    "message": "Assembling prompt and engagement context for gemini-2.5-flash...",
+    "model": "gemini-2.5-flash",
+    "overall_progress": 72,
+    "stage": "Context Assembly",
+    "step": 4,
+    "step_progress": 10
+   },
+   {
+    "detail": "Dispatched 24 lines to gemini-2.5-flash (attempt 1)...",
+    "message": "Calling gemini-2.5-flash (attempt 1/2)...",
+    "model": "gemini-2.5-flash",
+    "overall_progress": 74,
+    "stage": "Neural Model Dispatch",
+    "step": 4,
+    "step_progress": 18
+   },
+   {
+    "detail": "gemini-2.5-flash failed — switching to fallback gemini-2.5-flash-lite...",
+    "message": "gemini-2.5-flash failed — switching to flash fallback model gemini-2.5-flash-lite...",
+    "model": "gemini-2.5-flash-lite",
+    "overall_progress": 76,
+    "stage": "Flash Fallback",
+    "step": 4,
+    "step_progress": 35
+   },
+   {
+    "detail": "Dispatched 24 lines to gemini-2.5-flash-lite (attempt 1)...",
+    "message": "Calling gemini-2.5-flash-lite (attempt 1/2)...",
+    "model": "gemini-2.5-flash-lite",
+    "overall_progress": 74,
+    "stage": "Neural Model Dispatch",
+    "step": 4,
+    "step_progress": 18
+   },
+   {
+    "detail": "gemini-2.5-flash-lite not available or deprecated — switching to fallback gemini-2.0-flash...",
+    "message": "gemini-2.5-flash-lite not available or deprecated — switching to flash fallback model gemini-2.0-flash...",
+    "model": "gemini-2.0-flash",
+    "overall_progress": 76,
+    "stage": "Flash Fallback",
+    "step": 4,
+    "step_progress": 35
+   },
+   {
+    "detail": "Dispatched 24 lines to gemini-2.0-flash (attempt 1)...",
+    "message": "Calling gemini-2.0-flash (attempt 1/2)...",
+    "model": "gemini-2.0-flash",
+    "overall_progress": 74,
+    "stage": "Neural Model Dispatch",
+    "step": 4,
+    "step_progress": 18
+   },
+   {
+    "detail": "gemini-2.0-flash not available or deprecated — switching to fallback gemini-2.0-flash-lite...",
+    "message": "gemini-2.0-flash not available or deprecated — switching to flash fallback model gemini-2.0-flash-lite...",
+    "model": "gemini-2.0-flash-lite",
+    "overall_progress": 76,
+    "stage": "Flash Fallback",
+    "step": 4,
+    "step_progress": 35
+   },
+   {
+    "detail": "Dispatched 24 lines to gemini-2.0-flash-lite (attempt 1)...",
+    "message": "Calling gemini-2.0-flash-lite (attempt 1/2)...",
+    "model": "gemini-2.0-flash-lite",
+    "overall_progress": 74,
+    "stage": "Neural Model Dispatch",
+    "step": 4,
+    "step_progress": 18
+   },
+   {
+    "detail": "gemini-2.0-flash-lite not available or deprecated — switching to fallback gemini-1.5-flash...",
+    "message": "gemini-2.0-flash-lite not available or deprecated — switching to flash fallback model gemini-1.5-flash...",
+    "model": "gemini-1.5-flash",
+    "overall_progress": 76,
+    "stage": "Flash Fallback",
+    "step": 4,
+    "step_progress": 35
+   },
+   {
+    "detail": "Dispatched 24 lines to gemini-1.5-flash (attempt 1)...",
+    "message": "Calling gemini-1.5-flash (attempt 1/2)...",
+    "model": "gemini-1.5-flash",
+    "overall_progress": 74,
+    "stage": "Neural Model Dispatch",
+    "step": 4,
+    "step_progress": 18
+   },
+   {
+    "detail": "gemini-1.5-flash not available or deprecated — switching to fallback gemini-1.5-flash-8b...",
+    "message": "gemini-1.5-flash not available or deprecated — switching to flash fallback model gemini-1.5-flash-8b...",
+    "model": "gemini-1.5-flash-8b",
+    "overall_progress": 76,
+    "stage": "Flash Fallback",
+    "step": 4,
+    "step_progress": 35
+   },
+   {
+    "detail": "Dispatched 24 lines to gemini-1.5-flash-8b (attempt 1)...",
+    "message": "Calling gemini-1.5-flash-8b (attempt 1/2)...",
+    "model": "gemini-1.5-flash-8b",
+    "overall_progress": 74,
+    "stage": "Neural Model Dispatch",
+    "step": 4,
+    "step_progress": 18
+   },
+   {
+    "code": "ai_failed",
+    "error": "The AI analysis failed. Please try again in a few moments.",
+    "status": 500
+   }
+  ],
+  "gemini_calls": [
+   {
+    "model": "gemini-2.5-flash",
+    "prompt_chars": 3550,
+    "prompt_sha256": "0a7de10b32aed6f80ae975c4fb1e0a1d7088b0243bb1ba780529a6e4c96ff867"
+   },
+   {
+    "model": "gemini-2.5-flash-lite",
+    "prompt_chars": 3550,
+    "prompt_sha256": "0a7de10b32aed6f80ae975c4fb1e0a1d7088b0243bb1ba780529a6e4c96ff867"
+   },
+   {
+    "model": "gemini-2.0-flash",
+    "prompt_chars": 3550,
+    "prompt_sha256": "0a7de10b32aed6f80ae975c4fb1e0a1d7088b0243bb1ba780529a6e4c96ff867"
+   },
+   {
+    "model": "gemini-2.0-flash-lite",
+    "prompt_chars": 3550,
+    "prompt_sha256": "0a7de10b32aed6f80ae975c4fb1e0a1d7088b0243bb1ba780529a6e4c96ff867"
+   },
+   {
+    "model": "gemini-1.5-flash",
+    "prompt_chars": 3550,
+    "prompt_sha256": "0a7de10b32aed6f80ae975c4fb1e0a1d7088b0243bb1ba780529a6e4c96ff867"
+   },
+   {
+    "model": "gemini-1.5-flash-8b",
+    "prompt_chars": 3550,
+    "prompt_sha256": "0a7de10b32aed6f80ae975c4fb1e0a1d7088b0243bb1ba780529a6e4c96ff867"
+   }
+  ],
+  "logs": [
+   "INFO xoraclips: Metadata fetched: title='Uji', duration=120.0s, heatmap_pts=0",
+   "INFO xoraclips: Flash fallback chain prepared: ['gemini-2.5-flash', 'gemini-2.5-flash-lite', 'gemini-2.0-flash', 'gemini-2.0-flash-lite', 'gemini-1.5-flash', 'gemini-1.5-flash-8b']",
+   "WARNING xoraclips: JSON parsing error from gemini-2.5-flash: Expecting value: line 1 column 1 (char 0)",
+   "WARNING xoraclips: Error from gemini-2.5-flash-lite (attempt 1, model_unavailable): 404 NOT_FOUND. models/x is not found for API version v1beta",
+   "WARNING xoraclips: Error from gemini-2.0-flash (attempt 1, model_unavailable): 404 NOT_FOUND. models/x is not found for API version v1beta",
+   "WARNING xoraclips: Error from gemini-2.0-flash-lite (attempt 1, model_unavailable): 404 NOT_FOUND. models/x is not found for API version v1beta",
+   "WARNING xoraclips: Error from gemini-1.5-flash (attempt 1, model_unavailable): 404 NOT_FOUND. models/x is not found for API version v1beta",
+   "WARNING xoraclips: Error from gemini-1.5-flash-8b (attempt 1, model_unavailable): 404 NOT_FOUND. models/x is not found for API version v1beta",
+   "ERROR xoraclips: Gemini analysis failed (ai_failed): 404 NOT_FOUND. models/x is not found for API version v1beta"
   ],
   "sleeps": []
  },
@@ -15052,15 +16337,6 @@
     "step_progress": 40
    },
    {
-    "detail": "gemini-2.5-flash temporarily busy — switching to fallback gemini-2.5-flash-lite...",
-    "message": "gemini-2.5-flash temporarily busy — switching to flash fallback model gemini-2.5-flash-lite...",
-    "model": "gemini-2.5-flash-lite",
-    "overall_progress": 76,
-    "stage": "Flash Fallback",
-    "step": 4,
-    "step_progress": 35
-   },
-   {
     "detail": "Dispatched 24 lines to gemini-2.5-flash-lite (attempt 1)...",
     "message": "Calling gemini-2.5-flash-lite (attempt 1/2)...",
     "model": "gemini-2.5-flash-lite",
@@ -15077,15 +16353,6 @@
     "stage": "Flash Model Fallback",
     "step": 4,
     "step_progress": 40
-   },
-   {
-    "detail": "gemini-2.5-flash-lite temporarily busy — switching to fallback gemini-2.0-flash...",
-    "message": "gemini-2.5-flash-lite temporarily busy — switching to flash fallback model gemini-2.0-flash...",
-    "model": "gemini-2.0-flash",
-    "overall_progress": 76,
-    "stage": "Flash Fallback",
-    "step": 4,
-    "step_progress": 35
    },
    {
     "detail": "Dispatched 24 lines to gemini-2.0-flash (attempt 1)...",
@@ -15106,15 +16373,6 @@
     "step_progress": 40
    },
    {
-    "detail": "gemini-2.0-flash temporarily busy — switching to fallback gemini-2.0-flash-lite...",
-    "message": "gemini-2.0-flash temporarily busy — switching to flash fallback model gemini-2.0-flash-lite...",
-    "model": "gemini-2.0-flash-lite",
-    "overall_progress": 76,
-    "stage": "Flash Fallback",
-    "step": 4,
-    "step_progress": 35
-   },
-   {
     "detail": "Dispatched 24 lines to gemini-2.0-flash-lite (attempt 1)...",
     "message": "Calling gemini-2.0-flash-lite (attempt 1/2)...",
     "model": "gemini-2.0-flash-lite",
@@ -15133,15 +16391,6 @@
     "step_progress": 40
    },
    {
-    "detail": "gemini-2.0-flash-lite temporarily busy — switching to fallback gemini-1.5-flash...",
-    "message": "gemini-2.0-flash-lite temporarily busy — switching to flash fallback model gemini-1.5-flash...",
-    "model": "gemini-1.5-flash",
-    "overall_progress": 76,
-    "stage": "Flash Fallback",
-    "step": 4,
-    "step_progress": 35
-   },
-   {
     "detail": "Dispatched 24 lines to gemini-1.5-flash (attempt 1)...",
     "message": "Calling gemini-1.5-flash (attempt 1/2)...",
     "model": "gemini-1.5-flash",
@@ -15158,15 +16407,6 @@
     "stage": "Flash Model Fallback",
     "step": 4,
     "step_progress": 40
-   },
-   {
-    "detail": "gemini-1.5-flash temporarily busy — switching to fallback gemini-1.5-flash-8b...",
-    "message": "gemini-1.5-flash temporarily busy — switching to flash fallback model gemini-1.5-flash-8b...",
-    "model": "gemini-1.5-flash-8b",
-    "overall_progress": 76,
-    "stage": "Flash Fallback",
-    "step": 4,
-    "step_progress": 35
    },
    {
     "detail": "Dispatched 24 lines to gemini-1.5-flash-8b (attempt 1)...",
@@ -15581,15 +16821,6 @@
     "step_progress": 40
    },
    {
-    "detail": "gemini-2.5-flash temporarily busy — switching to fallback gemini-2.5-flash-lite...",
-    "message": "gemini-2.5-flash temporarily busy — switching to flash fallback model gemini-2.5-flash-lite...",
-    "model": "gemini-2.5-flash-lite",
-    "overall_progress": 76,
-    "stage": "Flash Fallback",
-    "step": 4,
-    "step_progress": 35
-   },
-   {
     "detail": "Dispatched 24 lines to gemini-2.5-flash-lite (attempt 1)...",
     "message": "Calling gemini-2.5-flash-lite (attempt 1/2)...",
     "model": "gemini-2.5-flash-lite",
@@ -15606,15 +16837,6 @@
     "stage": "Flash Model Fallback",
     "step": 4,
     "step_progress": 40
-   },
-   {
-    "detail": "gemini-2.5-flash-lite temporarily busy — switching to fallback gemini-2.0-flash...",
-    "message": "gemini-2.5-flash-lite temporarily busy — switching to flash fallback model gemini-2.0-flash...",
-    "model": "gemini-2.0-flash",
-    "overall_progress": 76,
-    "stage": "Flash Fallback",
-    "step": 4,
-    "step_progress": 35
    },
    {
     "detail": "Dispatched 24 lines to gemini-2.0-flash (attempt 1)...",
@@ -15635,15 +16857,6 @@
     "step_progress": 40
    },
    {
-    "detail": "gemini-2.0-flash temporarily busy — switching to fallback gemini-2.0-flash-lite...",
-    "message": "gemini-2.0-flash temporarily busy — switching to flash fallback model gemini-2.0-flash-lite...",
-    "model": "gemini-2.0-flash-lite",
-    "overall_progress": 76,
-    "stage": "Flash Fallback",
-    "step": 4,
-    "step_progress": 35
-   },
-   {
     "detail": "Dispatched 24 lines to gemini-2.0-flash-lite (attempt 1)...",
     "message": "Calling gemini-2.0-flash-lite (attempt 1/2)...",
     "model": "gemini-2.0-flash-lite",
@@ -15662,15 +16875,6 @@
     "step_progress": 40
    },
    {
-    "detail": "gemini-2.0-flash-lite temporarily busy — switching to fallback gemini-1.5-flash...",
-    "message": "gemini-2.0-flash-lite temporarily busy — switching to flash fallback model gemini-1.5-flash...",
-    "model": "gemini-1.5-flash",
-    "overall_progress": 76,
-    "stage": "Flash Fallback",
-    "step": 4,
-    "step_progress": 35
-   },
-   {
     "detail": "Dispatched 24 lines to gemini-1.5-flash (attempt 1)...",
     "message": "Calling gemini-1.5-flash (attempt 1/2)...",
     "model": "gemini-1.5-flash",
@@ -15687,15 +16891,6 @@
     "stage": "Flash Model Fallback",
     "step": 4,
     "step_progress": 40
-   },
-   {
-    "detail": "gemini-1.5-flash temporarily busy — switching to fallback gemini-1.5-flash-8b...",
-    "message": "gemini-1.5-flash temporarily busy — switching to flash fallback model gemini-1.5-flash-8b...",
-    "model": "gemini-1.5-flash-8b",
-    "overall_progress": 76,
-    "stage": "Flash Fallback",
-    "step": 4,
-    "step_progress": 35
    },
    {
     "detail": "Dispatched 24 lines to gemini-1.5-flash-8b (attempt 1)...",
@@ -16031,15 +17226,6 @@
     "stage": "Flash Model Fallback",
     "step": 4,
     "step_progress": 40
-   },
-   {
-    "detail": "gemini-2.5-flash temporarily busy — switching to fallback gemini-2.5-flash-lite...",
-    "message": "gemini-2.5-flash temporarily busy — switching to flash fallback model gemini-2.5-flash-lite...",
-    "model": "gemini-2.5-flash-lite",
-    "overall_progress": 76,
-    "stage": "Flash Fallback",
-    "step": 4,
-    "step_progress": 35
    },
    {
     "detail": "Dispatched 24 lines to gemini-2.5-flash-lite (attempt 1)...",

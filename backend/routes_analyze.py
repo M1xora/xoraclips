@@ -392,6 +392,7 @@ async def _gemini_events(client, models_to_try: List[str], prompt: str, n_lines:
 
     for idx, model_name in enumerate(models_to_try):
         next_model_hint = models_to_try[idx + 1] if idx + 1 < len(models_to_try) else None
+        switch_announced = False
 
         for attempt in range(GEMINI_TRIES):
             if attempt > 0:
@@ -434,13 +435,18 @@ async def _gemini_events(client, models_to_try: List[str], prompt: str, n_lines:
                                      f"{model_name} returned 0 clips — switching to {next_model_hint}...",
                                      model=next_model_hint)
                         last_error = Exception(f"{model_name} returned 0 clips")
+                        switch_announced = True
                         break
 
                     analysis_data = parsed_data
                     successful_model = model_name
                     break
                 else:
+                    # A model that answered with nothing usable failed: it
+                    # counts in the final error like any other failure.
                     last_error = Exception(f"{model_name} returned empty or unparseable response")
+                    last_code = ai_errors.AI_FAILED
+                    seen_codes.append(last_code)
                     break
 
             except Exception as e:
@@ -467,10 +473,11 @@ async def _gemini_events(client, models_to_try: List[str], prompt: str, n_lines:
         if analysis_data is not None or key_rejected:
             break
 
-        if next_model_hint is not None:
+        if next_model_hint is not None and not switch_announced:
             err_summary = {
                 ai_errors.KEY_QUOTA: "quota reached",
                 ai_errors.MODEL_UNAVAILABLE: "not available or deprecated",
+                ai_errors.AI_FAILED: "failed",
             }.get(last_code, "temporarily busy")
             yield _event(4, 35, 76, "Flash Fallback",
                          f"{model_name} {err_summary} — switching to fallback {next_model_hint}...",
@@ -517,12 +524,12 @@ async def _caption_events(request: AnalyzeRequest, video_id: str, duration: floa
             transcript_lines = parse_manual_subtitles(request.subtitles, duration)
             if not transcript_lines:
                 raise Exception("Custom subtitles parsed into empty array.")
+            yield _event(3, 100, 70, "Subtitles Ready",
+                         f"Custom subtitles parsed — {len(transcript_lines)} timestamped lines loaded.",
+                         f"Custom subtitles parsed — {len(transcript_lines)} lines loaded successfully.")
         except Exception as e:
             yield _error(f"Failed to parse manual subtitles: {str(e)}", 400)
             return
-        yield _event(3, 100, 70, "Subtitles Ready",
-                     f"Custom subtitles parsed — {len(transcript_lines)} timestamped lines loaded.",
-                     f"Custom subtitles parsed — {len(transcript_lines)} lines loaded successfully.")
         got["lines"] = transcript_lines
         return
 
@@ -536,12 +543,12 @@ async def _caption_events(request: AnalyzeRequest, video_id: str, duration: floa
             async for event in _transcript_events(video_id, request.proxy, fetched):
                 yield event
             transcript_lines = fetched["lines"]
+        yield _event(3, 100, 70, "Subtitles Ready",
+                     f"Subtitles loaded — {len(transcript_lines)} dialogue sentences with timestamps ready.",
+                     f"Subtitles loaded — {len(transcript_lines)} lines parsed successfully.")
     except Exception as e:
         yield _transcript_error(e, video_id, metadata)
         return
-    yield _event(3, 100, 70, "Subtitles Ready",
-                 f"Subtitles loaded — {len(transcript_lines)} dialogue sentences with timestamps ready.",
-                 f"Subtitles loaded — {len(transcript_lines)} lines parsed successfully.")
     got["lines"] = transcript_lines
 
 

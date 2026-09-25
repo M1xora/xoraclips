@@ -2,7 +2,10 @@
 Characterization tests for /api/analyze (#74): every event the stream sends,
 the Gemini calls it makes (model + prompt hash), the waits it asks for and
 the log lines it writes, for each path through the analysis, compared with
-a snapshot recorded from the code before analyze_video was split up.
+a snapshot. The snapshot was first recorded from the code before
+analyze_video was split up; each deliberate change since then re-recorded
+it in its own commit, which says which scenarios changed and why. Events
+are compared as parsed JSON, so key order does not matter.
 
 The three stored transcripts replay Gemini answers recorded once from the
 real API (fixtures/gemini_answers), so no test here contacts Gemini.
@@ -221,6 +224,8 @@ SCENARIOS = {
                               "transcript": RuntimeError("no captions yet")},
     "transcript_captions_disabled": {"transcript": CaptionUnavailable(youtube_errors.CAPTIONS_DISABLED)},
     "transcript_unexpected_error": {"transcript": RuntimeError("something odd")},
+    "transcript_returns_nothing": {"transcript": lambda *a, **k: None},
+    "manual_subtitles_parser_error": {"body": {"subtitles": SRT}, "subtitle_parser": ValueError("bad SRT")},
     "duration_from_transcript": {"metadata": meta(duration=0.0)},
     # --- range ---
     "range_inside": {"body": {"range_start": 20, "range_end": 80}},
@@ -276,6 +281,12 @@ SCENARIOS = {
         {"text": "Saya Mencoba Lari Tiap Hari"}, {"text": "Aku Menyesal Makan Gorengan"}])]}]},
     "no_title_options": {"answers": [{"summary": "s", "clips": [clip(10, 40, title_options=[],
                                                                      title="Why I Quit Sugar")]}]},
+    "unreadable_answer_everywhere": {"answers": ["[1, 2, 3]"]},
+    "unreadable_then_missing_models": {"answers": ["not json", err(NOT_FOUND)]},
+    "clips_null_on_the_last_model": {"answers": [err(NOT_FOUND)] * 5 + [{"summary": "x", "clips": None}]},
+    "gemini_claims_a_backup_clip": {"answers": [{"summary": "s", "clips": [clip(10, 40, is_fallback=True, title_options=[
+        {"text": "Saya Mencoba Lari Tiap Hari"}])]}]},
+    "key_quotes_as_text": {"answers": [{"summary": "s", "clips": [clip(10, 40, key_quotes="Ternyata gula itu racun")]}]},
     "overlapping_clips": {"answers": [{"summary": "s", "clips": [clip(10, 50), clip(30, 70), clip(10, 50)]}]},
     # --- demo mode ---
     "mock_mode": {"mock": True, "key": None},
@@ -322,6 +333,8 @@ def run(name, monkeypatch):
         transcript = (lambda t: lambda *a, **k: [dict(x) for x in t])(transcript)
     monkeypatch.setattr(routes_analyze, "fetch_transcript", transcript)
     monkeypatch.setattr(routes_analyze, "get_supadata_keys", lambda: [])
+    if "subtitle_parser" in sc:
+        monkeypatch.setattr(routes_analyze, "parse_manual_subtitles", raise_(sc["subtitle_parser"]))
     monkeypatch.setattr(youtube_errors, "block_memory", youtube_errors.BlockMemory(clock=lambda: 1000.0))
     if sc.get("blocked"):
         youtube_errors.block_memory.remember()
