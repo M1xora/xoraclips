@@ -1,9 +1,8 @@
 """
-The analysis: Gemini schemas, the model list and key check, and
-/api/analyze, which streams progress while it fetches the video and its
-captions, asks Gemini for clips, and snaps and checks them. Moved out of
-main.py unchanged (#60); splitting analyze_video into steps is the next
-step (A6).
+/api/analyze and the Gemini model list. The analysis streams progress while
+it fetches the video and its captions, asks Gemini for clips (trying other
+models when one fails), and finishes them; the steps that need no network
+live in analysis.py (#74).
 """
 import asyncio
 import json
@@ -18,7 +17,10 @@ from google.genai import types
 from pydantic import BaseModel, Field
 
 try:
-    from backend import ai_errors, clip_bounds, clip_lengths, title_rules, youtube_errors
+    from backend import ai_errors, analysis, clip_lengths, youtube_errors
+    from backend.analysis import (  # noqa: F401 (ViralClipGemini: the tests)
+        AnalysisError, AnalyzeResponse, HeatmapPoint, VideoAnalysis, ViralClip, ViralClipGemini,
+    )
     from backend.secrets_guard import (
         GEMINI_KEY_HEADER, is_mock_mode, redact_data, tracked_secret, user_key_from_header,
     )
@@ -29,10 +31,12 @@ try:
     )
 except ImportError:
     import ai_errors
-    import clip_bounds
+    import analysis
     import clip_lengths
-    import title_rules
     import youtube_errors
+    from analysis import (  # noqa: F401 (ViralClipGemini: the tests)
+        AnalysisError, AnalyzeResponse, HeatmapPoint, VideoAnalysis, ViralClip, ViralClipGemini,
+    )
     from secrets_guard import (
         GEMINI_KEY_HEADER, is_mock_mode, redact_data, tracked_secret, user_key_from_header,
     )
@@ -46,47 +50,6 @@ logger = logging.getLogger("xoraclips")
 router = APIRouter()
 
 
-class ViralClip(BaseModel):
-    title: str = Field(description="Catchy clip title, max 8 words. MUST NEVER use first-person pronouns ('I', 'me', 'my', 'saya', 'aku'). Attribute to the speaker/host by name, role, or use objective framing.")
-    start_time: float = Field(description="Clip start in seconds, aligned to a sentence boundary")
-    end_time: float = Field(description="Clip end in seconds, aligned to a sentence boundary")
-    hook_time: float = Field(description="Absolute timestamp in seconds from video start where the potential hook occurs inside this clip range (must be >= start_time and <= end_time)")
-    virality_score: int = Field(description="Virality score 1-100")
-    key_quotes: List[str] = Field(description="1-2 key quotes from the clip")
-    transcript: str = Field(description="Spoken text of the clip")
-    title_suggestion: str = Field(default="", description="Catchy alternative title suggestion. MUST NEVER use first-person pronouns ('I', 'me', 'my'). Attribute to speaker or objective topic.")
-    caption_suggestion: str = Field(default="", description="Engaging social media caption suggestion attributing quotes or insights to the speaker.")
-    hashtag_suggestion: str = Field(default="", description="Relevant hashtags suggestion (e.g. #hashtag1 #hashtag2)")
-    # Issue #31: the checked hook titles, first = active (also in title and
-    # title_suggestion). Empty for analyses made before this change.
-    title_options: List[str] = Field(default_factory=list, description="Up to 3 hook titles; the first is the active one")
-    content_type: str = Field(default="", description="Kind of content Gemini saw, e.g. lucu, edukasi, motivasi")
-
-
-class TitleOption(BaseModel):
-    text: str = Field(description="One hook title in casual Indonesian, following the HOOK TITLE RULES in the prompt")
-    angle: str = Field(default="", description="The approach of this title: question, surprising statement, situation, reaction, or another")
-
-
-class ViralClipGemini(BaseModel):
-    title: str = Field(description="Same text as the first entry of title_options (a hook title in casual Indonesian). NEVER first-person ('I', 'me', 'my', 'saya', 'aku', 'gue').")
-    start_time: float = Field(description="Clip start in seconds, aligned to a sentence boundary")
-    end_time: float = Field(description="Clip end in seconds, aligned to a sentence boundary")
-    hook_time: float = Field(description="Absolute timestamp in seconds from video start where the potential hook occurs inside this clip range (must be >= start_time and <= end_time)")
-    virality_score: int = Field(description="Virality score 1-100")
-    key_quotes: List[str] = Field(description="1-2 key quotes from the clip")
-    title_suggestion: str = Field(default="", description="Leave empty: alternative titles go in title_options.")
-    caption_suggestion: str = Field(default="", description="Engaging social media caption suggestion attributing insights or story to the speaker.")
-    hashtag_suggestion: str = Field(default="", description="Relevant hashtags suggestion (e.g. #hashtag1 #hashtag2)")
-    title_options: List[TitleOption] = Field(description="Exactly the number of hook titles the HOOK TITLE RULES ask for, strongest first, each with a different angle")
-    content_type: str = Field(default="", description="Kind of content in this clip, e.g. lucu, edukasi/kesehatan, motivasi, kontroversi, cerita")
-
-
-class VideoAnalysis(BaseModel):
-    summary: str = Field(description="1-2 sentence video summary, followed by 2-4 general hashtags (e.g. #podcast #marriage #success)")
-    clips: List[ViralClipGemini] = Field(description="List of viral clip candidates, sorted by virality_score desc")
-
-
 class AnalyzeRequest(BaseModel):
     url: str = Field(..., description="YouTube video URL")
     duration: clip_lengths.Duration = Field("30s", description="Target clip duration: '15s', '30s', '60s', '120s' or '180s'")
@@ -98,116 +61,6 @@ class AnalyzeRequest(BaseModel):
     subtitles_filename: Optional[str] = Field(None, description="Optional manual subtitles filename")
     target_clip_count: Optional[int] = Field(None, description="Optional target number of clips (1-50)")
     proxy: Optional[str] = Field(None, description="Optional custom proxy URL")
-
-
-class HeatmapPoint(BaseModel):
-    start_time: float
-    end_time: float
-    value: float
-
-
-class TranscriptLine(BaseModel):
-    start: float
-    end: float
-    text: str
-    engagement: Optional[float] = None
-
-
-class AnalyzeResponse(BaseModel):
-    video_id: str
-    title: str
-    channel: Optional[str] = None
-    duration: float
-    heatmap: List[HeatmapPoint]
-    summary: str
-    clips: List[ViralClip]
-    transcript: Optional[List[TranscriptLine]] = None
-    model: Optional[str] = None
-
-
-def lowercase_hashtags_in_string(text: str) -> str:
-    """Finds all hashtags (#word) in a string and converts them to lowercase."""
-    if not text:
-        return text
-    return re.sub(r'#\w+', lambda m: m.group(0).lower(), text)
-
-
-def sanitize_first_person_title(title: str, speaker_or_channel: str = "") -> str:
-    """
-    Sanitizes accidental first-person perspective ('I', 'Me', 'My', 'Saya', 'Aku', 'Gue')
-    from generated clip titles and title suggestions, replacing them with speaker or channel attribution,
-    or objective framing so titles never appear as the user's personal opinion.
-    """
-    if not title:
-        return title
-    t = title.strip()
-    speaker = speaker_or_channel.strip() if speaker_or_channel else ""
-    subject = speaker if speaker else "The Speaker"
-
-    # 1. English Why / How / What / When / Where
-    t = re.sub(r"^why\s+i\s+think\b", f"{subject} Explains Why", t, flags=re.IGNORECASE)
-    t = re.sub(r"^why\s+i\s+believe\b", f"{subject} Explains Why", t, flags=re.IGNORECASE)
-    t = re.sub(r"^why\s+i\s+", f"Why {subject} ", t, flags=re.IGNORECASE)
-    t = re.sub(r"^how\s+i\s+", f"How {subject} ", t, flags=re.IGNORECASE)
-    t = re.sub(r"^what\s+i\s+think\b", f"{subject}'s Thoughts On", t, flags=re.IGNORECASE)
-    t = re.sub(r"^what\s+i\s+learned\b", f"What {subject} Learned", t, flags=re.IGNORECASE)
-    t = re.sub(r"^what\s+i\s+", f"What {subject} ", t, flags=re.IGNORECASE)
-    t = re.sub(r"^when\s+i\s+", f"When {subject} ", t, flags=re.IGNORECASE)
-    t = re.sub(r"^where\s+i\s+", f"Where {subject} ", t, flags=re.IGNORECASE)
-
-    # 2. English My [Noun] (e.g. My Opinion, My Story, My Regret)
-    t = re.sub(r"^my\s+([a-zA-Z]+)", lambda m: f"{subject}'s {m.group(1)}" if speaker else f"The {m.group(1)}", t, flags=re.IGNORECASE)
-
-    # 3. English First-person action verbs (e.g. I Tried, I Discovered, I Built)
-    t = re.sub(r"^i\s+(tried|found|made|discovered|bought|quit|lost|learned|realized|spent|built|saw|went|started|joined|left|hate|love)\b", rf"{subject} \1", t, flags=re.IGNORECASE)
-    t = re.sub(r"^i\s+was\b", f"{subject} Was", t, flags=re.IGNORECASE)
-    t = re.sub(r"^i\s+am\b", f"{subject} Is", t, flags=re.IGNORECASE)
-    t = re.sub(r"^i\s+have\b", f"{subject} Has", t, flags=re.IGNORECASE)
-    t = re.sub(r"^i\s+had\b", f"{subject} Had", t, flags=re.IGNORECASE)
-    t = re.sub(r"^i\s+got\b", f"{subject} Got", t, flags=re.IGNORECASE)
-    t = re.sub(r"^i\s+think\b", f"{subject} Thinks", t, flags=re.IGNORECASE)
-    t = re.sub(r"^i\s+believe\b", f"{subject} Believes", t, flags=re.IGNORECASE)
-
-    # 4. Indonesian / Malay first-person replacements (Saya, Aku, Gue, Gw)
-    indo_subject = speaker if speaker else "Host"
-    t = re.sub(r"^(kenapa|mengapa)\s+(saya|aku|gue|gw)\s+", rf"\1 {indo_subject} ", t, flags=re.IGNORECASE)
-    t = re.sub(r"^(cara|bagaimana)\s+(saya|aku|gue|gw)\s+", rf"Cara {indo_subject} ", t, flags=re.IGNORECASE)
-    t = re.sub(r"^(alasan)\s+(saya|aku|gue|gw)\s+", rf"Alasan {indo_subject} ", t, flags=re.IGNORECASE)
-    t = re.sub(r"^(saya|aku|gue|gw)\s+(mencoba|menemukan|membuat|yakin|berpikir|menyesal|kehilangan|belajar|mulai|berhenti)\b", rf"{indo_subject} \2", t, flags=re.IGNORECASE)
-    t = re.sub(r"^(pendapat|opini)\s+(saya|aku|gue|gw)\b", rf"Opini {indo_subject}", t, flags=re.IGNORECASE)
-
-    return t.strip()
-
-
-def get_average_heatmap_value(start: float, end: float, heatmap: List[dict]) -> float:
-    """Calculates the average retention score from the heatmap for a transcript time segment."""
-    if not heatmap:
-        return 0.0
-    
-    overlaps = []
-    for point in heatmap:
-        p_start = point.get('start_time', 0.0)
-        p_end = point.get('end_time', 0.0)
-        p_val = point.get('value', 0.0)
-        
-        # Check if heatmap point overlaps with transcript segment
-        if max(start, p_start) < min(end, p_end):
-            overlaps.append(p_val)
-            
-    if overlaps:
-        return sum(overlaps) / len(overlaps)
-        
-    # Fallback to closest point if no direct overlap matches
-    closest_val = 0.0
-    min_dist = float('inf')
-    mid_time = (start + end) / 2.0
-    for point in heatmap:
-        p_mid = (point.get('start_time', 0.0) + point.get('end_time', 0.0)) / 2.0
-        dist = abs(p_mid - mid_time)
-        if dist < min_dist:
-            min_dist = dist
-            closest_val = point.get('value', 0.0)
-    return closest_val
 
 
 def _sse(data: dict) -> str:
@@ -401,6 +254,435 @@ def _gemini_key_problem(key: str) -> Optional[str]:
     return None
 
 
+def _event(step: int, step_progress: int, overall_progress: int, stage: str, detail: str,
+           message: Optional[str] = None, **extra) -> str:
+    """A progress event."""
+    data = {"step": step, "step_progress": step_progress, "overall_progress": overall_progress,
+            "stage": stage, "detail": detail, **extra}
+    if message is not None:
+        data["message"] = message
+    return _sse(data)
+
+
+def _error(message: str, status: int) -> str:
+    return _sse({"error": message, "status": status})
+
+
+async def _transcript_events(video_id: str, proxy: Optional[str], got: dict):
+    """Fetches the captions in a thread and passes its progress on as events.
+    The lines end up in got["lines"]; a failure is raised."""
+    loop = asyncio.get_running_loop()
+    progress_queue = asyncio.Queue()
+
+    def progress_callback(stage: str, detail: str, step_pct: int = 30):
+        loop.call_soon_threadsafe(progress_queue.put_nowait, {
+            "step": 3,
+            "step_progress": step_pct,
+            "overall_progress": min(68, 50 + int(step_pct * 0.2)),
+            "stage": stage,
+            "detail": detail,
+            "message": detail
+        })
+
+    task = asyncio.create_task(asyncio.to_thread(fetch_transcript, video_id, proxy, progress_callback))
+    while not task.done():
+        try:
+            evt = await asyncio.wait_for(progress_queue.get(), timeout=0.2)
+            yield _sse(evt)
+        except asyncio.TimeoutError:
+            pass
+    while not progress_queue.empty():
+        yield _sse(progress_queue.get_nowait())
+    got["lines"] = await task
+
+
+def _transcript_error(e: Exception, video_id: str, metadata: dict) -> str:
+    """A short message per cause; the details are already in the log."""
+    if isinstance(e, YouTubeBlocked):
+        return _sse(youtube_errors.error_event(e.code, e.retry_after))
+    if metadata.get("is_live", False) or metadata.get("live_status", "not_live") in ('is_live', 'is_upcoming', 'post_live'):
+        return _sse(youtube_errors.error_event(youtube_errors.VIDEO_LIVE))
+    if isinstance(e, CaptionUnavailable):
+        return _sse(youtube_errors.error_event(e.code))
+    logger.exception(f"Subtitle retrieval failed unexpectedly for {video_id}")
+    return _sse(youtube_errors.error_event(youtube_errors.CAPTIONS_UNAVAILABLE))
+
+
+async def _mock_events(video_id: str, title: str, channel: str, duration: float, heatmap: List[dict]):
+    """MOCK_MODE: sample stages and clips, without Gemini."""
+    mock_stages = [
+        ("Context Assembly", "Aligning 9 transcript dialogue lines with retention telemetry...", 30, 78),
+        ("Viral Hook & Curiosity Detection", "Scanning transcript dialogue for viral hooks & curiosity gaps...", 65, 88),
+        ("Virality Scoring & Selection", "Calculating virality coefficients and formatting clip candidates...", 92, 95),
+    ]
+    for s_name, s_detail, s_prog, o_prog in mock_stages:
+        yield _event(4, s_prog, o_prog, s_name, s_detail, f"Mock AI ({s_name}): {s_detail}",
+                     model="gemini-2.5-flash (Mock)")
+        await asyncio.sleep(0.7)
+
+    mock_clips = [
+        ViralClip(title="Finding hotspots using heatmaps",  start_time=11.0, end_time=22.0, hook_time=14.0, virality_score=95,
+                  key_quotes=["Uses YouTube player heatmaps.", "Processes using Gemini AI."],
+                  transcript="Most people think it's magic. But it uses YouTube player heatmaps.",
+                  title_suggestion="Unlock Video Virality Secrets",
+                  caption_suggestion="Stop guessing what works! Here's how to use heatmaps to find viral hotspots in seconds. 🔥",
+                  hashtag_suggestion="#viralclips #videoediting #heatmaps #aitools"),
+        ViralClip(title="Grow on TikTok or Reels",          start_time=22.0, end_time=32.0, hook_time=27.0, virality_score=88,
+                  key_quotes=["Changing how editors crop videos.", "If you want to grow on TikTok, try it."],
+                  transcript="This is changing how editors crop videos. If you want to grow on TikTok, try it.",
+                  title_suggestion="The Ultimate TikTok Growth Hack",
+                  caption_suggestion="Want to scale your TikTok views? This tool will revolutionize your workflow. 🚀",
+                  hashtag_suggestion="#tiktokgrowth #reels #shorts #editingtips"),
+        ViralClip(title="Introductory overview of the tool", start_time=0.0,  end_time=11.0, hook_time=3.0, virality_score=72,
+                  key_quotes=["Hello and welcome.", "Finds viral hotspots."],
+                  transcript="Hello and welcome. It finds viral hotspots and highlights them.",
+                  title_suggestion="Meet Xoraclips AI",
+                  caption_suggestion="Say hello to your new AI co-editor. Find the absolute best parts of any video instantly.",
+                  hashtag_suggestion="#xoraclips #aiediting #growthmindset"),
+    ]
+    mock_heatmap = [
+        HeatmapPoint(start_time=i*10.0, end_time=(i+1)*10.0,
+                     value=0.2 + (0.6 if i in [2,5,8,12,16] else 0.1))
+        for i in range(20)
+    ] if not heatmap else analysis.heatmap_points(heatmap)
+    result = AnalyzeResponse(
+        video_id=video_id, title=title, channel=channel, duration=duration or 200.0,
+        heatmap=mock_heatmap,
+        summary="Mock analysis: this video explains how Xoraclips works. #aitools #videoediting #productivity",
+        clips=mock_clips,
+        model="Mock Gemini"
+    )
+    yield _event(4, 100, 100, "Analysis Complete", "Generated 3 viral clip candidates successfully.",
+                 done=True, result=result.model_dump())
+
+
+# ── Gemini: a chain of models, a busy one tried twice ─────────────────────────
+
+GEMINI_TRIES = 2        # per model, only when it is busy
+RETRY_WAIT_SECONDS = 2
+
+
+def _models_to_try(requested_model: str, discovered_flash: List[str]) -> List[str]:
+    """The requested model first, then every discovered and known Flash model,
+    newest first, so all of them are tried before giving up."""
+    models_to_try = [requested_model]
+    for fm in discovered_flash:
+        if fm not in models_to_try:
+            models_to_try.append(fm)
+    for km in KNOWN_FLASH_MODELS:
+        if km not in models_to_try:
+            models_to_try.append(km)
+    return models_to_try
+
+
+async def _heartbeat(task: asyncio.Task, model_name: str, n_lines: int, clip_range: str):
+    """Events every 2 s while Gemini works: they keep mobile connections open
+    and move the progress bar."""
+    call_start = asyncio.get_event_loop().time()
+    while not task.done():
+        done, _ = await asyncio.wait([task], timeout=2.0)
+        if not done:
+            elapsed = int(asyncio.get_event_loop().time() - call_start)
+            stage, detail, step_prog = analysis.waiting_stage(elapsed, n_lines, model_name, clip_range)
+            yield _event(4, step_prog, 70 + int(step_prog * 0.28), stage, detail,
+                         f"[{model_name} | {elapsed}s] {stage}: {detail}",
+                         keepalive=True, model=model_name, elapsed=elapsed)
+
+
+async def _gemini_events(client, models_to_try: List[str], prompt: str, n_lines: int, clip_range: str,
+                         outcome: dict):
+    """Asks each model in turn until one answers with clips, passing progress on
+    as events. Sets outcome["data"] and outcome["model"], or outcome["code"]
+    when every model failed."""
+    last_error = None
+    encountered_quota_error = None
+    key_rejected = False
+    seen_codes: List[str] = []
+    last_code = ai_errors.AI_FAILED
+    analysis_data = None
+    successful_model = None
+
+    for idx, model_name in enumerate(models_to_try):
+        next_model_hint = models_to_try[idx + 1] if idx + 1 < len(models_to_try) else None
+
+        for attempt in range(GEMINI_TRIES):
+            if attempt > 0:
+                wait = RETRY_WAIT_SECONDS
+                yield _event(4, 25, 75, "Transient Retry",
+                             f"{model_name} busy — waiting {wait}s before retry ({attempt + 1}/{GEMINI_TRIES})...",
+                             f"{model_name} is busy — waiting {wait}s before retry {attempt + 1}/{GEMINI_TRIES}...",
+                             model=model_name)
+                await asyncio.sleep(wait)
+
+            yield _event(4, 18, 74, "Neural Model Dispatch",
+                         f"Dispatched {n_lines} lines to {model_name} (attempt {attempt + 1})...",
+                         f"Calling {model_name} (attempt {attempt + 1}/{GEMINI_TRIES})...",
+                         model=model_name)
+
+            task = asyncio.create_task(asyncio.to_thread(
+                client.models.generate_content,
+                model=model_name,
+                contents=prompt,
+                config=types.GenerateContentConfig(
+                    response_mime_type="application/json",
+                    response_schema=VideoAnalysis,
+                    temperature=0.2,
+                )
+            ))
+            async for event in _heartbeat(task, model_name, n_lines, clip_range):
+                yield event
+
+            try:
+                resp_candidate = await task
+                last_error = None
+                parsed_data = analysis.parse_gemini_answer(resp_candidate, model_name)
+
+                if parsed_data is not None:
+                    clips_found = len(parsed_data.get('clips', []))
+                    if clips_found == 0 and next_model_hint is not None:
+                        logger.warning(f"{model_name} returned 0 clips. Will try next flash model {next_model_hint}...")
+                        yield _event(4, 40, 78, "Flash Model Fallback",
+                                     f"{model_name} returned 0 clips — switching to {next_model_hint} for deeper extraction...",
+                                     f"{model_name} returned 0 clips — switching to {next_model_hint}...",
+                                     model=next_model_hint)
+                        last_error = Exception(f"{model_name} returned 0 clips")
+                        break
+
+                    analysis_data = parsed_data
+                    successful_model = model_name
+                    break
+                else:
+                    last_error = Exception(f"{model_name} returned empty or unparseable response")
+                    break
+
+            except Exception as e:
+                last_error = e
+                last_code = ai_errors.classify_gemini_error(e)
+                if last_code == ai_errors.KEY_INVALID and not ai_errors.is_definitely_bad_key(e):
+                    # A 403 for one model (e.g. a locked preview) says nothing
+                    # about the key, which the up-front check already accepted.
+                    last_code = ai_errors.MODEL_UNAVAILABLE
+                seen_codes.append(last_code)
+                logger.warning(f"Error from {model_name} (attempt {attempt + 1}, {last_code}): {e}")
+
+                if ai_errors.is_definitely_bad_key(e):
+                    # Every model will reject the same key: stop now.
+                    key_rejected = True
+                    break
+                if last_code == ai_errors.KEY_QUOTA:
+                    encountered_quota_error = e
+                    break
+                # Only a busy server is worth retrying on the same model.
+                if last_code != ai_errors.AI_BUSY:
+                    break
+
+        if analysis_data is not None or key_rejected:
+            break
+
+        if next_model_hint is not None:
+            err_summary = {
+                ai_errors.KEY_QUOTA: "quota reached",
+                ai_errors.MODEL_UNAVAILABLE: "not available or deprecated",
+            }.get(last_code, "temporarily busy")
+            yield _event(4, 35, 76, "Flash Fallback",
+                         f"{model_name} {err_summary} — switching to fallback {next_model_hint}...",
+                         f"{model_name} {err_summary} — switching to flash fallback model {next_model_hint}...",
+                         model=next_model_hint)
+
+    if analysis_data is not None:
+        outcome.update(data=analysis_data, model=successful_model)
+        return
+    # Several models may have failed differently; a retired model at the
+    # end of the chain (404) must not hide "busy" or "wrong key".
+    if seen_codes:
+        code = ai_errors.most_relevant(seen_codes)
+    elif last_error is not None:
+        code = ai_errors.classify_gemini_error(last_error)
+    else:
+        code = ai_errors.AI_FAILED
+    logger.error(f"Gemini analysis failed ({code}): {encountered_quota_error or last_error}")
+    outcome["code"] = code
+
+
+def _heatmap_events(heatmap: List[dict]) -> List[str]:
+    events = [_event(2, 40, 35, "Scraping Retention", "Extracting viewer replay telemetry and retention curve...",
+                     "Scraping player viewer retention curve...")]
+    if heatmap:
+        events.append(_event(2, 100, 50, "Retention Decoded",
+                             f"Viewer retention heatmap loaded — {len(heatmap)} audience interest data points parsed.",
+                             f"Viewer retention heatmap loaded — {len(heatmap)} data points scraped."))
+    else:
+        events.append(_event(2, 100, 50, "Dialogue Fallback",
+                             "No heatmap curve available — relying on full transcript dialogue analysis.",
+                             "No heatmap available for this video — will rely on transcript content analysis."))
+    return events
+
+
+async def _caption_events(request: AnalyzeRequest, video_id: str, duration: float, metadata: dict,
+                          is_mock: bool, got: dict):
+    """Step 3: the manual subtitles, or the captions from YouTube. The lines end
+    up in got["lines"]; on failure an error event is sent and got stays empty."""
+    if request.subtitles:
+        yield _event(3, 30, 55, "Parsing Subtitles", "Parsing custom SRT/TXT subtitle timestamps...",
+                     "Parsing manual subtitles...")
+        try:
+            transcript_lines = parse_manual_subtitles(request.subtitles, duration)
+            if not transcript_lines:
+                raise Exception("Custom subtitles parsed into empty array.")
+        except Exception as e:
+            yield _error(f"Failed to parse manual subtitles: {str(e)}", 400)
+            return
+        yield _event(3, 100, 70, "Subtitles Ready",
+                     f"Custom subtitles parsed — {len(transcript_lines)} timestamped lines loaded.",
+                     f"Custom subtitles parsed — {len(transcript_lines)} lines loaded successfully.")
+        got["lines"] = transcript_lines
+        return
+
+    yield _event(3, 25, 55, "Fetching Subtitles", "Initializing multi-tier subtitle extraction pipeline...",
+                 "Initializing multi-tier subtitle extraction pipeline...")
+    try:
+        if is_mock:
+            transcript_lines = [dict(line) for line in MOCK_TRANSCRIPT]  # never contacts YouTube
+        else:
+            fetched = {}
+            async for event in _transcript_events(video_id, request.proxy, fetched):
+                yield event
+            transcript_lines = fetched["lines"]
+    except Exception as e:
+        yield _transcript_error(e, video_id, metadata)
+        return
+    yield _event(3, 100, 70, "Subtitles Ready",
+                 f"Subtitles loaded — {len(transcript_lines)} dialogue sentences with timestamps ready.",
+                 f"Subtitles loaded — {len(transcript_lines)} lines parsed successfully.")
+    got["lines"] = transcript_lines
+
+
+# ── /api/analyze ──────────────────────────────────────────────────────────────
+
+async def _analysis_events(request: AnalyzeRequest, gemini_key: Optional[str]):
+    is_mock = is_mock_mode()
+    if not gemini_key and not is_mock:
+        yield _sse(ai_errors.error_event(ai_errors.KEY_MISSING))
+        return
+    # Check the key first: a wrong key must fail in a second, before the
+    # YouTube metadata/transcript work (which can spend Supadata/proxy quota).
+    if not is_mock:
+        key_problem = await asyncio.to_thread(_gemini_key_problem, gemini_key)
+        if key_problem:
+            yield _sse(ai_errors.error_event(key_problem))
+            return
+
+    # ── Step 1: video ID and metadata ──
+    video_id = extract_video_id(request.url)
+    if not video_id:
+        if not is_mock:
+            yield _error("Invalid YouTube URL. Please check the link and try again.", 400)
+            return
+        video_id = "dQw4w9WgXcQ"
+    # YouTube refused us recently: answer now instead of knocking again
+    # (issue #9). Manual subtitles and Supadata (not YouTube) still go on.
+    if not is_mock and not request.subtitles and not get_supadata_keys():
+        remaining = youtube_errors.block_memory.remaining()
+        if remaining:
+            yield _sse(youtube_errors.error_event(youtube_errors.YOUTUBE_BLOCKED, remaining))
+            return
+
+    yield _event(1, 30, 8, "Connecting to YouTube", "Connecting to YouTube & fetching video metadata...",
+                 "Connecting to YouTube — fetching video title and duration...")
+    try:
+        if is_mock:
+            metadata = dict(MOCK_METADATA)  # MOCK_MODE never contacts YouTube
+        else:
+            metadata = await asyncio.to_thread(
+                fetch_video_metadata, f"https://www.youtube.com/watch?v={video_id}", request.proxy)
+        title, duration = metadata["title"], metadata["duration"]
+        channel = metadata.get("channel", "")
+        heatmap = metadata.get("heatmap") or []
+        yield _event(1, 100, 25, "Video Verified", f"Loaded metadata for \"{title[:45]}\" ({int(duration)}s)",
+                     f"Connected — \"{title[:45]}\" ({int(duration)}s)")
+    except Exception as e:
+        msg = e.detail if isinstance(e, HTTPException) else str(e)
+        yield _error(f"Failed to fetch video details: {msg}", 500)
+        return
+    logger.info(f"Metadata fetched: title='{title}', duration={duration}s, heatmap_pts={len(heatmap)}")
+
+    # ── Steps 2 and 3: heatmap and captions ──
+    for event in _heatmap_events(heatmap):
+        yield event
+    got = {}
+    async for event in _caption_events(request, video_id, duration, metadata, is_mock, got):
+        yield event
+    if "lines" not in got:
+        return
+    transcript_lines = got["lines"]
+
+    duration = analysis.estimate_duration(duration, transcript_lines)
+    try:
+        transcript_lines, start_bound, end_bound, duration = analysis.apply_range(
+            transcript_lines, duration, request.range_start, request.range_end)
+    except AnalysisError as e:
+        yield _error(e.message, e.status)
+        return
+    enriched = analysis.enrich_transcript(transcript_lines, heatmap)
+
+    if is_mock:
+        async for event in _mock_events(video_id, title, channel, duration, heatmap):
+            yield event
+        return
+
+    # ── Step 4: Gemini ──
+    is_long_video = duration > 3600
+    # Issue #34: never more clips than fit in the searched span.
+    clip_range, capped_count = clip_lengths.clip_count_range(
+        request.target_clip_count, is_long_video, end_bound - start_bound, request.duration)
+    prompt, n_lines = analysis.build_prompt(
+        enriched, heatmap=heatmap, title=title, channel=channel, start_bound=start_bound,
+        end_bound=end_bound, duration=duration, clip_duration=request.duration, clip_range=clip_range,
+        custom_prompt=request.custom_prompt, is_long_video=is_long_video)
+    requested_model = analysis.pick_model(request.model)
+
+    yield _event(4, 10, 72, "Context Assembly",
+                 f"Aligning {n_lines} dialogue segments with engagement data for {requested_model}...",
+                 f"Assembling prompt and engagement context for {requested_model}...", model=requested_model)
+    if capped_count is not None:
+        span_s = int(end_bound - start_bound)
+        yield _event(4, 12, 72, "Clip Count",
+                     (f"{request.target_clip_count} clips of {clip_lengths.label(request.duration)} do not fit in "
+                      f"{span_s // 60}:{span_s % 60:02d} of video: asking for at most {capped_count}."),
+                     f"Asking for at most {capped_count} clip(s) so they do not overlap...", model=requested_model)
+
+    client = genai.Client(api_key=gemini_key)
+    models_to_try = _models_to_try(requested_model, await asyncio.to_thread(get_flash_models_for_key, client))
+    logger.info(f"Flash fallback chain prepared: {models_to_try}")
+    outcome = {}
+    async for event in _gemini_events(client, models_to_try, prompt, n_lines, clip_range, outcome):
+        yield event
+    if "code" in outcome:
+        yield _sse(ai_errors.error_event(outcome["code"]))
+        return
+    analysis_data, model = outcome["data"], outcome["model"]
+
+    if len(analysis_data.get('clips', [])) == 0 and enriched:
+        analysis_data['clips'] = analysis.backup_clips(enriched, request.duration, start_bound, end_bound)
+        if not analysis_data.get('summary'):
+            analysis_data['summary'] = (f"Analysis of \"{title}\" identifying {len(analysis_data['clips'])} "
+                                        f"key segments. #viral #highlights")
+    clip_count = len(analysis_data.get('clips', []))
+    yield _event(4, 98, 98, "Clip Verification & Alignment",
+                 f"Verified {clip_count} clip segments with precise video timestamps and key quotes.",
+                 f"Found {clip_count} viral clip candidates with {model} — reconstructing transcripts...",
+                 model=model)
+    logger.info(f"Gemini analysis complete with {model}. Found {clip_count} clips.")
+    logger.info(f"Gemini analysis complete with {model}. Found {clip_count} clips.")
+
+    clips = analysis.finish_clips(analysis_data.get('clips', []), enriched, request.duration,
+                                  start_bound, end_bound, channel)
+    result = analysis.build_response(
+        video_id=video_id, title=title, channel=channel, duration=duration, heatmap=heatmap,
+        summary=analysis_data.get("summary", ""), clips=clips, enriched_transcript=enriched, model=model)
+    yield _sse({"done": True, "result": result.model_dump()})
+
+
 @router.post("/api/analyze")
 async def analyze_video(
     request: AnalyzeRequest,
@@ -413,784 +695,8 @@ async def analyze_video(
     async def stream():
         # Scrub this exact key from every log line and event for the whole analysis.
         with tracked_secret(gemini_key):
-            async for event in analysis_events():
+            async for event in _analysis_events(request, gemini_key):
                 yield event
-
-    async def analysis_events():
-        is_mock = is_mock_mode()
-
-        if not gemini_key and not is_mock:
-            yield _sse(ai_errors.error_event(ai_errors.KEY_MISSING))
-            return
-
-        # Check the key first: a wrong key must fail in a second, before the
-        # YouTube metadata/transcript work (which can spend Supadata/proxy quota).
-        if not is_mock:
-            key_problem = await asyncio.to_thread(_gemini_key_problem, gemini_key)
-            if key_problem:
-                yield _sse(ai_errors.error_event(key_problem))
-                return
-
-        # ── Step 1: Extract video ID & metadata ─────────────────────────────
-        video_id = extract_video_id(request.url)
-        if not video_id:
-            if not is_mock:
-                yield _sse({"error": "Invalid YouTube URL. Please check the link and try again.", "status": 400})
-                return
-            video_id = "dQw4w9WgXcQ"
-
-        # YouTube refused us recently: answer now instead of knocking again
-        # (issue #9). Manual subtitles and Supadata (not YouTube) still go on.
-        if not is_mock and not request.subtitles and not get_supadata_keys():
-            remaining = youtube_errors.block_memory.remaining()
-            if remaining:
-                yield _sse(youtube_errors.error_event(youtube_errors.YOUTUBE_BLOCKED, remaining))
-                return
-
-        canonical_url = f"https://www.youtube.com/watch?v={video_id}"
-
-        yield _sse({
-            "step": 1,
-            "step_progress": 30,
-            "overall_progress": 8,
-            "stage": "Connecting to YouTube",
-            "detail": "Connecting to YouTube & fetching video metadata...",
-            "message": "Connecting to YouTube — fetching video title and duration..."
-        })
-
-        channel = ""
-        try:
-            if is_mock:
-                # MOCK_MODE never contacts YouTube: use the sample metadata.
-                metadata = dict(MOCK_METADATA)
-            else:
-                metadata = await asyncio.to_thread(fetch_video_metadata, canonical_url, request.proxy)
-            title    = metadata["title"]
-            channel  = metadata.get("channel", "")
-            duration = metadata["duration"]
-            heatmap  = metadata.get("heatmap") or []
-            is_live  = metadata.get("is_live", False)
-            live_status = metadata.get("live_status", "not_live")
-            yield _sse({
-                "step": 1,
-                "step_progress": 100,
-                "overall_progress": 25,
-                "stage": "Video Verified",
-                "detail": f"Loaded metadata for \"{title[:45]}\" ({int(duration)}s)",
-                "message": f"Connected — \"{title[:45]}\" ({int(duration)}s)"
-            })
-        except Exception as e:
-            msg = e.detail if isinstance(e, HTTPException) else str(e)
-            yield _sse({"error": f"Failed to fetch video details: {msg}", "status": 500})
-            return
-
-        logger.info(f"Metadata fetched: title='{title}', duration={duration}s, heatmap_pts={len(heatmap)}")
-
-        # ── Step 2: Heatmap ──────────────────────────────────────────────────
-        yield _sse({
-            "step": 2,
-            "step_progress": 40,
-            "overall_progress": 35,
-            "stage": "Scraping Retention",
-            "detail": "Extracting viewer replay telemetry and retention curve...",
-            "message": "Scraping player viewer retention curve..."
-        })
-        if heatmap:
-            yield _sse({
-                "step": 2,
-                "step_progress": 100,
-                "overall_progress": 50,
-                "stage": "Retention Decoded",
-                "detail": f"Viewer retention heatmap loaded — {len(heatmap)} audience interest data points parsed.",
-                "message": f"Viewer retention heatmap loaded — {len(heatmap)} data points scraped."
-            })
-        else:
-            yield _sse({
-                "step": 2,
-                "step_progress": 100,
-                "overall_progress": 50,
-                "stage": "Dialogue Fallback",
-                "detail": "No heatmap curve available — relying on full transcript dialogue analysis.",
-                "message": "No heatmap available for this video — will rely on transcript content analysis."
-            })
-
-        # ── Step 3: Transcript ───────────────────────────────────────────────
-        if request.subtitles:
-            yield _sse({
-                "step": 3,
-                "step_progress": 30,
-                "overall_progress": 55,
-                "stage": "Parsing Subtitles",
-                "detail": "Parsing custom SRT/TXT subtitle timestamps...",
-                "message": "Parsing manual subtitles..."
-            })
-            try:
-                transcript_lines = parse_manual_subtitles(request.subtitles, duration)
-                if not transcript_lines:
-                    raise Exception("Custom subtitles parsed into empty array.")
-                yield _sse({
-                    "step": 3,
-                    "step_progress": 100,
-                    "overall_progress": 70,
-                    "stage": "Subtitles Ready",
-                    "detail": f"Custom subtitles parsed — {len(transcript_lines)} timestamped lines loaded.",
-                    "message": f"Custom subtitles parsed — {len(transcript_lines)} lines loaded successfully."
-                })
-            except Exception as e:
-                yield _sse({"error": f"Failed to parse manual subtitles: {str(e)}", "status": 400})
-                return
-        else:
-            loop = asyncio.get_running_loop()
-            progress_queue = asyncio.Queue()
-
-            def progress_callback(stage: str, detail: str, step_pct: int = 30):
-                loop.call_soon_threadsafe(progress_queue.put_nowait, {
-                    "step": 3,
-                    "step_progress": step_pct,
-                    "overall_progress": min(68, 50 + int(step_pct * 0.2)),
-                    "stage": stage,
-                    "detail": detail,
-                    "message": detail
-                })
-
-            # Initial stage event
-            yield _sse({
-                "step": 3,
-                "step_progress": 25,
-                "overall_progress": 55,
-                "stage": "Fetching Subtitles",
-                "detail": "Initializing multi-tier subtitle extraction pipeline...",
-                "message": "Initializing multi-tier subtitle extraction pipeline..."
-            })
-
-            try:
-                if is_mock:
-                    # MOCK_MODE never contacts YouTube: use the sample transcript.
-                    transcript_lines = [dict(line) for line in MOCK_TRANSCRIPT]
-                else:
-                    task = asyncio.create_task(
-                        asyncio.to_thread(fetch_transcript, video_id, request.proxy, progress_callback)
-                    )
-
-                    while not task.done():
-                        try:
-                            evt = await asyncio.wait_for(progress_queue.get(), timeout=0.2)
-                            yield _sse(evt)
-                        except asyncio.TimeoutError:
-                            pass
-
-                    while not progress_queue.empty():
-                        yield _sse(progress_queue.get_nowait())
-
-                    transcript_lines = await task
-                yield _sse({
-                    "step": 3,
-                    "step_progress": 100,
-                    "overall_progress": 70,
-                    "stage": "Subtitles Ready",
-                    "detail": f"Subtitles loaded — {len(transcript_lines)} dialogue sentences with timestamps ready.",
-                    "message": f"Subtitles loaded — {len(transcript_lines)} lines parsed successfully."
-                })
-            except Exception as e:
-                # A short message per cause; the details are already in the log.
-                if isinstance(e, YouTubeBlocked):
-                    yield _sse(youtube_errors.error_event(e.code, e.retry_after))
-                elif is_live or live_status in ('is_live', 'is_upcoming', 'post_live'):
-                    yield _sse(youtube_errors.error_event(youtube_errors.VIDEO_LIVE))
-                elif isinstance(e, CaptionUnavailable):
-                    yield _sse(youtube_errors.error_event(e.code))
-                else:
-                    logger.exception(f"Subtitle retrieval failed unexpectedly for {video_id}")
-                    yield _sse(youtube_errors.error_event(youtube_errors.CAPTIONS_UNAVAILABLE))
-                return
-
-        # Estimate duration from transcript if missing
-        if duration == 0.0 and transcript_lines:
-            last = transcript_lines[-1]
-            duration = last.get("start", 0.0) + last.get("duration", 0.0)
-
-
-        # Slice transcript based on custom search range if provided
-        start_bound = 0.0
-        end_bound = duration
-        if request.range_start is not None or request.range_end is not None:
-            start_bound = request.range_start if request.range_start is not None else 0.0
-            end_bound = request.range_end if request.range_end is not None else duration
-
-            if start_bound < 0.0:
-                start_bound = 0.0
-            if end_bound > duration:
-                end_bound = duration
-
-            if start_bound >= end_bound:
-                yield _sse({"error": "Invalid search range: start time must be less than end time.", "status": 400})
-                return
-
-            filtered_lines = []
-            for line in transcript_lines:
-                ls = line.get("start", 0.0)
-                le = ls + line.get("duration", 0.0)
-                if max(ls, start_bound) < min(le, end_bound):
-                    filtered_lines.append(line)
-            
-            transcript_lines = filtered_lines
-            if not transcript_lines:
-                yield _sse({"error": f"No subtitles found in the specified range {start_bound}s to {end_bound}s.", "status": 400})
-                return
-            
-            duration = end_bound - start_bound
-            logger.info(f"Filtered transcript to custom range: {start_bound}s to {end_bound}s (duration: {duration}s)")
-
-        # Enrich transcript with heatmap engagement scores
-        enriched_transcript = []
-        for line in transcript_lines:
-            ls   = line.get("start", 0.0)
-            ld   = line.get("duration", 0.0)
-            le   = ls + ld
-            score = get_average_heatmap_value(ls, le, heatmap)
-            enriched_transcript.append({
-                "start":      round(ls, 2),
-                "end":        round(le, 2),
-                "text":       line.get("text", ""),
-                "engagement": round(score, 3)
-            })
-
-        # ── Mock short-circuit ───────────────────────────────────────────────
-        if is_mock:
-            mock_stages = [
-                ("Context Assembly", "Aligning 9 transcript dialogue lines with retention telemetry...", 30, 78),
-                ("Viral Hook & Curiosity Detection", "Scanning transcript dialogue for viral hooks & curiosity gaps...", 65, 88),
-                ("Virality Scoring & Selection", "Calculating virality coefficients and formatting clip candidates...", 92, 95),
-            ]
-            for s_name, s_detail, s_prog, o_prog in mock_stages:
-                yield _sse({
-                    "step": 4,
-                    "step_progress": s_prog,
-                    "overall_progress": o_prog,
-                    "stage": s_name,
-                    "detail": s_detail,
-                    "model": "gemini-2.5-flash (Mock)",
-                    "message": f"Mock AI ({s_name}): {s_detail}"
-                })
-                await asyncio.sleep(0.7)
-
-            mock_clips = [
-                ViralClip(title="Finding hotspots using heatmaps",  start_time=11.0, end_time=22.0, hook_time=14.0, virality_score=95,
-                          key_quotes=["Uses YouTube player heatmaps.", "Processes using Gemini AI."],
-                          transcript="Most people think it's magic. But it uses YouTube player heatmaps.",
-                          title_suggestion="Unlock Video Virality Secrets",
-                          caption_suggestion="Stop guessing what works! Here's how to use heatmaps to find viral hotspots in seconds. 🔥",
-                          hashtag_suggestion="#viralclips #videoediting #heatmaps #aitools"),
-                ViralClip(title="Grow on TikTok or Reels",          start_time=22.0, end_time=32.0, hook_time=27.0, virality_score=88,
-                          key_quotes=["Changing how editors crop videos.", "If you want to grow on TikTok, try it."],
-                          transcript="This is changing how editors crop videos. If you want to grow on TikTok, try it.",
-                          title_suggestion="The Ultimate TikTok Growth Hack",
-                          caption_suggestion="Want to scale your TikTok views? This tool will revolutionize your workflow. 🚀",
-                          hashtag_suggestion="#tiktokgrowth #reels #shorts #editingtips"),
-                ViralClip(title="Introductory overview of the tool", start_time=0.0,  end_time=11.0, hook_time=3.0, virality_score=72,
-                          key_quotes=["Hello and welcome.", "Finds viral hotspots."],
-                          transcript="Hello and welcome. It finds viral hotspots and highlights them.",
-                          title_suggestion="Meet Xoraclips AI",
-                          caption_suggestion="Say hello to your new AI co-editor. Find the absolute best parts of any video instantly.",
-                          hashtag_suggestion="#xoraclips #aiediting #growthmindset"),
-            ]
-            mock_heatmap = [
-                HeatmapPoint(start_time=i*10.0, end_time=(i+1)*10.0,
-                             value=0.2 + (0.6 if i in [2,5,8,12,16] else 0.1))
-                for i in range(20)
-            ] if not heatmap else [
-                HeatmapPoint(start_time=float(pt.get('start_time',0.0)),
-                             end_time=float(pt.get('end_time',0.0)),
-                             value=float(pt.get('value',0.0)))
-                for pt in heatmap
-            ]
-            result = AnalyzeResponse(
-                video_id=video_id, title=title, channel=channel, duration=duration or 200.0,
-                heatmap=mock_heatmap,
-                summary="Mock analysis: this video explains how Xoraclips works. #aitools #videoediting #productivity",
-                clips=mock_clips,
-                model="Mock Gemini"
-            )
-            yield _sse({
-                "step": 4,
-                "step_progress": 100,
-                "overall_progress": 100,
-                "stage": "Analysis Complete",
-                "detail": "Generated 3 viral clip candidates successfully.",
-                "done": True,
-                "result": result.model_dump()
-            })
-            return
-
-        is_long_video = duration > 3600
-        # Issue #34: never more clips than fit in the searched span.
-        clip_range, capped_count = clip_lengths.clip_count_range(
-            request.target_clip_count, is_long_video, end_bound - start_bound, request.duration)
-
-        # ── Step 4: Build prompt ─────────────────────────────────────────────
-        transcript_dump = []
-        for line in enriched_transcript:
-            eng = f"|{line['engagement']:.2f}" if heatmap and line['engagement'] > 0 else ""
-            transcript_dump.append(f"{line['start']:.1f}|{line['end']:.1f}{eng} {line['text']}")
-
-        MAX_LINES = 2500 if is_long_video else 800
-        if len(transcript_dump) > MAX_LINES:
-            logger.warning(f"Transcript {len(transcript_dump)} lines — truncating to {MAX_LINES}.")
-            transcript_dump = transcript_dump[:MAX_LINES]
-
-        transcript_text = "\n".join(transcript_dump)
-        dur_range   = clip_lengths.prompt_range(request.duration)
-        heatmap_note = (
-            "Columns: start|end|audience_interest(0-1). Prioritise high-interest peaks."
-            if heatmap else
-            "No audience interest data. Use content hooks, energy, and story arcs."
-        )
-        focus_instruction = ""
-        if request.custom_prompt and request.custom_prompt.strip():
-            focus_instruction = f"CRITICAL FOCUS: The user specifically wants you to find clips matching the following query/theme: \"{request.custom_prompt.strip()}\". Prioritize and tailor your selection of viral clips to fit this request, while still ensuring they make good standalone clips.\n\n"
-
-        channel_context = f"- Channel / Host / Creator: {channel}\n" if channel else ""
-
-        prompt = (
-            f"You are an expert viral video clip editor finding top clip candidates for TikTok, Instagram Reels, and YouTube Shorts.\n"
-            f"Analyze this YouTube video transcript and find {clip_range} high-performing, standalone clip candidates.\n\n"
-            f"VIDEO CONTEXT:\n"
-            f"- Video Title: {title}\n"
-            f"{channel_context}"
-            f"- Video Duration: {int(start_bound)}s to {int(end_bound)}s (Total: {int(duration)}s) | Target clip length: {dur_range}\n"
-            f"- Heatmap: {heatmap_note}\n\n"
-            f"{focus_instruction}"
-            f"{clip_lengths.prompt_rules(request.duration)}"
-            f"{title_rules.prompt_rules()}"
-            f"Write caption_suggestion, key_quotes and hashtag_suggestion in the language of the transcript.\n\n"
-            f"Transcript (start|end[|interest] text):\n---\n{transcript_text}\n---\n\n"
-            f"Rules: use exact seconds from transcript; clips must start/end at sentence boundaries; do not overlap.\n"
-            f"Return {clip_range} clips sorted by virality_score desc."
-        )
-
-        requested_model = (request.model or 'gemini-2.5-flash').strip()
-        if any(dep in requested_model.lower() for dep in ['gemini-1.0', 'gemini-pro-vision']):
-            logger.info(f"Requested model '{requested_model}' is outdated. Upgrading to gemini-2.5-flash.")
-            requested_model = 'gemini-2.5-flash'
-
-        yield _sse({
-            "step": 4,
-            "step_progress": 10,
-            "overall_progress": 72,
-            "stage": "Context Assembly",
-            "detail": f"Aligning {len(transcript_dump)} dialogue segments with engagement data for {requested_model}...",
-            "model": requested_model,
-            "message": f"Assembling prompt and engagement context for {requested_model}..."
-        })
-        if capped_count is not None:
-            span_s = int(end_bound - start_bound)
-            yield _sse({
-                "step": 4,
-                "step_progress": 12,
-                "overall_progress": 72,
-                "stage": "Clip Count",
-                "detail": (f"{request.target_clip_count} clips of {clip_lengths.label(request.duration)} do not fit in "
-                           f"{span_s // 60}:{span_s % 60:02d} of video: asking for at most {capped_count}."),
-                "model": requested_model,
-                "message": f"Asking for at most {capped_count} clip(s) so they do not overlap...",
-            })
-
-        # ── Step 4: Gemini API call with dynamic Flash fallback models and retry ───────────
-        client = genai.Client(api_key=gemini_key)
-        
-        # Discover all available Flash models for the user's API key
-        discovered_flash = await asyncio.to_thread(get_flash_models_for_key, client)
-        
-        # Build models_to_try:
-        # 1. Start with the requested model
-        # 2. Append all discovered and known flash models in version descending order (e.g. 3.7, 3.6, 3.5, 2.5, 2.0, 1.5)
-        #    so all available flash models are tried before giving up
-        models_to_try = [requested_model]
-        for fm in discovered_flash:
-            if fm not in models_to_try:
-                models_to_try.append(fm)
-        for km in KNOWN_FLASH_MODELS:
-            if km not in models_to_try:
-                models_to_try.append(km)
-
-        logger.info(f"Flash fallback chain prepared: {models_to_try}")
-
-        response = None
-        last_error = None
-        encountered_quota_error = None
-        key_rejected = False
-        seen_codes: List[str] = []
-        last_code = ai_errors.AI_FAILED
-        analysis_data = None
-        successful_model = None
-
-        for idx, model_name in enumerate(models_to_try):
-            next_model_hint = models_to_try[idx + 1] if idx + 1 < len(models_to_try) else None
-
-            MAX_RETRIES = 2
-            
-            for attempt in range(MAX_RETRIES):
-                if attempt > 0:
-                    wait = 2
-                    yield _sse({
-                        "step": 4,
-                        "step_progress": 25,
-                        "overall_progress": 75,
-                        "stage": "Transient Retry",
-                        "detail": f"{model_name} busy — waiting {wait}s before retry ({attempt + 1}/{MAX_RETRIES})...",
-                        "model": model_name,
-                        "message": f"{model_name} is busy — waiting {wait}s before retry {attempt + 1}/{MAX_RETRIES}..."
-                    })
-                    await asyncio.sleep(wait)
-                
-                yield _sse({
-                    "step": 4,
-                    "step_progress": 18,
-                    "overall_progress": 74,
-                    "stage": "Neural Model Dispatch",
-                    "detail": f"Dispatched {len(transcript_dump)} lines to {model_name} (attempt {attempt + 1})...",
-                    "model": model_name,
-                    "message": f"Calling {model_name} (attempt {attempt + 1}/{MAX_RETRIES})..."
-                })
-                
-                # Execute Gemini call with heartbeat to keep mobile connection alive and show live stages
-                task = asyncio.create_task(asyncio.to_thread(
-                    client.models.generate_content,
-                    model=model_name,
-                    contents=prompt,
-                    config=types.GenerateContentConfig(
-                        response_mime_type="application/json",
-                        response_schema=VideoAnalysis,
-                        temperature=0.2,
-                    )
-                ))
-                
-                call_start = asyncio.get_event_loop().time()
-                while not task.done():
-                    done, _ = await asyncio.wait([task], timeout=2.0)
-                    if not done:
-                        elapsed = int(asyncio.get_event_loop().time() - call_start)
-                        
-                        if elapsed < 5:
-                            stage = "Neural Context Loading"
-                            detail = f"Transmitting {len(transcript_dump)} timestamped dialogue segments to {model_name}..."
-                            step_prog = min(35, 12 + elapsed * 4)
-                        elif elapsed < 12:
-                            stage = "Retention Spike Cross-Analysis"
-                            detail = f"Correlating viewer retention peaks against speaker dialogue to isolate viral moments..."
-                            step_prog = min(55, 35 + int((elapsed - 5) * 3))
-                        elif elapsed < 20:
-                            stage = "Viral Hook & Curiosity Detection"
-                            detail = f"Scanning transcript dialogue for opening hooks, punchlines, controversial takes & emotional peaks..."
-                            step_prog = min(72, 55 + int((elapsed - 12) * 2.2))
-                        elif elapsed < 30:
-                            stage = "Coherence & Sentence Boundary Snapping"
-                            detail = f"Ensuring clip candidates start and end naturally on sentence boundaries without mid-word cuts..."
-                            step_prog = min(85, 72 + int((elapsed - 20) * 1.3))
-                        elif elapsed < 42:
-                            stage = "Virality Scoring & Selection"
-                            detail = f"Calculating virality coefficients (1-100) and selecting the top {clip_range} highest potential clips..."
-                            step_prog = min(92, 85 + int((elapsed - 30) * 0.7))
-                        else:
-                            stage = "Social Media Metadata Synthesis"
-                            detail = f"Drafting attention-grabbing titles, social captions, and targeted hashtags ({elapsed}s)..."
-                            step_prog = min(95, 92 + min(3, int((elapsed - 42) * 0.3)))
-
-                        overall_prog = 70 + int(step_prog * 0.28)
-                        yield _sse({
-                            "step": 4,
-                            "keepalive": True,
-                            "step_progress": step_prog,
-                            "overall_progress": overall_prog,
-                            "stage": stage,
-                            "detail": detail,
-                            "model": model_name,
-                            "elapsed": elapsed,
-                            "message": f"[{model_name} | {elapsed}s] {stage}: {detail}"
-                        })
-                
-                try:
-                    resp_candidate = await task
-                    last_error = None
-                    
-                    # Parse structured response
-                    parsed_data = None
-                    if hasattr(resp_candidate, 'parsed') and resp_candidate.parsed is not None:
-                        parsed = resp_candidate.parsed
-                        parsed_data = {
-                            "summary": getattr(parsed, 'summary', ''),
-                            "clips": [
-                                {
-                                    "title": getattr(c, 'title', ''),
-                                    "start_time": getattr(c, 'start_time', 0.0),
-                                    "end_time": getattr(c, 'end_time', 0.0),
-                                    "hook_time": getattr(c, 'hook_time', None),
-                                    "virality_score": getattr(c, 'virality_score', 0),
-                                    "key_quotes": getattr(c, 'key_quotes', []),
-                                    "title_suggestion": getattr(c, 'title_suggestion', ''),
-                                    "caption_suggestion": getattr(c, 'caption_suggestion', ''),
-                                    "hashtag_suggestion": getattr(c, 'hashtag_suggestion', ''),
-                                    "title_options": [
-                                        {"text": getattr(o, 'text', ''), "angle": getattr(o, 'angle', '')}
-                                        for o in (getattr(c, 'title_options', []) or [])
-                                    ],
-                                    "content_type": getattr(c, 'content_type', ''),
-                                }
-                                for c in (getattr(parsed, 'clips', []) or [])
-                            ]
-                        }
-                    elif resp_candidate.text:
-                        raw_text = resp_candidate.text.strip()
-                        if raw_text.startswith("```"):
-                            raw_text = re.sub(r"^```[a-zA-Z]*\n?", "", raw_text)
-                            raw_text = re.sub(r"\n?```$", "", raw_text)
-                        try:
-                            parsed_data = json.loads(raw_text)
-                        except Exception as json_err:
-                            logger.warning(f"JSON parsing error from {model_name}: {json_err}")
-                            parsed_data = None
-
-                    if parsed_data is not None:
-                        clips_found = len(parsed_data.get('clips', []))
-                        if clips_found == 0 and next_model_hint is not None:
-                            logger.warning(f"{model_name} returned 0 clips. Will try next flash model {next_model_hint}...")
-                            yield _sse({
-                                "step": 4,
-                                "step_progress": 40,
-                                "overall_progress": 78,
-                                "stage": "Flash Model Fallback",
-                                "detail": f"{model_name} returned 0 clips — switching to {next_model_hint} for deeper extraction...",
-                                "model": next_model_hint,
-                                "message": f"{model_name} returned 0 clips — switching to {next_model_hint}..."
-                            })
-                            last_error = Exception(f"{model_name} returned 0 clips")
-                            break
-                        
-                        response = resp_candidate
-                        analysis_data = parsed_data
-                        successful_model = model_name
-                        break
-                    else:
-                        last_error = Exception(f"{model_name} returned empty or unparseable response")
-                        break
-                        
-                except Exception as e:
-                    last_error = e
-                    last_code = ai_errors.classify_gemini_error(e)
-                    if last_code == ai_errors.KEY_INVALID and not ai_errors.is_definitely_bad_key(e):
-                        # A 403 for one model (e.g. a locked preview) says nothing
-                        # about the key, which the up-front check already accepted.
-                        last_code = ai_errors.MODEL_UNAVAILABLE
-                    seen_codes.append(last_code)
-                    logger.warning(f"Error from {model_name} (attempt {attempt + 1}, {last_code}): {e}")
-
-                    if ai_errors.is_definitely_bad_key(e):
-                        # Every model will reject the same key: stop now.
-                        key_rejected = True
-                        break
-                    if last_code == ai_errors.KEY_QUOTA:
-                        encountered_quota_error = e
-                        break
-                    # Only a busy server is worth retrying on the same model.
-                    if last_code != ai_errors.AI_BUSY:
-                        break
-
-            if analysis_data is not None and response is not None:
-                break
-            if key_rejected:
-                break
-                
-            if next_model_hint is not None:
-                err_summary = {
-                    ai_errors.KEY_QUOTA: "quota reached",
-                    ai_errors.MODEL_UNAVAILABLE: "not available or deprecated",
-                }.get(last_code, "temporarily busy")
-                yield _sse({
-                    "step": 4,
-                    "step_progress": 35,
-                    "overall_progress": 76,
-                    "stage": "Flash Fallback",
-                    "detail": f"{model_name} {err_summary} — switching to fallback {next_model_hint}...",
-                    "model": next_model_hint,
-                    "message": f"{model_name} {err_summary} — switching to flash fallback model {next_model_hint}..."
-                })
-
-        if analysis_data is None:
-            # If any model in the fallback chain suffered quota exhaustion, prioritize showing the quota explanation
-            # Several models may have failed differently; a retired model at the
-            # end of the chain (404) must not hide "busy" or "wrong key".
-            if seen_codes:
-                code = ai_errors.most_relevant(seen_codes)
-            elif last_error is not None:
-                code = ai_errors.classify_gemini_error(last_error)
-            else:
-                code = ai_errors.AI_FAILED
-            logger.error(f"Gemini analysis failed ({code}): {encountered_quota_error or last_error}")
-            yield _sse(ai_errors.error_event(code))
-            return
-
-        # Fallback clip synthesis if 0 clips were returned after all models
-        if len(analysis_data.get('clips', [])) == 0 and enriched_transcript:
-            logger.info("Generating fallback clips from heatmap and transcript segments...")
-            sorted_lines = sorted(enriched_transcript, key=lambda l: l.get('engagement', 0.0), reverse=True)
-            # Issue #34: windows around the peaks that do not overlap and stay
-            # inside the searched range (end_bound, not the range's length).
-            windows = clip_lengths.backup_windows(
-                [l['start'] for l in sorted_lines], request.duration, start_bound, end_bound)
-
-            fallback_clips_list = []
-            for i, (st, et, peak) in enumerate(windows):
-                seg_lines = [l['text'] for l in enriched_transcript if max(l['start'], st) < min(l['end'], et)]
-                seg_text = " ".join(seg_lines).strip()
-                preview = seg_text[:60] + "..." if len(seg_text) > 60 else seg_text or f"Viral Highlight #{i+1}"
-                fallback_clips_list.append({
-                    "title": f"Key Highlight #{i+1}",
-                    "start_time": st,
-                    "end_time": et,
-                    "hook_time": peak,
-                    "virality_score": max(70, int(95 - i * 5)),
-                    "key_quotes": [seg_text[:80]] if seg_text else [],
-                    "title_suggestion": f"Must Watch Moment #{i+1}",
-                    "caption_suggestion": f"Key highlight from video: {preview} #viral #trending",
-                    "hashtag_suggestion": "#viral #shorts #trending",
-                    "is_fallback": True,
-                })
-            analysis_data['clips'] = fallback_clips_list
-            if not analysis_data.get('summary'):
-                analysis_data['summary'] = f"Analysis of \"{title}\" identifying {len(fallback_clips_list)} key segments. #viral #highlights"
-
-        clip_count = len(analysis_data.get('clips', []))
-        yield _sse({
-            "step": 4,
-            "step_progress": 98,
-            "overall_progress": 98,
-            "stage": "Clip Verification & Alignment",
-            "detail": f"Verified {clip_count} clip segments with precise video timestamps and key quotes.",
-            "model": successful_model or requested_model,
-            "message": f"Found {clip_count} viral clip candidates with {successful_model or requested_model} — reconstructing transcripts..."
-        })
-        logger.info(f"Gemini analysis complete with {successful_model or requested_model}. Found {clip_count} clips.")
-        logger.info(f"Gemini analysis complete with {successful_model or requested_model}. Found {clip_count} clips.")
-
-        # Issue #35: move clip starts/ends to transcript line edges (and, when
-        # the transcript has punctuation, the end to the next sentence end)
-        # so a clip does not open or close mid-line.
-        raw_clips = analysis_data.get('clips', [])
-        def _seconds(value):
-            try:
-                return float(value)
-            except (TypeError, ValueError):
-                return 0.0
-
-        raw_bounds = [(_seconds(c.get('start_time')), _seconds(c.get('end_time'))) for c in raw_clips]
-        lines_index = clip_bounds.Lines(enriched_transcript)
-        snapped_bounds = clip_bounds.snap_clips(
-            raw_bounds, enriched_transcript, start_bound, end_bound, lines=lines_index)
-        moved = sum(1 for r, s in zip(raw_bounds, snapped_bounds) if r != s)
-        logger.info(f"Clip bounds: {moved}/{len(raw_bounds)} clip(s) moved to line/sentence edges.")
-        # Issue #38: 2m/3m clips Gemini made too short are widened to the minimum.
-        stretched = clip_lengths.stretch_short_clips(
-            snapped_bounds, lines_index, request.duration, start_bound, end_bound)
-        widened = sum(1 for a, b in zip(snapped_bounds, stretched) if a != b)
-        short = clip_lengths.still_short(stretched, request.duration)
-        if widened or short:
-            logger.info(f"Clip length: {widened} clip(s) widened toward the {clip_lengths.label(request.duration)} "
-                        f"minimum; {short} still under it (no room next to other clips).")
-        snapped_bounds = stretched
-        # Issue #34: the length limit runs after snapping, which can lengthen a clip.
-        capped_bounds = [(s, clip_lengths.cap_length(s, e, lines_index, end_bound)) for s, e in snapped_bounds]
-        cut = sum(1 for a, b in zip(snapped_bounds, capped_bounds) if a != b)
-        if cut:
-            logger.info(f"Clip length: {cut} clip(s) cut back to {clip_lengths.MAX_CLIP_SECONDS:.0f}s.")
-        snapped_bounds = capped_bounds
-
-        # Reconstruct clip transcripts from enriched_transcript
-        final_clips = []
-        for clip_no, raw_clip in enumerate(raw_clips, start=1):
-            start, end = snapped_bounds[clip_no - 1]
-            hook  = raw_clip.get('hook_time')
-            if hook is None or not (start <= hook <= end):
-                hook = start
-            
-            clip_lines = [
-                line.get("text", "")
-                for line in enriched_transcript
-                if max(line.get("start", 0.0), start) < min(line.get("end", 0.0), end)
-            ]
-            
-            # Ensure hashtags are always lowercase
-            caption_sug = lowercase_hashtags_in_string(raw_clip.get('caption_suggestion', ''))
-            hashtag_sug = lowercase_hashtags_in_string(raw_clip.get('hashtag_suggestion', ''))
-            
-            if raw_clip.get('is_fallback'):
-                # Backup clips made above when Gemini returned none: their
-                # titles ("Must Watch Moment #1") stay exactly as before.
-                clip_title = raw_clip.get('title', '')
-                clip_suggestion = raw_clip.get('title_suggestion', '')
-                titles = []
-            else:
-                # Issue #31: every title Gemini wrote is checked against the
-                # rules; rejections are logged and a safe fallback keeps the
-                # clip usable.
-                titles, _ = title_rules.pick_titles(
-                    raw_clip.get('title_options'),
-                    legacy_title=raw_clip.get('title', ''),
-                    legacy_suggestion=raw_clip.get('title_suggestion', ''),
-                    sanitize=lambda t: sanitize_first_person_title(t, channel),
-                    label=f"clip {clip_no} ({start:.1f}-{end:.1f}s)",
-                )
-                clip_title = clip_suggestion = titles[0]
-
-            final_clips.append(ViralClip(
-                title=clip_title,
-                start_time=start,
-                end_time=end,
-                hook_time=hook,
-                virality_score=raw_clip.get('virality_score', 0),
-                key_quotes=raw_clip.get('key_quotes') or [],
-                transcript=" ".join(clip_lines),
-                title_suggestion=clip_suggestion,
-                caption_suggestion=caption_sug,
-                hashtag_suggestion=hashtag_sug,
-                title_options=titles,
-                content_type=str(raw_clip.get('content_type') or ''),
-            ))
-
-        response_heatmap = [
-            HeatmapPoint(
-                start_time=float(pt.get('start_time', 0.0)),
-                end_time=float(pt.get('end_time', 0.0)),
-                value=float(pt.get('value', 0.0))
-            )
-            for pt in (heatmap or [])
-        ]
-
-        response_transcript = [
-            TranscriptLine(
-                start=float(line["start"]),
-                end=float(line["end"]),
-                text=line["text"],
-                engagement=line.get("engagement")
-            )
-            for line in enriched_transcript
-        ]
-
-        # Ensure hashtags are lowercase in the overall summary
-        clean_summary = lowercase_hashtags_in_string(analysis_data.get("summary", ""))
-
-        final_result = AnalyzeResponse(
-            video_id=video_id,
-            title=title,
-            channel=channel,
-            duration=duration,
-            heatmap=response_heatmap,
-            summary=clean_summary,
-            clips=final_clips,
-            transcript=response_transcript,
-            model=successful_model or requested_model
-        )
-
-        yield _sse({"done": True, "result": final_result.model_dump()})
 
     return StreamingResponse(
         stream(),
