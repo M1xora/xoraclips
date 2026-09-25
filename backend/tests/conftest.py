@@ -53,6 +53,8 @@ _DATA_PATHS = {
     "TEMP_DIR": "temp_clips",
     "EXPORTS_DIR": "exports",
     "UPLOADS_DIR": "temp_clips/uploads",
+    # The backend folder as a string: clear-temp also empties <it>/temp.
+    "_base_dir": "",
 }
 
 
@@ -77,7 +79,8 @@ def no_real_data_files(monkeypatch, tmp_path_factory):
                 target = data / relative
                 if not relative.endswith(".txt"):
                     target.mkdir(parents=True, exist_ok=True)
-                monkeypatch.setattr(module, name, target)
+                current = getattr(module, name)
+                monkeypatch.setattr(module, name, str(target) if isinstance(current, str) else target)
     return data
 
 
