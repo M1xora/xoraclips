@@ -109,8 +109,8 @@ export interface CookieStatus {
   exists: boolean;
   has_cookies: boolean;
   size: number;
+  /** Cookie domains. The backend never sends the cookies themselves (#45). */
   sample_lines: string[];
-  cookies_content: string;
 }
 
 export interface UploadResult {

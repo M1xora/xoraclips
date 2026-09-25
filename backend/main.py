@@ -137,13 +137,24 @@ app = FastAPI(
     lifespan=_lifespan,
 )
 
-# Configure CORS
+# CORS (issue #45): only the app itself may read API responses. The frontend
+# calls the API through the Vite proxy (same origin), so a browser tab on any
+# other site gets no Access-Control-Allow-Origin header. Set ALLOWED_ORIGINS
+# in .env (comma-separated) when the app is served from another address.
+DEFAULT_ALLOWED_ORIGINS = "http://localhost:5174,http://127.0.0.1:5174"
+
+
+def allowed_origins() -> List[str]:
+    raw = os.environ.get("ALLOWED_ORIGINS", "").strip() or DEFAULT_ALLOWED_ORIGINS
+    return [origin.strip() for origin in raw.split(",") if origin.strip()]
+
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allows all origins in development
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_origins=allowed_origins(),
+    allow_credentials=False,
+    allow_methods=["GET", "POST", "DELETE"],
+    allow_headers=["Content-Type", GEMINI_KEY_HEADER],
 )
 
 # ----------------------------------------------------------------
@@ -3038,13 +3049,13 @@ def save_youtube_cookies(req: CookiesSaveRequest):
 
 @app.get("/api/cookies")
 def get_youtube_cookies_status():
+    """Whether cookies are saved, their size and domains. Never their content:
+    the cookies are a YouTube login (issue #45)."""
     if COOKIES_PATH.exists() and COOKIES_PATH.stat().st_size > 0:
         sample_lines = []
-        cookies_content = ""
         try:
             with open(COOKIES_PATH, "r", encoding="utf-8", errors="ignore") as f:
-                cookies_content = f.read()
-                for line in cookies_content.splitlines():
+                for line in f.read().splitlines():
                     line = line.strip()
                     if line and not line.startswith("#"):
                         domain = line.split("\t")[0]
@@ -3059,9 +3070,8 @@ def get_youtube_cookies_status():
             "has_cookies": True,
             "size": COOKIES_PATH.stat().st_size,
             "sample_lines": sample_lines,
-            "cookies_content": cookies_content
         }
-    return {"exists": False, "has_cookies": False, "size": 0, "sample_lines": [], "cookies_content": ""}
+    return {"exists": False, "has_cookies": False, "size": 0, "sample_lines": []}
 
 
 @app.delete("/api/cookies")
