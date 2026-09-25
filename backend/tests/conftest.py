@@ -42,6 +42,45 @@ for name in backend_modules():
     sys.modules[name] = importlib.import_module(f"backend.{name}")
 
 
+# --- No real data files in tests (#61) ----------------------------------------
+# A test once overwrote the real backend/cookies.txt: its fake was set on
+# main.COOKIES_PATH after the endpoint had moved to a module with its own copy
+# of that name (#60). Every backend module's data paths now point into the
+# test's own temporary folder before the test runs, whatever the test fakes.
+
+_DATA_PATHS = {
+    "COOKIES_PATH": "cookies.txt",
+    "TEMP_DIR": "temp_clips",
+    "EXPORTS_DIR": "exports",
+    "UPLOADS_DIR": "temp_clips/uploads",
+}
+
+
+def _loaded_backend_modules():
+    seen = set()
+    for key, module in list(sys.modules.items()):
+        if module is None or id(module) in seen:
+            continue
+        origin = str(getattr(module, "__file__", "") or "")
+        if origin.startswith(str(BACKEND)) and "tests" not in Path(origin).relative_to(BACKEND).parts:
+            seen.add(id(module))
+            yield module
+
+
+@pytest.fixture(autouse=True)
+def no_real_data_files(monkeypatch, tmp_path_factory):
+    # Its own folder, not the test's tmp_path, which tests inspect themselves.
+    data = tmp_path_factory.mktemp("backend_data")
+    for module in _loaded_backend_modules():
+        for name, relative in _DATA_PATHS.items():
+            if hasattr(module, name):
+                target = data / relative
+                if not relative.endswith(".txt"):
+                    target.mkdir(parents=True, exist_ok=True)
+                monkeypatch.setattr(module, name, target)
+    return data
+
+
 # --- No real network or programs in tests (#61) ------------------------------
 # Tests fake YouTube, Gemini, yt-dlp and ffmpeg. When code moves between
 # modules (#60), a fake set on the old module no longer applies and a test

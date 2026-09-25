@@ -211,3 +211,28 @@ if __name__ == "__main__":
     SNAPSHOT.write_text(json.dumps(api_shape(main.app.openapi()), indent=1, sort_keys=True,
                                    ensure_ascii=False) + "\n", encoding="utf-8")
     print(f"wrote {SNAPSHOT}")
+
+
+def test_no_backend_module_points_at_the_real_data_files(no_real_data_files):
+    # The guard that stopped a test overwriting the real backend/cookies.txt.
+    import conftest
+    real = {BACKEND / "cookies.txt", BACKEND / "temp_clips", BACKEND / "exports",
+            BACKEND / "temp_clips" / "uploads"}
+    checked = 0
+    for module in conftest._loaded_backend_modules():
+        for name in conftest._DATA_PATHS:
+            if hasattr(module, name):
+                checked += 1
+                value = Path(getattr(module, name))
+                assert value not in real, f"{module.__name__}.{name} is the real {value}"
+                assert str(value).startswith(str(no_real_data_files)), f"{module.__name__}.{name} = {value}"
+    assert checked >= 4  # main and video_engine at least
+
+
+def test_saving_cookies_without_a_fake_never_touches_the_real_file(no_real_data_files):
+    from fastapi.testclient import TestClient
+    real = BACKEND / "cookies.txt"
+    before = real.read_bytes() if real.exists() else None
+    res = TestClient(main.app).post("/api/cookies", json={"cookies_content": "dari test"})
+    assert res.status_code == 200
+    assert (real.read_bytes() if real.exists() else None) == before
