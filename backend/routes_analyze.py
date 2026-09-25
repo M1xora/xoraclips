@@ -673,7 +673,6 @@ async def _analysis_events(request: AnalyzeRequest, gemini_key: Optional[str]):
                  f"Found {clip_count} viral clip candidates with {model} — reconstructing transcripts...",
                  model=model)
     logger.info(f"Gemini analysis complete with {model}. Found {clip_count} clips.")
-    logger.info(f"Gemini analysis complete with {model}. Found {clip_count} clips.")
 
     clips = analysis.finish_clips(analysis_data.get('clips', []), enriched, request.duration,
                                   start_bound, end_bound, channel)

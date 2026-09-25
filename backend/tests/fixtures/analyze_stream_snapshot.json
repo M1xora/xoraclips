@@ -649,7 +649,6 @@
    "INFO xoraclips: Flash fallback chain prepared: ['gemini-2.5-flash', 'gemini-2.5-flash-lite', 'gemini-2.0-flash', 'gemini-2.0-flash-lite', 'gemini-1.5-flash', 'gemini-1.5-flash-8b']",
    "WARNING xoraclips: Error from gemini-2.5-flash (attempt 1, ai_busy): 503 UNAVAILABLE. The model is overloaded. Please try again later.",
    "INFO xoraclips: Gemini analysis complete with gemini-2.5-flash. Found 2 clips.",
-   "INFO xoraclips: Gemini analysis complete with gemini-2.5-flash. Found 2 clips.",
    "INFO xoraclips: Clip bounds: 0/2 clip(s) moved to line/sentence edges."
   ],
   "sleeps": [
@@ -992,7 +991,6 @@
    "WARNING xoraclips: Error from gemini-2.5-flash (attempt 1, ai_busy): 503 UNAVAILABLE. The model is overloaded. Please try again later.",
    "WARNING xoraclips: Error from gemini-2.5-flash (attempt 2, ai_busy): 503 UNAVAILABLE. The model is overloaded. Please try again later.",
    "INFO xoraclips: Gemini analysis complete with gemini-2.5-flash-lite. Found 2 clips.",
-   "INFO xoraclips: Gemini analysis complete with gemini-2.5-flash-lite. Found 2 clips.",
    "INFO xoraclips: Clip bounds: 0/2 clip(s) moved to line/sentence edges."
   ],
   "sleeps": [
@@ -1295,7 +1293,6 @@
   "logs": [
    "INFO xoraclips: Metadata fetched: title='Uji', duration=120.0s, heatmap_pts=0",
    "INFO xoraclips: Flash fallback chain prepared: ['gemini-2.5-flash', 'gemini-2.5-flash-lite', 'gemini-2.0-flash', 'gemini-2.0-flash-lite', 'gemini-1.5-flash', 'gemini-1.5-flash-8b']",
-   "INFO xoraclips: Gemini analysis complete with gemini-2.5-flash. Found 2 clips.",
    "INFO xoraclips: Gemini analysis complete with gemini-2.5-flash. Found 2 clips.",
    "INFO xoraclips: Clip bounds: 0/2 clip(s) moved to line/sentence edges.",
    "INFO xoraclips: Clip length: 2 clip(s) widened toward the 3m minimum; 2 still under it (no room next to other clips)."
@@ -1848,7 +1845,6 @@
    "INFO xoraclips: Metadata fetched: title='Uji', duration=0.0s, heatmap_pts=0",
    "INFO xoraclips: Flash fallback chain prepared: ['gemini-2.5-flash', 'gemini-2.5-flash-lite', 'gemini-2.0-flash', 'gemini-2.0-flash-lite', 'gemini-1.5-flash', 'gemini-1.5-flash-8b']",
    "INFO xoraclips: Gemini analysis complete with gemini-2.5-flash. Found 2 clips.",
-   "INFO xoraclips: Gemini analysis complete with gemini-2.5-flash. Found 2 clips.",
    "INFO xoraclips: Clip bounds: 0/2 clip(s) moved to line/sentence edges."
   ],
   "sleeps": []
@@ -2164,7 +2160,6 @@
    "INFO xoraclips: Metadata fetched: title='Uji', duration=120.0s, heatmap_pts=0",
    "INFO xoraclips: Flash fallback chain prepared: ['gemini-2.5-flash', 'gemini-2.5-flash-lite', 'gemini-2.0-flash', 'gemini-2.0-flash-lite', 'gemini-1.5-flash', 'gemini-1.5-flash-8b']",
    "INFO xoraclips: Gemini analysis complete with gemini-2.5-flash-lite. Found 2 clips.",
-   "INFO xoraclips: Gemini analysis complete with gemini-2.5-flash-lite. Found 2 clips.",
    "INFO xoraclips: Clip bounds: 0/2 clip(s) moved to line/sentence edges."
   ],
   "sleeps": []
@@ -2457,7 +2452,6 @@
    "INFO xoraclips: Metadata fetched: title='Uji', duration=120.0s, heatmap_pts=0",
    "INFO xoraclips: Flash fallback chain prepared: ['gemini-2.5-flash', 'gemini-2.5-flash-lite', 'gemini-2.0-flash', 'gemini-2.0-flash-lite', 'gemini-1.5-flash', 'gemini-1.5-flash-8b']",
    "INFO xoraclips: Gemini analysis complete with gemini-2.5-flash. Found 2 clips.",
-   "INFO xoraclips: Gemini analysis complete with gemini-2.5-flash. Found 2 clips.",
    "INFO xoraclips: Clip bounds: 0/2 clip(s) moved to line/sentence edges."
   ],
   "sleeps": []
@@ -2730,7 +2724,6 @@
   "logs": [
    "INFO xoraclips: Metadata fetched: title='Uji', duration=120.0s, heatmap_pts=0",
    "INFO xoraclips: Flash fallback chain prepared: ['gemini-2.5-flash', 'gemini-2.5-flash-lite', 'gemini-2.0-flash', 'gemini-2.0-flash-lite', 'gemini-1.5-flash', 'gemini-1.5-flash-8b']",
-   "INFO xoraclips: Gemini analysis complete with gemini-2.5-flash. Found 1 clips.",
    "INFO xoraclips: Gemini analysis complete with gemini-2.5-flash. Found 1 clips.",
    "INFO xoraclips: Clip bounds: 0/1 clip(s) moved to line/sentence edges."
   ],
@@ -3094,7 +3087,6 @@
    "INFO xoraclips: Metadata fetched: title='Uji', duration=120.0s, heatmap_pts=12",
    "INFO xoraclips: Flash fallback chain prepared: ['gemini-2.5-flash', 'gemini-2.5-flash-lite', 'gemini-2.0-flash', 'gemini-2.0-flash-lite', 'gemini-1.5-flash', 'gemini-1.5-flash-8b']",
    "INFO xoraclips: Gemini analysis complete with gemini-2.5-flash. Found 2 clips.",
-   "INFO xoraclips: Gemini analysis complete with gemini-2.5-flash. Found 2 clips.",
    "INFO xoraclips: Clip bounds: 0/2 clip(s) moved to line/sentence edges."
   ],
   "sleeps": []
@@ -3368,7 +3360,6 @@
    "INFO xoraclips: Metadata fetched: title='Uji', duration=120.0s, heatmap_pts=0",
    "INFO xoraclips: Flash fallback chain prepared: ['gemini-2.5-flash', 'gemini-2.5-flash-lite', 'gemini-2.0-flash', 'gemini-2.0-flash-lite', 'gemini-1.5-flash', 'gemini-1.5-flash-8b']",
    "INFO xoraclips: Gemini analysis complete with gemini-2.5-flash. Found 1 clips.",
-   "INFO xoraclips: Gemini analysis complete with gemini-2.5-flash. Found 1 clips.",
    "INFO xoraclips: Clip bounds: 0/1 clip(s) moved to line/sentence edges."
   ],
   "sleeps": []
@@ -3641,7 +3632,6 @@
   "logs": [
    "INFO xoraclips: Metadata fetched: title='Uji', duration=120.0s, heatmap_pts=0",
    "INFO xoraclips: Flash fallback chain prepared: ['gemini-2.5-flash', 'gemini-2.5-flash-lite', 'gemini-2.0-flash', 'gemini-2.0-flash-lite', 'gemini-1.5-flash', 'gemini-1.5-flash-8b']",
-   "INFO xoraclips: Gemini analysis complete with gemini-2.5-flash. Found 1 clips.",
    "INFO xoraclips: Gemini analysis complete with gemini-2.5-flash. Found 1 clips.",
    "INFO xoraclips: Clip bounds: 0/1 clip(s) moved to line/sentence edges."
   ],
@@ -3934,7 +3924,6 @@
   "logs": [
    "INFO xoraclips: Metadata fetched: title='Uji', duration=120.0s, heatmap_pts=0",
    "INFO xoraclips: Flash fallback chain prepared: ['gemini-2.5-flash', 'gemini-2.5-flash-lite', 'gemini-2.0-flash', 'gemini-2.0-flash-lite', 'gemini-1.5-flash', 'gemini-1.5-flash-8b']",
-   "INFO xoraclips: Gemini analysis complete with gemini-2.5-flash. Found 2 clips.",
    "INFO xoraclips: Gemini analysis complete with gemini-2.5-flash. Found 2 clips.",
    "INFO xoraclips: Clip bounds: 0/2 clip(s) moved to line/sentence edges."
   ],
@@ -4252,7 +4241,6 @@
    "INFO xoraclips: Flash fallback chain prepared: ['gemini-2.5-flash', 'gemini-2.5-flash-lite', 'gemini-2.0-flash', 'gemini-2.0-flash-lite', 'gemini-1.5-flash', 'gemini-1.5-flash-8b']",
    "WARNING xoraclips: gemini-2.5-flash answered with a JSON list, not an object.",
    "INFO xoraclips: Gemini analysis complete with gemini-2.5-flash-lite. Found 2 clips.",
-   "INFO xoraclips: Gemini analysis complete with gemini-2.5-flash-lite. Found 2 clips.",
    "INFO xoraclips: Clip bounds: 0/2 clip(s) moved to line/sentence edges."
   ],
   "sleeps": []
@@ -4544,7 +4532,6 @@
   "logs": [
    "INFO xoraclips: Metadata fetched: title='Uji', duration=120.0s, heatmap_pts=0",
    "INFO xoraclips: Flash fallback chain prepared: ['gemini-2.5-flash', 'gemini-2.5-flash-lite', 'gemini-2.0-flash', 'gemini-2.0-flash-lite', 'gemini-1.5-flash', 'gemini-1.5-flash-8b']",
-   "INFO xoraclips: Gemini analysis complete with gemini-2.5-flash. Found 2 clips.",
    "INFO xoraclips: Gemini analysis complete with gemini-2.5-flash. Found 2 clips.",
    "INFO xoraclips: Clip bounds: 0/2 clip(s) moved to line/sentence edges."
   ],
@@ -4950,7 +4937,6 @@
    "WARNING xoraclips: Transcript 900 lines — truncating to 800.",
    "INFO xoraclips: Flash fallback chain prepared: ['gemini-2.5-flash', 'gemini-2.5-flash-lite', 'gemini-2.0-flash', 'gemini-2.0-flash-lite', 'gemini-1.5-flash', 'gemini-1.5-flash-8b']",
    "INFO xoraclips: Gemini analysis complete with gemini-2.5-flash. Found 2 clips.",
-   "INFO xoraclips: Gemini analysis complete with gemini-2.5-flash. Found 2 clips.",
    "INFO xoraclips: Clip bounds: 0/2 clip(s) moved to line/sentence edges."
   ],
   "sleeps": []
@@ -5100,7 +5086,6 @@
   "logs": [
    "INFO xoraclips: Metadata fetched: title='Uji', duration=4000.0s, heatmap_pts=0",
    "INFO xoraclips: Flash fallback chain prepared: ['gemini-2.5-flash', 'gemini-2.5-flash-lite', 'gemini-2.0-flash', 'gemini-2.0-flash-lite', 'gemini-1.5-flash', 'gemini-1.5-flash-8b']",
-   "INFO xoraclips: Gemini analysis complete with gemini-2.5-flash. Found 2 clips.",
    "INFO xoraclips: Gemini analysis complete with gemini-2.5-flash. Found 2 clips.",
    "INFO xoraclips: Clip bounds: 2/2 clip(s) moved to line/sentence edges."
   ],
@@ -5261,7 +5246,6 @@
   "logs": [
    "INFO xoraclips: Metadata fetched: title='Uji', duration=120.0s, heatmap_pts=0",
    "INFO xoraclips: Flash fallback chain prepared: ['gemini-2.5-flash', 'gemini-2.5-flash-lite', 'gemini-2.0-flash', 'gemini-2.0-flash-lite', 'gemini-1.5-flash', 'gemini-1.5-flash-8b']",
-   "INFO xoraclips: Gemini analysis complete with gemini-2.5-flash. Found 2 clips.",
    "INFO xoraclips: Gemini analysis complete with gemini-2.5-flash. Found 2 clips.",
    "INFO xoraclips: Clip bounds: 0/2 clip(s) moved to line/sentence edges."
   ],
@@ -5882,7 +5866,6 @@
    "INFO xoraclips: Metadata fetched: title='Uji', duration=120.0s, heatmap_pts=0",
    "INFO xoraclips: Flash fallback chain prepared: ['gemini-2.5-flash', 'gemini-2.5-flash-lite', 'gemini-2.0-flash', 'gemini-2.0-flash-lite', 'gemini-1.5-flash', 'gemini-1.5-flash-8b']",
    "WARNING xoraclips: Error from gemini-2.5-flash (attempt 1, model_unavailable): 404 NOT_FOUND. models/x is not found for API version v1beta",
-   "INFO xoraclips: Gemini analysis complete with gemini-2.5-flash-lite. Found 2 clips.",
    "INFO xoraclips: Gemini analysis complete with gemini-2.5-flash-lite. Found 2 clips.",
    "INFO xoraclips: Clip bounds: 0/2 clip(s) moved to line/sentence edges."
   ],
@@ -6698,7 +6681,6 @@
    "INFO xoraclips: Metadata fetched: title='Uji', duration=120.0s, heatmap_pts=0",
    "INFO xoraclips: Flash fallback chain prepared: ['gemini-2.5-flash', 'gemini-2.5-flash-lite', 'gemini-2.0-flash', 'gemini-2.0-flash-lite', 'gemini-1.5-flash', 'gemini-1.5-flash-8b']",
    "INFO xoraclips: Gemini analysis complete with gemini-2.5-flash. Found 2 clips.",
-   "INFO xoraclips: Gemini analysis complete with gemini-2.5-flash. Found 2 clips.",
    "INFO xoraclips: Clip bounds: 0/2 clip(s) moved to line/sentence edges."
   ],
   "sleeps": []
@@ -6970,7 +6952,6 @@
   "logs": [
    "INFO xoraclips: Metadata fetched: title='Uji', duration=120.0s, heatmap_pts=0",
    "INFO xoraclips: Flash fallback chain prepared: ['gemini-2.5-flash', 'gemini-2.5-flash-lite', 'gemini-2.0-flash', 'gemini-2.0-flash-lite', 'gemini-1.5-flash', 'gemini-1.5-flash-8b']",
-   "INFO xoraclips: Gemini analysis complete with gemini-2.5-flash. Found 1 clips.",
    "INFO xoraclips: Gemini analysis complete with gemini-2.5-flash. Found 1 clips.",
    "INFO xoraclips: Clip bounds: 0/1 clip(s) moved to line/sentence edges.",
    "WARNING xoraclips.titles: clip 1 (10.0-40.0s): no title options in Gemini's answer",
@@ -7266,7 +7247,6 @@
    "INFO xoraclips: Metadata fetched: title='Uji', duration=120.0s, heatmap_pts=0",
    "INFO xoraclips: Requested model 'gemini-1.0-pro' is outdated. Upgrading to gemini-2.5-flash.",
    "INFO xoraclips: Flash fallback chain prepared: ['gemini-2.5-flash', 'gemini-2.5-flash-lite', 'gemini-2.0-flash', 'gemini-2.0-flash-lite', 'gemini-1.5-flash', 'gemini-1.5-flash-8b']",
-   "INFO xoraclips: Gemini analysis complete with gemini-2.5-flash. Found 2 clips.",
    "INFO xoraclips: Gemini analysis complete with gemini-2.5-flash. Found 2 clips.",
    "INFO xoraclips: Clip bounds: 0/2 clip(s) moved to line/sentence edges."
   ],
@@ -7579,7 +7559,6 @@
    "INFO xoraclips: Metadata fetched: title='Uji', duration=120.0s, heatmap_pts=0",
    "INFO xoraclips: Flash fallback chain prepared: ['gemini-2.5-flash', 'gemini-2.5-flash-lite', 'gemini-2.0-flash', 'gemini-2.0-flash-lite', 'gemini-1.5-flash', 'gemini-1.5-flash-8b']",
    "INFO xoraclips: Gemini analysis complete with gemini-2.5-flash. Found 3 clips.",
-   "INFO xoraclips: Gemini analysis complete with gemini-2.5-flash. Found 3 clips.",
    "INFO xoraclips: Clip bounds: 0/3 clip(s) moved to line/sentence edges."
   ],
   "sleeps": []
@@ -7871,7 +7850,6 @@
   "logs": [
    "INFO xoraclips: Metadata fetched: title='Uji', duration=120.0s, heatmap_pts=0",
    "INFO xoraclips: Flash fallback chain prepared: ['gemini-2.5-flash', 'gemini-2.5-flash-lite', 'gemini-2.0-flash', 'gemini-2.0-flash-lite', 'gemini-1.5-flash', 'gemini-1.5-flash-8b']",
-   "INFO xoraclips: Gemini analysis complete with gemini-2.5-flash. Found 2 clips.",
    "INFO xoraclips: Gemini analysis complete with gemini-2.5-flash. Found 2 clips.",
    "INFO xoraclips: Clip bounds: 0/2 clip(s) moved to line/sentence edges."
   ],
@@ -8438,7 +8416,6 @@
    "INFO xoraclips: Filtered transcript to custom range: 0.0s to 120.0s (duration: 120.0s)",
    "INFO xoraclips: Flash fallback chain prepared: ['gemini-2.5-flash', 'gemini-2.5-flash-lite', 'gemini-2.0-flash', 'gemini-2.0-flash-lite', 'gemini-1.5-flash', 'gemini-1.5-flash-8b']",
    "INFO xoraclips: Gemini analysis complete with gemini-2.5-flash. Found 2 clips.",
-   "INFO xoraclips: Gemini analysis complete with gemini-2.5-flash. Found 2 clips.",
    "INFO xoraclips: Clip bounds: 0/2 clip(s) moved to line/sentence edges."
   ],
   "sleeps": []
@@ -8659,7 +8636,6 @@
    "INFO xoraclips: Metadata fetched: title='Uji', duration=120.0s, heatmap_pts=0",
    "INFO xoraclips: Filtered transcript to custom range: 20.0s to 80.0s (duration: 60.0s)",
    "INFO xoraclips: Flash fallback chain prepared: ['gemini-2.5-flash', 'gemini-2.5-flash-lite', 'gemini-2.0-flash', 'gemini-2.0-flash-lite', 'gemini-1.5-flash', 'gemini-1.5-flash-8b']",
-   "INFO xoraclips: Gemini analysis complete with gemini-2.5-flash. Found 2 clips.",
    "INFO xoraclips: Gemini analysis complete with gemini-2.5-flash. Found 2 clips.",
    "INFO xoraclips: Clip bounds: 2/2 clip(s) moved to line/sentence edges."
   ],
@@ -8995,7 +8971,6 @@
   "logs": [
    "INFO xoraclips: Metadata fetched: title='Uji', duration=120.0s, heatmap_pts=0",
    "INFO xoraclips: Flash fallback chain prepared: ['gemini-2.5-flash', 'gemini-2.5-flash-lite', 'gemini-2.0-flash', 'gemini-2.0-flash-lite', 'gemini-1.5-flash', 'gemini-1.5-flash-8b']",
-   "INFO xoraclips: Gemini analysis complete with gemini-2.5-flash. Found 1 clips.",
    "INFO xoraclips: Gemini analysis complete with gemini-2.5-flash. Found 1 clips.",
    "INFO xoraclips: Clip bounds: 0/1 clip(s) moved to line/sentence edges."
   ],
@@ -9563,7 +9538,6 @@
   "logs": [
    "INFO xoraclips: Metadata fetched: title='Uji', duration=120.0s, heatmap_pts=0",
    "INFO xoraclips: Flash fallback chain prepared: ['gemini-2.5-flash', 'gemini-2.5-flash-lite', 'gemini-2.0-flash', 'gemini-2.0-flash-lite', 'gemini-1.5-flash', 'gemini-1.5-flash-8b']",
-   "INFO xoraclips: Gemini analysis complete with gemini-2.5-flash. Found 2 clips.",
    "INFO xoraclips: Gemini analysis complete with gemini-2.5-flash. Found 2 clips.",
    "INFO xoraclips: Clip bounds: 0/2 clip(s) moved to line/sentence edges."
   ],
@@ -10281,7 +10255,6 @@
   "logs": [
    "INFO xoraclips: Metadata fetched: title='APA KABAR INDONESIA, PAK AHOK?', duration=1606.0s, heatmap_pts=100",
    "INFO xoraclips: Flash fallback chain prepared: ['gemini-3.5-flash-lite', 'gemini-2.5-flash', 'gemini-2.5-flash-lite', 'gemini-2.0-flash', 'gemini-2.0-flash-lite', 'gemini-1.5-flash', 'gemini-1.5-flash-8b']",
-   "INFO xoraclips: Gemini analysis complete with gemini-3.5-flash-lite. Found 5 clips.",
    "INFO xoraclips: Gemini analysis complete with gemini-3.5-flash-lite. Found 5 clips.",
    "INFO xoraclips: Clip bounds: 4/5 clip(s) moved to line/sentence edges.",
    "WARNING xoraclips.titles: clip 1 (133.6-286.6s): option 1 rejected (8 words (max 7)): 'Ahok Mau Jadi Dirjen Bea Cukai Demi Ini'"
@@ -11106,7 +11079,6 @@
    "INFO xoraclips: Metadata fetched: title='#ngopenk PEMBAHASAN LEBIH DALAM SEPUTAR GINJAL BERSAMA AHLINYA: dr. DECSA MEDIKA HERTANTO, Sp.PD-KGH', duration=2784.0s, heatmap_pts=100",
    "WARNING xoraclips: Transcript 1077 lines — truncating to 800.",
    "INFO xoraclips: Flash fallback chain prepared: ['gemini-3.5-flash-lite', 'gemini-2.5-flash', 'gemini-2.5-flash-lite', 'gemini-2.0-flash', 'gemini-2.0-flash-lite', 'gemini-1.5-flash', 'gemini-1.5-flash-8b']",
-   "INFO xoraclips: Gemini analysis complete with gemini-3.5-flash-lite. Found 10 clips.",
    "INFO xoraclips: Gemini analysis complete with gemini-3.5-flash-lite. Found 10 clips.",
    "INFO xoraclips: Clip bounds: 10/10 clip(s) moved to line/sentence edges.",
    "WARNING xoraclips.titles: clip 1 (704.9-779.2s): option 1 rejected (8 words (max 7)): 'dr. Deksa: Pasien Cuci Darah Kok Muda Muda'"
@@ -11953,7 +11925,6 @@
    "INFO xoraclips: Metadata fetched: title='Stand Up Comedy - BIKIN KEKEH! Ridwan : Sehat Itu Susah', duration=663.0s, heatmap_pts=100",
    "INFO xoraclips: Flash fallback chain prepared: ['gemini-3.5-flash-lite', 'gemini-2.5-flash', 'gemini-2.5-flash-lite', 'gemini-2.0-flash', 'gemini-2.0-flash-lite', 'gemini-1.5-flash', 'gemini-1.5-flash-8b']",
    "INFO xoraclips: Gemini analysis complete with gemini-3.5-flash-lite. Found 11 clips.",
-   "INFO xoraclips: Gemini analysis complete with gemini-3.5-flash-lite. Found 11 clips.",
    "INFO xoraclips: Clip bounds: 11/11 clip(s) moved to line/sentence edges."
   ],
   "sleeps": []
@@ -12798,7 +12769,6 @@
    "INFO xoraclips: Metadata fetched: title='Stand Up Comedy - BIKIN KEKEH! Ridwan : Sehat Itu Susah', duration=663.0s, heatmap_pts=100",
    "INFO xoraclips: Flash fallback chain prepared: ['gemini-3.5-flash-lite', 'gemini-2.5-flash', 'gemini-2.5-flash-lite', 'gemini-2.0-flash', 'gemini-2.0-flash-lite', 'gemini-1.5-flash', 'gemini-1.5-flash-8b']",
    "INFO xoraclips: Gemini analysis complete with gemini-3.5-flash-lite. Found 11 clips.",
-   "INFO xoraclips: Gemini analysis complete with gemini-3.5-flash-lite. Found 11 clips.",
    "INFO xoraclips: Clip bounds: 11/11 clip(s) moved to line/sentence edges."
   ],
   "sleeps": []
@@ -13091,7 +13061,6 @@
    "INFO xoraclips: Metadata fetched: title='Uji', duration=120.0s, heatmap_pts=0",
    "INFO xoraclips: Flash fallback chain prepared: ['gemini-2.5-flash', 'gemini-2.5-flash-lite', 'gemini-2.0-flash', 'gemini-2.0-flash-lite', 'gemini-1.5-flash', 'gemini-1.5-flash-8b']",
    "INFO xoraclips: Gemini analysis complete with gemini-2.5-flash. Found 2 clips.",
-   "INFO xoraclips: Gemini analysis complete with gemini-2.5-flash. Found 2 clips.",
    "INFO xoraclips: Clip bounds: 0/2 clip(s) moved to line/sentence edges."
   ],
   "sleeps": []
@@ -13222,7 +13191,6 @@
   "logs": [
    "INFO xoraclips: Metadata fetched: title='Uji', duration=600.0s, heatmap_pts=0",
    "INFO xoraclips: Flash fallback chain prepared: ['gemini-2.5-flash', 'gemini-2.5-flash-lite', 'gemini-2.0-flash', 'gemini-2.0-flash-lite', 'gemini-1.5-flash', 'gemini-1.5-flash-8b']",
-   "INFO xoraclips: Gemini analysis complete with gemini-2.5-flash. Found 1 clips.",
    "INFO xoraclips: Gemini analysis complete with gemini-2.5-flash. Found 1 clips.",
    "INFO xoraclips: Clip bounds: 0/1 clip(s) moved to line/sentence edges.",
    "INFO xoraclips: Clip length: 1 clip(s) widened toward the 3m minimum; 0 still under it (no room next to other clips)."
@@ -13498,7 +13466,6 @@
    "INFO xoraclips: Metadata fetched: title='Uji', duration=120.0s, heatmap_pts=0",
    "INFO xoraclips: Flash fallback chain prepared: ['gemini-2.5-flash', 'gemini-2.5-flash-lite', 'gemini-2.0-flash', 'gemini-2.0-flash-lite', 'gemini-1.5-flash', 'gemini-1.5-flash-8b']",
    "INFO xoraclips: Gemini analysis complete with gemini-2.5-flash. Found 1 clips.",
-   "INFO xoraclips: Gemini analysis complete with gemini-2.5-flash. Found 1 clips.",
    "INFO xoraclips: Clip bounds: 0/1 clip(s) moved to line/sentence edges."
   ],
   "sleeps": []
@@ -13771,7 +13738,6 @@
   "logs": [
    "INFO xoraclips: Metadata fetched: title='Uji', duration=120.0s, heatmap_pts=0",
    "INFO xoraclips: Flash fallback chain prepared: ['gemini-2.5-flash', 'gemini-2.5-flash-lite', 'gemini-2.0-flash', 'gemini-2.0-flash-lite', 'gemini-1.5-flash', 'gemini-1.5-flash-8b']",
-   "INFO xoraclips: Gemini analysis complete with gemini-2.5-flash. Found 1 clips.",
    "INFO xoraclips: Gemini analysis complete with gemini-2.5-flash. Found 1 clips.",
    "INFO xoraclips: Clip bounds: 1/1 clip(s) moved to line/sentence edges."
   ],
@@ -14246,7 +14212,6 @@
   "logs": [
    "INFO xoraclips: Metadata fetched: title='Uji', duration=120.0s, heatmap_pts=0",
    "INFO xoraclips: Flash fallback chain prepared: ['gemini-2.5-flash', 'gemini-2.5-flash-lite', 'gemini-2.0-flash', 'gemini-2.0-flash-lite', 'gemini-1.5-flash', 'gemini-1.5-flash-8b']",
-   "INFO xoraclips: Gemini analysis complete with gemini-2.5-flash. Found 2 clips.",
    "INFO xoraclips: Gemini analysis complete with gemini-2.5-flash. Found 2 clips.",
    "INFO xoraclips: Clip bounds: 0/2 clip(s) moved to line/sentence edges."
   ],
@@ -14830,7 +14795,6 @@
    "INFO xoraclips: Flash fallback chain prepared: ['gemini-2.5-flash', 'gemini-2.5-flash-lite', 'gemini-2.0-flash', 'gemini-2.0-flash-lite', 'gemini-1.5-flash', 'gemini-1.5-flash-8b']",
    "WARNING xoraclips: JSON parsing error from gemini-2.5-flash: Expecting value: line 1 column 1 (char 0)",
    "INFO xoraclips: Gemini analysis complete with gemini-2.5-flash-lite. Found 2 clips.",
-   "INFO xoraclips: Gemini analysis complete with gemini-2.5-flash-lite. Found 2 clips.",
    "INFO xoraclips: Clip bounds: 0/2 clip(s) moved to line/sentence edges."
   ],
   "sleeps": []
@@ -14990,7 +14954,6 @@
   "logs": [
    "INFO xoraclips: Metadata fetched: title='Uji', duration=120.0s, heatmap_pts=0",
    "INFO xoraclips: Flash fallback chain prepared: ['gemini-2.5-flash', 'gemini-2.5-flash-lite', 'gemini-2.0-flash', 'gemini-2.0-flash-lite', 'gemini-1.5-flash', 'gemini-1.5-flash-8b']",
-   "INFO xoraclips: Gemini analysis complete with gemini-2.5-flash. Found 2 clips.",
    "INFO xoraclips: Gemini analysis complete with gemini-2.5-flash. Found 2 clips.",
    "INFO xoraclips: Clip bounds: 0/2 clip(s) moved to line/sentence edges."
   ],
@@ -15535,7 +15498,6 @@
    "WARNING xoraclips: gemini-1.5-flash returned 0 clips. Will try next flash model gemini-1.5-flash-8b...",
    "INFO xoraclips: Generating fallback clips from heatmap and transcript segments...",
    "INFO xoraclips: Gemini analysis complete with gemini-1.5-flash-8b. Found 3 clips.",
-   "INFO xoraclips: Gemini analysis complete with gemini-1.5-flash-8b. Found 3 clips.",
    "INFO xoraclips: Clip bounds: 2/3 clip(s) moved to line/sentence edges."
   ],
   "sleeps": []
@@ -15988,7 +15950,6 @@
    "WARNING xoraclips: gemini-1.5-flash returned 0 clips. Will try next flash model gemini-1.5-flash-8b...",
    "INFO xoraclips: Generating fallback clips from heatmap and transcript segments...",
    "INFO xoraclips: Gemini analysis complete with gemini-1.5-flash-8b. Found 2 clips.",
-   "INFO xoraclips: Gemini analysis complete with gemini-1.5-flash-8b. Found 2 clips.",
    "INFO xoraclips: Clip bounds: 0/2 clip(s) moved to line/sentence edges."
   ],
   "sleeps": []
@@ -16313,7 +16274,6 @@
    "INFO xoraclips: Metadata fetched: title='Uji', duration=120.0s, heatmap_pts=0",
    "INFO xoraclips: Flash fallback chain prepared: ['gemini-2.5-flash', 'gemini-2.5-flash-lite', 'gemini-2.0-flash', 'gemini-2.0-flash-lite', 'gemini-1.5-flash', 'gemini-1.5-flash-8b']",
    "WARNING xoraclips: gemini-2.5-flash returned 0 clips. Will try next flash model gemini-2.5-flash-lite...",
-   "INFO xoraclips: Gemini analysis complete with gemini-2.5-flash-lite. Found 2 clips.",
    "INFO xoraclips: Gemini analysis complete with gemini-2.5-flash-lite. Found 2 clips.",
    "INFO xoraclips: Clip bounds: 0/2 clip(s) moved to line/sentence edges."
   ],

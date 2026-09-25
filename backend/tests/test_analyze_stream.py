@@ -379,6 +379,11 @@ def test_the_key_never_appears_in_an_event_or_log(monkeypatch):
         assert KEY not in json.dumps(run(name, monkeypatch), ensure_ascii=False)
 
 
+def test_the_end_of_an_analysis_is_logged_once(monkeypatch):
+    logs = run("success_first_try", monkeypatch)["logs"]
+    assert sum("Gemini analysis complete" in line for line in logs) == 1
+
+
 if __name__ == "__main__":
     # Regenerate the snapshot from the current code.
     mp = pytest.MonkeyPatch()
