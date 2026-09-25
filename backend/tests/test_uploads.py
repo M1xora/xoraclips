@@ -12,6 +12,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 import main
+import routes_uploads
 
 KINDS = [
     # endpoint, file name, name prefix, url base
@@ -25,7 +26,7 @@ IMAGE_TYPES = ".png, .jpg, .jpeg, .webp, .svg"
 
 @pytest.fixture
 def uploads(monkeypatch, tmp_path):
-    monkeypatch.setattr(main, "UPLOADS_DIR", tmp_path)
+    monkeypatch.setattr(routes_uploads, "UPLOADS_DIR", tmp_path)
     return tmp_path
 
 

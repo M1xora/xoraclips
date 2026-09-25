@@ -13,6 +13,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 import main
+import routes_media
 import video_engine
 
 VALID_ID = "dQw4w9WgXcQ"
@@ -39,10 +40,10 @@ def frame_calls(monkeypatch, tmp_path):
         calls.append(args)
         return None, False
 
-    monkeypatch.setattr(main, "extract_clip_frame", fake_extract)
-    monkeypatch.setattr(main, "extract_clip_frame_info", fake_extract_info)
-    monkeypatch.setattr(main, "TEMP_DIR", tmp_path)
-    monkeypatch.setattr(main, "EXPORTS_DIR", tmp_path)
+    monkeypatch.setattr(routes_media, "extract_clip_frame", fake_extract)
+    monkeypatch.setattr(routes_media, "extract_clip_frame_info", fake_extract_info)
+    monkeypatch.setattr(routes_media, "TEMP_DIR", tmp_path)
+    monkeypatch.setattr(routes_media, "EXPORTS_DIR", tmp_path)
     return calls
 
 
@@ -239,7 +240,7 @@ def test_a_rendered_clip_on_disk_is_never_used_as_a_frame(monkeypatch, tmp_path)
 def test_clip_frame_does_not_let_the_browser_keep_a_stand_in(monkeypatch, tmp_path, exact, cache):
     frame = tmp_path / f"{VALID_ID}_12.jpg"
     frame.write_bytes(b"\xff\xd8" + b"x" * 5000)
-    monkeypatch.setattr(main, "extract_clip_frame_info", lambda *a: (str(frame), exact))
+    monkeypatch.setattr(routes_media, "extract_clip_frame_info", lambda *a: (str(frame), exact))
     res = TestClient(main.app).get("/api/clip-frame", params={"video_id": VALID_ID, "timestamp": 12})
     assert res.status_code == 200
     assert res.headers["cache-control"] == cache

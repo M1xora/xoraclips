@@ -31,10 +31,10 @@ import shutil
 import html
 from concurrent.futures import ThreadPoolExecutor
 from contextlib import asynccontextmanager
-from urllib.parse import quote, urlsplit
-from typing import List, Optional, Dict, Any, NamedTuple, Tuple, Callable
-from fastapi import FastAPI, HTTPException, BackgroundTasks, UploadFile, File, Header, Query, Request
-from fastapi.responses import StreamingResponse, RedirectResponse, FileResponse, JSONResponse
+from urllib.parse import urlsplit
+from typing import List, Optional, Dict, Any, Callable
+from fastapi import FastAPI, HTTPException, BackgroundTasks, Header, Request
+from fastapi.responses import StreamingResponse, FileResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 import requests
@@ -51,17 +51,11 @@ try:
         EXPORTS_DIR,
         COOKIES_PATH,
         download_clip_segment,
-        download_full_raw_video,
-        download_timeouts,
         transcribe_clip_words,
         generate_ass_file,
         render_clip_to_mp4,
-        extract_clip_frame,
-        extract_clip_frame_info,
-        detect_speaker_face_box,
         detect_hardware_support,
         ACTIVE_ENCODER_NAME,
-        ACTIVE_ENCODER_ARGS,
         has_emoji,
         is_video_id,
         render_title_overlay_png
@@ -72,17 +66,11 @@ except ImportError:
         EXPORTS_DIR,
         COOKIES_PATH,
         download_clip_segment,
-        download_full_raw_video,
-        download_timeouts,
         transcribe_clip_words,
         generate_ass_file,
         render_clip_to_mp4,
-        extract_clip_frame,
-        extract_clip_frame_info,
-        detect_speaker_face_box,
         detect_hardware_support,
         ACTIVE_ENCODER_NAME,
-        ACTIVE_ENCODER_ARGS,
         has_emoji,
         is_video_id,
         render_title_overlay_png
@@ -123,8 +111,6 @@ logger = logging.getLogger("xoraclips")
 # after uvicorn has set up its own handlers.
 install_log_redaction()
 
-UPLOADS_DIR = TEMP_DIR / "uploads"
-UPLOADS_DIR.mkdir(parents=True, exist_ok=True)
 
 @asynccontextmanager
 async def _lifespan(_app):
@@ -180,6 +166,19 @@ async def refuse_writes_from_other_sites(request: Request, call_next):
         if origin is not None and origin.rstrip("/") not in CORS_ORIGINS:
             return JSONResponse(status_code=403, content={"detail": "Origin not allowed"})
     return await call_next(request)
+
+
+# The endpoints are grouped in routes_* modules (#60); main.py builds the app.
+try:
+    from backend import routes_cookies, routes_downloads, routes_media, routes_uploads
+except ImportError:
+    import routes_cookies
+    import routes_downloads
+    import routes_media
+    import routes_uploads
+
+for _routes in (routes_uploads, routes_cookies, routes_media, routes_downloads):
+    app.include_router(_routes.router)
 
 # ----------------------------------------------------------------
 # Pydantic Schemas for Gemini Structured Output
@@ -416,13 +415,6 @@ def extract_video_id(url: str) -> Optional[str]:
 
     return None
 
-
-# Issue #42: refused before it can reach a yt-dlp command line.
-def require_video_id(video_id: Optional[str]) -> str:
-    """The video ID if it is a valid YouTube ID, else a 400 error."""
-    if not is_video_id(video_id):
-        raise HTTPException(status_code=400, detail="Invalid YouTube video ID")
-    return video_id
 
 class TimeoutSession(requests.Session):
     """requests.Session that enforces a default timeout to avoid hanging indefinitely on slow proxies."""
@@ -1372,9 +1364,6 @@ def _fetch_transcript_tiers(
     raise CaptionUnavailable(code, full_error_detail)
 
 
-
-
-
 def lowercase_hashtags_in_string(text: str) -> str:
     """Finds all hashtags (#word) in a string and converts them to lowercase."""
     if not text:
@@ -1496,7 +1485,6 @@ def health_check(refresh: bool = False):
 def supadata_usage_endpoint(refresh: bool = False):
     """Returns real-time usage and remaining credit quota across all configured Supadata API keys."""
     return get_supadata_usage_data(force=refresh)
-
 
 
 def parse_gemini_model_sort_key(name: str):
@@ -2847,23 +2835,6 @@ async def get_render_progress(batch_id: str):
     )
 
 
-@app.get("/api/download-rendered/{file_name}")
-def download_rendered_file(file_name: str, title: Optional[str] = None):
-    safe_name = os.path.basename(file_name)
-    file_path = EXPORTS_DIR / safe_name
-    if not file_path.exists():
-        raise HTTPException(status_code=404, detail="Rendered clip not found")
-
-    # If title provided, sanitize and use as download filename
-    dl_filename = safe_name
-    if title and title.strip():
-        clean_title = re.sub(r'[\\/*?:"<>|]', "", title.strip())
-        if clean_title:
-            dl_filename = f"{clean_title}.mp4" if not clean_title.lower().endswith(".mp4") else clean_title
-
-    return FileResponse(file_path, media_type="video/mp4", filename=dl_filename)
-
-
 @app.get("/api/download-batch-zip/{batch_id}")
 def download_batch_zip(batch_id: str):
     clean_id = os.path.basename(batch_id)
@@ -2940,475 +2911,9 @@ def get_hardware_acceleration_status():
     }
 
 
-AUDIO_UPLOAD_TYPES = (".mp3", ".wav", ".m4a", ".aac", ".ogg", ".flac")
-IMAGE_UPLOAD_TYPES = (".png", ".jpg", ".jpeg", ".webp", ".svg")
-
-
-class UploadKind(NamedTuple):
-    """What differs between the uploads; everything else is _save_upload (#48)."""
-    prefix: str                 # start of the saved file name
-    allowed: Tuple[str, ...]    # accepted extensions
-    kind: str                   # "audio" or "image", for the error message
-    url_base: str               # where the saved file is served
-    label: str                  # for the log
-
-
-UPLOAD_KINDS = {
-    "bgm": UploadKind("bgm_", AUDIO_UPLOAD_TYPES, "audio", "/api/audio/", "BGM"),
-    "sfx": UploadKind("sfx_", AUDIO_UPLOAD_TYPES, "audio", "/api/audio/", "Hook SFX"),
-    "watermark": UploadKind("wm_", IMAGE_UPLOAD_TYPES, "image", "/api/watermark/", "watermark"),
-}
-
-
-async def _save_upload(file: UploadFile, upload: UploadKind) -> dict:
-    """Checks, names and stores one upload in UPLOADS_DIR, and describes it."""
-    prefix, allowed, kind, url_base, label = upload
-    if not file.filename:
-        raise HTTPException(status_code=400, detail="No file provided")
-    ext = os.path.splitext(file.filename)[1].lower()
-    if ext not in allowed:
-        raise HTTPException(status_code=400, detail=f"Unsupported {kind} format. Allowed: {', '.join(allowed)}")
-
-    clean_name = re.sub(r'[^a-zA-Z0-9_.-]', '_', file.filename)
-    unique_name = f"{prefix}{uuid.uuid4().hex[:8]}_{clean_name}"
-    save_path = UPLOADS_DIR / unique_name
-
-    try:
-        content = await file.read()
-        with open(save_path, "wb") as f:
-            f.write(content)
-        return {
-            "success": True,
-            "filename": file.filename,
-            "saved_name": unique_name,
-            "file_path": str(save_path),
-            "url": f"{url_base}{unique_name}",
-            "size_bytes": len(content)
-        }
-    except Exception as e:
-        logger.error(f"Failed to upload {label}: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
-
-
-@app.post("/api/upload-bgm")
-async def upload_bgm(file: UploadFile = File(...)):
-    return await _save_upload(file, UPLOAD_KINDS["bgm"])
-
-
-@app.get("/api/audio/{file_name}")
-def get_audio_file(file_name: str):
-    clean_name = os.path.basename(file_name)
-    file_path = UPLOADS_DIR / clean_name
-    if not file_path.exists():
-        raise HTTPException(status_code=404, detail="Audio file not found")
-    media_type = "audio/mpeg" if clean_name.endswith(".mp3") else "audio/wav" if clean_name.endswith(".wav") else "application/octet-stream"
-    return FileResponse(file_path, media_type=media_type, filename=clean_name)
-
-
-@app.post("/api/upload-sfx")
-async def upload_hook_sfx(file: UploadFile = File(...)):
-    return await _save_upload(file, UPLOAD_KINDS["sfx"])
-
-
-@app.post("/api/upload-watermark")
-async def upload_watermark(file: UploadFile = File(...)):
-    return await _save_upload(file, UPLOAD_KINDS["watermark"])
-
-
-@app.get("/api/watermark/{file_name}")
-def get_watermark_file(file_name: str):
-    clean_name = os.path.basename(file_name)
-    file_path = UPLOADS_DIR / clean_name
-    if not file_path.exists():
-        raise HTTPException(status_code=404, detail="Watermark file not found")
-    media_type = "image/png" if clean_name.endswith(".png") else "image/jpeg" if (clean_name.endswith(".jpg") or clean_name.endswith(".jpeg")) else "image/webp"
-    return FileResponse(file_path, media_type=media_type, filename=clean_name)
-
-
 # ----------------------------------------------------------------
-# Cookies Management & Raw Full Video Download Endpoints
+# Temp storage: size and cleanup
 # ----------------------------------------------------------------
-
-class CookiesSaveRequest(BaseModel):
-    cookies: Optional[str] = None
-    cookies_content: Optional[str] = None
-
-
-@app.post("/api/cookies")
-def save_youtube_cookies(req: CookiesSaveRequest):
-    content = (req.cookies_content or req.cookies or "").strip()
-    if not content:
-        raise HTTPException(status_code=400, detail="Cookies content cannot be empty")
-    try:
-        with open(COOKIES_PATH, "w", encoding="utf-8") as f:
-            f.write(content)
-        return {
-            "success": True,
-            "status": "saved",
-            "exists": True,
-            "has_cookies": True,
-            "size": len(content)
-        }
-    except Exception as e:
-        logger.error(f"Failed to save cookies: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
-
-
-_COOKIE_DOMAIN_RE = re.compile(r"\.?[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)+")
-
-
-@app.get("/api/cookies")
-def get_youtube_cookies_status():
-    """Whether cookies are saved, their size and domains. Never their content:
-    the cookies are a YouTube login (issue #45)."""
-    if COOKIES_PATH.exists() and COOKIES_PATH.stat().st_size > 0:
-        sample_lines = []
-        try:
-            with open(COOKIES_PATH, "r", encoding="utf-8", errors="ignore") as f:
-                for line in f:
-                    line = line.strip()
-                    if line.startswith("#HttpOnly_"):
-                        line = line[len("#HttpOnly_"):]
-                    if not line or line.startswith("#"):
-                        continue
-                    # Only something shaped like a domain: a line pasted with
-                    # spaces instead of tabs must not leak its values.
-                    domain = line.split()[0]
-                    if _COOKIE_DOMAIN_RE.fullmatch(domain) and domain not in sample_lines:
-                        sample_lines.append(domain)
-                    if len(sample_lines) >= 6:
-                        break
-        except Exception:
-            pass
-        return {
-            "exists": True,
-            "has_cookies": True,
-            "size": COOKIES_PATH.stat().st_size,
-            "sample_lines": sample_lines,
-        }
-    return {"exists": False, "has_cookies": False, "size": 0, "sample_lines": []}
-
-
-@app.delete("/api/cookies")
-def delete_youtube_cookies():
-    if COOKIES_PATH.exists():
-        try:
-            COOKIES_PATH.unlink()
-        except Exception:
-            pass
-    return {"success": True, "status": "deleted", "exists": False, "has_cookies": False}
-
-
-class RawVideoDownloadRequest(BaseModel):
-    video_url: str
-    video_id: str
-    title: Optional[str] = None
-
-
-raw_download_jobs: Dict[str, dict] = {}
-
-
-async def run_raw_download_job(job_id: str, v_url: str, out_path: str, filename: str, download_title: Optional[str] = None):
-    def on_progress(p: dict):
-        if job_id in raw_download_jobs:
-            raw_download_jobs[job_id]["progress_percent"] = p.get("percent", 0.0)
-            raw_download_jobs[job_id]["downloaded"] = p.get("downloaded", "")
-            raw_download_jobs[job_id]["total"] = p.get("total", "")
-            raw_download_jobs[job_id]["speed"] = p.get("speed", "")
-            raw_download_jobs[job_id]["eta"] = p.get("eta", "")
-
-    try:
-        raw_download_jobs[job_id]["status"] = "downloading"
-        await asyncio.to_thread(download_full_raw_video, v_url, out_path, on_progress)
-        raw_download_jobs[job_id]["status"] = "ready"
-        raw_download_jobs[job_id]["progress_percent"] = 100.0
-        dl_name = download_title or filename
-        raw_download_jobs[job_id]["download_url"] = f"/api/download-rendered/{filename}?title={quote(dl_name)}"
-        raw_download_jobs[job_id]["filename"] = f"{dl_name}.mp4" if not dl_name.endswith(".mp4") else dl_name
-    except Exception as e:
-        logger.error(f"Raw video download job {job_id} failed: {e}")
-        raw_download_jobs[job_id]["status"] = "failed"
-        raw_download_jobs[job_id]["error"] = str(e)
-
-
-@app.post("/api/download-raw-video")
-async def handle_download_raw_video(req: RawVideoDownloadRequest, background_tasks: BackgroundTasks):
-    v_url = req.video_url.strip() if req.video_url else ""
-    if not v_url.startswith("http"):
-        v_url = f"https://www.youtube.com/watch?v={req.video_id or v_url}"
-
-    job_id = str(uuid.uuid4())[:8]
-    safe_id = re.sub(r'[^a-zA-Z0-9_-]', '_', req.video_id or "youtube_video")
-    filename = f"{safe_id}_raw_{int(time.time())}.mp4"
-    out_path = str(EXPORTS_DIR / filename)
-
-    clean_title = re.sub(r'[\\/*?:"<>|]', "", (req.title or "").strip())
-    download_title = f"{clean_title} (Full Video)" if clean_title else f"{safe_id} (Full Video)"
-
-    raw_download_jobs[job_id] = {
-        "job_id": job_id,
-        "status": "starting",
-        "progress_percent": 0.0,
-        "downloaded": "",
-        "total": "",
-        "speed": "",
-        "eta": "",
-        "download_url": None,
-        "filename": f"{download_title}.mp4",
-        "error": None
-    }
-
-    background_tasks.add_task(run_raw_download_job, job_id, v_url, out_path, filename, download_title)
-    return {"job_id": job_id, "status": "starting"}
-
-
-@app.get("/api/download-raw-status/{job_id}")
-async def get_raw_download_status(job_id: str):
-    job = raw_download_jobs.get(job_id)
-    if not job:
-        raise HTTPException(status_code=404, detail="Download job not found")
-    return job
-
-
-class RawClipDownloadRequest(BaseModel):
-    video_url: str
-    video_id: str
-    start_time: float
-    end_time: float
-    title: str
-
-
-raw_clip_download_jobs: Dict[str, dict] = {}
-
-
-async def run_raw_clip_download_job(
-    job_id: str,
-    v_url: str,
-    video_id: str,
-    start_time: float,
-    end_time: float,
-    title: str
-):
-    clean_title = re.sub(r'[\\/*?:"<>|]', "", (title or "clip").strip())
-    if not clean_title:
-        clean_title = f"clip_{int(start_time)}_{int(end_time)}"
-    download_title = f"{clean_title} (raw)"
-    safe_id = re.sub(r'[^a-zA-Z0-9_-]', '_', video_id or "clip")
-    seg_filename = f"{safe_id}_clip_{int(start_time)}_{int(end_time)}_{int(time.time())}_raw.mp4"
-    out_path = EXPORTS_DIR / seg_filename
-
-    try:
-        raw_clip_download_jobs[job_id]["status"] = "downloading"
-        raw_clip_download_jobs[job_id]["progress_percent"] = 25.0
-
-        # Optimization: Check if a full raw video already exists locally in EXPORTS_DIR or TEMP_DIR
-        local_candidates = list(EXPORTS_DIR.glob(f"*{safe_id}*.mp4")) + list(TEMP_DIR.glob(f"*{safe_id}*.mp4"))
-        source_video = None
-        for candidate in local_candidates:
-            if candidate.exists() and candidate.stat().st_size > 5 * 1024 * 1024:
-                # Avoid using a small trimmed clip segment as source
-                if "_clip_" not in candidate.name and candidate.name != seg_filename:
-                    source_video = str(candidate)
-                    break
-
-        duration_sec = max(1.0, end_time - start_time)
-        # Issue #34: re-encoding a 3-minute clip on the CPU can take longer than 90s.
-        trim_timeout = download_timeouts(duration_sec)["trim"]
-
-        success = False
-        if source_video and os.path.exists(source_video):
-            try:
-                logger.info(f"Trimming local video with {ACTIVE_ENCODER_NAME} for clip {download_title} ({start_time}-{end_time})")
-                trim_cmd = [
-                    "ffmpeg", "-y", "-hide_banner", "-loglevel", "error",
-                    "-ss", str(start_time),
-                    "-i", source_video,
-                    "-t", str(duration_sec),
-                    *ACTIVE_ENCODER_ARGS,
-                    "-c:a", "aac",
-                    "-b:a", "192k",
-                    "-avoid_negative_ts", "make_zero",
-                    "-movflags", "+faststart",
-                    str(out_path)
-                ]
-                await asyncio.to_thread(subprocess.run, trim_cmd, check=True, timeout=trim_timeout)
-                if out_path.exists() and out_path.stat().st_size > 1000:
-                    success = True
-            except Exception as trim_err:
-                logger.warning(f"Hardware trimming failed ({trim_err}), retrying with CPU libx264...")
-                try:
-                    cpu_trim_cmd = [
-                        "ffmpeg", "-y", "-hide_banner", "-loglevel", "error",
-                        "-ss", str(start_time),
-                        "-i", source_video,
-                        "-t", str(duration_sec),
-                        "-c:v", "libx264",
-                        "-preset", "veryfast",
-                        "-crf", "20",
-                        "-c:a", "aac",
-                        "-b:a", "192k",
-                        "-avoid_negative_ts", "make_zero",
-                        "-movflags", "+faststart",
-                        str(out_path)
-                    ]
-                    await asyncio.to_thread(subprocess.run, cpu_trim_cmd, check=True, timeout=trim_timeout)
-                    if out_path.exists() and out_path.stat().st_size > 1000:
-                        success = True
-                except Exception as cpu_err:
-                    logger.warning(f"CPU trimming also failed ({cpu_err}), falling back to direct stream download...")
-
-        if not success:
-            logger.info(f"Downloading clip segment from YouTube for {download_title} ({start_time}-{end_time})")
-            temp_name = f"temp_{seg_filename}"
-            downloaded_temp = await asyncio.to_thread(
-                download_clip_segment,
-                v_url,
-                start_time,
-                end_time,
-                temp_name
-            )
-            if downloaded_temp and os.path.exists(downloaded_temp):
-                if out_path.exists():
-                    try:
-                        out_path.unlink()
-                    except Exception:
-                        pass
-                # Fast timestamp and keyframe normalization to eliminate any playback stutter
-                fix_cmd = [
-                    "ffmpeg", "-y", "-hide_banner", "-loglevel", "error",
-                    "-i", downloaded_temp,
-                    "-c", "copy",
-                    "-avoid_negative_ts", "make_zero",
-                    "-movflags", "+faststart",
-                    str(out_path)
-                ]
-                try:
-                    await asyncio.to_thread(subprocess.run, fix_cmd, check=True, timeout=45)
-                    if out_path.exists() and out_path.stat().st_size > 1000:
-                        success = True
-                        try:
-                            os.unlink(downloaded_temp)
-                        except Exception:
-                            pass
-                except Exception:
-                    shutil.move(downloaded_temp, str(out_path))
-                    if out_path.exists() and out_path.stat().st_size > 1000:
-                        success = True
-
-        if success and out_path.exists() and out_path.stat().st_size > 1000:
-            raw_clip_download_jobs[job_id]["status"] = "ready"
-            raw_clip_download_jobs[job_id]["progress_percent"] = 100.0
-            raw_clip_download_jobs[job_id]["download_url"] = f"/api/download-rendered/{seg_filename}?title={quote(download_title)}"
-            raw_clip_download_jobs[job_id]["filename"] = f"{download_title}.mp4"
-            logger.info(f"Raw clip '{download_title}' ready at {out_path}")
-        else:
-            raise RuntimeError("Generated clip file is missing or invalid.")
-
-    except Exception as e:
-        logger.error(f"Raw clip download job {job_id} failed: {e}")
-        raw_clip_download_jobs[job_id]["status"] = "failed"
-        raw_clip_download_jobs[job_id]["error"] = str(e)
-
-
-@app.post("/api/download-raw-clip")
-async def handle_download_raw_clip(req: RawClipDownloadRequest, background_tasks: BackgroundTasks):
-    v_url = req.video_url.strip() if req.video_url else ""
-    if not v_url.startswith("http"):
-        v_url = f"https://www.youtube.com/watch?v={req.video_id or v_url}"
-
-    job_id = str(uuid.uuid4())[:8]
-    clean_title = re.sub(r'[\\/*?:"<>|]', "", (req.title or "clip").strip()) or "clip"
-    download_title = f"{clean_title} (raw)"
-
-    raw_clip_download_jobs[job_id] = {
-        "job_id": job_id,
-        "status": "starting",
-        "progress_percent": 0.0,
-        "title": download_title,
-        "download_url": None,
-        "filename": f"{download_title}.mp4",
-        "error": None
-    }
-
-    background_tasks.add_task(
-        run_raw_clip_download_job,
-        job_id,
-        v_url,
-        req.video_id,
-        req.start_time,
-        req.end_time,
-        req.title
-    )
-    return {"job_id": job_id, "status": "starting"}
-
-
-@app.get("/api/download-raw-clip-status/{job_id}")
-async def get_raw_clip_download_status(job_id: str):
-    job = raw_clip_download_jobs.get(job_id)
-    if not job:
-        raise HTTPException(status_code=404, detail="Clip download job not found")
-    return job
-
-
-# Seconds into the video: finite, 0 to 24 hours (issue #42).
-FRAME_TIMESTAMP = Query(0.0, ge=0, le=24 * 3600, allow_inf_nan=False)
-
-
-@app.get("/api/clip-frame")
-async def get_clip_frame(video_id: str, timestamp: float = FRAME_TIMESTAMP):
-    """
-    The video frame at timestamp for the preview backdrop. When YouTube gives
-    no frame for that second, a stand-in (another second, or the thumbnail)
-    that the browser must not keep (issue #44).
-    Takes only a video ID (issue #42): the YouTube URL is built here, never sent.
-    """
-    require_video_id(video_id)
-    try:
-        frame_path, exact = await asyncio.to_thread(extract_clip_frame_info, video_id, timestamp)
-        if frame_path and os.path.exists(frame_path):
-            cache = "public, max-age=86400" if exact else "no-store"
-            return FileResponse(frame_path, media_type="image/jpeg", headers={"Cache-Control": cache})
-    except Exception as e:
-        logger.warning(f"Failed to serve extracted frame for {video_id}: {e}")
-
-    raise HTTPException(status_code=404, detail="Real video frame could not be extracted yet")
-
-
-@app.get("/api/detect-face")
-async def detect_face(video_id: str, timestamp: float = FRAME_TIMESTAMP):
-    """
-    Detects speaker face coordinates (cx, cy, w, h) on the video at timestamp.
-    Returns normalized coordinates and the frame URL.
-    Takes only a video ID (issue #42): the YouTube URL is built here, never sent.
-    """
-    require_video_id(video_id)
-    default_res = {
-        "found": False,
-        "cx": 0.5,
-        "cy": 0.35,
-        "w": 0.25,
-        "h": 0.25,
-        "frame_url": f"/api/clip-frame?video_id={video_id}&timestamp={timestamp}"
-    }
-    try:
-        # First try to extract or get the cached frame
-        frame_path = await asyncio.to_thread(extract_clip_frame, video_id, timestamp)
-        if frame_path and os.path.exists(frame_path):
-            box = await asyncio.to_thread(detect_speaker_face_box, frame_path)
-            box["frame_url"] = f"/api/clip-frame?video_id={video_id}&timestamp={timestamp}"
-            return box
-
-        # If frame extract didn't complete, check local candidates
-        local_candidates = list(TEMP_DIR.glob(f"*{video_id}*.mp4")) + list(EXPORTS_DIR.glob(f"*{video_id}*.mp4"))
-        for candidate in local_candidates:
-            if candidate.exists() and candidate.stat().st_size > 10000 and "slice_" not in candidate.name:
-                box = await asyncio.to_thread(detect_speaker_face_box, str(candidate))
-                box["frame_url"] = f"/api/clip-frame?video_id={video_id}&timestamp={timestamp}"
-                return box
-    except Exception as e:
-        logger.warning(f"Face detection API error: {e}")
-
-    return default_res
 
 
 def _get_dir_size_and_count(dir_path) -> tuple[int, int]:
@@ -3521,6 +3026,5 @@ async def clear_temp_folder():
         "has_cookies": cookies_present,
         "message": f"Successfully cleared {cleared_files} temporary files ({formatted}). Stored YouTube cookies preserved."
     }
-
 
 
