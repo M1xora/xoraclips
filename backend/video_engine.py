@@ -6,6 +6,7 @@ import time
 import shutil
 import logging
 import subprocess
+import threading
 import unicodedata
 import math
 from pathlib import Path
@@ -1233,6 +1234,37 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
     return output_ass_path
 
 
+# Issue #53: OpenCV 5 dropped CascadeClassifier, so face tracking silently
+# fell back to the centre for every clip. Said once, loudly, instead.
+_face_tracking_off_logged = False
+_face_tracking_off_lock = threading.Lock()
+
+
+def _opencv_requirement() -> str:
+    """The opencv-python line of requirements.txt, for the fix message."""
+    try:
+        for line in (BASE_DIR / "requirements.txt").read_text(encoding="utf-8").splitlines():
+            if line.strip().startswith("opencv-python"):
+                return line.strip()
+    except OSError:
+        pass
+    return "opencv-python"
+
+
+def _log_face_tracking_off(reason: str) -> None:
+    """One ERROR per process, however many clips or threads hit it."""
+    global _face_tracking_off_logged
+    with _face_tracking_off_lock:
+        if _face_tracking_off_logged:
+            return
+        _face_tracking_off_logged = True
+    logger.error(
+        f"Face tracking is OFF: {reason}. Fix: pip install \"{_opencv_requirement()}\" "
+        "(backend/requirements.txt), remove any opencv-python-headless or "
+        "opencv-contrib-python 5.x (pip list), then restart the backend."
+    )
+
+
 def detect_speaker_face_box(source_path: str) -> Dict[str, Any]:
     """
     Detects speaker face bounding box using OpenCV Haar Cascade Classifier.
@@ -1252,10 +1284,19 @@ def detect_speaker_face_box(source_path: str) -> Dict[str, Any]:
         return default_res
 
     try:
-        import cv2
+        try:
+            import cv2
+        except ImportError:
+            _log_face_tracking_off("OpenCV is not installed")
+            return default_res
 
         if not CASCADE_PATH.exists():
             logger.warning(f"Haar cascade XML not found at {CASCADE_PATH}")
+            return default_res
+
+        if not hasattr(cv2, "CascadeClassifier"):
+            version = getattr(cv2, "__version__", "?")
+            _log_face_tracking_off(f"OpenCV {version} has no CascadeClassifier (removed in OpenCV 5)")
             return default_res
 
         cascade = cv2.CascadeClassifier(str(CASCADE_PATH))
