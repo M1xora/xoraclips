@@ -10,9 +10,9 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
 try:
-    from backend.video_engine import COOKIES_PATH
+    from backend import video_engine
 except ImportError:
-    from video_engine import COOKIES_PATH
+    import video_engine
 
 logger = logging.getLogger("xoraclips")
 router = APIRouter()
@@ -29,7 +29,7 @@ def save_youtube_cookies(req: CookiesSaveRequest):
     if not content:
         raise HTTPException(status_code=400, detail="Cookies content cannot be empty")
     try:
-        with open(COOKIES_PATH, "w", encoding="utf-8") as f:
+        with open(video_engine.COOKIES_PATH, "w", encoding="utf-8") as f:
             f.write(content)
         return {
             "success": True,
@@ -50,10 +50,10 @@ _COOKIE_DOMAIN_RE = re.compile(r"\.?[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)+")
 def get_youtube_cookies_status():
     """Whether cookies are saved, their size and domains. Never their content:
     the cookies are a YouTube login (issue #45)."""
-    if COOKIES_PATH.exists() and COOKIES_PATH.stat().st_size > 0:
+    if video_engine.COOKIES_PATH.exists() and video_engine.COOKIES_PATH.stat().st_size > 0:
         sample_lines = []
         try:
-            with open(COOKIES_PATH, "r", encoding="utf-8", errors="ignore") as f:
+            with open(video_engine.COOKIES_PATH, "r", encoding="utf-8", errors="ignore") as f:
                 for line in f:
                     line = line.strip()
                     if line.startswith("#HttpOnly_"):
@@ -72,7 +72,7 @@ def get_youtube_cookies_status():
         return {
             "exists": True,
             "has_cookies": True,
-            "size": COOKIES_PATH.stat().st_size,
+            "size": video_engine.COOKIES_PATH.stat().st_size,
             "sample_lines": sample_lines,
         }
     return {"exists": False, "has_cookies": False, "size": 0, "sample_lines": []}
@@ -80,9 +80,9 @@ def get_youtube_cookies_status():
 
 @router.delete("/api/cookies")
 def delete_youtube_cookies():
-    if COOKIES_PATH.exists():
+    if video_engine.COOKIES_PATH.exists():
         try:
-            COOKIES_PATH.unlink()
+            video_engine.COOKIES_PATH.unlink()
         except Exception:
             pass
     return {"success": True, "status": "deleted", "exists": False, "has_cookies": False}

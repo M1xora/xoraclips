@@ -42,8 +42,8 @@ def frame_calls(monkeypatch, tmp_path):
 
     monkeypatch.setattr(routes_media, "extract_clip_frame", fake_extract)
     monkeypatch.setattr(routes_media, "extract_clip_frame_info", fake_extract_info)
-    monkeypatch.setattr(routes_media, "TEMP_DIR", tmp_path)
-    monkeypatch.setattr(routes_media, "EXPORTS_DIR", tmp_path)
+    monkeypatch.setattr(video_engine, "TEMP_DIR", tmp_path)
+    monkeypatch.setattr(video_engine, "EXPORTS_DIR", tmp_path)
     return calls
 
 

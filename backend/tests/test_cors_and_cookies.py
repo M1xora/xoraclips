@@ -9,6 +9,7 @@ from fastapi.testclient import TestClient
 
 import main
 import routes_cookies
+import video_engine
 
 # The origins the middleware was built with, so a developer's backend/.env
 # (ALLOWED_ORIGINS) cannot make these tests fail.
@@ -77,7 +78,7 @@ def test_allowed_origins_come_from_env(monkeypatch):
 @pytest.fixture
 def cookies_file(monkeypatch, tmp_path):
     path = tmp_path / "cookies.txt"
-    monkeypatch.setattr(routes_cookies, "COOKIES_PATH", path)
+    monkeypatch.setattr(video_engine, "COOKIES_PATH", path)
     return path
 
 

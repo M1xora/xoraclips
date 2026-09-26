@@ -1,6 +1,7 @@
 """
 Downloads: rendered files, and background jobs for the raw source video and
-raw clips. Moved out of main.py unchanged (#60).
+raw clips. The video is named only by its checked YouTube ID; the server
+builds the URL (#64). Finished jobs are forgotten after an hour.
 """
 import asyncio
 import logging
@@ -9,93 +10,105 @@ import re
 import shutil
 import subprocess
 import time
-import uuid
-from typing import Dict, Optional
+from typing import List, Optional
 from urllib.parse import quote
 
 from fastapi import APIRouter, BackgroundTasks, HTTPException
 from fastapi.responses import FileResponse
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, model_validator
 
 try:
+    from backend import video_engine
+    from backend.job_store import JobStore, new_job_id
+    from backend.validation import MAX_VIDEO_SECONDS, check_time_range, clean_file_title, require_video_id
     from backend.video_engine import (
-        ACTIVE_ENCODER_ARGS, ACTIVE_ENCODER_NAME, EXPORTS_DIR, TEMP_DIR,
-        download_clip_segment, download_full_raw_video, download_timeouts,
+        ACTIVE_ENCODER_ARGS, ACTIVE_ENCODER_NAME, download_clip_segment, download_full_raw_video,
+        download_timeouts, watch_url,
     )
 except ImportError:
+    import video_engine
+    from job_store import JobStore, new_job_id
+    from validation import MAX_VIDEO_SECONDS, check_time_range, clean_file_title, require_video_id
     from video_engine import (
-        ACTIVE_ENCODER_ARGS, ACTIVE_ENCODER_NAME, EXPORTS_DIR, TEMP_DIR,
-        download_clip_segment, download_full_raw_video, download_timeouts,
+        ACTIVE_ENCODER_ARGS, ACTIVE_ENCODER_NAME, download_clip_segment, download_full_raw_video,
+        download_timeouts, watch_url,
     )
 
 logger = logging.getLogger("xoraclips")
 router = APIRouter()
 
+VIDEO_SECONDS = Field(ge=0, le=MAX_VIDEO_SECONDS, allow_inf_nan=False)
+# A raw clip is a piece of the video; the whole video has its own download.
+MAX_RAW_CLIP_SECONDS = 30 * 60
+CPU_ENCODER_ARGS = ["-c:v", "libx264", "-preset", "veryfast", "-crf", "20"]
+
 
 @router.get("/api/download-rendered/{file_name}")
 def download_rendered_file(file_name: str, title: Optional[str] = None):
     safe_name = os.path.basename(file_name)
-    file_path = EXPORTS_DIR / safe_name
+    file_path = video_engine.EXPORTS_DIR / safe_name
     if not file_path.exists():
         raise HTTPException(status_code=404, detail="Rendered clip not found")
 
     # If title provided, sanitize and use as download filename
     dl_filename = safe_name
-    if title and title.strip():
-        clean_title = re.sub(r'[\\/*?:"<>|]', "", title.strip())
-        if clean_title:
-            dl_filename = f"{clean_title}.mp4" if not clean_title.lower().endswith(".mp4") else clean_title
+    clean_title = clean_file_title(title)
+    if clean_title:
+        dl_filename = f"{clean_title}.mp4" if not clean_title.lower().endswith(".mp4") else clean_title
 
     return FileResponse(file_path, media_type="video/mp4", filename=dl_filename)
 
 
+# ── Raw source video ─────────────────────────────────────────────────────────
+
 class RawVideoDownloadRequest(BaseModel):
-    video_url: str
     video_id: str
+    video_url: Optional[str] = None   # still sent by the app; ignored (#64)
     title: Optional[str] = None
 
 
-raw_download_jobs: Dict[str, dict] = {}
+raw_download_jobs = JobStore()
 
 
-async def run_raw_download_job(job_id: str, v_url: str, out_path: str, filename: str, download_title: Optional[str] = None):
+def raw_video_title(title: Optional[str], video_id: str) -> str:
+    """The download name of a full raw video."""
+    return f"{clean_file_title(title) or video_id} (Full Video)"
+
+
+async def run_raw_download_job(job_id: str, v_url: str, out_path: str, filename: str, download_title: str):
+    job = raw_download_jobs[job_id]
+
     def on_progress(p: dict):
-        if job_id in raw_download_jobs:
-            raw_download_jobs[job_id]["progress_percent"] = p.get("percent", 0.0)
-            raw_download_jobs[job_id]["downloaded"] = p.get("downloaded", "")
-            raw_download_jobs[job_id]["total"] = p.get("total", "")
-            raw_download_jobs[job_id]["speed"] = p.get("speed", "")
-            raw_download_jobs[job_id]["eta"] = p.get("eta", "")
+        job["progress_percent"] = p.get("percent", 0.0)
+        job["downloaded"] = p.get("downloaded", "")
+        job["total"] = p.get("total", "")
+        job["speed"] = p.get("speed", "")
+        job["eta"] = p.get("eta", "")
 
     try:
-        raw_download_jobs[job_id]["status"] = "downloading"
+        job["status"] = "downloading"
         await asyncio.to_thread(download_full_raw_video, v_url, out_path, on_progress)
-        raw_download_jobs[job_id]["status"] = "ready"
-        raw_download_jobs[job_id]["progress_percent"] = 100.0
-        dl_name = download_title or filename
-        raw_download_jobs[job_id]["download_url"] = f"/api/download-rendered/{filename}?title={quote(dl_name)}"
-        raw_download_jobs[job_id]["filename"] = f"{dl_name}.mp4" if not dl_name.endswith(".mp4") else dl_name
+        job["status"] = "ready"
+        job["progress_percent"] = 100.0
+        job["download_url"] = f"/api/download-rendered/{filename}?title={quote(download_title)}"
     except Exception as e:
         logger.error(f"Raw video download job {job_id} failed: {e}")
-        raw_download_jobs[job_id]["status"] = "failed"
-        raw_download_jobs[job_id]["error"] = str(e)
+        job["status"] = "failed"
+        job["error"] = str(e)
+    finally:
+        raw_download_jobs.finish(job_id)
 
 
 @router.post("/api/download-raw-video")
 async def handle_download_raw_video(req: RawVideoDownloadRequest, background_tasks: BackgroundTasks):
-    v_url = req.video_url.strip() if req.video_url else ""
-    if not v_url.startswith("http"):
-        v_url = f"https://www.youtube.com/watch?v={req.video_id or v_url}"
+    video_id = require_video_id(req.video_id)
+    job_id = new_job_id()
+    # The job ID keeps two downloads started in the same second apart.
+    filename = f"{video_id}_raw_{int(time.time())}_{job_id[:8]}.mp4"
+    out_path = str(video_engine.EXPORTS_DIR / filename)
+    download_title = raw_video_title(req.title, video_id)
 
-    job_id = str(uuid.uuid4())[:8]
-    safe_id = re.sub(r'[^a-zA-Z0-9_-]', '_', req.video_id or "youtube_video")
-    filename = f"{safe_id}_raw_{int(time.time())}.mp4"
-    out_path = str(EXPORTS_DIR / filename)
-
-    clean_title = re.sub(r'[\\/*?:"<>|]', "", (req.title or "").strip())
-    download_title = f"{clean_title} (Full Video)" if clean_title else f"{safe_id} (Full Video)"
-
-    raw_download_jobs[job_id] = {
+    raw_download_jobs.add(job_id, {
         "job_id": job_id,
         "status": "starting",
         "progress_percent": 0.0,
@@ -106,117 +119,107 @@ async def handle_download_raw_video(req: RawVideoDownloadRequest, background_tas
         "download_url": None,
         "filename": f"{download_title}.mp4",
         "error": None
-    }
+    })
 
-    background_tasks.add_task(run_raw_download_job, job_id, v_url, out_path, filename, download_title)
+    background_tasks.add_task(run_raw_download_job, job_id, watch_url(video_id), out_path, filename, download_title)
     return {"job_id": job_id, "status": "starting"}
 
 
 @router.get("/api/download-raw-status/{job_id}")
 async def get_raw_download_status(job_id: str):
-    job = raw_download_jobs.get(job_id)
+    job = raw_download_jobs.lookup(job_id)
     if not job:
         raise HTTPException(status_code=404, detail="Download job not found")
     return job
 
 
+# ── Raw clip ─────────────────────────────────────────────────────────────────
+
 class RawClipDownloadRequest(BaseModel):
-    video_url: str
     video_id: str
-    start_time: float
-    end_time: float
+    video_url: Optional[str] = None   # still sent by the app; ignored (#64)
+    start_time: float = VIDEO_SECONDS
+    end_time: float = VIDEO_SECONDS
     title: str
 
+    @model_validator(mode="after")
+    def _end_after_start(self):
+        check_time_range(self.start_time, self.end_time)
+        if self.end_time - self.start_time > MAX_RAW_CLIP_SECONDS:
+            raise ValueError(f"A raw clip can be at most {MAX_RAW_CLIP_SECONDS // 60} minutes long")
+        return self
 
-raw_clip_download_jobs: Dict[str, dict] = {}
+
+raw_clip_download_jobs = JobStore()
 
 
-async def run_raw_clip_download_job(
-    job_id: str,
-    v_url: str,
-    video_id: str,
-    start_time: float,
-    end_time: float,
-    title: str
-):
-    clean_title = re.sub(r'[\\/*?:"<>|]', "", (title or "clip").strip())
-    if not clean_title:
-        clean_title = f"clip_{int(start_time)}_{int(end_time)}"
-    download_title = f"{clean_title} (raw)"
-    safe_id = re.sub(r'[^a-zA-Z0-9_-]', '_', video_id or "clip")
-    seg_filename = f"{safe_id}_clip_{int(start_time)}_{int(end_time)}_{int(time.time())}_raw.mp4"
-    out_path = EXPORTS_DIR / seg_filename
+def raw_clip_title(title: Optional[str], start_time: float, end_time: float) -> str:
+    """The download name of a raw clip; the job and its status use the same one."""
+    return f"{clean_file_title(title) or f'clip_{int(start_time)}_{int(end_time)}'} (raw)"
+
+
+def _trim_command(source: str, start_time: float, duration_sec: float, out_path: str,
+                  encoder_args: List[str]) -> List[str]:
+    return [
+        "ffmpeg", "-y", "-hide_banner", "-loglevel", "error",
+        "-ss", str(start_time),
+        "-i", source,
+        "-t", str(duration_sec),
+        *encoder_args,
+        "-c:a", "aac",
+        "-b:a", "192k",
+        "-avoid_negative_ts", "make_zero",
+        "-movflags", "+faststart",
+        out_path,
+    ]
+
+
+def _local_full_video(video_id: str) -> Optional[str]:
+    """A finished full raw video of this video already on disk. Only the
+    app's own finished downloads count: yt-dlp's video-only streams
+    (`.f137.mp4`) and half-merged files (`.temp.mp4`) have other names."""
+    finished = re.compile(re.escape(video_id) + r"_raw_\d+(_[0-9a-f]{8})?\.mp4")
+    for candidate in video_engine.EXPORTS_DIR.glob(f"{video_id}_raw_*.mp4"):
+        if finished.fullmatch(candidate.name) and candidate.stat().st_size > 5 * 1024 * 1024:
+            return str(candidate)
+    return None
+
+
+async def run_raw_clip_download_job(job_id: str, video_id: str, start_time: float, end_time: float,
+                                    download_title: str):
+    job = raw_clip_download_jobs[job_id]
+    seg_filename = f"{video_id}_clip_{int(start_time)}_{int(end_time)}_{job_id[:8]}_raw.mp4"
+    out_path = video_engine.EXPORTS_DIR / seg_filename
+
+    def usable() -> bool:
+        return out_path.exists() and out_path.stat().st_size > 1000
 
     try:
-        raw_clip_download_jobs[job_id]["status"] = "downloading"
-        raw_clip_download_jobs[job_id]["progress_percent"] = 25.0
-
-        # Optimization: Check if a full raw video already exists locally in EXPORTS_DIR or TEMP_DIR
-        local_candidates = list(EXPORTS_DIR.glob(f"*{safe_id}*.mp4")) + list(TEMP_DIR.glob(f"*{safe_id}*.mp4"))
-        source_video = None
-        for candidate in local_candidates:
-            if candidate.exists() and candidate.stat().st_size > 5 * 1024 * 1024:
-                # Avoid using a small trimmed clip segment as source
-                if "_clip_" not in candidate.name and candidate.name != seg_filename:
-                    source_video = str(candidate)
-                    break
+        job["status"] = "downloading"
+        job["progress_percent"] = 25.0
 
         duration_sec = max(1.0, end_time - start_time)
         # Issue #34: re-encoding a 3-minute clip on the CPU can take longer than 90s.
         trim_timeout = download_timeouts(duration_sec)["trim"]
 
         success = False
-        if source_video and os.path.exists(source_video):
-            try:
-                logger.info(f"Trimming local video with {ACTIVE_ENCODER_NAME} for clip {download_title} ({start_time}-{end_time})")
-                trim_cmd = [
-                    "ffmpeg", "-y", "-hide_banner", "-loglevel", "error",
-                    "-ss", str(start_time),
-                    "-i", source_video,
-                    "-t", str(duration_sec),
-                    *ACTIVE_ENCODER_ARGS,
-                    "-c:a", "aac",
-                    "-b:a", "192k",
-                    "-avoid_negative_ts", "make_zero",
-                    "-movflags", "+faststart",
-                    str(out_path)
-                ]
-                await asyncio.to_thread(subprocess.run, trim_cmd, check=True, timeout=trim_timeout)
-                if out_path.exists() and out_path.stat().st_size > 1000:
-                    success = True
-            except Exception as trim_err:
-                logger.warning(f"Hardware trimming failed ({trim_err}), retrying with CPU libx264...")
+        source_video = _local_full_video(video_id)
+        if source_video:
+            for encoder_name, encoder_args in ((ACTIVE_ENCODER_NAME, ACTIVE_ENCODER_ARGS), ("CPU libx264", CPU_ENCODER_ARGS)):
                 try:
-                    cpu_trim_cmd = [
-                        "ffmpeg", "-y", "-hide_banner", "-loglevel", "error",
-                        "-ss", str(start_time),
-                        "-i", source_video,
-                        "-t", str(duration_sec),
-                        "-c:v", "libx264",
-                        "-preset", "veryfast",
-                        "-crf", "20",
-                        "-c:a", "aac",
-                        "-b:a", "192k",
-                        "-avoid_negative_ts", "make_zero",
-                        "-movflags", "+faststart",
-                        str(out_path)
-                    ]
-                    await asyncio.to_thread(subprocess.run, cpu_trim_cmd, check=True, timeout=trim_timeout)
-                    if out_path.exists() and out_path.stat().st_size > 1000:
+                    logger.info(f"Trimming local video with {encoder_name} for clip {download_title} ({start_time}-{end_time})")
+                    cmd = _trim_command(source_video, start_time, duration_sec, str(out_path), encoder_args)
+                    await asyncio.to_thread(subprocess.run, cmd, check=True, timeout=trim_timeout)
+                    if usable():
                         success = True
-                except Exception as cpu_err:
-                    logger.warning(f"CPU trimming also failed ({cpu_err}), falling back to direct stream download...")
+                        break
+                except Exception as trim_err:
+                    logger.warning(f"Trimming with {encoder_name} failed ({trim_err})")
 
         if not success:
             logger.info(f"Downloading clip segment from YouTube for {download_title} ({start_time}-{end_time})")
-            temp_name = f"temp_{seg_filename}"
             downloaded_temp = await asyncio.to_thread(
-                download_clip_segment,
-                v_url,
-                start_time,
-                end_time,
-                temp_name
-            )
+                download_clip_segment, watch_url(video_id), start_time, end_time, f"temp_{seg_filename}")
             if downloaded_temp and os.path.exists(downloaded_temp):
                 if out_path.exists():
                     try:
@@ -234,7 +237,7 @@ async def run_raw_clip_download_job(
                 ]
                 try:
                     await asyncio.to_thread(subprocess.run, fix_cmd, check=True, timeout=45)
-                    if out_path.exists() and out_path.stat().st_size > 1000:
+                    if usable():
                         success = True
                         try:
                             os.unlink(downloaded_temp)
@@ -242,35 +245,30 @@ async def run_raw_clip_download_job(
                             pass
                 except Exception:
                     shutil.move(downloaded_temp, str(out_path))
-                    if out_path.exists() and out_path.stat().st_size > 1000:
-                        success = True
+                    success = usable()
 
-        if success and out_path.exists() and out_path.stat().st_size > 1000:
-            raw_clip_download_jobs[job_id]["status"] = "ready"
-            raw_clip_download_jobs[job_id]["progress_percent"] = 100.0
-            raw_clip_download_jobs[job_id]["download_url"] = f"/api/download-rendered/{seg_filename}?title={quote(download_title)}"
-            raw_clip_download_jobs[job_id]["filename"] = f"{download_title}.mp4"
-            logger.info(f"Raw clip '{download_title}' ready at {out_path}")
-        else:
+        if not (success and usable()):
             raise RuntimeError("Generated clip file is missing or invalid.")
+        job["status"] = "ready"
+        job["progress_percent"] = 100.0
+        job["download_url"] = f"/api/download-rendered/{seg_filename}?title={quote(download_title)}"
+        logger.info(f"Raw clip '{download_title}' ready at {out_path}")
 
     except Exception as e:
         logger.error(f"Raw clip download job {job_id} failed: {e}")
-        raw_clip_download_jobs[job_id]["status"] = "failed"
-        raw_clip_download_jobs[job_id]["error"] = str(e)
+        job["status"] = "failed"
+        job["error"] = str(e)
+    finally:
+        raw_clip_download_jobs.finish(job_id)
 
 
 @router.post("/api/download-raw-clip")
 async def handle_download_raw_clip(req: RawClipDownloadRequest, background_tasks: BackgroundTasks):
-    v_url = req.video_url.strip() if req.video_url else ""
-    if not v_url.startswith("http"):
-        v_url = f"https://www.youtube.com/watch?v={req.video_id or v_url}"
+    video_id = require_video_id(req.video_id)
+    job_id = new_job_id()
+    download_title = raw_clip_title(req.title, req.start_time, req.end_time)
 
-    job_id = str(uuid.uuid4())[:8]
-    clean_title = re.sub(r'[\\/*?:"<>|]', "", (req.title or "clip").strip()) or "clip"
-    download_title = f"{clean_title} (raw)"
-
-    raw_clip_download_jobs[job_id] = {
+    raw_clip_download_jobs.add(job_id, {
         "job_id": job_id,
         "status": "starting",
         "progress_percent": 0.0,
@@ -278,23 +276,16 @@ async def handle_download_raw_clip(req: RawClipDownloadRequest, background_tasks
         "download_url": None,
         "filename": f"{download_title}.mp4",
         "error": None
-    }
+    })
 
     background_tasks.add_task(
-        run_raw_clip_download_job,
-        job_id,
-        v_url,
-        req.video_id,
-        req.start_time,
-        req.end_time,
-        req.title
-    )
+        run_raw_clip_download_job, job_id, video_id, req.start_time, req.end_time, download_title)
     return {"job_id": job_id, "status": "starting"}
 
 
 @router.get("/api/download-raw-clip-status/{job_id}")
 async def get_raw_clip_download_status(job_id: str):
-    job = raw_clip_download_jobs.get(job_id)
+    job = raw_clip_download_jobs.lookup(job_id)
     if not job:
         raise HTTPException(status_code=404, detail="Clip download job not found")
     return job

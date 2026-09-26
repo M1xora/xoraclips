@@ -9,11 +9,11 @@ from fastapi import APIRouter
 
 try:
     from backend.secrets_guard import is_mock_mode
-    from backend.video_engine import COOKIES_PATH, TEMP_DIR
+    from backend import video_engine
     from backend.youtube_source import get_proxy_url, get_supadata_keys, get_supadata_usage_data
 except ImportError:
     from secrets_guard import is_mock_mode
-    from video_engine import COOKIES_PATH, TEMP_DIR
+    import video_engine
     from youtube_source import get_proxy_url, get_supadata_keys, get_supadata_usage_data
 
 logger = logging.getLogger("xoraclips")
@@ -77,7 +77,7 @@ async def get_temp_storage_info():
     """Returns total files, bytes, and formatted size of temp download storage."""
     from pathlib import Path
     base_dir = Path(_base_dir)
-    f1, b1 = _get_dir_size_and_count(TEMP_DIR)
+    f1, b1 = _get_dir_size_and_count(video_engine.TEMP_DIR)
     f2, b2 = _get_dir_size_and_count(base_dir / "temp")
     tot_files = f1 + f2
     tot_bytes = b1 + b2
@@ -95,7 +95,7 @@ async def get_temp_storage_info():
 async def clear_temp_folder():
     """
     Clears all temporary downloaded video clips, audio slices, ASS files, and frames
-    from TEMP_DIR and backend/temp. Re-creates empty directories.
+    from video_engine.TEMP_DIR and backend/temp. Re-creates empty directories.
     PROTECTED: cookies.txt and any cookie files are strictly PRESERVED and NEVER deleted.
     """
     import shutil
@@ -110,13 +110,13 @@ async def clear_temp_folder():
         if p.name.lower() in PROTECTED_COOKIE_NAMES:
             return True
         try:
-            if COOKIES_PATH.exists() and p.resolve() == COOKIES_PATH.resolve():
+            if video_engine.COOKIES_PATH.exists() and p.resolve() == video_engine.COOKIES_PATH.resolve():
                 return True
         except Exception:
             pass
         return False
 
-    target_dirs = [TEMP_DIR, base_dir / "temp"]
+    target_dirs = [video_engine.TEMP_DIR, base_dir / "temp"]
     for d in target_dirs:
         if d.exists() and d.is_dir():
             for item in list(d.iterdir()):
@@ -150,12 +150,12 @@ async def clear_temp_folder():
                     logger.warning(f"Could not delete temp item {item}: {e}")
         d.mkdir(parents=True, exist_ok=True)
 
-    # Ensure frames directory inside TEMP_DIR exists
-    (TEMP_DIR / "frames").mkdir(parents=True, exist_ok=True)
+    # Ensure frames directory inside video_engine.TEMP_DIR exists
+    (video_engine.TEMP_DIR / "frames").mkdir(parents=True, exist_ok=True)
 
     cleared_mb = round(cleared_bytes / (1024 * 1024), 2)
     formatted = f"{cleared_mb} MB" if cleared_mb < 1024 else f"{round(cleared_mb / 1024, 2)} GB"
-    cookies_present = bool(COOKIES_PATH.exists() and COOKIES_PATH.stat().st_size > 0)
+    cookies_present = bool(video_engine.COOKIES_PATH.exists() and video_engine.COOKIES_PATH.stat().st_size > 0)
     logger.info(f"Cleared temp folder: {cleared_files} files, {formatted} (Cookies preserved: {cookies_present})")
     return {
         "success": True,
