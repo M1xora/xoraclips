@@ -65,14 +65,6 @@ def allowed_origins() -> List[str]:
 
 CORS_ORIGINS = allowed_origins()
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=CORS_ORIGINS,
-    allow_credentials=False,
-    allow_methods=["GET", "POST", "DELETE"],
-    allow_headers=["Content-Type", GEMINI_KEY_HEADER],
-)
-
 
 @app.middleware("http")
 async def refuse_writes_from_other_sites(request: Request, call_next):
@@ -108,3 +100,16 @@ except ImportError:
 for _routes in (routes_system, routes_analyze, routes_render, routes_uploads, routes_cookies,
                 routes_media, routes_downloads):
     app.include_router(_routes.router)
+
+# Upload size limits, checked before the body is read (#58).
+app.middleware("http")(routes_uploads.refuse_oversized_uploads)
+
+# Added last, so it wraps every other middleware: their refusals (403, 411,
+# 413) carry CORS headers too, and the app can read them.
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=CORS_ORIGINS,
+    allow_credentials=False,
+    allow_methods=["GET", "POST", "DELETE"],
+    allow_headers=["Content-Type", GEMINI_KEY_HEADER],
+)

@@ -68,17 +68,18 @@ async function request<T>(url: string, init?: RequestInit): Promise<T> {
   return res.json() as Promise<T>;
 }
 
-/** Largest upload accepted. The backend reads the whole body into memory
- *  (main.py:2619) with no cap of its own, so the check happens here. */
+/** Largest uploads the backend accepts (backend/uploads.py, #58): checked
+ *  here too, so a big file fails at once instead of after the upload. */
 export const MAX_UPLOAD_BYTES = 50 * 1024 * 1024;
+export const MAX_IMAGE_UPLOAD_BYTES = 10 * 1024 * 1024;
 
 export class UploadTooLargeError extends Error {
   readonly size: number;
 
-  constructor(size: number) {
+  constructor(size: number, max: number = MAX_UPLOAD_BYTES) {
     super(
       `File terlalu besar (${(size / 1024 / 1024).toFixed(1)} MB). ` +
-        `Maksimum ${MAX_UPLOAD_BYTES / 1024 / 1024} MB.`,
+        `Maksimum ${max / 1024 / 1024} MB.`,
     );
     this.name = 'UploadTooLargeError';
     this.size = size;
@@ -96,9 +97,9 @@ function postJson<T>(url: string, body: unknown, signal?: AbortSignal): Promise<
 }
 
 /** POST a single file as multipart/form-data, rejecting oversized files. */
-function postFile<T>(url: string, file: File, signal?: AbortSignal): Promise<T> {
-  if (file.size > MAX_UPLOAD_BYTES) {
-    return Promise.reject(new UploadTooLargeError(file.size));
+function postFile<T>(url: string, file: File, signal: AbortSignal | undefined, maxBytes: number): Promise<T> {
+  if (file.size > maxBytes) {
+    return Promise.reject(new UploadTooLargeError(file.size, maxBytes));
   }
   const form = new FormData();
   form.append('file', file);
@@ -238,10 +239,12 @@ export const api = {
   },
 
   uploads: {
-    bgm: (file: File, signal?: AbortSignal) => postFile<UploadResult>('/api/upload-bgm', file, signal),
-    sfx: (file: File, signal?: AbortSignal) => postFile<UploadResult>('/api/upload-sfx', file, signal),
+    bgm: (file: File, signal?: AbortSignal) =>
+      postFile<UploadResult>('/api/upload-bgm', file, signal, MAX_UPLOAD_BYTES),
+    sfx: (file: File, signal?: AbortSignal) =>
+      postFile<UploadResult>('/api/upload-sfx', file, signal, MAX_UPLOAD_BYTES),
     watermark: (file: File, signal?: AbortSignal) =>
-      postFile<UploadResult>('/api/upload-watermark', file, signal),
+      postFile<UploadResult>('/api/upload-watermark', file, signal, MAX_IMAGE_UPLOAD_BYTES),
   },
 
   render: {

@@ -157,6 +157,7 @@ def test_the_api_shape_is_unchanged():
 def test_the_origin_check_for_writes_is_installed():
     dispatchers = [getattr(m, "kwargs", {}).get("dispatch") for m in main.app.user_middleware]
     assert any(getattr(f, "__name__", "") == "refuse_writes_from_other_sites" for f in dispatchers)
+    assert any(getattr(f, "__name__", "") == "refuse_oversized_uploads" for f in dispatchers)
 
 
 BACKEND_FILES = sorted(
@@ -272,7 +273,7 @@ def test_only_video_engine_holds_the_data_locations():
         if path.stem in ("video_engine", "__init__"):
             continue
         module = importlib.import_module(f"backend.{path.stem}")
-        copies = [n for n in ("COOKIES_PATH", "TEMP_DIR", "EXPORTS_DIR") if hasattr(module, n)]
+        copies = [n for n in ("COOKIES_PATH", "TEMP_DIR", "EXPORTS_DIR", "UPLOADS_DIR") if hasattr(module, n)]
         assert copies == [], f"{path.name} keeps its own {copies}: read video_engine.<name> when used"
 
 
