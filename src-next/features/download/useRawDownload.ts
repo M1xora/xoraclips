@@ -88,7 +88,7 @@ export function useRawDownload(onError?: (message: string) => void) {
   );
 
   const startVideo = useCallback(
-    async (videoUrl: string, videoId: string, title?: string) => {
+    async (videoId: string, title?: string) => {
       if (starting.current) return;
       starting.current = true;
       stop();
@@ -96,7 +96,6 @@ export function useRawDownload(onError?: (message: string) => void) {
 
       try {
         const { job_id } = await api.rawDownload.startVideo({
-          video_url: videoUrl,
           video_id: videoId,
           title,
         });
@@ -113,7 +112,7 @@ export function useRawDownload(onError?: (message: string) => void) {
   );
 
   const startClip = useCallback(
-    async (videoUrl: string, videoId: string, clip: ViralClip, title: string) => {
+    async (videoId: string, clip: ViralClip, title: string) => {
       if (starting.current) return;
       starting.current = true;
       stop();
@@ -121,7 +120,6 @@ export function useRawDownload(onError?: (message: string) => void) {
 
       try {
         const { job_id } = await api.rawDownload.startClip({
-          video_url: videoUrl,
           video_id: videoId,
           // Trimmed bounds, so the raw clip matches what the trimmer shows.
           start_time: clip.start_time,

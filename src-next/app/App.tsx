@@ -600,7 +600,6 @@ export function App() {
               <ToolsPanel
                 result={result}
                 activeClip={activeClip}
-                videoUrl={lastRequest?.url ?? `https://www.youtube.com/watch?v=${result.video_id}`}
                 onNotice={(msg, tone) => show(msg, tone ?? 'info')}
               />
             </section>

@@ -1,40 +1,50 @@
 """
 Batch rendering: the render settings, the background job that downloads,
 captions and renders each clip, its progress stream and ZIP, the caption
-chunks the preview shows, and the hardware encoder options. Moved out of
-main.py unchanged (#60).
+chunks the preview shows, and the hardware encoder options. The video is
+named by its checked YouTube ID; batches are forgotten an hour after they
+finish (#70).
 """
 import asyncio
 import json
 import logging
 import os
-import re
-import time
+import threading
 import uuid
 import zipfile
-from typing import Any, Dict, List, Optional
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Tuple
 
 from fastapi import APIRouter, BackgroundTasks, HTTPException
 from fastapi.responses import FileResponse, StreamingResponse
-from pydantic import BaseModel, Field
+from starlette.background import BackgroundTask
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 try:
     from backend import video_engine
     from backend.captions import caption_chunks_for_clip
+    from backend.job_store import JobStore, new_job_id
     from backend.uploads import MissingUpload, resolve_upload
+    from backend.validation import (
+        VIDEO_SECONDS, check_time_range, clean_file_title, require_video_id, without_forbidden_characters,
+    )
     from backend.video_engine import (
         ACTIVE_ENCODER_NAME, detect_hardware_support,
         download_clip_segment, generate_ass_file, has_emoji, render_clip_to_mp4,
-        render_title_overlay_png, transcribe_clip_words,
+        render_title_overlay_png, transcribe_clip_words, watch_url,
     )
 except ImportError:
     import video_engine
     from captions import caption_chunks_for_clip
+    from job_store import JobStore, new_job_id
     from uploads import MissingUpload, resolve_upload
+    from validation import (
+        VIDEO_SECONDS, check_time_range, clean_file_title, require_video_id, without_forbidden_characters,
+    )
     from video_engine import (
         ACTIVE_ENCODER_NAME, detect_hardware_support,
         download_clip_segment, generate_ass_file, has_emoji, render_clip_to_mp4,
-        render_title_overlay_png, transcribe_clip_words,
+        render_title_overlay_png, transcribe_clip_words, watch_url,
     )
 
 logger = logging.getLogger("xoraclips")
@@ -86,15 +96,127 @@ class RenderSettingsModel(BaseModel):
     hardware_accel: Optional[str] = "auto"
 
 
+MAX_CLIPS_PER_BATCH = 50
+# Clips are 15 s to 3 min; the Studio trimmer can stretch one, not to hours.
+MAX_RENDER_CLIP_SECONDS = 30 * 60
+
+
+class RenderClip(BaseModel):
+    """One clip to render: the analysis fields the app sends are kept as they
+    are; the ones the render reads are checked (#70)."""
+    model_config = ConfigDict(extra="allow")
+
+    start_time: float = VIDEO_SECONDS
+    end_time: float = VIDEO_SECONDS
+    title: Optional[str] = None
+    title_suggestion: Optional[str] = None
+    custom_title: Optional[str] = None
+
+    @model_validator(mode="after")
+    def _end_after_start(self):
+        check_time_range(self.start_time, self.end_time)
+        if self.end_time - self.start_time > MAX_RENDER_CLIP_SECONDS:
+            raise ValueError(f"A clip can be at most {MAX_RENDER_CLIP_SECONDS // 60} minutes long")
+        return self
+
+
 class RenderBatchRequest(BaseModel):
-    video_url: str
     video_id: str
-    clips: List[Dict[str, Any]]
+    video_url: Optional[str] = None   # still sent by the app; ignored (#70)
+    clips: List[RenderClip] = Field(max_length=MAX_CLIPS_PER_BATCH)
     settings: RenderSettingsModel
     transcript: Optional[List[Dict[str, Any]]] = None
 
 
-RENDER_BATCHES: Dict[str, Dict[str, Any]] = {}
+# Forgotten an hour after they finish; never while running (a long batch on
+# the CPU can take hours, and every step has its own timeout).
+RENDER_BATCHES = JobStore(max_age=None)
+
+
+def clip_titles(clip: RenderClip, idx: int, settings: RenderSettingsModel, clip_count: int) -> Tuple[str, Optional[str]]:
+    """The clip's own title, and the title drawn on the video (None when
+    titles are off). Used when the batch starts and when the clip renders,
+    so the queue never changes a title half way (#70)."""
+    base_title = (clip.custom_title or clip.title_suggestion or clip.title or f"Clip {idx + 1}").strip()
+    if settings.title_position == "none":
+        return base_title, None
+    prefix, suffix = settings.title_prefix or "", settings.title_suffix or ""
+    if prefix or suffix:
+        return base_title, f"{prefix}{base_title}{suffix}".strip()
+    if clip_count == 1 and (settings.title_text or "").strip() and not (clip.custom_title or clip.title_suggestion):
+        return base_title, settings.title_text.strip()
+    return base_title, base_title
+
+
+def file_title(base_title: str, clip_index: int, settings: RenderSettingsModel) -> str:
+    """A clip's name inside the ZIP (without .mp4): its own title with the
+    file name prefix and suffix, never the on-screen affixes."""
+    clean = clean_file_title(base_title) or f"clip_{clip_index}"
+    prefix = without_forbidden_characters(settings.file_name_prefix)
+    suffix = without_forbidden_characters(settings.file_name_suffix)
+    return f"{prefix}{clean}{suffix}".strip() or clean
+
+
+def zip_path(batch_id: str) -> Path:
+    return video_engine.EXPORTS_DIR / f"xoraclips_{os.path.basename(batch_id)}.zip"
+
+
+def finished_clip_files(batch: Dict[str, Any]) -> List[Tuple[str, str]]:
+    """(file, name in the ZIP) for each finished clip. Read on the event loop,
+    which is where the render changes the batch."""
+    finished = []
+    for clip in batch["clips"]:
+        path = clip.get("output_path")
+        if clip.get("status") == "completed" and path:
+            finished.append((path, clip.get("file_title") or os.path.splitext(os.path.basename(path))[0]))
+    return finished
+
+
+def zip_entry_names(names: List[str]) -> List[str]:
+    """One file name per clip, unique even ignoring case (Windows and macOS
+    would overwrite "Hook.mp4" with "hook.mp4" when unpacking)."""
+    used, entries = set(), []
+    for name in names:
+        candidate, count = f"{name}.mp4", 0
+        while candidate.lower() in used:
+            count += 1
+            candidate = f"{name} ({count}).mp4"
+        used.add(candidate.lower())
+        entries.append(candidate)
+    return entries
+
+
+def write_zip(files: List[Tuple[str, str]], target: Path) -> bool:
+    """Writes the clips that exist into a ZIP at `target`, stored without
+    compression (MP4 does not shrink). Written under a temporary name and
+    renamed at the end, so a failed write never leaves a broken ZIP. False
+    when no clip file exists. Runs in a thread: it can take a while."""
+    files = [(path, name) for path, name in files if os.path.exists(path)]
+    if not files:
+        return False
+    partial = target.with_name(f"{target.name}.{uuid.uuid4().hex[:8]}.part")
+    try:
+        with zipfile.ZipFile(partial, "w", zipfile.ZIP_STORED) as archive:
+            for (path, _), entry in zip(files, zip_entry_names([name for _, name in files])):
+                archive.write(path, arcname=entry)
+        os.replace(partial, target)
+    finally:
+        partial.unlink(missing_ok=True)
+    return True
+
+
+_zip_locks: Dict[str, threading.Lock] = {}
+
+
+def _final_zip(batch_id: str, files: List[Tuple[str, str]]) -> Optional[Path]:
+    """The finished batch's ZIP, made once. The lock keeps two downloads from
+    writing it at the same time; a ZIP that exists is never replaced, so a
+    file being downloaded is never overwritten (Windows refuses that)."""
+    target = zip_path(batch_id)
+    with _zip_locks.setdefault(batch_id, threading.Lock()):
+        if target.exists() or write_zip(files, target):
+            return target
+    return None
 
 
 async def process_batch_rendering(batch_id: str, request: RenderBatchRequest):
@@ -117,12 +239,20 @@ async def process_batch_rendering(batch_id: str, request: RenderBatchRequest):
             clip_status.update(status="error", error=str(e), error_message=str(e))
         batch["overall_status"] = "error"
         batch["error_message"] = str(e)
+        RENDER_BATCHES.finish(batch_id)
         return
 
-    # Normalize video URL for history or direct URL
-    target_url = (request.video_url or "").strip()
-    if not target_url.startswith("http"):
-        target_url = f"https://www.youtube.com/watch?v={request.video_id or target_url}"
+    try:
+        await _render_clips(batch_id, batch, request, watermark_path, bgm_path, hook_sfx_path)
+    finally:
+        RENDER_BATCHES.finish(batch_id)
+
+
+async def _render_clips(batch_id: str, batch: Dict[str, Any], request: RenderBatchRequest,
+                        watermark_path: Optional[str], bgm_path: Optional[str], hook_sfx_path: Optional[str]):
+    clips = request.clips
+    settings = request.settings
+    target_url = watch_url(request.video_id)   # checked when the batch started
 
     for idx, clip in enumerate(clips):
         clip_status = batch["clips"][idx]
@@ -131,8 +261,8 @@ async def process_batch_rendering(batch_id: str, request: RenderBatchRequest):
 
         try:
             # 1. Download
-            start_t = float(clip.get("start_time", 0.0))
-            end_t = float(clip.get("end_time", start_t + 30.0))
+            start_t = clip.start_time
+            end_t = clip.end_time
             seg_filename = f"{batch_id}_clip_{idx}_raw.mp4"
 
             # Retries and method changes show on screen while downloading (#10).
@@ -153,27 +283,7 @@ async def process_batch_rendering(batch_id: str, request: RenderBatchRequest):
             clip_status["status"] = "transcribing"
             clip_status["progress_percent"] = 40
 
-            display_title = None
-            base_title = (
-                clip.get("custom_title")
-                or clip.get("title_suggestion")
-                or clip.get("title")
-                or f"Clip {idx+1}"
-            ).strip()
-
-            if settings.title_position != "none":
-                pfx = settings.title_prefix or ""
-                sfx = settings.title_suffix or ""
-                if pfx or sfx:
-                    display_title = f"{pfx}{base_title}{sfx}".strip()
-                elif len(clips) == 1 and settings.title_text and settings.title_text.strip() and not (clip.get("custom_title") or clip.get("title_suggestion")):
-                    display_title = settings.title_text.strip()
-                else:
-                    display_title = base_title
-
-            # Ensure clip status reflects this clip's unique title and base_title
-            clip_status["title"] = display_title or base_title
-            clip_status["base_title"] = base_title
+            base_title, display_title = clip_titles(clip, idx, settings, len(clips))
 
             ass_path = None
             title_overlay_path = None
@@ -282,6 +392,7 @@ async def process_batch_rendering(batch_id: str, request: RenderBatchRequest):
             clip_status["progress_percent"] = 100
             clip_status["download_url"] = f"/api/download-rendered/{out_filename}"
             clip_status["output_path"] = out_path
+            clip_status["file_title"] = file_title(base_title, idx + 1, settings)
 
         except Exception as e:
             logger.error(f"Error rendering clip {idx} in batch {batch_id}: {e}")
@@ -292,36 +403,12 @@ async def process_batch_rendering(batch_id: str, request: RenderBatchRequest):
 
         batch["current_clip_index"] = idx + 1
 
-    # Generate ZIP bundle for the batch with title-based filenames and duplicate handling
-    try:
-        completed_clips = [c for c in batch["clips"] if c.get("status") == "completed" and c.get("download_url")]
-        if completed_clips:
-            zip_filename = f"xoraclips_{batch_id}.zip"
-            zip_path = video_engine.EXPORTS_DIR / zip_filename
-            title_counts: Dict[str, int] = {}
-            with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zipf:
-                for c in completed_clips:
-                    fname = c["download_url"].split("/")[-1]
-                    fpath = video_engine.EXPORTS_DIR / fname
-                    if fpath.exists():
-                        raw_title = (c.get("base_title") or c.get("title") or "").strip()
-                        clean_title = re.sub(r'[\\/*?:"<>|]', "", raw_title) or f"clip_{c.get('clip_index', 1)}"
-                        fn_pfx = re.sub(r'[\\/*?:"<>|]', "", settings.file_name_prefix or "")
-                        fn_sfx = re.sub(r'[\\/*?:"<>|]', "", settings.file_name_suffix or "")
-                        formatted_name = f"{fn_pfx}{clean_title}{fn_sfx}".strip() or clean_title
-                        count = title_counts.get(formatted_name, 0)
-                        title_counts[formatted_name] = count + 1
-                        arc_name = f"{formatted_name}.mp4" if count == 0 else f"{formatted_name} ({count}).mp4"
-                        zipf.write(fpath, arcname=arc_name)
-            batch["zip_url"] = f"/api/download-batch-zip/{batch_id}"
-        else:
-            batch["zip_url"] = None
-    except Exception as e:
-        logger.warning(f"Failed to create batch zip: {e}")
+    # Made when it is first downloaded (see download_batch_zip), not here:
+    # a ZIP nobody downloads would double the disk space of the batch.
+    batch["zip_url"] = f"/api/download-batch-zip/{batch_id}" if finished_clip_files(batch) else None
 
     # Determine overall status and error messaging
     failed_clips = [c for c in batch["clips"] if c.get("status") == "error"]
-    completed_clips = [c for c in batch["clips"] if c.get("status") == "completed"]
 
     if len(failed_clips) == len(batch["clips"]):
         batch["overall_status"] = "error"
@@ -359,32 +446,30 @@ def get_caption_chunks(request: CaptionChunksRequest):
 async def start_batch_render(request: RenderBatchRequest, background_tasks: BackgroundTasks):
     if not request.clips:
         raise HTTPException(status_code=400, detail="No clips provided for rendering")
+    require_video_id(request.video_id)
 
-    batch_id = f"batch_{int(time.time())}_{uuid.uuid4().hex[:6]}"
-
-    pfx = (request.settings.title_prefix or "") if request.settings else ""
-    sfx = (request.settings.title_suffix or "") if request.settings else ""
+    # Unguessable: the rendered files are downloaded by names that contain it.
+    batch_id = f"batch_{new_job_id()}"
 
     clips_status = []
-    for idx, c in enumerate(request.clips):
-        base_t = (c.get("custom_title") or c.get("title_suggestion") or c.get("title") or f"Clip {idx+1}").strip()
-        full_t = f"{pfx}{base_t}{sfx}".strip() if (pfx or sfx) else base_t
+    for idx, clip in enumerate(request.clips):
+        base_title, display_title = clip_titles(clip, idx, request.settings, len(request.clips))
         clips_status.append({
             "clip_index": idx,
-            "title": full_t,
-            "base_title": base_t,
+            "title": display_title or base_title,
+            "base_title": base_title,
             "status": "pending",
             "progress_percent": 0
         })
 
-    RENDER_BATCHES[batch_id] = {
+    RENDER_BATCHES.add(batch_id, {
         "batch_id": batch_id,
         "total_clips": len(request.clips),
         "current_clip_index": 0,
         "overall_status": "running",
         "clips": clips_status,
         "zip_url": None
-    }
+    })
 
     background_tasks.add_task(process_batch_rendering, batch_id, request)
     return {"batch_id": batch_id, "total_clips": len(request.clips)}
@@ -392,7 +477,7 @@ async def start_batch_render(request: RenderBatchRequest, background_tasks: Back
 
 @router.get("/api/render-progress/{batch_id}")
 async def get_render_progress(batch_id: str):
-    if batch_id not in RENDER_BATCHES:
+    if RENDER_BATCHES.lookup(batch_id) is None:
         raise HTTPException(status_code=404, detail="Batch not found")
 
     async def stream():
@@ -417,34 +502,31 @@ async def get_render_progress(batch_id: str):
 
 
 @router.get("/api/download-batch-zip/{batch_id}")
-def download_batch_zip(batch_id: str):
-    clean_id = os.path.basename(batch_id)
-    safe_name = f"xoraclips_{clean_id}.zip"
-    file_path = video_engine.EXPORTS_DIR / safe_name
-    if not file_path.exists():
-        # Attempt to package any completed clips for this batch on the fly
-        job = RENDER_BATCHES.get(batch_id)
-        if job and job.get("clips"):
-            try:
-                title_counts: Dict[str, int] = {}
-                with zipfile.ZipFile(file_path, "w", zipfile.ZIP_DEFLATED) as zipf:
-                    for c in job["clips"]:
-                        c_out = c.get("output_path")
-                        if not c_out and c.get("download_url"):
-                            fname = c["download_url"].split("/")[-1]
-                            c_out = str(video_engine.EXPORTS_DIR / fname)
-                        if c_out and os.path.exists(c_out):
-                            raw_title = (c.get("title") or "").strip()
-                            clean_title = re.sub(r'[\\/*?:"<>|]', "", raw_title) or os.path.splitext(os.path.basename(c_out))[0]
-                            count = title_counts.get(clean_title, 0)
-                            title_counts[clean_title] = count + 1
-                            arc_name = f"{clean_title}.mp4" if count == 0 else f"{clean_title} ({count}).mp4"
-                            zipf.write(c_out, arcname=arc_name)
-            except Exception as e:
-                logger.error(f"Error packaging batch zip on the fly: {e}")
-    if not file_path.exists():
-        raise HTTPException(status_code=404, detail="Batch zip file not found")
-    return FileResponse(file_path, media_type="application/zip", filename=safe_name)
+async def download_batch_zip(batch_id: str):
+    """The batch's ZIP. Once the batch has finished it is made once and kept;
+    while it runs, a ZIP of the clips finished so far is made for this
+    download only and removed afterwards, so it can never be served later
+    as if it were complete. 404 when no clip has finished."""
+    batch = RENDER_BATCHES.lookup(batch_id)
+    finished = batch is not None and batch.get("overall_status") in ("completed", "error")
+    try:
+        if batch is None or finished:
+            files = finished_clip_files(batch) if batch else []
+            path = await asyncio.to_thread(_final_zip, batch_id, files) if batch else zip_path(batch_id)
+            if path and path.exists():
+                return FileResponse(path, media_type="application/zip", filename=path.name)
+            raise HTTPException(status_code=404, detail="Batch zip file not found")
+
+        snapshot = zip_path(batch_id).with_name(f"xoraclips_{os.path.basename(batch_id)}_{uuid.uuid4().hex[:8]}.zip")
+        if not await asyncio.to_thread(write_zip, finished_clip_files(batch), snapshot):
+            raise HTTPException(status_code=404, detail="Batch zip file not found")
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Could not make the ZIP of batch {batch_id}: {e}")
+        raise HTTPException(status_code=500, detail="Could not make the ZIP. Please try again.")
+    return FileResponse(snapshot, media_type="application/zip", filename=zip_path(batch_id).name,
+                        background=BackgroundTask(snapshot.unlink, missing_ok=True))
 
 
 @router.get("/api/hardware-accel")

@@ -251,7 +251,7 @@
    "properties": {
     "clips": {
      "items": {
-      "type": "object"
+      "$ref": "#/components/schemas/RenderClip"
      },
      "type": "array"
     },
@@ -275,14 +275,68 @@
      "type": "string"
     },
     "video_url": {
-     "type": "string"
+     "anyOf": [
+      {
+       "type": "null"
+      },
+      {
+       "type": "string"
+      }
+     ]
     }
    },
    "required": [
     "clips",
     "settings",
-    "video_id",
-    "video_url"
+    "video_id"
+   ]
+  },
+  "RenderClip": {
+   "properties": {
+    "custom_title": {
+     "anyOf": [
+      {
+       "type": "null"
+      },
+      {
+       "type": "string"
+      }
+     ]
+    },
+    "end_time": {
+     "maximum": 86400.0,
+     "minimum": 0.0,
+     "type": "number"
+    },
+    "start_time": {
+     "maximum": 86400.0,
+     "minimum": 0.0,
+     "type": "number"
+    },
+    "title": {
+     "anyOf": [
+      {
+       "type": "null"
+      },
+      {
+       "type": "string"
+      }
+     ]
+    },
+    "title_suggestion": {
+     "anyOf": [
+      {
+       "type": "null"
+      },
+      {
+       "type": "string"
+      }
+     ]
+    }
+   },
+   "required": [
+    "end_time",
+    "start_time"
    ]
   },
   "RenderSettingsModel": {

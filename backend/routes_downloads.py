@@ -15,12 +15,12 @@ from urllib.parse import quote
 
 from fastapi import APIRouter, BackgroundTasks, HTTPException
 from fastapi.responses import FileResponse
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, model_validator
 
 try:
     from backend import video_engine
     from backend.job_store import JobStore, new_job_id
-    from backend.validation import MAX_VIDEO_SECONDS, check_time_range, clean_file_title, require_video_id
+    from backend.validation import VIDEO_SECONDS, check_time_range, clean_file_title, require_video_id
     from backend.video_engine import (
         ACTIVE_ENCODER_ARGS, ACTIVE_ENCODER_NAME, download_clip_segment, download_full_raw_video,
         download_timeouts, watch_url,
@@ -28,7 +28,7 @@ try:
 except ImportError:
     import video_engine
     from job_store import JobStore, new_job_id
-    from validation import MAX_VIDEO_SECONDS, check_time_range, clean_file_title, require_video_id
+    from validation import VIDEO_SECONDS, check_time_range, clean_file_title, require_video_id
     from video_engine import (
         ACTIVE_ENCODER_ARGS, ACTIVE_ENCODER_NAME, download_clip_segment, download_full_raw_video,
         download_timeouts, watch_url,
@@ -37,7 +37,6 @@ except ImportError:
 logger = logging.getLogger("xoraclips")
 router = APIRouter()
 
-VIDEO_SECONDS = Field(ge=0, le=MAX_VIDEO_SECONDS, allow_inf_nan=False)
 # A raw clip is a piece of the video; the whole video has its own download.
 MAX_RAW_CLIP_SECONDS = 30 * 60
 CPU_ENCODER_ARGS = ["-c:v", "libx264", "-preset", "veryfast", "-crf", "20"]

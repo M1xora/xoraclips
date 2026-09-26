@@ -31,7 +31,6 @@ interface ToolsPanelProps {
   result: AnalyzeResponse;
   /** The clip an SRT or a raw clip download applies to. */
   activeClip: ViralClip | null;
-  videoUrl: string;
   onNotice: (message: string, tone?: 'info' | 'error') => void;
 }
 
@@ -41,7 +40,7 @@ interface ToolsPanelProps {
  *
  * All four existed in the backend but had no way in from the new UI.
  */
-export function ToolsPanel({ result, activeClip, videoUrl, onNotice }: ToolsPanelProps) {
+export function ToolsPanel({ result, activeClip, onNotice }: ToolsPanelProps) {
   const { t } = useLanguage();
   const raw = useRawDownload((msg) => onNotice(msg, 'error'));
 
@@ -148,7 +147,7 @@ export function ToolsPanel({ result, activeClip, videoUrl, onNotice }: ToolsPane
               size="sm"
               variant="secondary"
               disabled={raw.busy}
-              onClick={() => void raw.startVideo(videoUrl, result.video_id, result.title)}
+              onClick={() => void raw.startVideo(result.video_id, result.title)}
             >
               <DownloadSimpleIcon size={14} />
               {t.tools.downloadVideo}
@@ -159,7 +158,7 @@ export function ToolsPanel({ result, activeClip, videoUrl, onNotice }: ToolsPane
               disabled={raw.busy || !activeClip}
               onClick={() =>
                 activeClip &&
-                void raw.startClip(videoUrl, result.video_id, activeClip, clipTitle(activeClip))
+                void raw.startClip(result.video_id, activeClip, clipTitle(activeClip))
               }
             >
               <DownloadSimpleIcon size={14} />

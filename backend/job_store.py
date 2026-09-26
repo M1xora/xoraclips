@@ -22,7 +22,7 @@ class JobStore(dict):
     """Jobs by ID; `finish()` starts a job's hour, `lookup()` and `add()`
     forget the jobs whose hour (or six hours since `add()`) is over."""
 
-    def __init__(self, ttl: float = JOB_TTL_SECONDS, max_age: float = JOB_MAX_AGE_SECONDS,
+    def __init__(self, ttl: float = JOB_TTL_SECONDS, max_age: Optional[float] = JOB_MAX_AGE_SECONDS,
                  clock: Callable[[], float] = time.monotonic):
         super().__init__()
         self.ttl = ttl
@@ -48,7 +48,8 @@ class JobStore(dict):
     def forget_expired(self) -> None:
         now = self.clock()
         expired = [job_id for job_id, finished in self._finished_at.items() if now - finished >= self.ttl]
-        expired += [job_id for job_id, added in self._added_at.items() if now - added >= self.max_age]
+        if self.max_age is not None:
+            expired += [job_id for job_id, added in self._added_at.items() if now - added >= self.max_age]
         for job_id in expired:
             self._finished_at.pop(job_id, None)
             self._added_at.pop(job_id, None)

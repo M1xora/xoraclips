@@ -5,9 +5,10 @@ import { effectiveTitle } from '../clips/clipIdentity';
 /**
  * Builds the body for POST /api/render-batch.
  *
- * The shape is dictated by backend/main.py: RenderBatchRequest (line 2225)
- * and RenderSettingsModel (line 2180). Two things are easy to get wrong and
- * fail silently rather than loudly:
+ * The shape is dictated by backend/routes_render.py: RenderBatchRequest and
+ * RenderSettingsModel. The backend downloads the video from `video_id` only
+ * (#70); a URL is not sent. Two things are easy to get wrong and fail
+ * silently rather than loudly:
  *
  *  - `transcript` is a TOP-LEVEL key, a sibling of `settings`, not a field
  *    inside it. Omit it and the render still succeeds, but the backend falls
@@ -18,7 +19,6 @@ import { effectiveTitle } from '../clips/clipIdentity';
  */
 
 export interface RenderBatchPayload {
-  video_url: string;
   video_id: string;
   clips: Record<string, unknown>[];
   settings: Record<string, unknown>;
@@ -30,13 +30,8 @@ export function buildRenderPayload(
   selected: ViralClip[],
   studio: StudioState,
   customTitles: Record<string, string>,
-  sourceUrl?: string,
 ): RenderBatchPayload {
-  const videoUrl =
-    sourceUrl?.trim() || `https://www.youtube.com/watch?v=${result.video_id}`;
-
   return {
-    video_url: videoUrl,
     video_id: result.video_id,
 
     clips: selected.map((clip) => ({
