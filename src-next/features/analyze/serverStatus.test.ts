@@ -152,7 +152,7 @@ describe('validation errors (422)', () => {
     const body = { detail: [{ loc: ['body'], msg: 'Value error, end_time must be greater than start_time' }] };
     vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify(body), { status: 422 })));
     const err = await api.rawDownload
-      .startClip({ video_url: '', video_id: 'p1t-074cn38', start_time: 9, end_time: 4, title: 'x' })
+      .startClip({ video_id: 'p1t-074cn38', start_time: 9, end_time: 4, title: 'x' })
       .catch((e: unknown) => e);
     expect(err).toBeInstanceOf(ApiError);
     expect((err as ApiError).message).toBe('end_time must be greater than start_time');

@@ -31,6 +31,12 @@ def check_time_range(start_time: float, end_time: float) -> None:
         raise ValueError("end_time must be greater than start_time")
 
 
+def without_forbidden_characters(text: Optional[str]) -> str:
+    """Text without the characters Windows refuses in a file name; spaces kept
+    (a file name prefix like "Part 1 - " needs its own)."""
+    return re.sub(r'[\\/*?:"<>|]', "", text or "")
+
+
 def clean_file_title(text: Optional[str]) -> str:
-    """Text without the characters Windows refuses in a file name."""
-    return re.sub(r'[\\/*?:"<>|]', "", (text or "").strip())
+    """A title for a file name: trimmed, without forbidden characters."""
+    return without_forbidden_characters((text or "").strip())

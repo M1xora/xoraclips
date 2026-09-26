@@ -125,27 +125,15 @@ describe('clips', () => {
 });
 
 describe('top-level keys', () => {
-  it('builds a watch URL when none is supplied', () => {
+  it('names the video by its ID only; the backend builds the URL (#70)', () => {
     const payload = buildRenderPayload(result(), [clip()], initialStudioState, {});
-    expect(payload.video_url).toBe('https://www.youtube.com/watch?v=abc12345678');
+    expect(payload.video_id).toBe('abc12345678');
+    expect('video_url' in payload).toBe(false);
   });
 
-  it('prefers the URL the user pasted', () => {
-    const payload = buildRenderPayload(
-      result(),
-      [clip()],
-      initialStudioState,
-      {},
-      'https://youtu.be/abc12345678',
-    );
-    expect(payload.video_url).toBe('https://youtu.be/abc12345678');
-  });
-
-  it('has exactly the five keys the backend reads', () => {
+  it('has exactly the four keys the backend reads', () => {
     const payload = buildRenderPayload(result(), [clip()], initialStudioState, {});
-    expect(Object.keys(payload).sort()).toEqual(
-      ['clips', 'settings', 'transcript', 'video_id', 'video_url'].sort(),
-    );
+    expect(Object.keys(payload).sort()).toEqual(['clips', 'settings', 'transcript', 'video_id'].sort());
   });
 });
 

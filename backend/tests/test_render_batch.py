@@ -191,32 +191,83 @@ def test_no_finished_clip_means_no_zip(render, monkeypatch):
 
 
 def test_a_zip_that_fails_half_way_leaves_nothing_to_serve(render, monkeypatch):
+    batch_id = start(render)
+    real_write = zipfile.ZipFile.write
+
     def failing_write(self, *args, **kwargs):
         raise OSError("disk full")
+
     monkeypatch.setattr(zipfile.ZipFile, "write", failing_write)
-    batch_id = start(render)
-    assert progress(render, batch_id)["zip_url"] is None
+    res = render.get(f"/api/download-batch-zip/{batch_id}")
+    assert res.status_code == 500 and res.json() == {"detail": "Could not make the ZIP. Please try again."}
     assert list(video_engine.EXPORTS_DIR.glob(f"xoraclips_{batch_id}*")) == []
+    monkeypatch.setattr(zipfile.ZipFile, "write", real_write)
+    assert render.get(f"/api/download-batch-zip/{batch_id}").status_code == 200   # a retry works
 
 
-def test_the_zip_is_made_off_the_event_loop(render, monkeypatch):
+def test_the_zip_is_made_off_the_event_loop_and_only_when_asked(render, monkeypatch):
     threads = {}
-    real_build, real_finish = routes_render.build_batch_zip, routes_render.RENDER_BATCHES.finish
+    real_write = routes_render.write_zip
 
-    def build(batch):
+    def write(files, target):
         threads["zip"] = threading.current_thread()
-        return real_build(batch)
+        return real_write(files, target)
 
-    def finish(batch_id):
-        threads["loop"] = threading.current_thread()
-        return real_finish(batch_id)
-
-    monkeypatch.setattr(routes_render, "build_batch_zip", build)
-    monkeypatch.setattr(routes_render.RENDER_BATCHES, "finish", finish)
-    start(render)
-    assert threads["zip"] is not threads["loop"]
-
-
-def test_a_finished_batch_is_forgotten_later(render):
+    monkeypatch.setattr(routes_render, "write_zip", write)
     batch_id = start(render)
-    assert batch_id in routes_render.RENDER_BATCHES._finished_at
+    assert "zip" not in threads                       # not made at the end of the batch
+    assert progress(render, batch_id)["zip_url"] == f"/api/download-batch-zip/{batch_id}"
+    assert render.get(f"/api/download-batch-zip/{batch_id}").status_code == 200
+    assert threads["zip"] is not threading.main_thread()
+
+
+def test_a_zip_asked_for_while_rendering_is_never_kept(render, monkeypatch):
+    real_render = routes_render.render_clip_to_mp4
+    asked = []
+
+    rendered = []
+
+    def render_then_ask(**kwargs):
+        if rendered:   # the second clip: the first one has finished
+            batch_id = next(iter(routes_render.RENDER_BATCHES))
+            res = render.get(f"/api/download-batch-zip/{batch_id}")
+            asked.append((res.status_code, res.content[:2]))
+        rendered.append(kwargs)
+        real_render(**kwargs)
+
+    monkeypatch.setattr(routes_render, "render_clip_to_mp4", render_then_ask)
+    batch_id = start(render, clips=clips("Satu", "Dua"))
+    assert asked == [(200, b"PK")]
+    # The early ZIP was removed after it was sent; the final one has both clips.
+    names, _ = zip_names(render, batch_id)
+    assert names == ["Dua.mp4", "Satu.mp4"]
+
+
+def test_file_name_affixes_keep_their_spaces(render):
+    batch_id = start(render, clips=clips("Hook"), file_name_prefix="Part 1 - ", file_name_suffix=" final")
+    names, _ = zip_names(render, batch_id)
+    assert names == ["Part 1 - Hook final.mp4"]
+
+
+def test_zip_names_are_unique_even_ignoring_case():
+    assert routes_render.zip_entry_names(["Sama", "Sama", "Sama (1)", "Hook", "hook"]) == [
+        "Sama.mp4", "Sama (1).mp4", "Sama (1) (1).mp4", "Hook.mp4", "hook (1).mp4"]
+
+
+def test_a_clip_longer_than_thirty_minutes_is_refused(render):
+    body = {"video_id": VIDEO_ID, "clips": [{"title": "A", "start_time": 0, "end_time": 30 * 60 + 1}], "settings": {}}
+    res = render.post("/api/render-batch", json=body, headers=ORIGIN)
+    assert res.status_code == 422 and "at most 30 minutes" in res.text
+
+
+def test_a_running_batch_is_kept_and_a_finished_one_is_forgotten_after_an_hour(render, monkeypatch):
+    now = [0.0]
+    store = routes_render.JobStore(max_age=None, clock=lambda: now[0])
+    monkeypatch.setattr(routes_render, "RENDER_BATCHES", store)
+    store.add("running", {"clips": []})
+    batch_id = start(render)
+    now[0] = 3599
+    assert store.lookup(batch_id) and store.lookup("running")
+    now[0] = 10 ** 6
+    assert store.lookup(batch_id) is None
+    assert store.lookup("running") is not None   # a long render is never dropped

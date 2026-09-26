@@ -9,6 +9,7 @@ import asyncio
 import json
 import logging
 import os
+import threading
 import uuid
 import zipfile
 from pathlib import Path
@@ -16,6 +17,7 @@ from typing import Any, Dict, List, Optional, Tuple
 
 from fastapi import APIRouter, BackgroundTasks, HTTPException
 from fastapi.responses import FileResponse, StreamingResponse
+from starlette.background import BackgroundTask
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 try:
@@ -23,7 +25,9 @@ try:
     from backend.captions import caption_chunks_for_clip
     from backend.job_store import JobStore, new_job_id
     from backend.uploads import MissingUpload, resolve_upload
-    from backend.validation import VIDEO_SECONDS, check_time_range, clean_file_title, require_video_id
+    from backend.validation import (
+        VIDEO_SECONDS, check_time_range, clean_file_title, require_video_id, without_forbidden_characters,
+    )
     from backend.video_engine import (
         ACTIVE_ENCODER_NAME, detect_hardware_support,
         download_clip_segment, generate_ass_file, has_emoji, render_clip_to_mp4,
@@ -34,7 +38,9 @@ except ImportError:
     from captions import caption_chunks_for_clip
     from job_store import JobStore, new_job_id
     from uploads import MissingUpload, resolve_upload
-    from validation import VIDEO_SECONDS, check_time_range, clean_file_title, require_video_id
+    from validation import (
+        VIDEO_SECONDS, check_time_range, clean_file_title, require_video_id, without_forbidden_characters,
+    )
     from video_engine import (
         ACTIVE_ENCODER_NAME, detect_hardware_support,
         download_clip_segment, generate_ass_file, has_emoji, render_clip_to_mp4,
@@ -91,6 +97,8 @@ class RenderSettingsModel(BaseModel):
 
 
 MAX_CLIPS_PER_BATCH = 50
+# Clips are 15 s to 3 min; the Studio trimmer can stretch one, not to hours.
+MAX_RENDER_CLIP_SECONDS = 30 * 60
 
 
 class RenderClip(BaseModel):
@@ -107,6 +115,8 @@ class RenderClip(BaseModel):
     @model_validator(mode="after")
     def _end_after_start(self):
         check_time_range(self.start_time, self.end_time)
+        if self.end_time - self.start_time > MAX_RENDER_CLIP_SECONDS:
+            raise ValueError(f"A clip can be at most {MAX_RENDER_CLIP_SECONDS // 60} minutes long")
         return self
 
 
@@ -118,7 +128,9 @@ class RenderBatchRequest(BaseModel):
     transcript: Optional[List[Dict[str, Any]]] = None
 
 
-RENDER_BATCHES = JobStore()
+# Forgotten an hour after they finish; never while running (a long batch on
+# the CPU can take hours, and every step has its own timeout).
+RENDER_BATCHES = JobStore(max_age=None)
 
 
 def clip_titles(clip: RenderClip, idx: int, settings: RenderSettingsModel, clip_count: int) -> Tuple[str, Optional[str]]:
@@ -140,39 +152,71 @@ def file_title(base_title: str, clip_index: int, settings: RenderSettingsModel) 
     """A clip's name inside the ZIP (without .mp4): its own title with the
     file name prefix and suffix, never the on-screen affixes."""
     clean = clean_file_title(base_title) or f"clip_{clip_index}"
-    named = f"{clean_file_title(settings.file_name_prefix)}{clean}{clean_file_title(settings.file_name_suffix)}"
-    return named.strip() or clean
+    prefix = without_forbidden_characters(settings.file_name_prefix)
+    suffix = without_forbidden_characters(settings.file_name_suffix)
+    return f"{prefix}{clean}{suffix}".strip() or clean
 
 
 def zip_path(batch_id: str) -> Path:
     return video_engine.EXPORTS_DIR / f"xoraclips_{os.path.basename(batch_id)}.zip"
 
 
-def build_batch_zip(batch: Dict[str, Any]) -> Optional[Path]:
-    """The ZIP of a batch's finished clips, or None when there are none.
-    Stored without compression (MP4 does not shrink) and written to a
-    temporary name first, so a failed write never leaves a broken ZIP that
-    would be served from then on. Runs in a thread: it can take a while."""
+def finished_clip_files(batch: Dict[str, Any]) -> List[Tuple[str, str]]:
+    """(file, name in the ZIP) for each finished clip. Read on the event loop,
+    which is where the render changes the batch."""
     finished = []
     for clip in batch["clips"]:
         path = clip.get("output_path")
-        if clip.get("status") == "completed" and path and os.path.exists(path):
+        if clip.get("status") == "completed" and path:
             finished.append((path, clip.get("file_title") or os.path.splitext(os.path.basename(path))[0]))
-    if not finished:
-        return None
-    target = zip_path(batch["batch_id"])
+    return finished
+
+
+def zip_entry_names(names: List[str]) -> List[str]:
+    """One file name per clip, unique even ignoring case (Windows and macOS
+    would overwrite "Hook.mp4" with "hook.mp4" when unpacking)."""
+    used, entries = set(), []
+    for name in names:
+        candidate, count = f"{name}.mp4", 0
+        while candidate.lower() in used:
+            count += 1
+            candidate = f"{name} ({count}).mp4"
+        used.add(candidate.lower())
+        entries.append(candidate)
+    return entries
+
+
+def write_zip(files: List[Tuple[str, str]], target: Path) -> bool:
+    """Writes the clips that exist into a ZIP at `target`, stored without
+    compression (MP4 does not shrink). Written under a temporary name and
+    renamed at the end, so a failed write never leaves a broken ZIP. False
+    when no clip file exists. Runs in a thread: it can take a while."""
+    files = [(path, name) for path, name in files if os.path.exists(path)]
+    if not files:
+        return False
     partial = target.with_name(f"{target.name}.{uuid.uuid4().hex[:8]}.part")
-    seen: Dict[str, int] = {}
     try:
         with zipfile.ZipFile(partial, "w", zipfile.ZIP_STORED) as archive:
-            for path, name in finished:
-                count = seen.get(name, 0)
-                seen[name] = count + 1
-                archive.write(path, arcname=f"{name}.mp4" if count == 0 else f"{name} ({count}).mp4")
+            for (path, _), entry in zip(files, zip_entry_names([name for _, name in files])):
+                archive.write(path, arcname=entry)
         os.replace(partial, target)
     finally:
         partial.unlink(missing_ok=True)
-    return target
+    return True
+
+
+_zip_locks: Dict[str, threading.Lock] = {}
+
+
+def _final_zip(batch_id: str, files: List[Tuple[str, str]]) -> Optional[Path]:
+    """The finished batch's ZIP, made once. The lock keeps two downloads from
+    writing it at the same time; a ZIP that exists is never replaced, so a
+    file being downloaded is never overwritten (Windows refuses that)."""
+    target = zip_path(batch_id)
+    with _zip_locks.setdefault(batch_id, threading.Lock()):
+        if target.exists() or write_zip(files, target):
+            return target
+    return None
 
 
 async def process_batch_rendering(batch_id: str, request: RenderBatchRequest):
@@ -359,10 +403,9 @@ async def _render_clips(batch_id: str, batch: Dict[str, Any], request: RenderBat
 
         batch["current_clip_index"] = idx + 1
 
-    try:
-        batch["zip_url"] = f"/api/download-batch-zip/{batch_id}" if await asyncio.to_thread(build_batch_zip, batch) else None
-    except Exception as e:
-        logger.warning(f"Failed to create batch zip: {e}")
+    # Made when it is first downloaded (see download_batch_zip), not here:
+    # a ZIP nobody downloads would double the disk space of the batch.
+    batch["zip_url"] = f"/api/download-batch-zip/{batch_id}" if finished_clip_files(batch) else None
 
     # Determine overall status and error messaging
     failed_clips = [c for c in batch["clips"] if c.get("status") == "error"]
@@ -459,20 +502,31 @@ async def get_render_progress(batch_id: str):
 
 
 @router.get("/api/download-batch-zip/{batch_id}")
-def download_batch_zip(batch_id: str):
-    """The batch's ZIP; made now from the clips finished so far when it does
-    not exist yet. 404 when no clip has finished."""
-    path = zip_path(batch_id)
-    if not path.exists():
-        batch = RENDER_BATCHES.lookup(batch_id)
-        try:
-            path = build_batch_zip(batch) if batch else None
-        except Exception as e:
-            logger.error(f"Error packaging batch zip on the fly: {e}")
-            path = None
-    if not path or not path.exists():
-        raise HTTPException(status_code=404, detail="Batch zip file not found")
-    return FileResponse(path, media_type="application/zip", filename=path.name)
+async def download_batch_zip(batch_id: str):
+    """The batch's ZIP. Once the batch has finished it is made once and kept;
+    while it runs, a ZIP of the clips finished so far is made for this
+    download only and removed afterwards, so it can never be served later
+    as if it were complete. 404 when no clip has finished."""
+    batch = RENDER_BATCHES.lookup(batch_id)
+    finished = batch is not None and batch.get("overall_status") in ("completed", "error")
+    try:
+        if batch is None or finished:
+            files = finished_clip_files(batch) if batch else []
+            path = await asyncio.to_thread(_final_zip, batch_id, files) if batch else zip_path(batch_id)
+            if path and path.exists():
+                return FileResponse(path, media_type="application/zip", filename=path.name)
+            raise HTTPException(status_code=404, detail="Batch zip file not found")
+
+        snapshot = zip_path(batch_id).with_name(f"xoraclips_{os.path.basename(batch_id)}_{uuid.uuid4().hex[:8]}.zip")
+        if not await asyncio.to_thread(write_zip, finished_clip_files(batch), snapshot):
+            raise HTTPException(status_code=404, detail="Batch zip file not found")
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Could not make the ZIP of batch {batch_id}: {e}")
+        raise HTTPException(status_code=500, detail="Could not make the ZIP. Please try again.")
+    return FileResponse(snapshot, media_type="application/zip", filename=zip_path(batch_id).name,
+                        background=BackgroundTask(snapshot.unlink, missing_ok=True))
 
 
 @router.get("/api/hardware-accel")

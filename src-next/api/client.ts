@@ -256,12 +256,11 @@ export const api = {
   },
 
   rawDownload: {
-    startVideo: (payload: { video_url: string; video_id: string; title?: string }) =>
+    startVideo: (payload: { video_id: string; title?: string }) =>
       postJson<RawJobStart>('/api/download-raw-video', payload),
     videoStatus: (jobId: string) =>
       request<RawJobStatus>(`/api/download-raw-status/${encodeURIComponent(jobId)}`),
     startClip: (payload: {
-      video_url: string;
       video_id: string;
       start_time: number;
       end_time: number;
