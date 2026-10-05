@@ -1,7 +1,7 @@
 import type { ButtonHTMLAttributes, ReactNode } from 'react';
 import { CircleNotchIcon } from '@phosphor-icons/react';
 
-type Variant = 'primary' | 'secondary' | 'teal' | 'ghost' | 'danger';
+type Variant = 'primary' | 'secondary' | 'teal' | 'ghost' | 'danger' | 'brand';
 type Size = 'sm' | 'md' | 'lg';
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
@@ -45,6 +45,12 @@ const VARIANTS: Record<Variant, string> = {
   danger:
     'bg-critical text-on-critical shadow-[inset_0_1px_0_rgb(255_255_255/.16),0_1px_2px_rgb(0_0_0/.28)] ' +
     'hover:bg-critical-bright active:shadow-[inset_0_1px_2px_rgb(0_0_0/.22)]',
+  // Neo-brutal: 2px line and a hard offset shadow. Pressing slides the
+  // button onto its shadow; pressable-btn already moves it 1px down,
+  // the translate adds the rest so it lands 3px right and 3px down.
+  brand:
+    'bg-brand text-on-brand border-2 border-line shadow-brutal hover:bg-brand-bright ' +
+    'active:shadow-none motion-safe:active:translate-x-[3px] motion-safe:active:translate-y-[2px]',
 };
 
 /**

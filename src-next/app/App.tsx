@@ -301,8 +301,10 @@ export function App() {
     <div className="min-h-[100dvh] bg-canvas">
       <header className="sticky top-0 z-[--z-sticky] border-b border-hairline bg-canvas/90 backdrop-blur">
         <div className="mx-auto flex h-14 max-w-[1400px] items-center gap-3 px-4">
-          <FilmStripIcon size={20} weight="duotone" className="shrink-0 text-accent" />
-          <span className="font-display text-sm font-semibold tracking-tight">{t.app.name}</span>
+          <span className="grid size-8 shrink-0 place-items-center rounded-full border-2 border-line bg-brand text-on-brand">
+            <FilmStripIcon size={16} weight="bold" />
+          </span>
+          <span className="font-display text-base font-black tracking-tight">{t.app.name}</span>
 
           <div className="ml-auto flex items-center gap-2">
             <Button

@@ -45,14 +45,19 @@ export function HistoryPanel({ refreshToken, onOpen }: HistoryPanelProps) {
 
   if (entries.length === 0) {
     return (
-      <Panel title={t.results.historyTitle}>
-        <p className="text-xs text-ink-faint">{t.results.historyEmpty}</p>
+      <Panel title={t.results.historyTitle} className="border-2 border-line">
+        <div className="flex items-center gap-3">
+          <span className="grid size-10 shrink-0 place-items-center rounded-full border-2 border-line bg-lavender-muted text-ink">
+            <ClockCounterClockwiseIcon size={18} weight="bold" />
+          </span>
+          <p className="text-xs text-ink-faint">{t.results.historyEmpty}</p>
+        </div>
       </Panel>
     );
   }
 
   return (
-    <Panel title={t.results.historyTitle} subtitle={t.results.historyHint}>
+    <Panel title={t.results.historyTitle} subtitle={t.results.historyHint} className="border-2 border-line">
       <div className="grid gap-2">
         {/* Only worth searching once the list is long enough to scroll. */}
         {entries.length > 4 && (
