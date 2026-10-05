@@ -126,7 +126,7 @@ export function ClipList({
       </p>
 
       {visible.length === 0 ? (
-        <div className="rounded-[--radius-panel] border border-dashed border-hairline p-8 text-center">
+        <div className="rounded-[--radius-panel] border-2 border-dashed border-line bg-lavender-muted p-8 text-center">
           <p className="text-sm font-medium">{t.results.emptyTitle}</p>
           <p className="mt-1 text-xs text-ink-dim">{t.results.emptyHint}</p>
         </div>

@@ -61,8 +61,8 @@ export function ClipCard({
   return (
     <article
       onClick={onSelect}
-      className={`panel cursor-pointer p-4 transition-colors
-        ${active ? 'border-accent' : 'hover:border-ink-faint'}`}
+      className={`panel cursor-pointer border-2 p-4 transition-[background-color,border-color,box-shadow]
+        ${active ? 'border-line bg-brand-muted shadow-brutal' : 'hover:border-ink-faint'}`}
     >
       <div className="flex items-start gap-3">
         <button
@@ -74,20 +74,20 @@ export function ClipCard({
           aria-pressed={marked}
           aria-label={marked ? t.results.unmark(index + 1) : t.results.mark(index + 1)}
           className={`pressable mt-0.5 grid size-6 shrink-0 place-items-center rounded
-            ${marked ? 'bg-accent text-on-accent' : 'bg-surface-2 text-ink-faint hover:text-ink'}`}
+            ${marked ? 'border-2 border-line bg-brand text-on-brand' : 'bg-surface-2 text-ink-faint hover:text-ink'}`}
         >
           <BookmarkSimpleIcon size={13} weight={marked ? 'fill' : 'regular'} />
         </button>
 
         <div className="min-w-0 flex-1">
-          <h3 className="text-sm font-medium leading-snug">{clip.title}</h3>
+          <h3 className="text-sm font-bold leading-snug">{clip.title}</h3>
 
           <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1">
             <span className="tabular font-mono text-xs text-ink-dim">{range}</span>
             <span className="tabular text-xs text-ink-faint">{duration}s</span>
             <span
               className={`tabular rounded px-1.5 py-0.5 font-mono text-[0.8rem] font-semibold
-                ${strong ? 'bg-accent-muted text-ink' : 'bg-surface-2 text-ink-dim'}`}
+                ${strong ? '-rotate-3 border-2 border-line bg-brand text-on-brand shadow-brutal-sm' : 'bg-surface-2 text-ink-dim'}`}
             >
               {clip.virality_score}
             </span>
