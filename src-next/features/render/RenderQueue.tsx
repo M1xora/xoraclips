@@ -92,7 +92,7 @@ export function RenderQueue({
     >
       {lostContact && (
         <div className="mb-3 flex items-start gap-2.5 rounded-[--radius-control]
-          border border-caution/40 bg-caution/10 p-3">
+          border-2 border-caution/60 bg-caution/10 p-3">
           <PlugsConnectedIcon size={16} className="mt-0.5 shrink-0 text-caution" />
           <div className="min-w-0 flex-1">
             <p className="text-xs font-medium text-caution">{t.render.lostContact}</p>
@@ -134,7 +134,7 @@ export function RenderQueue({
                 ) : clip.status === 'error' ? (
                   <WarningCircleIcon size={15} weight="fill" className="shrink-0 text-critical-text" />
                 ) : clip.status === 'pending' ? (
-                  <span className="size-[15px] shrink-0 rounded-full border border-hairline" />
+                  <span className="size-[15px] shrink-0 rounded-full border-2 border-hairline" />
                 ) : (
                   <CircleNotchIcon size={15} className="shrink-0 animate-spin text-accent" />
                 )}

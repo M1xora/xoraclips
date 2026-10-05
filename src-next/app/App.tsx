@@ -3,6 +3,7 @@ import {
   ArrowSquareOutIcon,
   CookieIcon,
   FilmStripIcon,
+  PlayIcon,
   KeyIcon,
   WarningCircleIcon,
 } from '@phosphor-icons/react';
@@ -42,6 +43,7 @@ import {
 import { Button } from '../components/ui/Button';
 import { ErrorBoundary } from '../components/ErrorBoundary';
 import { Panel } from '../components/ui/Panel';
+import { Sticker } from '../components/ui/Sticker';
 import { ThemeToggle } from '../components/ui/ThemeToggle';
 import { Toast } from '../components/ui/Toast';
 import { useToast } from '../components/ui/useToast';
@@ -299,11 +301,9 @@ export function App() {
 
   return (
     <div className="min-h-[100dvh] bg-canvas">
-      <header className="sticky top-0 z-[--z-sticky] border-b border-hairline bg-canvas/90 backdrop-blur">
+      <header className="sticky top-0 z-[--z-sticky] border-b-2 border-line bg-canvas/95 backdrop-blur">
         <div className="mx-auto flex h-14 max-w-[1400px] items-center gap-3 px-4">
-          <span className="grid size-8 shrink-0 place-items-center rounded-full border-2 border-line bg-accent text-on-accent">
-            <FilmStripIcon size={16} weight="bold" />
-          </span>
+          <Sticker icon={<FilmStripIcon size={16} weight="bold" />} size="sm" tilt />
           <span className="font-display text-base font-black tracking-tight">{t.app.name}</span>
 
           <div className="ml-auto flex items-center gap-2">
@@ -434,7 +434,7 @@ export function App() {
               <div className="top-[4.5rem] lg:sticky lg:max-h-[calc(100dvh-6rem)]
                 lg:overflow-y-auto lg:pr-1">
                 <div className="mb-3 flex items-center justify-between gap-2">
-                  <h2 className="font-display text-sm font-semibold">
+                  <h2 className="font-display text-xl font-black">
                     {t.results.clipsFound(clipCount)}
                   </h2>
                   <button
@@ -468,7 +468,7 @@ export function App() {
         {result && (
           <ErrorBoundary section={t.studio.title}>
             <section className="mt-6">
-              <h2 className="mb-3 font-display text-sm font-semibold">{t.studio.title}</h2>
+              <h2 className="mb-4 font-display text-2xl font-black">{t.studio.title}</h2>
 
               <div className="grid items-start gap-5 xl:grid-cols-[1fr_368px]">
                 <div className="min-w-0">
@@ -584,9 +584,10 @@ export function App() {
                         faceTrackingLabel={t.studio.faceTrackingOn}
                       />
                     ) : (
-                      <div className="grid place-items-center rounded-[--radius-control]
-                        border border-dashed border-hairline py-12 text-center">
-                        <p className="text-xs text-ink-dim">{t.player.noClipSelected}</p>
+                      <div className="grid place-items-center gap-3 rounded-[--radius-control]
+                        border-2 border-dashed border-hairline py-12 text-center">
+                        <Sticker icon={<PlayIcon size={22} weight="fill" />} tone="sky" size="lg" tilt />
+                        <p className="text-xs font-medium text-ink-dim">{t.player.noClipSelected}</p>
                       </div>
                     )}
                   </Panel>

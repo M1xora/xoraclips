@@ -85,7 +85,7 @@ export function VideoPlayer({
           disabled={!ready}
           aria-label={playing ? 'Pause' : 'Play'}
           className="pressable grid size-8 shrink-0 place-items-center rounded-[--radius-control]
-            border border-hairline bg-surface-2 hover:bg-surface-3 disabled:opacity-40"
+            border-2 border-hairline bg-surface-2 hover:bg-surface-3 disabled:opacity-40"
         >
           {playing ? <PauseIcon size={14} weight="fill" /> : <PlayIcon size={14} weight="fill" />}
         </button>

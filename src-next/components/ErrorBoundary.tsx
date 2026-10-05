@@ -64,7 +64,7 @@ export class ErrorBoundary extends Component<Props, State> {
               type="button"
               onClick={this.reset}
               className="pressable mt-3 inline-flex items-center gap-1.5 rounded-[--radius-control]
-                border border-hairline bg-surface-2 px-3 py-1.5 text-xs font-medium
+                border-2 border-hairline bg-surface-2 px-3 py-1.5 text-xs font-medium
                 hover:bg-surface-3"
             >
               <ArrowClockwiseIcon size={13} />
