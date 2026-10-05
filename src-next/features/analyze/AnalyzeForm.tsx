@@ -220,7 +220,8 @@ export function AnalyzeForm({ onSubmit, busy, onKeyCleared }: AnalyzeFormProps) 
 
   return (
     <form onSubmit={submit} noValidate className="grid gap-4">
-      <Panel>
+      <Panel className="border-2 border-line bg-lime-muted shadow-brutal">
+        <h1 className="mb-4 text-2xl font-black leading-tight sm:text-3xl">{t.app.tagline}</h1>
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start">
           <Field
             label={t.form.urlLabel}
@@ -236,6 +237,7 @@ export function AnalyzeForm({ onSubmit, busy, onKeyCleared }: AnalyzeFormProps) 
           />
           <Button
             type="submit"
+            variant="brand"
             size="lg"
             loading={busy}
             icon={<SparkleIcon size={16} weight="fill" />}
