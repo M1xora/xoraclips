@@ -169,7 +169,7 @@ export function ToolsPanel({ result, activeClip, onNotice }: ToolsPanelProps) {
           <p className="mt-1.5 text-[0.8rem] text-ink-faint">{t.tools.downloadHint}</p>
 
           {raw.job && (
-            <div className="mt-2 rounded-[--radius-control] border border-hairline bg-surface-2 p-2.5">
+            <div className="mt-2 rounded-[--radius-control] border-2 border-hairline bg-surface-2 p-2.5">
               {raw.job.status === 'ready' && raw.job.download_url ? (
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <span className="min-w-0 flex-1 truncate text-xs">{raw.job.filename}</span>
@@ -177,8 +177,9 @@ export function ToolsPanel({ result, activeClip, onNotice }: ToolsPanelProps) {
                     href={raw.job.download_url}
                     download
                     onClick={() => raw.dismiss()}
-                    className="pressable shrink-0 rounded-[--radius-control] bg-accent px-2.5 py-1
-                      text-[0.8rem] font-semibold text-on-accent"
+                    className="pressable-btn shrink-0 rounded-[--radius-control] border-2 border-line
+                      bg-accent px-2.5 py-1 text-[0.8rem] font-bold text-on-accent shadow-brutal-sm
+                      active:shadow-none"
                   >
                     {t.tools.downloadSave}
                   </a>
@@ -226,9 +227,10 @@ function ToolButton({ icon, label, sub, disabled, onClick }: ToolButtonProps) {
       type="button"
       disabled={disabled}
       onClick={onClick}
-      className="pressable flex items-center gap-2 rounded-[--radius-control] border
-        border-hairline bg-surface-2 px-2.5 py-2 text-left hover:bg-surface-3
-        disabled:cursor-not-allowed disabled:opacity-45 disabled:hover:bg-surface-2"
+      className="pressable-btn flex items-center gap-2 rounded-[--radius-control] border-2
+        border-line bg-surface px-2.5 py-2 text-left shadow-brutal-sm hover:bg-surface-2
+        active:shadow-none disabled:cursor-not-allowed disabled:border-dashed
+        disabled:opacity-50 disabled:shadow-none disabled:hover:bg-surface"
     >
       <span className="shrink-0 text-ink-dim">{icon}</span>
       <span className="min-w-0">
@@ -278,7 +280,7 @@ function StorageRow({ onNotice }: { onNotice: (m: string, tone?: 'info' | 'error
 
   return (
     <div className="flex flex-wrap items-center justify-between gap-2 rounded-[--radius-control]
-      border border-hairline bg-surface-2 px-2.5 py-2">
+      border-2 border-hairline bg-surface-2 px-2.5 py-2">
       <span className="flex items-center gap-2 text-xs">
         <HardDrivesIcon size={14} className="text-ink-dim" />
         <span className="font-medium">{t.tools.storageGroup}</span>

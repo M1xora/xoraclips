@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { MagnifyingGlassIcon } from '@phosphor-icons/react';
 import { ClipCard } from './ClipCard';
+import { Sticker } from '../../components/ui/Sticker';
 import type { ViralClip } from '../../lib/types';
 import { useLanguage } from '../../i18n';
 
@@ -86,7 +87,7 @@ export function ClipList({
             onChange={(e) => setQuery(e.target.value)}
             placeholder={t.results.searchPlaceholder}
             aria-label={t.results.searchPlaceholder}
-            className="h-8 w-full rounded-[--radius-control] border border-hairline bg-surface-2
+            className="h-8 w-full rounded-[--radius-control] border-2 border-line bg-surface
               pl-8 pr-2.5 text-xs text-ink placeholder:text-ink-faint"
           />
         </div>
@@ -95,7 +96,7 @@ export function ClipList({
           value={filter}
           onChange={(e) => setFilter(e.target.value as Filter)}
           aria-label={t.results.filterLabel}
-          className="h-8 rounded-[--radius-control] border border-hairline bg-surface-2
+          className="h-8 rounded-[--radius-control] border-2 border-line bg-surface
             px-2 text-xs text-ink"
         >
           {filters.map((f) => (
@@ -109,7 +110,7 @@ export function ClipList({
           value={sort}
           onChange={(e) => setSort(e.target.value as Sort)}
           aria-label={t.results.sortLabel}
-          className="h-8 rounded-[--radius-control] border border-hairline bg-surface-2
+          className="h-8 rounded-[--radius-control] border-2 border-line bg-surface
             px-2 text-xs text-ink"
         >
           {sorts.map((s) => (
@@ -126,8 +127,10 @@ export function ClipList({
       </p>
 
       {visible.length === 0 ? (
-        <div className="rounded-[--radius-panel] border-2 border-dashed border-line bg-lavender-muted p-8 text-center">
-          <p className="text-sm font-medium">{t.results.emptyTitle}</p>
+        <div className="grid justify-items-center gap-3 rounded-[--radius-panel] border-2 border-dashed
+          border-line bg-lavender-muted p-8 text-center">
+          <Sticker icon={<MagnifyingGlassIcon size={22} weight="bold" />} tone="pink" size="lg" tilt />
+          <p className="text-sm font-bold">{t.results.emptyTitle}</p>
           <p className="mt-1 text-xs text-ink-dim">{t.results.emptyHint}</p>
         </div>
       ) : (

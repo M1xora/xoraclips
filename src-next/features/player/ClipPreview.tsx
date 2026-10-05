@@ -281,7 +281,7 @@ export function ClipPreview({
     <div ref={rootRef} className="flex w-full flex-col items-center gap-2">
       {/* The canvas: always 9:16, whatever the video ratio is. */}
       <div
-        className="relative shrink-0 overflow-hidden rounded-xl border border-hairline bg-black"
+        className="relative shrink-0 overflow-hidden rounded-xl border-2 border-hairline bg-black"
         style={{ width: frameW, height: frameH }}
       >
         {/* Blurred backdrop fills the bars the padding leaves behind. The

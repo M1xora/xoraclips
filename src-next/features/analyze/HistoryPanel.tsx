@@ -1,6 +1,7 @@
 import { useCallback, useMemo, useState } from 'react';
 import { ClockCounterClockwiseIcon, TrashIcon } from '@phosphor-icons/react';
 import { Panel } from '../../components/ui/Panel';
+import { Sticker } from '../../components/ui/Sticker';
 import { useLanguage } from '../../i18n';
 import { listHistory, removeFromHistory, type HistoryEntry } from './analysisCache';
 
@@ -45,11 +46,9 @@ export function HistoryPanel({ refreshToken, onOpen }: HistoryPanelProps) {
 
   if (entries.length === 0) {
     return (
-      <Panel title={t.results.historyTitle} className="border-2 border-line">
+      <Panel title={t.results.historyTitle}>
         <div className="flex items-center gap-3">
-          <span className="grid size-10 shrink-0 place-items-center rounded-full border-2 border-line bg-lavender-muted text-ink">
-            <ClockCounterClockwiseIcon size={18} weight="bold" />
-          </span>
+          <Sticker icon={<ClockCounterClockwiseIcon size={18} weight="bold" />} tone="yellow" tilt />
           <p className="text-xs text-ink-faint">{t.results.historyEmpty}</p>
         </div>
       </Panel>
@@ -57,7 +56,7 @@ export function HistoryPanel({ refreshToken, onOpen }: HistoryPanelProps) {
   }
 
   return (
-    <Panel title={t.results.historyTitle} subtitle={t.results.historyHint} className="border-2 border-line">
+    <Panel title={t.results.historyTitle} subtitle={t.results.historyHint}>
       <div className="grid gap-2">
         {/* Only worth searching once the list is long enough to scroll. */}
         {entries.length > 4 && (
@@ -67,7 +66,7 @@ export function HistoryPanel({ refreshToken, onOpen }: HistoryPanelProps) {
             onChange={(e) => setQuery(e.target.value)}
             placeholder={t.results.historySearch}
             aria-label={t.results.historySearch}
-            className="h-8 w-full rounded-[--radius-control] border border-hairline bg-surface-2
+            className="h-8 w-full rounded-[--radius-control] border-2 border-line bg-surface
               px-2.5 text-xs text-ink placeholder:text-ink-faint"
           />
         )}
@@ -79,7 +78,7 @@ export function HistoryPanel({ refreshToken, onOpen }: HistoryPanelProps) {
             {shown.map((e) => (
               <li
                 key={e.key}
-                className="flex items-center gap-2 rounded-[--radius-control] border
+                className="flex items-center gap-2 rounded-[--radius-control] border-2
                   border-hairline bg-surface-2 px-2.5 py-2"
               >
                 <ClockCounterClockwiseIcon size={14} className="shrink-0 text-ink-dim" />

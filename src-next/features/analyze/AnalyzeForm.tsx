@@ -220,7 +220,7 @@ export function AnalyzeForm({ onSubmit, busy, onKeyCleared }: AnalyzeFormProps) 
 
   return (
     <form onSubmit={submit} noValidate className="grid gap-4">
-      <Panel className="border-2 border-line bg-lime-muted shadow-brutal">
+      <Panel className="bg-lime-muted shadow-brutal-lg">
         <h1 className="mb-4 text-2xl font-black leading-tight sm:text-3xl">{t.app.tagline}</h1>
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start">
           <Field
@@ -237,7 +237,6 @@ export function AnalyzeForm({ onSubmit, busy, onKeyCleared }: AnalyzeFormProps) 
           />
           <Button
             type="submit"
-            variant="brand"
             size="lg"
             loading={busy}
             icon={<SparkleIcon size={16} weight="fill" />}
@@ -306,7 +305,7 @@ export function AnalyzeForm({ onSubmit, busy, onKeyCleared }: AnalyzeFormProps) 
                 </div>
 
                 <details
-                  className="rounded-[--radius-control] border border-hairline bg-surface-2 p-3 text-xs"
+                  className="rounded-[--radius-control] border-2 border-hairline bg-surface-2 p-3 text-xs"
                   open={!trimmedKey}
                 >
                   <summary className="cursor-pointer font-medium text-ink">
@@ -331,7 +330,7 @@ export function AnalyzeForm({ onSubmit, busy, onKeyCleared }: AnalyzeFormProps) 
               </div>
             )}
             {aiStatus === 'mock' && (
-              <div className="flex items-start gap-2 rounded-[--radius-control] border border-hairline bg-surface-2 p-3 text-sm">
+              <div className="flex items-start gap-2 rounded-[--radius-control] border-2 border-hairline bg-surface-2 p-3 text-sm">
                 <FlaskIcon size={16} className="mt-0.5 shrink-0 text-teal-text" />
                 <span>
                   <strong className="font-semibold">{t.form.mockMode}</strong>{' '}
@@ -351,8 +350,8 @@ export function AnalyzeForm({ onSubmit, busy, onKeyCleared }: AnalyzeFormProps) 
                 value={model}
                 disabled={busy}
                 onChange={(e) => setModel(e.target.value)}
-                className="mt-1.5 h-9 w-full rounded-[--radius-control] border border-hairline
-                  bg-surface-2 px-2.5 text-sm text-ink"
+                className="mt-1.5 h-9 w-full rounded-[--radius-control] border-2 border-line
+                  bg-surface px-2.5 text-sm text-ink"
               >
                 {modelOptions.map((m) => (
                   <option key={m} value={m}>

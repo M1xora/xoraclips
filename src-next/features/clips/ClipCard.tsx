@@ -61,8 +61,8 @@ export function ClipCard({
   return (
     <article
       onClick={onSelect}
-      className={`panel cursor-pointer border-2 p-4 transition-[background-color,border-color,box-shadow]
-        ${active ? 'border-line bg-brand-muted shadow-brutal' : 'hover:border-ink-faint'}`}
+      className={`panel cursor-pointer p-4 transition-[background-color,box-shadow]
+        ${active ? 'bg-accent-muted shadow-brutal-lg' : 'hover:bg-surface-2'}`}
     >
       <div className="flex items-start gap-3">
         <button
@@ -74,34 +74,38 @@ export function ClipCard({
           aria-pressed={marked}
           aria-label={marked ? t.results.unmark(index + 1) : t.results.mark(index + 1)}
           className={`pressable mt-0.5 grid size-6 shrink-0 place-items-center rounded
-            ${marked ? 'border-2 border-line bg-brand text-on-brand' : 'bg-surface-2 text-ink-faint hover:text-ink'}`}
+            ${marked
+              ? 'border-2 border-line bg-accent text-on-accent'
+              : 'border-2 border-hairline bg-surface text-ink-faint hover:text-ink'}`}
         >
           <BookmarkSimpleIcon size={13} weight={marked ? 'fill' : 'regular'} />
         </button>
 
         <div className="min-w-0 flex-1">
-          <h3 className="text-sm font-bold leading-snug">{clip.title}</h3>
+          <h3 className="text-sm font-extrabold leading-snug">{clip.title}</h3>
 
           <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1">
             <span className="tabular font-mono text-xs text-ink-dim">{range}</span>
             <span className="tabular text-xs text-ink-faint">{duration}s</span>
             <span
               className={`tabular rounded px-1.5 py-0.5 font-mono text-[0.8rem] font-semibold
-                ${strong ? '-rotate-3 border-2 border-line bg-brand text-on-brand shadow-brutal-sm' : 'bg-surface-2 text-ink-dim'}`}
+                ${strong
+                  ? '-rotate-3 border-2 border-line bg-accent text-on-accent shadow-brutal-sm'
+                  : 'border-2 border-hairline bg-surface-2 text-ink-dim'}`}
             >
               {clip.virality_score}
             </span>
           </div>
 
           {clip.key_quotes?.length > 0 && (
-            <p className="mt-2 border-l-2 border-hairline pl-2.5 text-xs italic text-ink-dim">
+            <p className="mt-2 border-l-4 border-accent pl-2.5 text-xs italic text-ink-dim">
               {clip.key_quotes[0]}
             </p>
           )}
 
           {post && (
             // The caption Gemini wrote for posting, ready to paste (#49).
-            <div className="mt-3 rounded-md border border-hairline p-2.5">
+            <div className="mt-3 rounded-md border-2 border-hairline p-2.5">
               <div className="flex items-center justify-between gap-2">
                 <span className="text-[0.7rem] font-medium uppercase tracking-wide text-ink-faint">
                   {t.results.postCaption}

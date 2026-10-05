@@ -1,7 +1,7 @@
 import type { ButtonHTMLAttributes, ReactNode } from 'react';
 import { CircleNotchIcon } from '@phosphor-icons/react';
 
-type Variant = 'primary' | 'secondary' | 'teal' | 'ghost' | 'danger' | 'brand';
+type Variant = 'primary' | 'secondary' | 'teal' | 'ghost' | 'danger';
 type Size = 'sm' | 'md' | 'lg';
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
@@ -12,45 +12,28 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 /**
- * Variants.
+ * Variants, drawn neo-brutal (#88).
  *
- * The previous set was five flat fills with no depth, so the primary action
- * and a destructive one carried the same visual weight, and secondary was
- * hard to tell from ghost. Three things fix that:
+ * Every filled variant carries a 2px line and a hard offset shadow; pressing
+ * drops the shadow and pressable-btn slides the button onto where it was, so
+ * a click has somewhere to travel. Hierarchy comes from the fill and the
+ * shadow size: primary is orange on the full shadow, secondary, teal and
+ * danger sit on the small one, ghost has neither.
  *
- *   Hierarchy  primary gets a top highlight and a lifted shadow so it reads
- *              as raised; secondary keeps a border but no shadow; ghost has
- *              neither. The eye can rank them without reading the label.
- *   Depth      an inset top highlight plus a tinted (never black) shadow,
- *              which is what makes a fill look like a surface rather than a
- *              coloured rectangle.
- *   Feedback   hover lifts 1px, active presses 1px past rest and drops the
- *              shadow, so the click has somewhere to travel.
- *
- * Contrast is measured, not assumed: white on the blue fill is 4.65:1 in
- * dark and 5.85:1 in light, white on teal 5.19:1, white on red 5.30:1.
+ * Contrast is measured, not assumed: dark text on orange is 6.60:1, on green
+ * 9.04:1, white on red 5.30:1. The orange fill itself is only 2.6:1 against
+ * the light canvas, which is why the line border is part of every variant.
  */
 const VARIANTS: Record<Variant, string> = {
   primary:
-    'bg-accent text-on-accent shadow-[inset_0_1px_0_rgb(255_255_255/.18),0_1px_2px_rgb(0_0_0/.28)] ' +
-    'hover:bg-accent-bright hover:shadow-[inset_0_1px_0_rgb(255_255_255/.22),0_2px_6px_rgb(0_0_0/.3)] ' +
-    'active:shadow-[inset_0_1px_2px_rgb(0_0_0/.22)]',
+    'border-2 border-line bg-accent text-on-accent shadow-brutal hover:bg-accent-bright',
   secondary:
-    'bg-surface-2 text-ink border border-hairline ' +
-    'hover:bg-surface-3 hover:border-ink-faint/40',
+    'border-2 border-line bg-surface text-ink shadow-brutal-sm hover:bg-surface-2',
   teal:
-    'bg-teal text-on-teal shadow-[inset_0_1px_0_rgb(255_255_255/.16),0_1px_2px_rgb(0_0_0/.28)] ' +
-    'hover:bg-teal-bright active:shadow-[inset_0_1px_2px_rgb(0_0_0/.22)]',
-  ghost: 'bg-transparent text-ink-dim hover:bg-surface-2 hover:text-ink',
+    'border-2 border-line bg-teal text-on-teal shadow-brutal-sm hover:bg-teal-bright',
+  ghost: 'border-2 border-transparent bg-transparent text-ink-dim hover:bg-surface-2 hover:text-ink',
   danger:
-    'bg-critical text-on-critical shadow-[inset_0_1px_0_rgb(255_255_255/.16),0_1px_2px_rgb(0_0_0/.28)] ' +
-    'hover:bg-critical-bright active:shadow-[inset_0_1px_2px_rgb(0_0_0/.22)]',
-  // Neo-brutal: 2px line and a hard offset shadow. Pressing slides the
-  // button onto its shadow; pressable-btn already moves it 1px down,
-  // the translate adds the rest so it lands 3px right and 3px down.
-  brand:
-    'bg-brand text-on-brand border-2 border-line shadow-brutal hover:bg-brand-bright ' +
-    'active:shadow-none motion-safe:active:translate-x-[3px] motion-safe:active:translate-y-[2px]',
+    'border-2 border-line bg-critical text-on-critical shadow-brutal-sm hover:bg-critical-bright',
 };
 
 /**
@@ -85,8 +68,9 @@ export function Button({
       disabled={disabled || loading}
       aria-busy={loading || undefined}
       className={`pressable-btn inline-flex shrink-0 items-center justify-center
-        whitespace-nowrap rounded-[--radius-button] font-display font-semibold
-        disabled:pointer-events-none disabled:opacity-40 disabled:shadow-none
+        whitespace-nowrap rounded-[--radius-button] font-display font-bold
+        active:shadow-none disabled:pointer-events-none disabled:border-dashed
+        disabled:opacity-50 disabled:shadow-none
         ${VARIANTS[variant]} ${SIZES[size]} ${className}`}
     >
       {loading ? <CircleNotchIcon className="animate-spin" size={16} weight="bold" /> : icon}

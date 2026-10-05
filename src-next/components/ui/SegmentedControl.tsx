@@ -31,11 +31,11 @@ export function SegmentedControl<T extends string>({
 }: SegmentedControlProps<T>) {
   return (
     <div>
-      <span className="text-xs font-medium text-ink-dim">{label}</span>
+      <span className="mr-2 text-xs font-medium text-ink-dim">{label}</span>
       <div
         role="radiogroup"
         aria-label={label}
-        className="mt-1.5 inline-flex max-w-full flex-wrap rounded-[--radius-control] border border-hairline bg-surface-2 p-0.5"
+        className="mt-1.5 inline-flex max-w-full flex-wrap gap-0.5 rounded-[--radius-control] border-2 border-line bg-surface p-0.5"
       >
         {options.map((opt) => {
           const active = opt.value === value;
@@ -47,9 +47,11 @@ export function SegmentedControl<T extends string>({
               aria-checked={active}
               disabled={disabled}
               onClick={() => onChange(opt.value)}
-              className={`pressable rounded-[calc(var(--radius-control)-2px)] px-3 py-1.5
-                text-xs font-medium disabled:opacity-40
-                ${active ? 'bg-accent text-on-accent' : 'text-ink-dim hover:text-ink'}`}
+              className={`pressable rounded-[calc(var(--radius-control)-2px)] border-2 px-3 py-1
+                text-xs font-semibold disabled:opacity-40
+                ${active
+                  ? 'border-line bg-accent text-on-accent shadow-brutal-sm'
+                  : 'border-transparent text-ink-dim hover:bg-surface-2 hover:text-ink'}`}
             >
               {opt.label}
               {opt.sub && (

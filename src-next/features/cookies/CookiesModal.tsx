@@ -116,7 +116,7 @@ export function CookiesModal({ open, onClose, onChanged }: CookiesModalProps) {
       <p className="text-xs leading-relaxed text-ink-dim">{t.cookies.why}</p>
 
       {status?.exists ? (
-        <div className="mt-3 rounded-[--radius-control] border border-positive/40
+        <div className="mt-3 rounded-[--radius-control] border-2 border-positive/60
           bg-positive/10 p-3">
           <p className="flex items-center gap-1.5 text-xs font-medium text-positive">
             <CheckCircleIcon size={14} weight="fill" />
@@ -151,7 +151,7 @@ export function CookiesModal({ open, onClose, onChanged }: CookiesModalProps) {
         </div>
       ) : (
         <div className="mt-3 flex items-center gap-2 rounded-[--radius-control]
-          border border-caution/40 bg-caution/10 p-3">
+          border-2 border-caution/60 bg-caution/10 p-3">
           <CookieIcon size={15} className="shrink-0 text-caution" />
           <p className="text-xs text-caution">{t.cookies.none}</p>
         </div>
@@ -188,8 +188,8 @@ export function CookiesModal({ open, onClose, onChanged }: CookiesModalProps) {
           spellCheck={false}
           autoComplete="off"
           placeholder="# Netscape HTTP Cookie File"
-          className="mt-1.5 w-full rounded-[--radius-control] border border-hairline
-            bg-surface-2 p-2.5 font-mono text-[0.8rem] text-ink placeholder:text-ink-faint"
+          className="mt-1.5 w-full rounded-[--radius-control] border-2 border-line
+            bg-surface p-2.5 font-mono text-[0.8rem] text-ink placeholder:text-ink-faint"
         />
       </div>
 

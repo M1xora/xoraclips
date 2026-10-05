@@ -45,9 +45,9 @@ export function Field({
           id={id}
           aria-invalid={error ? true : undefined}
           aria-describedby={error ? errId : hint ? hintId : undefined}
-          className={`h-9 w-full rounded-[--radius-control] border bg-surface-2 px-3 text-sm
-            text-ink placeholder:text-ink-faint
-            ${error ? 'border-critical' : 'border-hairline'}
+          className={`h-9 w-full rounded-[--radius-control] border-2 bg-surface px-3 text-sm
+            text-ink placeholder:text-ink-faint focus:shadow-brutal-sm
+            ${error ? 'border-critical' : 'border-line'}
             ${trailing ? 'pr-20' : ''}`}
         />
         {trailing && (

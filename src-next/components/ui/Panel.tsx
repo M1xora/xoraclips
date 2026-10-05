@@ -12,15 +12,15 @@ interface PanelProps {
  * Bordered content group.
  *
  * Uses <section> with a heading rather than a bare div, so the page outline
- * is navigable. Separation comes from a 1px border, not a drop shadow.
+ * is navigable. Drawn by the .panel class: a 2px line on a hard shadow.
  */
 export function Panel({ title, subtitle, actions, children, className = '' }: PanelProps) {
   return (
     <section className={`panel ${className}`}>
       {(title || actions) && (
-        <header className="flex items-start justify-between gap-3 border-b border-hairline px-4 py-3">
+        <header className="flex items-start justify-between gap-3 border-b-2 border-line px-4 py-3">
           <div className="min-w-0">
-            {title && <h2 className="font-display text-sm font-semibold">{title}</h2>}
+            {title && <h2 className="font-display text-sm font-extrabold">{title}</h2>}
             {subtitle && <p className="mt-0.5 text-xs text-ink-faint">{subtitle}</p>}
           </div>
           {actions && <div className="flex shrink-0 items-center gap-1.5">{actions}</div>}

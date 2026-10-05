@@ -79,7 +79,7 @@ function TimeField({
         }}
         inputMode="decimal"
         spellCheck={false}
-        className="tabular h-7 w-24 rounded-[--radius-control] border border-hairline bg-surface-2
+        className="tabular h-7 w-24 rounded-[--radius-control] border-2 border-line bg-surface
           px-2 font-mono text-xs text-ink"
       />
     </label>
@@ -126,7 +126,7 @@ const TranscriptLines = memo(function TranscriptLines({
       <ol
         ref={listRef}
         className="relative max-h-56 divide-y divide-hairline overflow-y-auto
-          rounded-[--radius-control] border border-hairline"
+          rounded-[--radius-control] border-2 border-hairline"
       >
         {lines.map((line, i) => {
           const inside = line.start >= start - 0.005 && line.end <= end + 0.005;
@@ -450,7 +450,7 @@ export function TrimmerModal({
           }
         }}
         className="relative mt-2 h-14 touch-none select-none rounded-[--radius-control]
-          border border-hairline bg-surface-2"
+          border-2 border-hairline bg-surface-2"
       >
         {/* The AI's original pick, for reference. */}
         <div

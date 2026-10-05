@@ -138,10 +138,10 @@ export function StudioPanel({
                       dispatch({ type: 'setAspectRatio', ratio: card.value, titleLines })
                     }
                     className={`pressable flex flex-col items-center gap-1.5 rounded-[--radius-control]
-                      border px-2 py-2.5
+                      border-2 px-2 py-2.5
                       ${
                         active
-                          ? 'border-accent bg-accent-muted'
+                          ? 'border-line bg-accent-muted shadow-brutal-sm'
                           : 'border-hairline bg-surface-2 hover:bg-surface-3'
                       }`}
                   >
@@ -149,7 +149,7 @@ export function StudioPanel({
                     <span
                       aria-hidden="true"
                       className={`rounded-sm border ${
-                        active ? 'border-accent bg-accent' : 'border-dashed border-ink-faint'
+                        active ? 'border-line bg-accent' : 'border-dashed border-ink-faint'
                       }`}
                       style={{ width: card.w, height: card.h }}
                     />
@@ -225,10 +225,10 @@ export function StudioPanel({
                     aria-checked={active}
                     onClick={() => dispatch({ type: 'set', patch: { streamerPreset: preset } })}
                     className={`pressable flex flex-col items-center gap-1.5
-                      rounded-[--radius-control] border px-2 py-2.5
+                      rounded-[--radius-control] border-2 px-2 py-2.5
                       ${
                         active
-                          ? 'border-accent bg-accent-muted'
+                          ? 'border-line bg-accent-muted shadow-brutal-sm'
                           : 'border-hairline bg-surface-2 hover:bg-surface-3'
                       }`}
                   >
@@ -251,7 +251,7 @@ export function StudioPanel({
                 x=810. Worth saying, since 9:16 is the default ratio. */}
             {state.streamerPreset === 'split_top_cam' && state.aspectRatio === '9:16' && (
               <div className="mt-2 flex flex-wrap items-center gap-2 rounded-[--radius-control]
-                border border-caution/40 bg-caution/10 px-2.5 py-2">
+                border-2 border-caution/60 bg-caution/10 px-2.5 py-2">
                 <p className="min-w-0 flex-1 text-[0.8rem] text-ink">
                   {t.studio.streamerRatioWarn}
                 </p>
@@ -260,7 +260,7 @@ export function StudioPanel({
                   onClick={() =>
                     dispatch({ type: 'setAspectRatio', ratio: '1:1', titleLines })
                   }
-                  className="pressable shrink-0 rounded border border-hairline bg-surface-2
+                  className="pressable shrink-0 rounded border-2 border-hairline bg-surface-2
                     px-2 py-1 text-[0.8rem] font-semibold hover:bg-surface-3"
                 >
                   {t.studio.streamerSwitchTo11}
@@ -345,9 +345,9 @@ export function StudioPanel({
                             type="button"
                             aria-pressed={choice.active}
                             onClick={() => onCustomTitleChange(choice.value)}
-                            className={`pressable rounded-[--radius-control] border px-2.5 py-1.5 text-left text-xs
+                            className={`pressable rounded-[--radius-control] border-2 px-2.5 py-1.5 text-left text-xs
                               ${choice.active
-                                ? 'border-accent bg-accent/10 font-semibold text-ink'
+                                ? 'border-line bg-accent-muted font-semibold text-ink shadow-brutal-sm'
                                 : 'border-hairline text-ink-dim hover:bg-surface-2 hover:text-ink'}`}
                           >
                             {choice.text}
@@ -418,11 +418,11 @@ export function StudioPanel({
                       type="button"
                       aria-pressed={state.captionStyle === s}
                       onClick={() => dispatch({ type: 'setCaptionStyle', style: s })}
-                      className={`pressable rounded-[--radius-control] border px-2 py-2 text-[0.8rem]
+                      className={`pressable rounded-[--radius-control] border-2 px-2 py-2 text-[0.8rem]
                         font-semibold
                         ${
                           state.captionStyle === s
-                            ? 'border-accent bg-surface-3'
+                            ? 'border-line bg-surface-3 shadow-brutal-sm'
                             : 'border-hairline bg-surface-2 hover:bg-surface-3'
                         }`}
                       style={{ color: CAPTION_THEMES[s].accent }}
@@ -443,8 +443,8 @@ export function StudioPanel({
                   onChange={(e) =>
                     dispatch({ type: 'set', patch: { captionFont: e.target.value as CaptionFont } })
                   }
-                  className="mt-1.5 h-9 w-full rounded-[--radius-control] border border-hairline
-                    bg-surface-2 px-2.5 text-sm text-ink"
+                  className="mt-1.5 h-9 w-full rounded-[--radius-control] border-2 border-line
+                    bg-surface px-2.5 text-sm text-ink"
                 >
                   {FONTS.map((f) => (
                     <option key={f} value={f}>
@@ -549,8 +549,8 @@ export function StudioPanel({
                       dispatch({ type: 'set', patch: { watermarkText: e.target.value } })
                     }
                     placeholder="@channel"
-                    className="mt-1.5 h-9 w-full rounded-[--radius-control] border border-hairline
-                      bg-surface-2 px-3 text-sm text-ink placeholder:text-ink-faint"
+                    className="mt-1.5 h-9 w-full rounded-[--radius-control] border-2 border-line
+                      bg-surface px-3 text-sm text-ink placeholder:text-ink-faint focus:shadow-brutal-sm"
                   />
                 </div>
               )}
@@ -592,7 +592,7 @@ export function StudioPanel({
                           type="button"
                           aria-label={t.studio.watermarkCorner[corner]}
                           onClick={() => dispatch({ type: 'applyWatermarkPreset', corner })}
-                          className="pressable aspect-square rounded border border-hairline
+                          className="pressable aspect-square rounded border-2 border-hairline
                             bg-surface-2 hover:bg-surface-3"
                         />
                       ) : (
@@ -740,7 +740,7 @@ export function StudioPanel({
  * (x=736 of 1080, video_engine.py:1379).
  */
 function StreamerShape({ preset, active }: { preset: StreamerPreset; active: boolean }) {
-  const line = active ? 'border-accent' : 'border-ink-faint';
+  const line = active ? 'border-line' : 'border-ink-faint';
   const fill = active ? 'bg-accent' : 'bg-ink-faint/40';
 
   if (preset === 'split_top_cam') {
@@ -842,10 +842,10 @@ function HardwarePicker({ value, onChange }: HardwarePickerProps) {
               disabled={off}
               onClick={() => onChange(opt.id)}
               className={`pressable flex items-center justify-between gap-3 rounded-[--radius-control]
-                border px-3 py-2 text-left
+                border-2 px-3 py-2 text-left
                 ${
                   active
-                    ? 'border-accent bg-accent-muted'
+                    ? 'border-line bg-accent-muted shadow-brutal-sm'
                     : 'border-hairline bg-surface-2 hover:bg-surface-3'
                 }
                 ${off ? 'cursor-not-allowed opacity-45 hover:bg-surface-2' : ''}`}
@@ -858,7 +858,7 @@ function HardwarePicker({ value, onChange }: HardwarePickerProps) {
               </span>
 
               {info && info.recommended === opt.id && opt.available && (
-                <span className="shrink-0 rounded bg-accent-muted px-1.5 py-px text-[0.72rem] font-bold uppercase text-ink">
+                <span className="shrink-0 -rotate-2 rounded border-2 border-line bg-pop-yellow px-1.5 py-px text-[0.72rem] font-black uppercase text-on-accent shadow-brutal-sm">
                   {t.studio.hardwareRecommended}
                 </span>
               )}
@@ -908,7 +908,7 @@ function WatermarkUpload({ fileName, dispatch, onError }: WatermarkUploadProps) 
 
   if (fileName) {
     return (
-      <div className="flex items-center gap-2 rounded-[--radius-control] border
+      <div className="flex items-center gap-2 rounded-[--radius-control] border-2
         border-hairline bg-surface-2 px-2.5 py-2">
         <ImageIcon size={14} className="shrink-0 text-ink-faint" />
         <span className="min-w-0 flex-1 truncate text-xs">{fileName}</span>
@@ -996,7 +996,7 @@ function AssetSlot({ slot, icon, label, fileName, dispatch, onError }: AssetSlot
       </span>
 
       {fileName ? (
-        <div className="mt-1.5 flex items-center gap-2 rounded-[--radius-control] border
+        <div className="mt-1.5 flex items-center gap-2 rounded-[--radius-control] border-2
           border-hairline bg-surface-2 px-2.5 py-2">
           <span className="min-w-0 flex-1 truncate text-xs">{fileName}</span>
           <button
@@ -1022,8 +1022,8 @@ function AssetSlot({ slot, icon, label, fileName, dispatch, onError }: AssetSlot
             const f = e.dataTransfer.files?.[0];
             if (f) void upload(f);
           }}
-          className={`mt-1.5 rounded-[--radius-control] border border-dashed p-3 text-center
-            ${dragging ? 'border-accent bg-surface-3' : 'border-hairline'}`}
+          className={`mt-1.5 rounded-[--radius-control] border-2 border-dashed p-3 text-center
+            ${dragging ? 'border-line bg-accent-muted' : 'border-hairline'}`}
         >
           <input
             ref={inputRef}
