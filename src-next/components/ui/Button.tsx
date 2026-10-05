@@ -49,7 +49,7 @@ const VARIANTS: Record<Variant, string> = {
   // button onto its shadow; pressable-btn already moves it 1px down,
   // the translate adds the rest so it lands 3px right and 3px down.
   brand:
-    'bg-brand text-on-brand border-2 border-line shadow-brutal hover:bg-brand-bright ' +
+    'bg-accent text-on-accent border-2 border-line shadow-brutal hover:bg-accent-bright ' +
     'active:shadow-none motion-safe:active:translate-x-[3px] motion-safe:active:translate-y-[2px]',
 };
 

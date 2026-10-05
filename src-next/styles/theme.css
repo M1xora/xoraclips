@@ -16,14 +16,17 @@
 @import '@fontsource-variable/jetbrains-mono';
 
 /**
- * Design tokens.
+ * Design tokens: neo-brutalism with a pop-art accent (#88).
  *
- * One neutral family, one accent, and status colours that only appear when
- * something has a status. The point is a surface you can look at for an hour
- * while judging video: nothing competes with the footage.
+ * One neutral family, one orange accent with dark text on it, a green second
+ * accent, and status colours that only appear when something has a status.
+ * Every container, control and button is drawn with a hard line and an
+ * offset shadow, so the whole app speaks one visual language. The video
+ * frame itself stays black: footage is still judged against neutral ground.
  *
- * Every text pair in use was measured against WCAG AA (4.5:1). The weakest
- * is 4.65:1 in dark and 4.84:1 in light.
+ * Every text pair in use was measured against WCAG AA (4.5:1) and every line
+ * or control edge against 3:1; the full table is on issue #88. The weakest
+ * text pair is 4.70:1 (ink-faint on accent-muted, light).
  */
 @theme {
   /* Fonts, radii and z-scale do not change between modes. */
@@ -83,11 +86,12 @@
   --color-teal-muted: var(--c-teal-muted);
   --color-on-teal: var(--c-on-teal);
 
-  --color-brand: var(--c-brand);
-  --color-brand-bright: var(--c-brand-bright);
-  --color-brand-text: var(--c-brand-text);
-  --color-brand-muted: var(--c-brand-muted);
-  --color-on-brand: var(--c-on-brand);
+  /* Pop colours for stickers and badges only. Same in both modes, always
+     with text-on-accent on top, never as a panel background: panel content
+     uses ink colours that flip per mode. */
+  --color-pop-yellow: var(--c-pop-yellow);
+  --color-pop-pink: var(--c-pop-pink);
+  --color-pop-sky: var(--c-pop-sky);
 
   --color-lavender-muted: var(--c-lavender-muted);
   --color-lime-muted: var(--c-lime-muted);
@@ -97,6 +101,7 @@
   /* Neo-brutal hard shadow: offset only, no blur, coloured by --c-line. */
   --shadow-brutal: 3px 3px 0 0 var(--c-line);
   --shadow-brutal-sm: 2px 2px 0 0 var(--c-line);
+  --shadow-brutal-lg: 5px 5px 0 0 var(--c-line);
 
   --color-critical: var(--c-critical);
   --color-critical-bright: var(--c-critical-bright);
@@ -128,33 +133,34 @@
   --c-surface: #161920;
   --c-surface-2: #1e222b;
   --c-surface-3: #282d38;
-  --c-hairline: #333944;
-
-  /* Blue carries the primary action. White on the fill is 4.65:1; the
-     brighter tint is for accent-coloured TEXT, which needs more. */
-  --c-accent: #2f6fe4;
-  --c-accent-bright: #4a86f0;
-  --c-accent-text: #7ab0ff;
-  --c-accent-muted: #1b2740;
-  --c-on-accent: #ffffff;
-
-  --c-teal: #1d7a6b;
-  --c-teal-bright: #24907e;
-  --c-teal-text: #5fd4c4;
-  --c-teal-muted: #14302c;
-  --c-on-teal: #ffffff;
-
-  /* Brand orange, playful surfaces only (header, pre-results screen, clip
-     cards). Same fill in both modes with dark text on it. Hue 26° vs
-     critical's 6-7°, so it never reads as an error. In light mode the fill
-     is only 2.6:1 against the canvas, so bg-brand always carries
-     border-2 border-line (#82). */
-  --c-brand: #f27a1f;
-  --c-brand-bright: #ff9445;
-  --c-brand-text: #ff9d52;
-  --c-brand-muted: #3a2416;
-  --c-on-brand: #12151a;
+  /* Dividers and control edges: 3.38:1 on surface-2, above the 3:1 a
+     control boundary needs. --c-line is the heavier stroke for containers,
+     buttons and the hard shadow. */
+  --c-hairline: #6b7484;
   --c-line: #e6e9ef;
+
+  /*
+   * Orange carries the primary action, with dark text on it (6.60:1). Same
+   * fill in both modes. Hue 26° vs critical's 6-7°, so it never reads as an
+   * error. In light mode the fill is only 2.6:1 against the canvas, so a
+   * filled control always carries a line border; the border is the edge.
+   */
+  --c-accent: #f27a1f;
+  --c-accent-bright: #ff9445;
+  --c-accent-text: #ff9d52;
+  --c-accent-muted: #3a2416;
+  --c-on-accent: #12151a;
+
+  /* Green is the second accent (trim, positive actions), dark text on it. */
+  --c-teal: #3ecf74;
+  --c-teal-bright: #5fe08f;
+  --c-teal-text: #5fe08f;
+  --c-teal-muted: #14302c;
+  --c-on-teal: #12151a;
+
+  --c-pop-yellow: #ffd23f;
+  --c-pop-pink: #ff8cc6;
+  --c-pop-sky: #5cc8ff;
 
   --c-lavender-muted: #2a2740;
   --c-lime-muted: #1f3022;
@@ -173,34 +179,32 @@
 }
 
 /**
- * Light mode inverts the surface ladder: the canvas is the tinted grey and
- * panels sit ABOVE it in white, separated by a hairline rather than a shadow.
+ * Light mode inverts the surface ladder: the canvas is warm cream and panels
+ * sit ABOVE it in white, outlined in ink like a printed comic panel.
  */
 :root[data-theme='light'] {
-  --c-canvas: #f6f7f9;
+  --c-canvas: #fbf6ec;
   --c-surface: #ffffff;
-  --c-surface-2: #f1f3f6;
-  --c-surface-3: #e6e9ee;
-  --c-hairline: #d5dae2;
-
-  --c-accent: #1a5fd0;
-  --c-accent-bright: #164fb0;
-  --c-accent-text: #1a5fd0;
-  --c-accent-muted: #e3ecfb;
-  --c-on-accent: #ffffff;
-
-  --c-teal: #0f6b60;
-  --c-teal-bright: #0c5a51;
-  --c-teal-text: #0f6b60;
-  --c-teal-muted: #dcefec;
-  --c-on-teal: #ffffff;
-
-  --c-brand: #f27a1f;
-  --c-brand-bright: #ff9445;
-  --c-brand-text: #b24a09;
-  --c-brand-muted: #fbe1cd;
-  --c-on-brand: #12151a;
+  --c-surface-2: #f4efe4;
+  --c-surface-3: #ebe4d6;
+  --c-hairline: #12151a;
   --c-line: #12151a;
+
+  --c-accent: #f27a1f;
+  --c-accent-bright: #ff9445;
+  --c-accent-text: #b24a09;
+  --c-accent-muted: #fbe1cd;
+  --c-on-accent: #12151a;
+
+  --c-teal: #3ecf74;
+  --c-teal-bright: #5fe08f;
+  --c-teal-text: #167a3e;
+  --c-teal-muted: #dcf5e4;
+  --c-on-teal: #12151a;
+
+  --c-pop-yellow: #ffd23f;
+  --c-pop-pink: #ff8cc6;
+  --c-pop-sky: #5cc8ff;
 
   --c-lavender-muted: #ece9fb;
   --c-lime-muted: #e3f1e2;
@@ -221,30 +225,28 @@
 /* Follow the OS until the viewer picks a mode, which sets data-theme. */
 @media (prefers-color-scheme: light) {
   :root:not([data-theme]) {
-    --c-canvas: #f6f7f9;
+    --c-canvas: #fbf6ec;
     --c-surface: #ffffff;
-    --c-surface-2: #f1f3f6;
-    --c-surface-3: #e6e9ee;
-    --c-hairline: #d5dae2;
-
-    --c-accent: #1a5fd0;
-    --c-accent-bright: #164fb0;
-    --c-accent-text: #1a5fd0;
-    --c-accent-muted: #e3ecfb;
-    --c-on-accent: #ffffff;
-
-    --c-teal: #0f6b60;
-    --c-teal-bright: #0c5a51;
-    --c-teal-text: #0f6b60;
-    --c-teal-muted: #dcefec;
-    --c-on-teal: #ffffff;
-
-    --c-brand: #f27a1f;
-    --c-brand-bright: #ff9445;
-    --c-brand-text: #b24a09;
-    --c-brand-muted: #fbe1cd;
-    --c-on-brand: #12151a;
+    --c-surface-2: #f4efe4;
+    --c-surface-3: #ebe4d6;
+    --c-hairline: #12151a;
     --c-line: #12151a;
+
+    --c-accent: #f27a1f;
+    --c-accent-bright: #ff9445;
+    --c-accent-text: #b24a09;
+    --c-accent-muted: #fbe1cd;
+    --c-on-accent: #12151a;
+
+    --c-teal: #3ecf74;
+    --c-teal-bright: #5fe08f;
+    --c-teal-text: #167a3e;
+    --c-teal-muted: #dcf5e4;
+    --c-on-teal: #12151a;
+
+    --c-pop-yellow: #ffd23f;
+    --c-pop-pink: #ff8cc6;
+    --c-pop-sky: #5cc8ff;
 
     --c-lavender-muted: #ece9fb;
     --c-lime-muted: #e3f1e2;
@@ -283,8 +285,18 @@
     font-size: 100%;
   }
 
+  /*
+   * Halftone: a faint dot grid on the page ground only, the pop-art print
+   * texture. Panels paint their own surface over it, so it never sits behind
+   * text or footage.
+   */
   body {
     background-color: var(--color-canvas);
+    background-image: radial-gradient(
+      color-mix(in srgb, var(--color-line) 9%, transparent) 1px,
+      transparent 1.5px
+    );
+    background-size: 18px 18px;
     color: var(--color-ink);
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
@@ -309,8 +321,9 @@
   }
 
   /* Accessibility requirement, not optional. */
+  /* Line, not accent: orange on the light canvas is only 2.6:1. */
   :focus-visible {
-    outline: 2px solid var(--color-accent);
+    outline: 2px solid var(--color-line);
     outline-offset: 2px;
     border-radius: 2px;
   }
@@ -325,14 +338,12 @@
 }
 
 @layer components {
-  /* Surface with a light top edge, so panels read as lit from above. */
+  /* Outlined surface on a hard offset shadow (same as shadow-brutal). */
   .panel {
     background-color: var(--color-surface);
-    border: 1px solid var(--color-hairline);
+    border: 2px solid var(--color-line);
     border-radius: var(--radius-panel);
-    box-shadow:
-      inset 0 1px 0 0 rgb(255 255 255 / 0.04),
-      0 1px 2px 0 rgb(0 0 0 / 0.4);
+    box-shadow: 3px 3px 0 0 var(--color-line);
   }
 
   /* Pressed feedback on every interactive control. */
@@ -348,9 +359,8 @@
   }
 
   /*
-   * Buttons travel further than other pressables: up on hover, down past
-   * rest on press. The shadow in the variant does the rest, so a click has
-   * somewhere to go instead of only changing colour.
+   * Buttons sit on a hard shadow and slide onto it when pressed: the variant
+   * drops the shadow on :active and this moves the button into its place.
    */
   .pressable-btn {
     transition:
@@ -360,15 +370,11 @@
       transform 100ms ease,
       opacity 160ms ease;
   }
-  .pressable-btn:hover:not(:disabled) {
-    transform: translateY(-1px);
-  }
   .pressable-btn:active:not(:disabled) {
-    transform: translateY(1px);
+    transform: translate(2px, 2px);
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .pressable-btn:hover:not(:disabled),
     .pressable-btn:active:not(:disabled) {
       transform: none;
     }

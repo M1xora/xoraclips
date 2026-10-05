@@ -62,7 +62,7 @@ export function ClipCard({
     <article
       onClick={onSelect}
       className={`panel cursor-pointer border-2 p-4 transition-[background-color,border-color,box-shadow]
-        ${active ? 'border-line bg-brand-muted shadow-brutal' : 'hover:border-ink-faint'}`}
+        ${active ? 'border-line bg-accent-muted shadow-brutal' : 'hover:border-ink-faint'}`}
     >
       <div className="flex items-start gap-3">
         <button
@@ -74,7 +74,7 @@ export function ClipCard({
           aria-pressed={marked}
           aria-label={marked ? t.results.unmark(index + 1) : t.results.mark(index + 1)}
           className={`pressable mt-0.5 grid size-6 shrink-0 place-items-center rounded
-            ${marked ? 'border-2 border-line bg-brand text-on-brand' : 'bg-surface-2 text-ink-faint hover:text-ink'}`}
+            ${marked ? 'border-2 border-line bg-accent text-on-accent' : 'bg-surface-2 text-ink-faint hover:text-ink'}`}
         >
           <BookmarkSimpleIcon size={13} weight={marked ? 'fill' : 'regular'} />
         </button>
@@ -87,7 +87,7 @@ export function ClipCard({
             <span className="tabular text-xs text-ink-faint">{duration}s</span>
             <span
               className={`tabular rounded px-1.5 py-0.5 font-mono text-[0.8rem] font-semibold
-                ${strong ? '-rotate-3 border-2 border-line bg-brand text-on-brand shadow-brutal-sm' : 'bg-surface-2 text-ink-dim'}`}
+                ${strong ? '-rotate-3 border-2 border-line bg-accent text-on-accent shadow-brutal-sm' : 'bg-surface-2 text-ink-dim'}`}
             >
               {clip.virality_score}
             </span>
