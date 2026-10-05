@@ -315,6 +315,14 @@
     text-wrap: pretty;
   }
 
+  /* Native checkboxes, radios and range thumbs take the accent too, so none
+     is left in the browser's default blue. */
+  input[type='checkbox'],
+  input[type='radio'],
+  input[type='range'] {
+    accent-color: var(--color-accent);
+  }
+
   /* Timecodes and byte counts must not shift width as digits change. */
   .tabular {
     font-variant-numeric: tabular-nums;

@@ -31,7 +31,7 @@ export function SegmentedControl<T extends string>({
 }: SegmentedControlProps<T>) {
   return (
     <div>
-      <span className="text-xs font-medium text-ink-dim">{label}</span>
+      <span className="mr-2 text-xs font-medium text-ink-dim">{label}</span>
       <div
         role="radiogroup"
         aria-label={label}
