@@ -21,8 +21,9 @@ export function ThemeToggle({ theme, onToggle }: ThemeToggleProps) {
       aria-pressed={isDark}
       aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
       title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
-      className="pressable grid size-8 place-items-center rounded-[--radius-control]
-        border border-hairline bg-surface-2 text-ink-dim hover:bg-surface-3 hover:text-ink"
+      className="pressable-btn grid size-8 place-items-center rounded-[--radius-control]
+        border-2 border-line bg-surface text-ink shadow-brutal-sm hover:bg-surface-2
+        active:shadow-none"
     >
       {isDark ? <MoonIcon size={15} weight="fill" /> : <SunIcon size={15} weight="fill" />}
     </button>

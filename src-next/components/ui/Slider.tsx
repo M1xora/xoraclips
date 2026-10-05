@@ -52,8 +52,8 @@ export function Slider({
             const n = Number(e.target.value);
             if (!Number.isNaN(n)) onChange(clamp(n));
           }}
-          className="tabular h-6 w-16 rounded-[--radius-control] border border-hairline
-            bg-surface-2 px-1.5 text-right text-xs text-ink disabled:opacity-40"
+          className="tabular h-7 w-16 rounded-[--radius-control] border-2 border-line
+            bg-surface px-1.5 text-right text-xs font-semibold text-ink disabled:opacity-40"
         />
       </div>
 
@@ -66,8 +66,8 @@ export function Slider({
         step={step}
         disabled={disabled}
         onChange={(e) => onChange(Number(e.target.value))}
-        className="mt-2 h-1.5 w-full cursor-pointer appearance-none rounded-full
-          bg-surface-3 accent-accent disabled:opacity-40"
+        className="mt-2 h-2.5 w-full cursor-pointer appearance-none rounded-full border-2
+          border-line bg-surface-2 accent-accent disabled:opacity-40"
       />
 
       {presets && (
@@ -78,11 +78,11 @@ export function Slider({
               type="button"
               disabled={disabled}
               onClick={() => onChange(clamp(p.value))}
-              className={`pressable rounded px-1.5 py-0.5 text-[0.8rem] disabled:opacity-40
+              className={`pressable rounded border-2 px-1.5 py-0.5 text-[0.8rem] disabled:opacity-40
                 ${
                   value === p.value
-                    ? 'bg-accent-muted text-ink'
-                    : 'text-ink-faint hover:bg-surface-2 hover:text-ink-dim'
+                    ? 'border-line bg-accent-muted font-semibold text-ink'
+                    : 'border-transparent text-ink-faint hover:bg-surface-2 hover:text-ink-dim'
                 }`}
             >
               {p.label}

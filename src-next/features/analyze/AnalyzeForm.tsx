@@ -237,7 +237,6 @@ export function AnalyzeForm({ onSubmit, busy, onKeyCleared }: AnalyzeFormProps) 
           />
           <Button
             type="submit"
-            variant="brand"
             size="lg"
             loading={busy}
             icon={<SparkleIcon size={16} weight="fill" />}

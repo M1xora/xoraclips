@@ -97,10 +97,10 @@ export function Modal({ open, onClose, title, children, footer, size = 'lg' }: M
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
-        className={`panel relative flex max-h-[90vh] w-full flex-col ${SIZES[size]}`}
+        className={`panel relative flex max-h-[90vh] w-full flex-col shadow-brutal-lg ${SIZES[size]}`}
       >
-        <header className="flex items-center justify-between gap-4 border-b border-hairline px-5 py-4">
-          <h2 id={titleId} className="font-display text-lg font-bold">
+        <header className="flex items-center justify-between gap-4 border-b-2 border-line px-5 py-4">
+          <h2 id={titleId} className="font-display text-lg font-black">
             {title}
           </h2>
           <button
@@ -116,7 +116,7 @@ export function Modal({ open, onClose, title, children, footer, size = 'lg' }: M
         <div className="min-h-0 flex-1 overflow-y-auto px-5 py-4">{children}</div>
 
         {footer && (
-          <footer className="border-t border-hairline px-5 py-4">{footer}</footer>
+          <footer className="border-t-2 border-line px-5 py-4">{footer}</footer>
         )}
       </div>
     </div>
