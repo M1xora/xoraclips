@@ -14,6 +14,7 @@
  */
 @import '@fontsource-variable/inter';
 @import '@fontsource-variable/jetbrains-mono';
+@import '@fontsource/anton';
 
 /**
  * Design tokens.
@@ -30,6 +31,7 @@
   --font-display: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
   --font-sans: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
   --font-mono: 'JetBrains Mono Variable', ui-monospace, 'Consolas', monospace;
+  --font-brand: 'Anton', 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
 
   /*
    * Type scale, raised off Tailwind's defaults.
@@ -83,6 +85,15 @@
   --color-teal-muted: var(--c-teal-muted);
   --color-on-teal: var(--c-on-teal);
 
+  --color-brand: var(--c-brand);
+  --color-brand-bright: var(--c-brand-bright);
+  --color-brand-text: var(--c-brand-text);
+  --color-brand-muted: var(--c-brand-muted);
+  --color-on-brand: var(--c-on-brand);
+
+  --color-lavender-muted: var(--c-lavender-muted);
+  --color-lime-muted: var(--c-lime-muted);
+
   --color-critical: var(--c-critical);
   --color-critical-bright: var(--c-critical-bright);
   --color-critical-text: var(--c-critical-text);
@@ -129,6 +140,18 @@
   --c-teal-muted: #14302c;
   --c-on-teal: #ffffff;
 
+  /* Brand orange, playful surfaces only (header, pre-results screens, clip
+     cards). Hue sits further toward orange (~28°) than critical's red-orange
+     (~6°) so the two stay visually distinct, not just numerically different. */
+  --c-brand: #ff8d29;
+  --c-brand-bright: #ffa352;
+  --c-brand-text: #ff9d52;
+  --c-brand-muted: #3a2416;
+  --c-on-brand: #1a0f08;
+
+  --c-lavender-muted: #2a2740;
+  --c-lime-muted: #1f3022;
+
   --c-critical: #c33a2b;
   --c-critical-bright: #d64535;
   --c-critical-text: #ff8a80;
@@ -165,6 +188,15 @@
   --c-teal-muted: #dcefec;
   --c-on-teal: #ffffff;
 
+  --c-brand: #bd4c0a;
+  --c-brand-bright: #9b3e08;
+  --c-brand-text: #b24a09;
+  --c-brand-muted: #fbe1cd;
+  --c-on-brand: #ffffff;
+
+  --c-lavender-muted: #ece9fb;
+  --c-lime-muted: #e3f1e2;
+
   --c-critical: #c4321f;
   --c-critical-bright: #a82819;
   --c-critical-text: #c4321f;
@@ -198,6 +230,15 @@
     --c-teal-text: #0f6b60;
     --c-teal-muted: #dcefec;
     --c-on-teal: #ffffff;
+
+    --c-brand: #bd4c0a;
+    --c-brand-bright: #9b3e08;
+    --c-brand-text: #b24a09;
+    --c-brand-muted: #fbe1cd;
+    --c-on-brand: #ffffff;
+
+    --c-lavender-muted: #ece9fb;
+    --c-lime-muted: #e3f1e2;
 
     --c-critical: #c4321f;
     --c-critical-bright: #a82819;
