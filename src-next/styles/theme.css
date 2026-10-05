@@ -83,6 +83,21 @@
   --color-teal-muted: var(--c-teal-muted);
   --color-on-teal: var(--c-on-teal);
 
+  --color-brand: var(--c-brand);
+  --color-brand-bright: var(--c-brand-bright);
+  --color-brand-text: var(--c-brand-text);
+  --color-brand-muted: var(--c-brand-muted);
+  --color-on-brand: var(--c-on-brand);
+
+  --color-lavender-muted: var(--c-lavender-muted);
+  --color-lime-muted: var(--c-lime-muted);
+
+  --color-line: var(--c-line);
+
+  /* Neo-brutal hard shadow: offset only, no blur, coloured by --c-line. */
+  --shadow-brutal: 3px 3px 0 0 var(--c-line);
+  --shadow-brutal-sm: 2px 2px 0 0 var(--c-line);
+
   --color-critical: var(--c-critical);
   --color-critical-bright: var(--c-critical-bright);
   --color-critical-text: var(--c-critical-text);
@@ -129,6 +144,21 @@
   --c-teal-muted: #14302c;
   --c-on-teal: #ffffff;
 
+  /* Brand orange, playful surfaces only (header, pre-results screen, clip
+     cards). Same fill in both modes with dark text on it. Hue 26° vs
+     critical's 6-7°, so it never reads as an error. In light mode the fill
+     is only 2.6:1 against the canvas, so bg-brand always carries
+     border-2 border-line (#82). */
+  --c-brand: #f27a1f;
+  --c-brand-bright: #ff9445;
+  --c-brand-text: #ff9d52;
+  --c-brand-muted: #3a2416;
+  --c-on-brand: #12151a;
+  --c-line: #e6e9ef;
+
+  --c-lavender-muted: #2a2740;
+  --c-lime-muted: #1f3022;
+
   --c-critical: #c33a2b;
   --c-critical-bright: #d64535;
   --c-critical-text: #ff8a80;
@@ -165,6 +195,16 @@
   --c-teal-muted: #dcefec;
   --c-on-teal: #ffffff;
 
+  --c-brand: #f27a1f;
+  --c-brand-bright: #ff9445;
+  --c-brand-text: #b24a09;
+  --c-brand-muted: #fbe1cd;
+  --c-on-brand: #12151a;
+  --c-line: #12151a;
+
+  --c-lavender-muted: #ece9fb;
+  --c-lime-muted: #e3f1e2;
+
   --c-critical: #c4321f;
   --c-critical-bright: #a82819;
   --c-critical-text: #c4321f;
@@ -198,6 +238,16 @@
     --c-teal-text: #0f6b60;
     --c-teal-muted: #dcefec;
     --c-on-teal: #ffffff;
+
+    --c-brand: #f27a1f;
+    --c-brand-bright: #ff9445;
+    --c-brand-text: #b24a09;
+    --c-brand-muted: #fbe1cd;
+    --c-on-brand: #12151a;
+    --c-line: #12151a;
+
+    --c-lavender-muted: #ece9fb;
+    --c-lime-muted: #e3f1e2;
 
     --c-critical: #c4321f;
     --c-critical-bright: #a82819;
