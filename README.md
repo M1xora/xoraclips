@@ -1,144 +1,121 @@
-# 🎬 Xoraclips
+# Xoraclips
 
-> **Turn long YouTube videos into viral TikToks, Shorts, and Reels with animated subtitles, face centering, and music in minutes.**
+Xoraclips mengubah video YouTube panjang jadi klip vertikal 1080x1920 yang siap diunggah ke TikTok, Shorts, atau Reels. Tempel link YouTube, AI Gemini memilih bagian yang paling menarik, lalu klip itu bisa diatur di Clip Studio sebelum dirender jadi MP4.
 
----
+Aplikasi berjalan lokal di komputer sendiri: backend FastAPI mengurus unduhan, transkrip, dan render ffmpeg; frontend React jadi tempat mengatur dan melihat pratinjau.
 
-## ⚡ Quick Start
+## Fitur
 
-### 🪟 Windows Users: 1-Click Automated Setup (Easiest)
-If you are on Windows, simply double-click **[`setup_and_run.bat`](setup_and_run.bat)** (or **[`run.bat`](run.bat)**).
-The script will automatically:
-1. Check and auto-install all prerequisites (**Git**, **Node.js LTS**, **Python 3.11**, **FFmpeg**, and **yt-dlp**) via `winget`.
-2. Clone the repository (if the script is run in an empty folder; if it already exists, it skips this step).
-3. Set up an isolated Python virtual environment (`venv`) and install all frontend & backend dependencies.
-4. Launch the application (via `start-xoraclips.bat`) and open **`http://localhost:5174/preview.html`** in your web browser!
+- Analisis video YouTube dengan Gemini, hasilnya daftar klip beserta judul dan skor.
+- Pilihan target durasi klip: 15s, 30s, 60s, 2 menit, atau 3 menit.
+- Clip Studio: rasio dan crop, latar buram, tata letak split facecam dan PiP, judul, awalan/akhiran nama berkas.
+- Face tracking: crop mengikuti posisi wajah pembicara.
+- Subtitle per kata dengan beberapa gaya dan pilihan font.
+- Audio: musik latar dan SFX dengan atur volume serta offset, bisa didengar di pratinjau.
+- Watermark berupa gambar atau teks dengan preset posisi.
+- Trimmer untuk memotong ulang awal/akhir klip.
+- Render massal lalu unduh semua hasil dalam satu file ZIP.
+- Pilihan encoder hardware (NVENC, AMF, QSV) atau CPU, dibaca dari mesin yang dipakai.
+- Pengelola cookies YouTube untuk video yang minta login.
 
-> 💡 **Tip:** Subsequent launches skip dependency checks and start the app in ~1 second!
+## Teknologi
 
-#### Start & stop (Windows)
-After the first setup, use these two files in the project folder (they also work from a desktop shortcut):
-* **`start-xoraclips.bat`**: starts the backend (port 8000) and the app (port 5174) in their own windows, skips whatever is already running, and opens `http://localhost:5174/preview.html` once both are ready.
-* **`stop-xoraclips.bat`**: stops Xoraclips on ports 8000 and 5174 and closes its windows. Other programs, including other Node.js or Python programs, are left alone.
+**Frontend** — React 19, TypeScript, Vite, Tailwind CSS v4, Vitest, ESLint.
 
----
+**Backend** — Python + FastAPI, yt-dlp, ffmpeg, OpenAI Whisper, OpenCV, google-genai (Gemini), youtube-transcript-api.
 
-### 🛠️ Manual Setup (All Platforms)
+## Instalasi
 
-#### Step 1: Requirements
-1. **[Git](https://git-scm.com/)** — If you don't have Git... how did you even get this project? Download ZIP gang? 📦 No judgment, but grab it so you can get updates (`winget install Git.Git` on Windows, `brew install git` on Mac, or from [git-scm.com](https://git-scm.com/)).
-2. **[Node.js](https://nodejs.org/)** (v18 or newer)
-3. **Python** (v3.10 or newer) — Install from [python.org](https://www.python.org/downloads/) or directly from the [Microsoft Store (Windows)](https://apps.microsoft.com/detail/9ncvdn91xzqp)
-4. **FFmpeg & yt-dlp** (Required to download and render videos)
-   * **Windows (PowerShell):**
-     ```powershell
-     winget install Gyan.FFmpeg
-     winget install yt-dlp.yt-dlp
-     ```
-     *(Close and reopen your terminal after installing so Windows recognizes them)*
-   * **Mac (Terminal):**
-     ```bash
-     brew install ffmpeg yt-dlp
-     ```
-     *(If you don't have Homebrew installed on Mac, install it first from [brew.sh](https://brew.sh))*
+### Windows (otomatis)
 
-### Step 2: Clone the Repository
-Open your terminal and run:
+Klik dua kali `setup_and_run.bat`. Skrip ini memeriksa dan memasang Git, Node.js, Python, FFmpeg, dan yt-dlp lewat `winget`, membuat `venv`, memasang semua dependency, lalu menjalankan aplikasi.
+
+### Manual (semua OS)
+
+Prasyarat:
+
+- Node.js 18 atau lebih baru
+- Python 3.10 atau lebih baru
+- ffmpeg dan yt-dlp tersedia di PATH
+
+Windows:
+
+```powershell
+winget install Gyan.FFmpeg
+winget install yt-dlp.yt-dlp
+```
+
+macOS:
+
+```bash
+brew install ffmpeg yt-dlp
+```
+
+Clone repo lalu pasang dependency project:
+
 ```bash
 git clone https://github.com/M1xora/xoraclips.git
 cd xoraclips
-```
-
-### Step 3: Install Dependencies
-Inside the project folder, run:
-```bash
 npm install
 python -m pip install -r backend/requirements.txt
 ```
-*(On Mac, use `python3 -m pip install -r backend/requirements.txt`)*
 
-### Step 4: Run the App
-In two terminals:
-```bash
-python -m uvicorn backend.main:app --port 8000
-npm run dev-next
-```
-Open **`http://localhost:5174/preview.html`** in your web browser!
-*(The old interface is still available with `npm run dev` on `http://localhost:5173`.)*
+Di macOS pakai `python3` sebagai ganti `python`.
 
----
-
-## 🔄 Updating to the Latest Version
-
-To update your copy of Xoraclips with the latest features and fixes, open your terminal inside the `xoraclips` folder and run:
+### Update
 
 ```bash
 git pull
 npm install
 python -m pip install -r backend/requirements.txt
 ```
-*(On Mac, use `python3 -m pip install -r backend/requirements.txt`)*
 
----
+## Menjalankan Project
 
-## 🔑 Free Google Gemini API Key (Takes 1 Minute)
+Butuh dua terminal.
 
-Xoraclips uses Google's AI to find the best viral moments for free:
-1. Go to **[Google AI Studio](https://aistudio.google.com/)** and sign in with any Google account.
-2. Click **"Get API key"** (or **"Create API key"**).
-3. Copy your key (starts with `AIzaSy...`).
-4. Paste it into the **Gemini API Key** field in the app.
+Backend:
 
-> 💡 **Tip:** You can also type `mock` in the API Key box to test out the app with sample data without an API key!
+```bash
+python -m uvicorn backend.main:app --port 8000
+```
 
----
+Frontend:
 
-## 🎯 How to Use
+```bash
+npm run dev-next
+```
 
-1. **Paste a YouTube URL** — Enter any podcast, stream, or video link.
-2. **Choose Duration** — Pick `~15s` (fast hooks), `~30s` (standard shorts), or `~60s` (story clips).
-3. **Click "Analyze Video"** — The AI finds the most exciting moments using YouTube audience retention data.
-4. **Customize in Clip Studio** — Adjust your video style:
-   * **Frame & Crop**: Fullscreen 9:16 vertical, square, or split-screen facecam.
-   * **Face Tracking**: Automatically keeps the speaker in the center of the frame.
-   * **Subtitles**: Choose viral animated karaoke caption styles and fonts.
-   * **Branding & Audio**: Add your watermark logo, background music, and hook sound effects.
-   * **Hardware Acceleration**: Choose your graphics card (NVIDIA, AMD, Intel) or CPU.
-5. **Batch Render & Download** — Click **Batch Render**, then download all your finished videos together in one **.ZIP** file!
+Buka `http://localhost:5174/preview.html`. Harus `localhost`, bukan `127.0.0.1`, karena pemutar YouTube menolak origin lain.
 
----
+Di Windows, setelah setup pertama bisa pakai `start-xoraclips.bat` untuk menjalankan keduanya dan `stop-xoraclips.bat` untuk menghentikannya.
 
-## ❓ Common Problems & Easy Fixes
+### Perintah lain
 
-### 1. "Failed to render video" or `The system cannot find the file specified`
-* **Cause:** `ffmpeg` or `yt-dlp` is missing on your computer.
-* **Fix:**
-  * **Windows (PowerShell):**
-    ```powershell
-    winget install Gyan.FFmpeg
-    winget install yt-dlp.yt-dlp
-    ```
-    *(Then close and reopen your terminal)*
-  * **Mac (Terminal):**
-    ```bash
-    brew install ffmpeg yt-dlp
-    ```
-  * Or install directly via Python: `pip install yt-dlp`
+| Perintah | Fungsi |
+|---|---|
+| `npm test` | Test frontend (Vitest) |
+| `npm run typecheck-next` | Typecheck `src-next/` |
+| `npm run build-next` | Build produksi `src-next/` |
+| `npm run lint-next` | ESLint `src-next/` |
+| `python -m pytest backend/tests -q` | Test backend |
 
-### 2. "Sign in to confirm you're not a bot"
-* **Cause:** YouTube blocks video downloads if too many requests are sent without logging in.
-* **Fix:** Click the 🍪 **Cookies** button in the top navigation bar, export your YouTube cookies using a free browser extension (like *Get cookies.txt locally*), and paste them into the app.
+## Struktur Project
 
-### 3. Does this work on AMD graphics cards and Mac?
-* **Yes!** Xoraclips automatically supports:
-  * **NVIDIA** (`h264_nvenc`)
-  * **AMD** (`h264_amf` on Radeon GPUs & Ryzen CPUs)
-  * **Intel** (`h264_qsv` on Arc & UHD Graphics)
-  * **Apple Mac & CPU Software** (`libx264` universal high-speed fallback)
-* You can switch your preferred hardware acceleration encoder anytime in the Render Settings or History card.
+```
+backend/      FastAPI, ffmpeg, yt-dlp, Whisper. Endpoint di routes_*.py, render di video_engine.py
+src-next/     Frontend aktif. Kode dikelompokkan per fitur di features/
+src/          Frontend lama, hanya referensi
+```
 
----
+Di `src-next/`: `api/` klien HTTP ke backend, `features/` satu folder per fitur (analyze, studio, render, trimmer, cookies, export, download, player, clips), `components/` komponen UI bersama, `hooks/`, `lib/`, `styles/`, `i18n/`.
 
-## 📄 License
+## Catatan
 
-Distributed under the **MIT License**. Free for personal and commercial use!
+- **API key Gemini.** Key diisi sendiri oleh pengguna di form aplikasi, dikirim lewat header `X-Gemini-Api-Key`. Tidak ada key di sisi server, dan key tidak pernah ditulis ke log. Ambil key gratis di [Google AI Studio](https://aistudio.google.com/).
+- **Mock mode.** Set `MOCK_MODE=1` di `.env` untuk mencoba aplikasi dengan data contoh tanpa key. Status ini terlihat di aplikasi.
+- **Render gagal / "file not found".** Biasanya ffmpeg atau yt-dlp belum ada di PATH. Pasang lalu buka ulang terminal.
+- **"Sign in to confirm you're not a bot".** YouTube minta login. Ekspor cookies YouTube dari browser (misalnya dengan ekstensi *Get cookies.txt locally*), lalu tempel di panel Cookies di aplikasi.
+- **CORS.** Backend hanya menerima `http://localhost:5174` dan `http://127.0.0.1:5174`. Ubah lewat env `ALLOWED_ORIGINS` kalau pakai port lain.
+- **Frontend lama** (`npm run dev`, port 5173) masih bisa dijalankan, tapi tidak dikembangkan lagi.
+- Lisensi: MIT (lihat `LICENSE`).
