@@ -7,7 +7,7 @@ Aplikasi berjalan lokal di komputer sendiri: backend FastAPI mengurus unduhan, t
 ## Fitur
 
 - Analisis video YouTube dengan Gemini, hasilnya daftar klip beserta judul dan skor.
-- Pilihan durasi klip (sekitar 15, 30, atau 60 detik).
+- Pilihan target durasi klip: 15s, 30s, 60s, 2 menit, atau 3 menit.
 - Clip Studio: rasio dan crop, latar buram, tata letak split facecam dan PiP, judul, awalan/akhiran nama berkas.
 - Face tracking: crop mengikuti posisi wajah pembicara.
 - Subtitle per kata dengan beberapa gaya dan pilihan font.
