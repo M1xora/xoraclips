@@ -293,6 +293,11 @@ RETRY_TIMEOUT_SECONDS = 90
 STREAM_URL_TIMEOUT = 45
 PROBE_TIMEOUT = 20
 DOWNLOAD_METHODS = 3
+# Issue #92: a googlevideo stream URL carries an `expire` timestamp and the
+# connection can drop mid-trim. These let ffmpeg pick the transfer back up
+# instead of failing the whole method. They are input options, so they go
+# before each `-i`, and they only apply to HTTP inputs.
+RECONNECT_ARGS = ["-reconnect", "1", "-reconnect_streamed", "1", "-reconnect_delay_max", "5"]
 
 
 def download_timeouts(clip_duration: float) -> dict:
@@ -435,7 +440,26 @@ def download_clip_segment(
     timeouts = download_timeouts(clip_duration)
     timeout_sec = timeouts["hd"]
 
-    state = {"err": "unknown", "audio_only": False, "retried": False, "challenge": None}
+    state: Dict[str, Any] = {"err": "unknown", "audio_only": False, "retried": False,
+                             "challenge": None, "real_err": ""}
+
+    # Issue #92: the last method to run is not the one with the best reason. A
+    # method that simply produced nothing leaves the placeholder below, which
+    # would otherwise bury a real error ("403 Forbidden") from an earlier one.
+    def placeholder(text: str) -> bool:
+        """True when `text` is no real reason: the stand-in set before a method
+        runs, or stderr that is only warnings (yt-dlp writes those on success)."""
+        stripped = text.strip()
+        if not stripped or stripped.endswith(": no usable file"):
+            return True
+        return all(line.strip().upper().startswith("WARNING:")
+                   for line in stripped.splitlines() if line.strip())
+
+    def record(text: str) -> None:
+        """Keeps the last real reason any method gave, for the final message."""
+        state["err"] = text
+        if not placeholder(text):
+            state["real_err"] = text
 
     def attempt(method: int, label: str, run: Callable[[Optional[int]], None]) -> bool:
         """Runs one method; after a quick audio-only rejection, once more (once per clip)."""
@@ -443,24 +467,24 @@ def download_clip_segment(
         for try_no in (1, 2):
             # A timed-out run can leave a partial file: never let the next try use it.
             _remove(output_path)
-            state["err"] = f"{label}: no usable file"
+            record(f"{label}: no usable file")
             started = clock()
             try:
                 run(cap)
             except subprocess.TimeoutExpired as e:
                 logger.warning(f"{label} timed out after {e.timeout}s for {clean_url}")
-                state["err"] = f"{label} timed out after {e.timeout}s"
+                record(f"{label} timed out after {e.timeout}s")
                 return False
             except Exception as e:
                 logger.warning(f"{label} failed ({e})")
-                state["err"] = str(e)
+                record(str(e))
                 return False
             took = clock() - started
             verdict = _check_download(output_path, label)
             if verdict == "ok":
                 return True
             if verdict == "unreadable":
-                state["err"] = f"{label}: the downloaded file could not be read"
+                record(f"{label}: the downloaded file could not be read")
             if verdict != "audio_only":
                 return False
             state["audio_only"] = True
@@ -494,14 +518,14 @@ def download_clip_segment(
         logger.info(f"Downloading HD section ({clip_duration:.1f}s) {t_start_fmt} -> {t_end_fmt} for {clean_url} (timeout: {timeout_sec}s)")
         res = subprocess.run(cmd, capture_output=True, text=True, timeout=min(timeout_sec, cap or timeout_sec))
         if res and res.stderr:
-            state["err"] = res.stderr[:300]
+            record(res.stderr[:300])
 
     # Method 2: Fallback - Extract direct stream URLs with yt-dlp and slice using FFmpeg
     def method_2(cap: Optional[int] = None) -> None:
         url_cmd = [*base_cmd, "-g", "-f", FORMAT_1080, "--", clean_url]
         url_res = subprocess.run(url_cmd, capture_output=True, text=True, timeout=STREAM_URL_TIMEOUT)
         if url_res.returncode != 0 or not url_res.stdout.strip():
-            state["err"] = (url_res.stderr or "no stream URLs")[:300]
+            record((url_res.stderr or "no stream URLs")[:300])
             return
         urls = url_res.stdout.strip().split("\n")
         video_stream = urls[0]
@@ -509,9 +533,11 @@ def download_clip_segment(
 
         trim_timeout = timeouts["trim"]
         trim_cmd = [
-            "ffmpeg", "-y", "-hide_banner", "-loglevel", "error",
+            "ffmpeg", "-y", "-hide_banner", "-loglevel", "warning",
+            *RECONNECT_ARGS,
             "-ss", str(start_time),
             "-i", video_stream,
+            *RECONNECT_ARGS,
             "-ss", str(start_time),
             "-i", audio_stream,
             "-t", str(clip_duration),
@@ -523,7 +549,15 @@ def download_clip_segment(
             "-movflags", "+faststart",
             str(output_path)
         ]
-        subprocess.run(trim_cmd, capture_output=True, timeout=min(trim_timeout, cap or trim_timeout))
+        # The error that matters is ffmpeg's, not the stream URLs' (issue #92): a
+        # successful `yt-dlp -g` still writes to stderr, and without this the user
+        # was shown that leftover instead of the reason the trim failed.
+        trim_res = subprocess.run(
+            trim_cmd, capture_output=True, text=True,
+            timeout=min(trim_timeout, cap or trim_timeout),
+        )
+        if trim_res.returncode != 0:
+            record((trim_res.stderr or "ffmpeg failed with no output").strip()[:300])
 
     # Method 3: Fallback - Download at 720p (vastly lower bandwidth, skips SABR/1080p throttling)
     def method_3(cap: Optional[int] = None) -> None:
@@ -543,7 +577,7 @@ def download_clip_segment(
         timeout_720p = timeouts["720p"]
         res_720p = subprocess.run(cmd_720p, capture_output=True, text=True, timeout=min(timeout_720p, cap or timeout_720p))
         if res_720p and res_720p.stderr:
-            state["err"] = res_720p.stderr[:300]
+            record(res_720p.stderr[:300])
 
     methods = [
         (1, "Method 1 (HD section)", method_1),
@@ -563,15 +597,20 @@ def download_clip_segment(
 
     if state["challenge"]:
         raise RuntimeError(f"YouTube asked for a challenge ({state['challenge'].strip()[:200]}). {challenge_hint()}")
-    err_lower = state["err"].lower()
+    # The last method may have ended on a placeholder or on warnings alone; the
+    # last real reason any of them gave says far more about why this failed.
+    reason = state["err"]
+    if placeholder(reason) and state["real_err"]:
+        reason = state["real_err"]
+    err_lower = reason.lower()
     if "confirm you're not a bot" in err_lower or "sign in" in err_lower or "login" in err_lower:
         raise RuntimeError("YouTube blocked video download (Bot verification). Please import/save your YouTube cookies using the 🍪 Cookies Manager button in the top navbar.")
     if state["audio_only"]:
         # A real error from the last method stays visible in the technical details.
-        if state["err"].endswith("no usable file"):
+        if placeholder(reason):
             raise RuntimeError(AUDIO_ONLY_MESSAGE)
-        raise RuntimeError(f"{AUDIO_ONLY_MESSAGE} Last error: {state['err'][:200]}")
-    raise RuntimeError(f"Failed to download video clip segment from YouTube ({state['err']}). Please try again or check your network/cookies.")
+        raise RuntimeError(f"{AUDIO_ONLY_MESSAGE} Last error: {reason[:200]}")
+    raise RuntimeError(f"Failed to download video clip segment from YouTube ({reason}). Please try again or check your network/cookies.")
 
 
 def download_full_raw_video(video_url: str, output_path: str, progress_callback=None) -> str:
