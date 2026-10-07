@@ -27,6 +27,7 @@ import {
   PIP_POS,
   PIP_SIZE,
   SPLIT_LAYOUT,
+  SPLIT_CAM_BG_SIZE,
   VIDEO_BOX,
 } from './canvas';
 import type {
@@ -237,7 +238,9 @@ export function ClipPreview({
       : captions.status === 'error'
         ? t.studio.captionsUnavailable
         : null;
-  const offsetPct = faceOffsetPercent(box, videoW, cover.width);
+  // The split's lower box is a plain centre crop in the renderer, so panning
+  // it to the face here would show something the export does not (#96).
+  const offsetPct = split ? 0 : faceOffsetPercent(box, videoW, cover.width);
 
   useEffect(() => {
     if (autoPlay && ready) play();
@@ -328,7 +331,7 @@ export function ClipPreview({
                 backgroundPosition: `${Math.round((box?.cx ?? 0.5) * 100)}% ${Math.round(
                   (box?.cy ?? 0.35) * 100,
                 )}%`,
-                backgroundSize: '154%',
+                backgroundSize: SPLIT_CAM_BG_SIZE,
               }}
               aria-hidden="true"
             />

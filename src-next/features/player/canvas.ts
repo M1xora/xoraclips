@@ -73,6 +73,16 @@ export const SPLIT_LAYOUT: SplitLayout = {
 };
 
 /**
+ * How much of the source width the cam crop keeps (video_engine.py
+ * SPLIT_CAM_ZOOM, applied to the widest crop of the cam's shape). The preview
+ * zooms its still by the inverse so it frames the face as the render does.
+ */
+export const SPLIT_CAM_SOURCE_SHARE = (1080 / 768) * (9 / 16) * 0.65;
+
+/** The CSS background-size that matches that crop, e.g. "194%". */
+export const SPLIT_CAM_BG_SIZE = `${Math.round(100 / SPLIT_CAM_SOURCE_SHARE)}%`;
+
+/**
  * pip_corner keeps the normal VIDEO_BOX and drops a 320x240 box on top of it.
  * Values read off video_engine.py:1373-1445.
  */

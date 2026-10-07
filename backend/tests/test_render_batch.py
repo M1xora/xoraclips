@@ -319,6 +319,35 @@ def test_the_split_ignores_the_background_since_nothing_shows_through(background
     assert split_chain(background=background) == split_chain(background="black")
 
 
+def cam_crop(iw=1920, ih=1080):
+    """The cam crop ffmpeg works out for a source of this size."""
+    z = video_engine.SPLIT_CAM_ZOOM
+    ow = min(iw, ih * video_engine.SPLIT_CAM_W / video_engine.SPLIT_CAM_H) * z
+    oh = min(ih, iw * video_engine.SPLIT_CAM_H / video_engine.SPLIT_CAM_W) * z
+    return ow, oh
+
+
+def test_the_cam_box_is_a_close_up_not_a_second_wide_shot():
+    """Without the zoom the crop is most of the frame, so the split shows
+    nearly the same shot twice."""
+    ow, oh = cam_crop()
+    assert (ow * oh) / (1920 * 1080) < 0.45
+
+
+def test_the_cam_crop_keeps_the_shape_of_its_box():
+    ow, oh = cam_crop()
+    assert ow / oh == pytest.approx(video_engine.SPLIT_CAM_W / video_engine.SPLIT_CAM_H, abs=0.001)
+
+
+def test_the_cam_crop_leaves_room_for_the_face_offsets():
+    """ffmpeg clamps each offset to [0, i-o]. A crop as large as the source
+    collapses that range to zero and the face position stops mattering."""
+    for iw, ih in [(1920, 1080), (1440, 1080), (1280, 720)]:
+        ow, oh = cam_crop(iw, ih)
+        assert iw - ow > 1, f"{iw}x{ih}: no room to follow the face sideways"
+        assert ih - oh > 1, f"{iw}x{ih}: no room to follow the face up or down"
+
+
 def test_the_split_crops_the_cam_around_the_face():
     chain = video_engine.build_ffmpeg_filtergraph(
         aspect_ratio="9:16", background_style="black", streamer_preset="split_top_cam",
@@ -326,3 +355,21 @@ def test_the_split_crops_the_cam_around_the_face():
     )[0]
     assert "iw*0.800-ow/2" in chain
     assert "ih*0.200-oh/2" in chain
+
+
+@pytest.mark.parametrize("ratio,preset,expected", [
+    ("16:9", "split_top_cam", "9:16"),   # the split fills the frame
+    ("16:9", "none", "16:9"),            # a plain 16:9 still has its bars
+    ("1:1", "split_top_cam", "9:16"),
+])
+def test_the_subtitles_are_placed_for_the_layout_that_is_rendered(
+    render, monkeypatch, ratio, preset, expected
+):
+    """The split fills the whole frame, so the title and subtitles must not be
+    pinned against bars the other ratios leave behind (#96)."""
+    seen = {}
+    monkeypatch.setattr(routes_render, "generate_ass_file",
+                        lambda **k: seen.update(k))
+    start(render, aspect_ratio=ratio, streamer_preset=preset,
+          caption_style="bold", title_position="top")
+    assert seen["target_aspect_ratio"] == expected

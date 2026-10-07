@@ -280,6 +280,10 @@ FORMAT_720 = "bestvideo[height<=720]+bestaudio/best[height<=720][vcodec!=none]/b
 SPLIT_CAM_W = 1080
 SPLIT_CAM_H = 768
 SPLIT_GAME_H = 1152
+# The cam box is a close-up, not a second wide shot: it takes this share of
+# the largest crop that fits its shape. Without it the crop would be the full
+# source height, which also pins the face offsets to 0 and kills tracking.
+SPLIT_CAM_ZOOM = 0.65
 
 FRAME_FORMAT = "bv*/b"
 FRAME_SORT = "res:480,vcodec:h264,ext:mp4"
@@ -1474,7 +1478,8 @@ def build_ffmpeg_filtergraph(
         # heights are multiples of 16 and add up to 1920 exactly.
         filters.append(
             f"[0:v]split=2[cam_raw][game_raw];"
-            f"[cam_raw]crop='min(iw,ih*{SPLIT_CAM_W}/{SPLIT_CAM_H})':'min(ih,iw*{SPLIT_CAM_H}/{SPLIT_CAM_W})':"
+            f"[cam_raw]crop='min(iw,ih*{SPLIT_CAM_W}/{SPLIT_CAM_H})*{SPLIT_CAM_ZOOM}':"
+            f"'min(ih,iw*{SPLIT_CAM_H}/{SPLIT_CAM_W})*{SPLIT_CAM_ZOOM}':"
             f"'max(0,min(iw-ow,iw*{face_cx:.3f}-ow/2))':'max(0,min(ih-oh,ih*{face_cy:.3f}-oh/2))',"
             f"scale={SPLIT_CAM_W}:{SPLIT_CAM_H}[cam_box];"
             f"[game_raw]crop='min(iw,ih*{SPLIT_CAM_W}/{SPLIT_GAME_H})':'min(ih,iw*{SPLIT_GAME_H}/{SPLIT_CAM_W})':"

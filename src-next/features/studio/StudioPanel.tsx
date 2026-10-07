@@ -178,10 +178,10 @@ export function StudioPanel({
                 { value: 'blurred' as const, label: t.studio.backgroundBlurred },
               ]}
               onChange={(v) => dispatch({ type: 'set', patch: { backgroundStyle: v } })}
-              disabled={state.aspectRatio === '9:16'}
+              disabled={splitOn || state.aspectRatio === '9:16'}
             />
             <p className="mt-1.5 text-[0.8rem] text-ink-faint">
-              {state.aspectRatio === '9:16'
+              {splitOn || state.aspectRatio === '9:16'
                 ? t.studio.backgroundFullBleed
                 : t.studio.backgroundHint}
             </p>
@@ -733,8 +733,9 @@ function StreamerShape({ preset, active }: { preset: StreamerPreset; active: boo
         className={`flex flex-col gap-px overflow-hidden rounded-sm border ${line}`}
         style={{ width: 18, height: 32 }}
       >
-        <span className={`flex-1 ${fill}`} />
-        <span className={`flex-1 ${active ? 'bg-accent/40' : 'bg-ink-faint/15'}`} />
+        {/* 40/60, the proportions the render produces (#96). */}
+        <span className={fill} style={{ flex: 40 }} />
+        <span className={active ? 'bg-accent/40' : 'bg-ink-faint/15'} style={{ flex: 60 }} />
       </span>
     );
   }
