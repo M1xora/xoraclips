@@ -271,3 +271,105 @@ def test_a_running_batch_is_kept_and_a_finished_one_is_forgotten_after_an_hour(r
     now[0] = 10 ** 6
     assert store.lookup(batch_id) is None
     assert store.lookup("running") is not None   # a long render is never dropped
+
+
+# --- the split_top_cam layout (#96) ------------------------------------------------------
+
+def split_chain(ratio="9:16", background="black"):
+    return video_engine.build_ffmpeg_filtergraph(
+        aspect_ratio=ratio,
+        background_style=background,
+        streamer_preset="split_top_cam",
+        face_box={"cx": 0.5, "cy": 0.35},
+    )[0]
+
+
+def test_the_split_boxes_fill_the_frame_exactly():
+    assert video_engine.SPLIT_CAM_W == 1080
+    assert video_engine.SPLIT_CAM_H + video_engine.SPLIT_GAME_H == 1920
+    # Both heights are multiples of 16, which every H.264 encoder takes.
+    assert video_engine.SPLIT_CAM_H % 16 == 0
+    assert video_engine.SPLIT_GAME_H % 16 == 0
+    # The feed gets the larger share, where the action is.
+    assert video_engine.SPLIT_GAME_H > video_engine.SPLIT_CAM_H
+
+
+def test_the_split_scales_both_boxes_to_the_full_width():
+    chain = split_chain()
+    assert "scale=1080:768[cam_box]" in chain
+    assert "scale=1080:1152[game_box]" in chain
+    assert "vstack=inputs=2[layout_base]" in chain
+
+
+def test_the_split_needs_no_padding_and_leaves_no_bars():
+    """The old layout padded a 540px stack into a 1080px frame, which is
+    where the bars came from. A full-width stack pads nothing."""
+    chain = split_chain()
+    assert "pad=" not in chain
+    assert "overlay=" not in chain
+
+
+@pytest.mark.parametrize("ratio", ["9:16", "1:1", "4:3", "16:9"])
+def test_the_split_is_the_same_whatever_ratio_is_picked(ratio):
+    assert split_chain(ratio) == split_chain("9:16")
+
+
+@pytest.mark.parametrize("background", ["black", "blurred"])
+def test_the_split_ignores_the_background_since_nothing_shows_through(background):
+    assert split_chain(background=background) == split_chain(background="black")
+
+
+def cam_crop(iw=1920, ih=1080):
+    """The cam crop ffmpeg works out for a source of this size."""
+    z = video_engine.SPLIT_CAM_ZOOM
+    ow = min(iw, ih * video_engine.SPLIT_CAM_W / video_engine.SPLIT_CAM_H) * z
+    oh = min(ih, iw * video_engine.SPLIT_CAM_H / video_engine.SPLIT_CAM_W) * z
+    return ow, oh
+
+
+def test_the_cam_box_is_a_close_up_not_a_second_wide_shot():
+    """Without the zoom the crop is most of the frame, so the split shows
+    nearly the same shot twice."""
+    ow, oh = cam_crop()
+    assert (ow * oh) / (1920 * 1080) < 0.45
+
+
+def test_the_cam_crop_keeps_the_shape_of_its_box():
+    ow, oh = cam_crop()
+    assert ow / oh == pytest.approx(video_engine.SPLIT_CAM_W / video_engine.SPLIT_CAM_H, abs=0.001)
+
+
+def test_the_cam_crop_leaves_room_for_the_face_offsets():
+    """ffmpeg clamps each offset to [0, i-o]. A crop as large as the source
+    collapses that range to zero and the face position stops mattering."""
+    for iw, ih in [(1920, 1080), (1440, 1080), (1280, 720)]:
+        ow, oh = cam_crop(iw, ih)
+        assert iw - ow > 1, f"{iw}x{ih}: no room to follow the face sideways"
+        assert ih - oh > 1, f"{iw}x{ih}: no room to follow the face up or down"
+
+
+def test_the_split_crops_the_cam_around_the_face():
+    chain = video_engine.build_ffmpeg_filtergraph(
+        aspect_ratio="9:16", background_style="black", streamer_preset="split_top_cam",
+        face_box={"cx": 0.8, "cy": 0.2},
+    )[0]
+    assert "iw*0.800-ow/2" in chain
+    assert "ih*0.200-oh/2" in chain
+
+
+@pytest.mark.parametrize("ratio,preset,expected", [
+    ("16:9", "split_top_cam", "9:16"),   # the split fills the frame
+    ("16:9", "none", "16:9"),            # a plain 16:9 still has its bars
+    ("1:1", "split_top_cam", "9:16"),
+])
+def test_the_subtitles_are_placed_for_the_layout_that_is_rendered(
+    render, monkeypatch, ratio, preset, expected
+):
+    """The split fills the whole frame, so the title and subtitles must not be
+    pinned against bars the other ratios leave behind (#96)."""
+    seen = {}
+    monkeypatch.setattr(routes_render, "generate_ass_file",
+                        lambda **k: seen.update(k))
+    start(render, aspect_ratio=ratio, streamer_preset=preset,
+          caption_style="bold", title_position="top")
+    assert seen["target_aspect_ratio"] == expected

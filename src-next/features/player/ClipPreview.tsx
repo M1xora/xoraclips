@@ -27,6 +27,7 @@ import {
   PIP_POS,
   PIP_SIZE,
   SPLIT_LAYOUT,
+  SPLIT_CAM_BG_SIZE,
   VIDEO_BOX,
 } from './canvas';
 import type {
@@ -169,13 +170,17 @@ export function ClipPreview({
   // VIDEO_BOX altogether (video_engine.py:1305-1370), so the geometry comes
   // from SPLIT_LAYOUT instead.
   const split = streamerPreset === 'split_top_cam';
-  const layout = SPLIT_LAYOUT[aspectRatio];
+
+  // The split boxes fill the canvas, so they need no x offset and the ratio
+  // does not shape them (#96); the cam box is shorter than the game box.
+  const camH = Math.round(SPLIT_LAYOUT.cam.h * scale);
+  const gameH = Math.round(SPLIT_LAYOUT.game.h * scale);
 
   const videoBox = VIDEO_BOX[aspectRatio];
-  const videoW = split ? Math.round(layout.w * scale) : frameW;
-  const videoH = split ? Math.round(layout.h * scale) : Math.round(videoBox.h * scale);
-  const videoX = split ? Math.round(layout.x * scale) : 0;
-  const videoY = split ? Math.round(layout.y * scale) : Math.round(videoBox.y * scale);
+  // The live player sits in the lower box when split, the video box otherwise.
+  const videoW = frameW;
+  const videoH = split ? gameH : Math.round(videoBox.h * scale);
+  const videoY = split ? camH : Math.round(videoBox.y * scale);
   const cover = coverSize(videoW, videoH);
 
   const bounds: ClipBounds = useMemo(
@@ -233,17 +238,17 @@ export function ClipPreview({
       : captions.status === 'error'
         ? t.studio.captionsUnavailable
         : null;
-  const offsetPct = faceOffsetPercent(box, videoW, cover.width);
+  // The split's lower box is a plain centre crop in the renderer, so panning
+  // it to the face here would show something the export does not (#96).
+  const offsetPct = split ? 0 : faceOffsetPercent(box, videoW, cover.width);
 
   useEffect(() => {
     if (autoPlay && ready) play();
   }, [autoPlay, ready, clip.id, play]);
 
-  // A backdrop is only visible where there is bar to fill. Plain 9:16 is full
-  // bleed and has none, but 9:16 with a split does: the stacked pair is only
-  // 540px wide in a 1080px canvas, so 270px of bar sits either side.
-  const showBackdrop =
-    backgroundStyle === 'blurred' && (split ? layout.x > 0 || layout.y > 0 : hasBars(aspectRatio));
+  // A backdrop is only visible where there is bar to fill. A split fills the
+  // whole canvas (#96), so it never has any.
+  const showBackdrop = backgroundStyle === 'blurred' && !split && hasBars(aspectRatio);
   const backdropUrl = api.clipFrameUrl(videoId, sampleAt);
 
   const elapsed = Math.max(0, currentTime - clip.start_time);
@@ -297,15 +302,10 @@ export function ClipPreview({
 
         {/* The video box. Anything outside it is a black bar, exactly as
             ffmpeg's pad filter produces. With split_top_cam this is the
-            LOWER box, the gameplay feed; the facecam sits above it. */}
+            LOWER box, the taller one holding the content feed. */}
         <div
           className="absolute overflow-hidden"
-          style={{
-            top: split ? videoY + videoH : videoY,
-            left: videoX,
-            width: videoW,
-            height: videoH,
-          }}
+          style={{ top: videoY, left: 0, width: videoW, height: videoH }}
         >
           <div
             ref={hostRef}
@@ -322,7 +322,7 @@ export function ClipPreview({
         {split && (
           <div
             className="absolute overflow-hidden border-b border-white/10"
-            style={{ top: videoY, left: videoX, width: videoW, height: videoH }}
+            style={{ top: 0, left: 0, width: videoW, height: camH }}
           >
             <div
               className="size-full bg-cover"
@@ -331,7 +331,7 @@ export function ClipPreview({
                 backgroundPosition: `${Math.round((box?.cx ?? 0.5) * 100)}% ${Math.round(
                   (box?.cy ?? 0.35) * 100,
                 )}%`,
-                backgroundSize: '154%',
+                backgroundSize: SPLIT_CAM_BG_SIZE,
               }}
               aria-hidden="true"
             />

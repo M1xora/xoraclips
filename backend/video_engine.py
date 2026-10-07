@@ -272,6 +272,19 @@ FORMAT_720 = "bestvideo[height<=720]+bestaudio/best[height<=720][vcodec!=none]/b
 # 18 (360p mp4 with audio), so "18/..." failed and every preview frame was
 # the video's thumbnail. Video-only is enough; -S "res" is the SHORT side, so
 # a vertical Short gets about 480px across too, and H.264 decodes anywhere.
+# The split_top_cam layout (#96). Both boxes are the full frame width, and
+# their heights add up to 1920 exactly, so the pair needs no padding and
+# leaves no bars. 40/60 gives the content box the larger share, since that is
+# where the action is; both heights are multiples of 16, which every H.264
+# encoder is happy with.
+SPLIT_CAM_W = 1080
+SPLIT_CAM_H = 768
+SPLIT_GAME_H = 1152
+# The cam box is a close-up, not a second wide shot: it takes this share of
+# the largest crop that fits its shape. Without it the crop would be the full
+# source height, which also pins the face offsets to 0 and kills tracking.
+SPLIT_CAM_ZOOM = 0.65
+
 FRAME_FORMAT = "bv*/b"
 FRAME_SORT = "res:480,vcodec:h264,ext:mp4"
 # A second YouTube would not give is not asked again for this long (#44).
@@ -1496,71 +1509,25 @@ def build_ffmpeg_filtergraph(
 
     # 1. Base Layout & Scaling
     if streamer_preset == "split_top_cam":
-        # Ensure both top facecam and bottom content box share the EXACT SAME aspect ratio
-        if aspect_ratio == "16:9":
-            # 16:9 split: top cam 1080x608 (16:9) cropped around face, bottom feed 1080x608 (16:9)
-            filters.append(
-                f"[0:v]split=2[cam_raw][game_raw];"
-                f"[cam_raw]crop='min(iw,ih*16/9*0.65)':'min(ih,iw*9/16*0.65)':'max(0,min(iw-ow,iw*{face_cx:.3f}-ow/2))':'max(0,min(ih-oh,ih*{face_cy:.3f}-oh/2))',scale=1080:608[cam_box];"
-                f"[game_raw]crop='min(iw,ih*16/9)':'min(ih,iw*9/16)':'(iw-min(iw,ih*16/9))/2':'(ih-min(ih,iw*9/16))/2',scale=1080:608[game_box];"
-                f"[cam_box][game_box]vstack=inputs=2[both_split]"
-            )
-            if background_style == "blurred":
-                filters.append(
-                    f"[0:v]scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,boxblur=20:5,eq=saturation=1.2:contrast=1.05[bg_blurred];"
-                    f"[bg_blurred][both_split]overlay=0:352[layout_base]"
-                )
-            else:
-                filters.append(f"[both_split]pad=1080:1920:0:352:black[layout_base]")
-
-        elif aspect_ratio == "1:1":
-            # 1:1 split: top cam 960x960 (1:1) cropped around face, bottom feed 960x960 (1:1)
-            filters.append(
-                f"[0:v]split=2[cam_raw][game_raw];"
-                f"[cam_raw]crop='min(iw,ih*0.65)':'min(iw,ih*0.65)':'max(0,min(iw-ow,iw*{face_cx:.3f}-ow/2))':'max(0,min(ih-oh,ih*{face_cy:.3f}-oh/2))',scale=960:960[cam_box];"
-                f"[game_raw]crop='min(iw,ih)':'min(iw,ih)':'(iw-min(iw,ih))/2':'(ih-min(iw,ih))/2',scale=960:960[game_box];"
-                f"[cam_box][game_box]vstack=inputs=2[both_split]"
-            )
-            if background_style == "blurred":
-                filters.append(
-                    f"[0:v]scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,boxblur=20:5,eq=saturation=1.2:contrast=1.05[bg_blurred];"
-                    f"[bg_blurred][both_split]overlay=60:0[layout_base]"
-                )
-            else:
-                filters.append(f"[both_split]pad=1080:1920:60:0:black[layout_base]")
-
-        elif aspect_ratio == "4:3":
-            # 4:3 split: top cam 1080x810 (4:3) cropped around face, bottom feed 1080x810 (4:3)
-            filters.append(
-                f"[0:v]split=2[cam_raw][game_raw];"
-                f"[cam_raw]crop='min(iw,ih*4/3*0.65)':'min(ih,iw*3/4*0.65)':'max(0,min(iw-ow,iw*{face_cx:.3f}-ow/2))':'max(0,min(ih-oh,ih*{face_cy:.3f}-oh/2))',scale=1080:810[cam_box];"
-                f"[game_raw]crop='min(iw,ih*4/3)':'min(ih,iw*3/4)':'(iw-min(iw,ih*4/3))/2':'(ih-min(ih,iw*3/4))/2',scale=1080:810[game_box];"
-                f"[cam_box][game_box]vstack=inputs=2[both_split]"
-            )
-            if background_style == "blurred":
-                filters.append(
-                    f"[0:v]scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,boxblur=20:5,eq=saturation=1.2:contrast=1.05[bg_blurred];"
-                    f"[bg_blurred][both_split]overlay=0:150[layout_base]"
-                )
-            else:
-                filters.append(f"[both_split]pad=1080:1920:0:150:black[layout_base]")
-
-        else:  # 9:16
-            # 9:16 split: top cam 540x960 (9:16) cropped around face, bottom feed 540x960 (9:16)
-            filters.append(
-                f"[0:v]split=2[cam_raw][game_raw];"
-                f"[cam_raw]crop='min(iw,ih*9/16)':'ih':'max(0,min(iw-ow,iw*{face_cx:.3f}-ow/2))':'max(0,min(ih-oh,ih*{face_cy:.3f}-oh/2))',scale=540:960[cam_box];"
-                f"[game_raw]crop='min(iw,ih*9/16)':'ih':'(iw-min(iw,ih*9/16))/2':'(ih-min(ih,iw*9/16))/2',scale=540:960[game_box];"
-                f"[cam_box][game_box]vstack=inputs=2[both_split]"
-            )
-            if background_style == "blurred":
-                filters.append(
-                    f"[0:v]scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,boxblur=20:5,eq=saturation=1.2:contrast=1.05[bg_blurred];"
-                    f"[bg_blurred][both_split]overlay=270:0[layout_base]"
-                )
-            else:
-                filters.append(f"[both_split]pad=1080:1920:270:0:black[layout_base]")
-
+        # Two boxes stacked to exactly 1080x1920 (#96). The ratio the user
+        # picked does not shape the boxes here: two 9:16 boxes stacked are
+        # 4.5:16, which cannot fill a 9:16 frame, and the old code left 270px
+        # of bar on each side because of it. Full width always, split 40/60 so
+        # the content box (where the action is) gets the larger share. Both
+        # heights are multiples of 16 and add up to 1920 exactly.
+        filters.append(
+            f"[0:v]split=2[cam_raw][game_raw];"
+            f"[cam_raw]crop='min(iw,ih*{SPLIT_CAM_W}/{SPLIT_CAM_H})*{SPLIT_CAM_ZOOM}':"
+            f"'min(ih,iw*{SPLIT_CAM_H}/{SPLIT_CAM_W})*{SPLIT_CAM_ZOOM}':"
+            f"'max(0,min(iw-ow,iw*{face_cx:.3f}-ow/2))':'max(0,min(ih-oh,ih*{face_cy:.3f}-oh/2))',"
+            f"scale={SPLIT_CAM_W}:{SPLIT_CAM_H}[cam_box];"
+            f"[game_raw]crop='min(iw,ih*{SPLIT_CAM_W}/{SPLIT_GAME_H})':'min(ih,iw*{SPLIT_GAME_H}/{SPLIT_CAM_W})':"
+            f"'(iw-min(iw,ih*{SPLIT_CAM_W}/{SPLIT_GAME_H}))/2':'(ih-min(ih,iw*{SPLIT_GAME_H}/{SPLIT_CAM_W}))/2',"
+            f"scale={SPLIT_CAM_W}:{SPLIT_GAME_H}[game_box];"
+            f"[cam_box][game_box]vstack=inputs=2[layout_base]"
+        )
+        # The stack is already the whole frame, so there is nothing to pad and
+        # no bar for a blurred background to fill: background_style is unused.
         current_v = "[layout_base]"
 
     elif streamer_preset == "pip_corner":

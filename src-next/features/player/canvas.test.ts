@@ -115,46 +115,38 @@ describe('preview scaling', () => {
   });
 });
 
-describe('split_top_cam layout', () => {
-  // video_engine.py stacks two identical boxes then pads back to 1080x1920.
-  it.each([
-    ['9:16', 540, 960, 270, 0],
-    ['1:1', 960, 960, 60, 0],
-    ['4:3', 1080, 810, 0, 150],
-    ['16:9', 1080, 608, 0, 352],
-  ] as const)('%s stacks %dx%d at (%d,%d)', (ratio, w, h, x, y) => {
-    expect(SPLIT_LAYOUT[ratio]).toEqual({ w, h, x, y });
+describe('split_top_cam layout (#96)', () => {
+  // video_engine.py stacks two full-width boxes that already fill the canvas,
+  // so there is nothing to pad. SPLIT_CAM_W / SPLIT_CAM_H / SPLIT_GAME_H.
+  it('stacks a 1080x768 cam over a 1080x1152 feed', () => {
+    expect(SPLIT_LAYOUT.cam).toEqual({ w: 1080, h: 768, y: 0 });
+    expect(SPLIT_LAYOUT.game).toEqual({ w: 1080, h: 1152, y: 768 });
   });
 
-  it('fits both stacked boxes inside the canvas', () => {
-    for (const r of RATIOS) {
-      const s = SPLIT_LAYOUT[r];
-      expect(s.y + s.h * 2, `${r} overflows vertically`).toBeLessThanOrEqual(CANVAS_H);
-      expect(s.x + s.w, `${r} overflows horizontally`).toBeLessThanOrEqual(CANVAS_W);
-    }
+  it('fills the canvas exactly, leaving no bars', () => {
+    const { cam, game } = SPLIT_LAYOUT;
+    expect(cam.w).toBe(CANVAS_W);
+    expect(game.w).toBe(CANVAS_W);
+    expect(cam.h + game.h).toBe(CANVAS_H);
   });
 
-  it('centres the stacked pair', () => {
-    // ffmpeg's pad offsets centre the pair; anything else means the preview
-    // and the export disagree.
-    for (const r of RATIOS) {
-      const s = SPLIT_LAYOUT[r];
-      expect(CANVAS_W - s.w - s.x, `${r} off centre horizontally`).toBe(s.x);
-      expect(CANVAS_H - s.h * 2 - s.y, `${r} off centre vertically`).toBe(s.y);
-    }
+  it('puts the feed directly under the cam, with no gap or overlap', () => {
+    expect(SPLIT_LAYOUT.game.y).toBe(SPLIT_LAYOUT.cam.h);
   });
 
-  it('keeps each box at the chosen aspect ratio', () => {
-    const expected: Record<AspectRatioOption, number> = {
-      '9:16': 9 / 16,
-      '1:1': 1,
-      '4:3': 4 / 3,
-      '16:9': 16 / 9,
-    };
-    for (const r of RATIOS) {
-      const s = SPLIT_LAYOUT[r];
-      expect(s.w / s.h, `${r}`).toBeCloseTo(expected[r], 2);
-    }
+  it('gives the feed the larger share, where the action is', () => {
+    expect(SPLIT_LAYOUT.game.h).toBeGreaterThan(SPLIT_LAYOUT.cam.h);
+  });
+
+  it('keeps both heights a multiple of 16 for the encoder', () => {
+    expect(SPLIT_LAYOUT.cam.h % 16).toBe(0);
+    expect(SPLIT_LAYOUT.game.h % 16).toBe(0);
+  });
+
+  it('is the same whatever ratio is picked, so the ratio control is moot', () => {
+    // The old layout shaped the boxes from the ratio, which is why 9:16 only
+    // covered half the canvas. There is now one layout, not four.
+    expect(Object.keys(SPLIT_LAYOUT).sort()).toEqual(['cam', 'game']);
   });
 });
 
@@ -195,36 +187,3 @@ describe('pip_corner layout', () => {
   });
 });
 
-describe('split canvas usage', () => {
-  /** Share of the 1080x1920 canvas the two stacked boxes actually cover. */
-  function coverage(ratio: AspectRatioOption): number {
-    const s = SPLIT_LAYOUT[ratio];
-    return (s.w * s.h * 2) / (CANVAS_W * CANVAS_H);
-  }
-
-  it('fills half the canvas at 9:16, which is why the UI warns', () => {
-    // Two 540x960 boxes in a 1080x1920 canvas. Verified on a real render:
-    // the video edge lands at x=810, leaving 270px of bar each side.
-    expect(coverage('9:16')).toBeCloseTo(0.5, 2);
-  });
-
-  it('fills most of the canvas at 1:1, the ratio the warning suggests', () => {
-    expect(coverage('1:1')).toBeGreaterThan(0.85);
-  });
-
-  it('makes 1:1 the best choice for a split layout', () => {
-    const best = RATIOS.reduce((a, b) => (coverage(a) >= coverage(b) ? a : b));
-    expect(best).toBe('1:1');
-  });
-
-  it('leaves 9:16 the worst choice', () => {
-    const worst = RATIOS.reduce((a, b) => (coverage(a) <= coverage(b) ? a : b));
-    expect(worst).toBe('9:16');
-  });
-
-  it('never covers more than the whole canvas', () => {
-    for (const r of RATIOS) {
-      expect(coverage(r), `${r}`).toBeLessThanOrEqual(1);
-    }
-  });
-});

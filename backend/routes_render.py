@@ -254,6 +254,13 @@ async def _render_clips(batch_id: str, batch: Dict[str, Any], request: RenderBat
     settings = request.settings
     target_url = watch_url(request.video_id)   # checked when the batch started
 
+    # The split layout fills the whole 1080x1920 frame whatever ratio is set
+    # (#96), so the title and the subtitles must be placed as if the video
+    # were full-bleed 9:16; the bars the other ratios leave are not there.
+    text_aspect_ratio = (
+        "9:16" if settings.streamer_preset == "split_top_cam" else (settings.aspect_ratio or "9:16")
+    )
+
     for idx, clip in enumerate(clips):
         clip_status = batch["clips"][idx]
         clip_status["status"] = "downloading"
@@ -300,7 +307,7 @@ async def _render_clips(batch_id: str, batch: Dict[str, Any], request: RenderBat
                         title_text=display_title,
                         output_png_path=title_png_path,
                         font_name=settings.caption_font or "Montserrat",
-                        target_aspect_ratio=settings.aspect_ratio or "9:16",
+                        target_aspect_ratio=text_aspect_ratio,
                         font_size_preset=settings.font_size or "medium",
                         text_case=settings.text_case or "uppercase",
                         title_position=settings.title_position or "auto",
@@ -333,7 +340,7 @@ async def _render_clips(batch_id: str, batch: Dict[str, Any], request: RenderBat
                     style_preset=settings.caption_style,
                     font_name=settings.caption_font,
                     output_ass_path=ass_path,
-                    target_aspect_ratio=settings.aspect_ratio,
+                    target_aspect_ratio=text_aspect_ratio,
                     font_size_preset=settings.font_size,
                     text_case=settings.text_case,
                     title_text=display_title if not skip_ass_title else None,

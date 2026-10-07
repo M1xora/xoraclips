@@ -93,6 +93,9 @@ export function StudioPanel({
 }: StudioPanelProps) {
   const { t } = useLanguage();
   const choices = titleChoices(titleOptions, customTitle);
+  // A split fills the canvas on its own (#96), so the ratio no longer shapes
+  // anything while it is on: the cards stay visible but cannot be used.
+  const splitOn = state.streamerPreset === 'split_top_cam';
   const max = getMaxPositions(state.aspectRatio, titleLines);
   const centre = getCenterBounds(state.aspectRatio);
 
@@ -134,11 +137,13 @@ export function StudioPanel({
                     type="button"
                     role="radio"
                     aria-checked={active}
+                    disabled={splitOn}
                     onClick={() =>
                       dispatch({ type: 'setAspectRatio', ratio: card.value, titleLines })
                     }
                     className={`pressable flex flex-col items-center gap-1.5 rounded-[--radius-control]
                       border-2 px-2 py-2.5
+                      ${splitOn ? 'cursor-not-allowed opacity-40' : ''}
                       ${
                         active
                           ? 'border-line bg-accent-muted shadow-brutal-sm'
@@ -159,6 +164,9 @@ export function StudioPanel({
                 );
               })}
             </div>
+            {splitOn && (
+              <p className="mt-1.5 text-[0.8rem] text-ink-faint">{t.studio.ratioLockedBySplit}</p>
+            )}
           </div>
 
           <div>
@@ -170,10 +178,10 @@ export function StudioPanel({
                 { value: 'blurred' as const, label: t.studio.backgroundBlurred },
               ]}
               onChange={(v) => dispatch({ type: 'set', patch: { backgroundStyle: v } })}
-              disabled={state.aspectRatio === '9:16'}
+              disabled={splitOn || state.aspectRatio === '9:16'}
             />
             <p className="mt-1.5 text-[0.8rem] text-ink-faint">
-              {state.aspectRatio === '9:16'
+              {splitOn || state.aspectRatio === '9:16'
                 ? t.studio.backgroundFullBleed
                 : t.studio.backgroundHint}
             </p>
@@ -240,33 +248,8 @@ export function StudioPanel({
               })}
             </div>
             <p className="mt-1.5 text-[0.8rem] text-ink-faint">
-              {state.streamerPreset === 'none'
-                ? t.studio.streamerHint
-                : t.studio.streamerBestRatio}
+              {splitOn ? t.studio.streamerSplitFills : t.studio.streamerHint}
             </p>
-
-            {/* 9:16 split stacks two 540px boxes in a 1080px canvas, so the
-                video covers half of it and the rest is bar (video_engine.py
-                :1356-1369). Verified on a real render: the edge lands at
-                x=810. Worth saying, since 9:16 is the default ratio. */}
-            {state.streamerPreset === 'split_top_cam' && state.aspectRatio === '9:16' && (
-              <div className="mt-2 flex flex-wrap items-center gap-2 rounded-[--radius-control]
-                border-2 border-caution/60 bg-caution/10 px-2.5 py-2">
-                <p className="min-w-0 flex-1 text-[0.8rem] text-ink">
-                  {t.studio.streamerRatioWarn}
-                </p>
-                <button
-                  type="button"
-                  onClick={() =>
-                    dispatch({ type: 'setAspectRatio', ratio: '1:1', titleLines })
-                  }
-                  className="pressable shrink-0 rounded border-2 border-hairline bg-surface-2
-                    px-2 py-1 text-[0.8rem] font-semibold hover:bg-surface-3"
-                >
-                  {t.studio.streamerSwitchTo11}
-                </button>
-              </div>
-            )}
           </div>
         </div>
       </Panel>
@@ -750,8 +733,9 @@ function StreamerShape({ preset, active }: { preset: StreamerPreset; active: boo
         className={`flex flex-col gap-px overflow-hidden rounded-sm border ${line}`}
         style={{ width: 18, height: 32 }}
       >
-        <span className={`flex-1 ${fill}`} />
-        <span className={`flex-1 ${active ? 'bg-accent/40' : 'bg-ink-faint/15'}`} />
+        {/* 40/60, the proportions the render produces (#96). */}
+        <span className={fill} style={{ flex: 40 }} />
+        <span className={active ? 'bg-accent/40' : 'bg-ink-faint/15'} style={{ flex: 60 }} />
       </span>
     );
   }
