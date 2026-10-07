@@ -91,6 +91,8 @@ class AnalyzeResponse(BaseModel):
     # can mark a clip that fell outside it. Clips are never cut to fit; an
     # analysis made before this change has no range and shows no mark.
     clip_range_seconds: Optional[Tuple[int, int]] = None
+    # The preset's own label ("30s", "2m"), so the card can name what was asked for.
+    clip_range_preset: Optional[str] = None
 
 
 class AnalysisError(Exception):
@@ -580,4 +582,5 @@ def build_response(*, video_id: str, title: str, channel: str, duration: float, 
         transcript=response_transcript,
         model=model,
         clip_range_seconds=clip_lengths.range_for(clip_duration) if clip_duration else None,
+        clip_range_preset=clip_lengths.label(clip_duration) if clip_duration else None,
     )

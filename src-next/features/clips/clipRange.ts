@@ -11,19 +11,23 @@
  * place. An analysis made before #94 carries no range and is never marked.
  */
 
-export type ClipRangeStatus = 'in' | 'over' | 'under';
+export type ClipRangeStatus = 'over' | 'under';
 
 export interface ClipRangeFit {
   status: ClipRangeStatus;
-  /** Seconds past the edge of the range; 0 when inside it. */
+  /** Seconds past the edge of the range, never 0. */
   off: number;
   shortest: number;
   longest: number;
 }
 
 /**
- * How `seconds` sits in `range`, or null when there is nothing to compare
- * against: no range (an older analysis), or one that makes no sense.
+ * How far `seconds` falls outside `range`, or null when there is nothing to
+ * mark: the clip fits, there is no range (an analysis from before #94), or
+ * the range makes no sense.
+ *
+ * `seconds` is the exact length, not a rounded one. A 40.4s clip is over a
+ * 20-40s preset even though its card shows "40s".
  */
 export function clipRangeFit(
   seconds: number,
@@ -37,5 +41,5 @@ export function clipRangeFit(
   // The edges count as inside: a 40s clip fits the 20-40s preset.
   if (seconds > longest) return { status: 'over', off: seconds - longest, shortest, longest };
   if (seconds < shortest) return { status: 'under', off: shortest - seconds, shortest, longest };
-  return { status: 'in', off: 0, shortest, longest };
+  return null;
 }

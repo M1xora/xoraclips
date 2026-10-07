@@ -53,6 +53,8 @@ export interface AnalyzeResponse {
    * Missing on analyses made before #94.
    */
   clip_range_seconds?: [number, number] | null;
+  /** The preset's label ("30s", "2m") shown next to the range. */
+  clip_range_preset?: string | null;
 }
 
 export type AspectRatioOption = '9:16' | '1:1' | '4:3' | '16:9';

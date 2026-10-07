@@ -437,6 +437,7 @@
     "done": true,
     "result": {
      "channel": "Kanal",
+     "clip_range_preset": "30s",
      "clip_range_seconds": [
       20,
       40
@@ -777,6 +778,7 @@
     "done": true,
     "result": {
      "channel": "Kanal",
+     "clip_range_preset": "30s",
      "clip_range_seconds": [
       20,
       40
@@ -1096,6 +1098,7 @@
     "done": true,
     "result": {
      "channel": "Kanal",
+     "clip_range_preset": "3m",
      "clip_range_seconds": [
       140,
       175
@@ -1861,6 +1864,7 @@
     "done": true,
     "result": {
      "channel": "Kanal",
+     "clip_range_preset": "30s",
      "clip_range_seconds": [
       20,
       40
@@ -2175,6 +2179,7 @@
     "done": true,
     "result": {
      "channel": "Kanal",
+     "clip_range_preset": "30s",
      "clip_range_seconds": [
       20,
       40
@@ -2476,6 +2481,7 @@
     "done": true,
     "result": {
      "channel": "Kanal",
+     "clip_range_preset": "30s",
      "clip_range_seconds": [
       20,
       40
@@ -2772,6 +2778,7 @@
     "done": true,
     "result": {
      "channel": "Kanal",
+     "clip_range_preset": "30s",
      "clip_range_seconds": [
       20,
       40
@@ -3049,6 +3056,7 @@
     "done": true,
     "result": {
      "channel": "Kanal",
+     "clip_range_preset": "30s",
      "clip_range_seconds": [
       20,
       40
@@ -3334,6 +3342,7 @@
     "done": true,
     "result": {
      "channel": "Kanal",
+     "clip_range_preset": "30s",
      "clip_range_seconds": [
       20,
       40
@@ -3691,6 +3700,7 @@
     "done": true,
     "result": {
      "channel": "Kanal",
+     "clip_range_preset": "30s",
      "clip_range_seconds": [
       20,
       40
@@ -3968,6 +3978,7 @@
     "done": true,
     "result": {
      "channel": "Kanal",
+     "clip_range_preset": "30s",
      "clip_range_seconds": [
       20,
       40
@@ -4245,6 +4256,7 @@
     "done": true,
     "result": {
      "channel": "Kanal",
+     "clip_range_preset": "30s",
      "clip_range_seconds": [
       20,
       40
@@ -4559,6 +4571,7 @@
     "done": true,
     "result": {
      "channel": "Kanal",
+     "clip_range_preset": "30s",
      "clip_range_seconds": [
       20,
       40
@@ -4861,6 +4874,7 @@
     "done": true,
     "result": {
      "channel": "Kanal",
+     "clip_range_preset": "30s",
      "clip_range_seconds": [
       20,
       40
@@ -5200,6 +5214,7 @@
     "done": true,
     "result": {
      "channel": "Kanal",
+     "clip_range_preset": "30s",
      "clip_range_seconds": [
       20,
       40
@@ -5687,6 +5702,7 @@
     "done": true,
     "result": {
      "channel": "Kanal",
+     "clip_range_preset": "30s",
      "clip_range_seconds": [
       20,
       40
@@ -5842,6 +5858,7 @@
     "done": true,
     "result": {
      "channel": "Kanal",
+     "clip_range_preset": "30s",
      "clip_range_seconds": [
       20,
       40
@@ -5996,6 +6013,7 @@
     "done": true,
     "result": {
      "channel": "Kanal",
+     "clip_range_preset": "30s",
      "clip_range_seconds": [
       20,
       40
@@ -6536,6 +6554,7 @@
     "done": true,
     "result": {
      "channel": "Kanal",
+     "clip_range_preset": "30s",
      "clip_range_seconds": [
       20,
       40
@@ -6840,6 +6859,7 @@
     "overall_progress": 100,
     "result": {
      "channel": "Xoraclips",
+     "clip_range_preset": null,
      "clip_range_seconds": null,
      "clips": [
       {
@@ -7102,6 +7122,7 @@
     "overall_progress": 100,
     "result": {
      "channel": "Xoraclips",
+     "clip_range_preset": null,
      "clip_range_seconds": null,
      "clips": [
       {
@@ -7362,6 +7383,7 @@
     "done": true,
     "result": {
      "channel": "",
+     "clip_range_preset": "30s",
      "clip_range_seconds": [
       20,
       40
@@ -7658,6 +7680,7 @@
     "done": true,
     "result": {
      "channel": "Kanal",
+     "clip_range_preset": "30s",
      "clip_range_seconds": [
       20,
       40
@@ -7936,6 +7959,7 @@
     "done": true,
     "result": {
      "channel": "Kanal",
+     "clip_range_preset": "30s",
      "clip_range_seconds": [
       20,
       40
@@ -8233,6 +8257,7 @@
     "done": true,
     "result": {
      "channel": "Kanal",
+     "clip_range_preset": "30s",
      "clip_range_seconds": [
       20,
       40
@@ -8548,6 +8573,7 @@
     "done": true,
     "result": {
      "channel": "Kanal",
+     "clip_range_preset": "30s",
      "clip_range_seconds": [
       20,
       40
@@ -9116,6 +9142,7 @@
     "done": true,
     "result": {
      "channel": "Kanal",
+     "clip_range_preset": "30s",
      "clip_range_seconds": [
       20,
       40
@@ -9413,6 +9440,7 @@
     "done": true,
     "result": {
      "channel": "Kanal",
+     "clip_range_preset": "30s",
      "clip_range_seconds": [
       20,
       40
@@ -9700,6 +9728,7 @@
     "done": true,
     "result": {
      "channel": "Kanal",
+     "clip_range_preset": "30s",
      "clip_range_seconds": [
       20,
       40
@@ -10252,6 +10281,7 @@
     "done": true,
     "result": {
      "channel": "Kanal",
+     "clip_range_preset": "30s",
      "clip_range_seconds": [
       20,
       40
@@ -10548,6 +10578,7 @@
     "done": true,
     "result": {
      "channel": "Raymond Chin",
+     "clip_range_preset": "3m",
      "clip_range_seconds": [
       140,
       175
@@ -11270,6 +11301,7 @@
     "done": true,
     "result": {
      "channel": "Tirta PengPengPeng",
+     "clip_range_preset": "60s",
      "clip_range_seconds": [
       45,
       75
@@ -12098,6 +12130,7 @@
     "done": true,
     "result": {
      "channel": "Kompas TV Medan",
+     "clip_range_preset": "30s",
      "clip_range_seconds": [
       20,
       40
@@ -12946,6 +12979,7 @@
     "done": true,
     "result": {
      "channel": "Kompas TV Medan",
+     "clip_range_preset": "30s",
      "clip_range_seconds": [
       20,
       40
@@ -13794,6 +13828,7 @@
     "done": true,
     "result": {
      "channel": "Kanal",
+     "clip_range_preset": "30s",
      "clip_range_seconds": [
       20,
       40
@@ -14090,6 +14125,7 @@
     "done": true,
     "result": {
      "channel": "Kanal",
+     "clip_range_preset": "3m",
      "clip_range_seconds": [
       140,
       175
@@ -14226,6 +14262,7 @@
     "done": true,
     "result": {
      "channel": "Kanal",
+     "clip_range_preset": "30s",
      "clip_range_seconds": [
       20,
       40
@@ -14503,6 +14540,7 @@
     "done": true,
     "result": {
      "channel": "Kanal",
+     "clip_range_preset": "30s",
      "clip_range_seconds": [
       20,
       40
@@ -14962,6 +15000,7 @@
     "done": true,
     "result": {
      "channel": "Kanal",
+     "clip_range_preset": "30s",
      "clip_range_seconds": [
       20,
       40
@@ -15598,6 +15637,7 @@
     "done": true,
     "result": {
      "channel": "Kanal",
+     "clip_range_preset": "30s",
      "clip_range_seconds": [
       20,
       40
@@ -16320,6 +16360,7 @@
     "done": true,
     "result": {
      "channel": "Kanal",
+     "clip_range_preset": "30s",
      "clip_range_seconds": [
       20,
       40
@@ -16588,6 +16629,7 @@
     "done": true,
     "result": {
      "channel": "Kanal",
+     "clip_range_preset": "30s",
      "clip_range_seconds": [
       20,
       40
@@ -17076,6 +17118,7 @@
     "done": true,
     "result": {
      "channel": "Kanal",
+     "clip_range_preset": "60s",
      "clip_range_seconds": [
       45,
       75
@@ -17415,6 +17458,7 @@
     "done": true,
     "result": {
      "channel": "Kanal",
+     "clip_range_preset": "30s",
      "clip_range_seconds": [
       20,
       40

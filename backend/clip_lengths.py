@@ -16,12 +16,15 @@ value silently became 30s. Now the request only accepts the values below.
 - 2m/3m clips Gemini made too short are widened to the shortest length
   (#38), ending on a sentence or line edge.
 """
+import logging
 from typing import Dict, List, Literal, Optional, Sequence, Tuple
 
 try:
     from backend.clip_bounds import Lines, snap_clip
 except ImportError:
     from clip_bounds import Lines, snap_clip
+
+logger = logging.getLogger("xoraclips")
 
 Duration = Literal["15s", "30s", "60s", "120s", "180s"]
 
@@ -69,6 +72,10 @@ def range_for(duration: str) -> Optional[Tuple[int, int]]:
     """
     lengths = DURATIONS.get(duration)
     if lengths is None:
+        # The request model only accepts the presets above, so this means a
+        # caller inside the backend passed something else: say so instead of
+        # letting the mark quietly disappear from every card.
+        logger.warning(f"No clip range for preset {duration!r}; the clip cards show no length mark.")
         return None
     shortest, longest, _ = lengths
     return shortest, longest

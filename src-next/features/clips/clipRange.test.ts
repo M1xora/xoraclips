@@ -6,12 +6,19 @@ const THIRTY: [number, number] = [20, 40];
 
 describe('clipRangeFit', () => {
   it('a clip inside the range is not marked', () => {
-    expect(clipRangeFit(30, THIRTY)).toEqual({ status: 'in', off: 0, shortest: 20, longest: 40 });
+    expect(clipRangeFit(30, THIRTY)).toBeNull();
   });
 
   it('counts both edges as inside', () => {
-    expect(clipRangeFit(20, THIRTY)?.status).toBe('in');
-    expect(clipRangeFit(40, THIRTY)?.status).toBe('in');
+    expect(clipRangeFit(20, THIRTY)).toBeNull();
+    expect(clipRangeFit(40, THIRTY)).toBeNull();
+  });
+
+  it('marks a clip a fraction past the edge', () => {
+    // fit_bounds returns 2-decimal times, so a length like 40.4s is normal.
+    // Rounding before comparing would call this one "40s, inside the range".
+    expect(clipRangeFit(40.4, THIRTY)).toMatchObject({ status: 'over' });
+    expect(clipRangeFit(19.6, THIRTY)).toMatchObject({ status: 'under' });
   });
 
   it('reports how far a long clip runs over', () => {
@@ -39,9 +46,9 @@ describe('clipRangeFit', () => {
   });
 
   it('works for every preset the backend offers', () => {
-    expect(clipRangeFit(12, [10, 20])?.status).toBe('in');
+    expect(clipRangeFit(12, [10, 20])).toBeNull();
     expect(clipRangeFit(80, [45, 75])?.status).toBe('over');
-    expect(clipRangeFit(100, [90, 130])?.status).toBe('in');
+    expect(clipRangeFit(100, [90, 130])).toBeNull();
     expect(clipRangeFit(120, [140, 175])?.status).toBe('under');
   });
 });

@@ -17,6 +17,8 @@ interface ClipCardProps {
   clip: ViralClip;
   /** [shortest, longest] of the chosen preset (#94); absent on older analyses. */
   clipRange?: [number, number] | null;
+  /** The preset's label ("30s", "2m"), shown with the range. */
+  clipPreset?: string | null;
   index: number;
   marked: boolean;
   active: boolean;
@@ -30,6 +32,7 @@ interface ClipCardProps {
 export function ClipCard({
   clip,
   clipRange,
+  clipPreset,
   index,
   marked,
   active,
@@ -62,12 +65,16 @@ export function ClipCard({
   const range = `${formatTimecode(clip.start_time)} - ${formatTimecode(clip.end_time)}`;
   const strong = clip.virality_score >= 90;
   // Issue #94: a clip outside the preset range keeps its length; the card
-  // only says by how much, and Trim stays available.
-  const fit = clipRangeFit(duration, clipRange);
-  const outside = fit && fit.status !== 'in' ? fit : null;
+  // only says by how much, and Trim stays available. The exact length is
+  // compared, not the rounded one: a 40.4s clip is over a 20-40s preset even
+  // though the card shows it as 40s.
+  const outside = clipRangeFit(clip.end_time - clip.start_time, clipRange);
   const outsideText = outside
     ? (outside.status === 'over' ? t.results.lengthOver : t.results.lengthUnder)(
-        Math.round(outside.off), outside.shortest, outside.longest)
+        // Never "0s over": a clip a fraction past the edge is still past it.
+        Math.max(1, Math.round(outside.off)),
+        clipPreset ?? `${outside.shortest}-${outside.longest}s`,
+        outside.shortest, outside.longest)
     : '';
 
   return (
@@ -98,17 +105,11 @@ export function ClipCard({
 
           <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1">
             <span className="tabular font-mono text-xs text-ink-dim">{range}</span>
-            <span
-              className={`tabular text-xs ${outside ? 'font-semibold text-ink' : 'text-ink-faint'}`}
-              title={outside ? `${outsideText}. ${t.results.lengthOutsideHint}` : undefined}
-            >
+            <span className={`tabular text-xs ${outside ? 'font-semibold text-ink' : 'text-ink-faint'}`}>
               {duration}s
             </span>
             {outside && (
-              <span
-                className="rounded border-2 border-hairline bg-surface-2 px-1.5 py-0.5 text-[0.7rem] font-semibold text-ink-dim"
-                title={t.results.lengthOutsideHint}
-              >
+              <span className="tabular rounded border-2 border-hairline bg-surface-2 px-1.5 py-0.5 font-mono text-[0.8rem] font-semibold text-ink-dim">
                 {outsideText}
               </span>
             )}
@@ -121,6 +122,12 @@ export function ClipCard({
               {clip.virality_score}
             </span>
           </div>
+
+          {/* Issue #94: why the clip is this long, as text rather than a
+              tooltip, which never opens on a phone. */}
+          {outside && (
+            <p className="mt-1 text-[0.7rem] leading-snug text-ink-faint">{t.results.lengthOutsideHint}</p>
+          )}
 
           {clip.key_quotes?.length > 0 && (
             <p className="mt-2 border-l-4 border-accent pl-2.5 text-xs italic text-ink-dim">

@@ -109,10 +109,10 @@ export const id = {
     clipsFound: (n: number) => `${n} klip ditemukan`,
     // Issue #94: klip yang panjangnya di luar rentang preset hanya ditandai,
     // tidak pernah dipotong, supaya idenya tetap utuh.
-    lengthOver: (off: number, shortest: number, longest: number) =>
-      `${off}s di atas range ${shortest}-${longest}s`,
-    lengthUnder: (off: number, shortest: number, longest: number) =>
-      `${off}s di bawah range ${shortest}-${longest}s`,
+    lengthOver: (off: number, preset: string, shortest: number, longest: number) =>
+      `${off}s di atas range ${preset} (${shortest}-${longest}s)`,
+    lengthUnder: (off: number, preset: string, shortest: number, longest: number) =>
+      `${off}s di bawah range ${preset} (${shortest}-${longest}s)`,
     lengthOutsideHint: 'Panjang klip mengikuti batas kalimat supaya idenya utuh. Bisa dirapikan di Trim.',
     searchPlaceholder: 'Cari klip',
     filterLabel: 'Saring klip',

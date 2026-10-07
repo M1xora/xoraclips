@@ -256,8 +256,11 @@ def test_the_response_carries_the_range_of_the_chosen_preset(api):
 
 
 def test_the_range_does_not_cut_a_clip_that_falls_outside_it(api):
-    """#94 only marks such a clip; its bounds stay exactly as before."""
+    """#94 only marks such a clip; its bounds are the ones it would have
+    had without the range, so the exact times are asserted here."""
     FakeGemini.payload = {"summary": "s", "clips": [gemini_clip(100.0, 149.0)]}
     data = result(post(api, duration="30s"))
     clip = data["clips"][0]
-    assert clip["end_time"] - clip["start_time"] > data["clip_range_seconds"][1]
+    assert (clip["start_time"], clip["end_time"]) == (100.0, 150.0)
+    # 50s against the 20-40s preset: well over, and left that way.
+    assert data["clip_range_seconds"] == [20, 40]
