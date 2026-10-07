@@ -11,9 +11,12 @@ import type { ViralClip } from '../../lib/types';
 import { formatTimecode } from '../../lib/format';
 import { useLanguage } from '../../i18n';
 import { postParts, postText } from './postText';
+import { clipRangeFit } from './clipRange';
 
 interface ClipCardProps {
   clip: ViralClip;
+  /** [shortest, longest] of the chosen preset (#94); absent on older analyses. */
+  clipRange?: [number, number] | null;
   index: number;
   marked: boolean;
   active: boolean;
@@ -26,6 +29,7 @@ interface ClipCardProps {
 
 export function ClipCard({
   clip,
+  clipRange,
   index,
   marked,
   active,
@@ -57,6 +61,14 @@ export function ClipCard({
   const duration = Math.round(clip.end_time - clip.start_time);
   const range = `${formatTimecode(clip.start_time)} - ${formatTimecode(clip.end_time)}`;
   const strong = clip.virality_score >= 90;
+  // Issue #94: a clip outside the preset range keeps its length; the card
+  // only says by how much, and Trim stays available.
+  const fit = clipRangeFit(duration, clipRange);
+  const outside = fit && fit.status !== 'in' ? fit : null;
+  const outsideText = outside
+    ? (outside.status === 'over' ? t.results.lengthOver : t.results.lengthUnder)(
+        Math.round(outside.off), outside.shortest, outside.longest)
+    : '';
 
   return (
     <article
@@ -86,7 +98,20 @@ export function ClipCard({
 
           <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1">
             <span className="tabular font-mono text-xs text-ink-dim">{range}</span>
-            <span className="tabular text-xs text-ink-faint">{duration}s</span>
+            <span
+              className={`tabular text-xs ${outside ? 'font-semibold text-ink' : 'text-ink-faint'}`}
+              title={outside ? `${outsideText}. ${t.results.lengthOutsideHint}` : undefined}
+            >
+              {duration}s
+            </span>
+            {outside && (
+              <span
+                className="rounded border-2 border-hairline bg-surface-2 px-1.5 py-0.5 text-[0.7rem] font-semibold text-ink-dim"
+                title={t.results.lengthOutsideHint}
+              >
+                {outsideText}
+              </span>
+            )}
             <span
               className={`tabular rounded px-1.5 py-0.5 font-mono text-[0.8rem] font-semibold
                 ${strong

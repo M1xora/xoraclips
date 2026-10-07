@@ -10,6 +10,8 @@ type Sort = 'score' | 'time' | 'duration';
 
 interface ClipListProps {
   clips: ViralClip[];
+  /** [shortest, longest] of the chosen preset (#94); absent on older analyses. */
+  clipRange?: [number, number] | null;
   marked: Record<string, boolean>;
   activeId: string | null;
   onToggleMark: (clip: ViralClip) => void;
@@ -21,6 +23,7 @@ interface ClipListProps {
 
 export function ClipList({
   clips,
+  clipRange,
   marked,
   activeId,
   onToggleMark,
@@ -139,6 +142,7 @@ export function ClipList({
             <ClipCard
               key={clip.id}
               clip={clip}
+              clipRange={clipRange}
               index={i}
               marked={Boolean(marked[clip.id])}
               active={activeId === clip.id}

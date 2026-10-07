@@ -59,6 +59,21 @@ def prompt_range(duration: str) -> str:
     return f"{shortest}-{longest}s"
 
 
+def range_for(duration: str) -> Optional[Tuple[int, int]]:
+    """(shortest, longest) of a preset, for showing how long a clip may be.
+
+    Clip bounds follow sentence edges (clip_bounds.py), so a clip can end up
+    outside this range: the range is what the prompt asks Gemini for, not a
+    limit applied to the answer. It is sent to the frontend (#94) only to
+    mark the clips that fall outside it; nothing is cut to fit.
+    """
+    lengths = DURATIONS.get(duration)
+    if lengths is None:
+        return None
+    shortest, longest, _ = lengths
+    return shortest, longest
+
+
 def target_seconds(duration: str) -> float:
     return float(DURATIONS[duration][2])
 

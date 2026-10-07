@@ -47,6 +47,12 @@ export interface AnalyzeResponse {
   clips: ViralClip[];
   transcript?: TranscriptLine[];
   model?: string;
+  /**
+   * [shortest, longest] seconds of the preset the analysis ran with (#94).
+   * Clips are never cut to fit it; it only marks the ones that fell outside.
+   * Missing on analyses made before #94.
+   */
+  clip_range_seconds?: [number, number] | null;
 }
 
 export type AspectRatioOption = '9:16' | '1:1' | '4:3' | '16:9';
