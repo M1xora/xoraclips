@@ -87,6 +87,12 @@ class AnalyzeResponse(BaseModel):
     clips: List[ViralClip]
     transcript: Optional[List[TranscriptLine]] = None
     model: Optional[str] = None
+    # Issue #94: (shortest, longest) of the chosen preset, so the clip cards
+    # can mark a clip that fell outside it. Clips are never cut to fit; an
+    # analysis made before this change has no range and shows no mark.
+    clip_range_seconds: Optional[Tuple[int, int]] = None
+    # The preset's own label ("30s", "2m"), so the card can name what was asked for.
+    clip_range_preset: Optional[str] = None
 
 
 class AnalysisError(Exception):
@@ -552,7 +558,7 @@ def heatmap_points(heatmap: List[dict]) -> List[HeatmapPoint]:
 
 def build_response(*, video_id: str, title: str, channel: str, duration: float, heatmap: List[dict],
                    summary: str, clips: List[ViralClip], enriched_transcript: List[dict],
-                   model: str) -> AnalyzeResponse:
+                   model: str, clip_duration: Optional[str] = None) -> AnalyzeResponse:
     """The final result: hashtags in the summary lowercase, the whole
     transcript with its engagement for the Studio."""
     response_transcript = [
@@ -575,4 +581,6 @@ def build_response(*, video_id: str, title: str, channel: str, duration: float, 
         clips=clips,
         transcript=response_transcript,
         model=model,
+        clip_range_seconds=clip_lengths.range_for(clip_duration) if clip_duration else None,
+        clip_range_preset=clip_lengths.label(clip_duration) if clip_duration else None,
     )

@@ -448,6 +448,8 @@ export function App() {
                 </div>
                 <ClipList
                   clips={result.clips}
+                  clipRange={result.clip_range_seconds}
+                  clipPreset={result.clip_range_preset}
                   marked={marked}
                   activeId={activeId}
                   onToggleMark={toggleMark}

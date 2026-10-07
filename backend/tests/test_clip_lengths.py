@@ -12,7 +12,7 @@ import routes_analyze
 from clip_bounds import TAIL_SECONDS, Lines
 from clip_lengths import (
     DURATIONS, MAX_CLIP_SECONDS, backup_windows, cap_length, clip_count_range,
-    label, prompt_range, prompt_rules, target_seconds,
+    label, prompt_range, prompt_rules, range_for, target_seconds,
 )
 from video_engine import render_timeouts
 
@@ -232,3 +232,35 @@ def test_backup_clips_are_three_minutes_and_apart(api):
     # 175s windows, moved to line edges (5s lines): 175-180s, never over 179.
     assert spans and all(170 <= e - s <= MAX_CLIP_SECONDS for s, e in spans)
     assert all(a_end <= b_start for (_, a_end), (b_start, _) in zip(spans, spans[1:]))
+
+
+# --- the range shown on the clip cards (#94) ---------------------------------------------
+
+def test_range_for_gives_the_preset_bounds():
+    assert range_for("30s") == (20, 40)
+    assert range_for("180s") == (140, 175)
+
+
+def test_range_for_matches_durations_for_every_preset():
+    for duration, (shortest, longest, _target) in DURATIONS.items():
+        assert range_for(duration) == (shortest, longest)
+
+
+def test_range_for_an_unknown_preset_is_none():
+    assert range_for("99s") is None
+
+
+def test_the_response_carries_the_range_of_the_chosen_preset(api):
+    FakeGemini.payload = {"summary": "s", "clips": [gemini_clip(100.0, 130.0)]}
+    assert result(post(api, duration="30s"))["clip_range_seconds"] == [20, 40]
+
+
+def test_the_range_does_not_cut_a_clip_that_falls_outside_it(api):
+    """#94 only marks such a clip; its bounds are the ones it would have
+    had without the range, so the exact times are asserted here."""
+    FakeGemini.payload = {"summary": "s", "clips": [gemini_clip(100.0, 149.0)]}
+    data = result(post(api, duration="30s"))
+    clip = data["clips"][0]
+    assert (clip["start_time"], clip["end_time"]) == (100.0, 150.0)
+    # 50s against the 20-40s preset: well over, and left that way.
+    assert data["clip_range_seconds"] == [20, 40]

@@ -673,7 +673,8 @@ async def _analysis_events(request: AnalyzeRequest, gemini_key: Optional[str]):
                                   start_bound, end_bound, channel)
     result = analysis.build_response(
         video_id=video_id, title=title, channel=channel, duration=duration, heatmap=heatmap,
-        summary=analysis_data.get("summary", ""), clips=clips, enriched_transcript=enriched, model=model)
+        summary=analysis_data.get("summary", ""), clips=clips, enriched_transcript=enriched, model=model,
+        clip_duration=request.duration)
     yield _sse({"done": True, "result": result.model_dump()})
 
 

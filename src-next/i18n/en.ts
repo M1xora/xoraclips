@@ -108,6 +108,13 @@ export const en: Translations = {
     historyNoMatch: 'Nothing matches.',
     historyRestored: 'Analysis opened from history',
     clipsFound: (n: number) => `${n} clips found`,
+    // Issue #94: a clip whose length falls outside the preset range is only
+    // marked, never cut, so its idea stays whole.
+    lengthOver: (off: number, preset: string, shortest: number, longest: number) =>
+      `${off}s over the ${preset} range (${shortest}-${longest}s)`,
+    lengthUnder: (off: number, preset: string, shortest: number, longest: number) =>
+      `${off}s under the ${preset} range (${shortest}-${longest}s)`,
+    lengthOutsideHint: 'Clip length follows sentence edges so the idea stays whole. You can adjust it in Trim.',
     searchPlaceholder: 'Search clips',
     filterLabel: 'Filter clips',
     filterAll: 'All',
