@@ -43,24 +43,33 @@ export function barHeights(ratio: AspectRatioOption): { top: number; bottom: num
  * Streamer presets change the layout, so the plain VIDEO_BOX above only
  * describes `streamerPreset: 'none'`.
  *
- * split_top_cam stacks two boxes of equal size (vstack) and pads the pair
- * back to 1080x1920. Values read off video_engine.py:1305-1370.
+ * split_top_cam stacks two full-width boxes that fill the canvas exactly
+ * (#96). The ratio the user picked does not shape them: two 9:16 boxes
+ * stacked are 4.5:16 and cannot fill a 9:16 frame, which is why the old
+ * layout left 270px of bar on each side. Values read off video_engine.py
+ * SPLIT_CAM_W / SPLIT_CAM_H / SPLIT_GAME_H, which these must match or the
+ * preview shows a layout the render does not produce.
  */
-export interface SplitLayout {
-  /** Width of each stacked box, in export pixels. */
+export interface SplitBox {
+  /** Width in export pixels; both boxes span the canvas. */
   w: number;
-  /** Height of each stacked box, in export pixels. */
+  /** Height in export pixels. */
   h: number;
-  /** Offset of the stacked pair inside the canvas. */
-  x: number;
+  /** Top edge inside the canvas. */
   y: number;
 }
 
-export const SPLIT_LAYOUT: Record<AspectRatioOption, SplitLayout> = {
-  '9:16': { w: 540, h: 960, x: 270, y: 0 },
-  '1:1': { w: 960, h: 960, x: 60, y: 0 },
-  '4:3': { w: 1080, h: 810, x: 0, y: 150 },
-  '16:9': { w: 1080, h: 608, x: 0, y: 352 },
+export interface SplitLayout {
+  /** The facecam, cropped around the face. */
+  cam: SplitBox;
+  /** The content feed, cropped centre. */
+  game: SplitBox;
+}
+
+/** 40/60: the content box gets the larger share, where the action is. */
+export const SPLIT_LAYOUT: SplitLayout = {
+  cam: { w: 1080, h: 768, y: 0 },
+  game: { w: 1080, h: 1152, y: 768 },
 };
 
 /**

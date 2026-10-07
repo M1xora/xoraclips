@@ -271,3 +271,58 @@ def test_a_running_batch_is_kept_and_a_finished_one_is_forgotten_after_an_hour(r
     now[0] = 10 ** 6
     assert store.lookup(batch_id) is None
     assert store.lookup("running") is not None   # a long render is never dropped
+
+
+# --- the split_top_cam layout (#96) ------------------------------------------------------
+
+def split_chain(ratio="9:16", background="black"):
+    return video_engine.build_ffmpeg_filtergraph(
+        aspect_ratio=ratio,
+        background_style=background,
+        streamer_preset="split_top_cam",
+        face_box={"cx": 0.5, "cy": 0.35},
+    )[0]
+
+
+def test_the_split_boxes_fill_the_frame_exactly():
+    assert video_engine.SPLIT_CAM_W == 1080
+    assert video_engine.SPLIT_CAM_H + video_engine.SPLIT_GAME_H == 1920
+    # Both heights are multiples of 16, which every H.264 encoder takes.
+    assert video_engine.SPLIT_CAM_H % 16 == 0
+    assert video_engine.SPLIT_GAME_H % 16 == 0
+    # The feed gets the larger share, where the action is.
+    assert video_engine.SPLIT_GAME_H > video_engine.SPLIT_CAM_H
+
+
+def test_the_split_scales_both_boxes_to_the_full_width():
+    chain = split_chain()
+    assert "scale=1080:768[cam_box]" in chain
+    assert "scale=1080:1152[game_box]" in chain
+    assert "vstack=inputs=2[layout_base]" in chain
+
+
+def test_the_split_needs_no_padding_and_leaves_no_bars():
+    """The old layout padded a 540px stack into a 1080px frame, which is
+    where the bars came from. A full-width stack pads nothing."""
+    chain = split_chain()
+    assert "pad=" not in chain
+    assert "overlay=" not in chain
+
+
+@pytest.mark.parametrize("ratio", ["9:16", "1:1", "4:3", "16:9"])
+def test_the_split_is_the_same_whatever_ratio_is_picked(ratio):
+    assert split_chain(ratio) == split_chain("9:16")
+
+
+@pytest.mark.parametrize("background", ["black", "blurred"])
+def test_the_split_ignores_the_background_since_nothing_shows_through(background):
+    assert split_chain(background=background) == split_chain(background="black")
+
+
+def test_the_split_crops_the_cam_around_the_face():
+    chain = video_engine.build_ffmpeg_filtergraph(
+        aspect_ratio="9:16", background_style="black", streamer_preset="split_top_cam",
+        face_box={"cx": 0.8, "cy": 0.2},
+    )[0]
+    assert "iw*0.800-ow/2" in chain
+    assert "ih*0.200-oh/2" in chain

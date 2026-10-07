@@ -169,10 +169,9 @@ export const id = {
     streamerSplit: 'Facecam atas',
     streamerSplitSub: 'Wajah di atas, konten di bawah',
     streamerPip: 'Sudut PiP',
+    ratioLockedBySplit: 'Layout split sudah mengisi kanvas penuh, jadi rasio tidak berpengaruh di sini.',
+    streamerSplitFills: 'Dua kotak selebar layar, mengisi kanvas penuh tanpa bilah hitam.',
     streamerPipSub: 'Kotak wajah di pojok',
-    streamerBestRatio: 'Paling pas di 1:1 dan 4:3. Di 9:16 video hanya mengisi separuh kanvas.',
-    streamerRatioWarn: 'Di 9:16 layout ini menyisakan bilah lebar di kiri dan kanan. Pilih 1:1 untuk hasil paling penuh.',
-    streamerSwitchTo11: 'Ganti ke 1:1',
     streamerUsesFace: 'Preset ini selalu mendeteksi wajah, jadi pelacakan wajah otomatis aktif.',
 
     // Judul: awalan, akhiran, durasi

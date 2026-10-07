@@ -170,10 +170,9 @@ export const en: Translations = {
     streamerSplit: 'Facecam on top',
     streamerSplitSub: 'Face above, content below',
     streamerPip: 'Corner PiP',
+    ratioLockedBySplit: 'The split layout already fills the canvas, so the ratio changes nothing here.',
+    streamerSplitFills: 'Two full-width boxes that fill the canvas, with no bars.',
     streamerPipSub: 'Face box in the corner',
-    streamerBestRatio: 'Works best at 1:1 and 4:3. At 9:16 the video fills only half the canvas.',
-    streamerRatioWarn: 'At 9:16 this layout leaves wide bars on both sides. Pick 1:1 to fill the canvas.',
-    streamerSwitchTo11: 'Switch to 1:1',
     streamerUsesFace: 'This preset always detects a face, so face tracking is on.',
 
     // Title prefix, suffix, duration
