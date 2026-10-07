@@ -346,6 +346,105 @@ def test_other_errors_keep_the_old_messages(tools, monkeypatch):
         download(fake)
 
 
+# ── Issue #92: method 2 used to throw ffmpeg's result away ────────────────
+def failing_trim(fake, monkeypatch, stderr, url_stderr=""):
+    """Makes every method produce nothing and ffmpeg fail with `stderr`."""
+    real_run = fake.run
+
+    def run(cmd, **kwargs):
+        res = real_run(cmd, **kwargs)
+        if cmd[0] == "ffmpeg":
+            return subprocess.CompletedProcess(cmd, 1, "", stderr)
+        if cmd[0] == "yt-dlp" and "-g" in cmd:
+            res.stderr = url_stderr
+        return res
+
+    monkeypatch.setattr(video_engine.subprocess, "run", run)
+
+
+def test_a_failing_trim_reports_the_ffmpeg_error(tools, monkeypatch):
+    fake = tools([None, None, None])
+    failing_trim(fake, monkeypatch, "Server returned 403 Forbidden")
+    with pytest.raises(RuntimeError) as excinfo:
+        download(fake)
+    assert "Server returned 403 Forbidden" in str(excinfo.value)
+
+
+def test_the_trim_error_replaces_the_stream_url_output(tools, monkeypatch):
+    """
+    The bug reported in #92: `yt-dlp -g` succeeds but still writes to stderr,
+    and that leftover reached the user instead of the reason the trim failed.
+    """
+    fake = tools([None, None, None])
+    banner = "Input #0, mov,mp4,m4a,3gp,3g2,mj2, from 'https://rr2---sn-x.googlevideo.com/v'"
+    failing_trim(fake, monkeypatch, "Invalid data found when processing input", url_stderr=banner)
+    with pytest.raises(RuntimeError) as excinfo:
+        download(fake)
+    message = str(excinfo.value)
+    assert "Invalid data found when processing input" in message
+    assert "Input #0" not in message
+
+
+def test_a_warning_from_a_later_method_does_not_bury_the_real_error(tools, monkeypatch):
+    """yt-dlp writes warnings to stderr even when it succeeds: they are not reasons."""
+    fake = tools([None, None, None])
+    real_run = fake.run
+
+    def run(cmd, **kwargs):
+        res = real_run(cmd, **kwargs)
+        if cmd[0] == "ffmpeg":
+            return subprocess.CompletedProcess(cmd, 1, "", "Server returned 403 Forbidden")
+        if cmd[0] == "yt-dlp" and "-g" not in cmd:
+            res.stderr = "WARNING: Falling back to generic extractor"
+        return res
+
+    monkeypatch.setattr(video_engine.subprocess, "run", run)
+    with pytest.raises(RuntimeError) as excinfo:
+        download(fake)
+    message = str(excinfo.value)
+    assert "Server returned 403 Forbidden" in message
+    assert "Falling back" not in message
+
+
+def test_a_real_error_from_the_last_method_still_wins(tools, monkeypatch):
+    """The bot-block guidance must survive the ranking above."""
+    fake = tools([None, None, None])
+    real_run = fake.run
+
+    def run(cmd, **kwargs):
+        res = real_run(cmd, **kwargs)
+        if cmd[0] == "ffmpeg":
+            return subprocess.CompletedProcess(cmd, 1, "", "Server returned 403 Forbidden")
+        if cmd[0] == "yt-dlp" and FORMAT_720 in cmd:
+            res.stderr = "ERROR: Sign in to confirm you're not a bot"
+        return res
+
+    monkeypatch.setattr(video_engine.subprocess, "run", run)
+    with pytest.raises(RuntimeError, match="Bot verification"):
+        download(fake)
+
+
+def test_the_trim_asks_ffmpeg_to_reconnect_and_to_report_warnings(tools, monkeypatch):
+    seen = []
+    fake = tools(["audio", None, None])
+    real_run = fake.run
+
+    def run(cmd, **kwargs):
+        if cmd[0] == "ffmpeg":
+            seen.append(cmd)
+        return real_run(cmd, **kwargs)
+
+    monkeypatch.setattr(video_engine.subprocess, "run", run)
+    with pytest.raises(RuntimeError):
+        download(fake)
+    assert seen, "method 2 never ran ffmpeg"
+    trim = seen[0]
+    assert trim[trim.index("-loglevel") + 1] == "warning"
+    # Reconnect is an input option: it must come before each of the two inputs.
+    assert trim.count("-reconnect") == 2
+    assert trim.index("-reconnect") < trim.index("-i")
+
+
 class FakePopen:
     def __init__(self, cmd, **kwargs):
         self.stdout = iter_lines(["[youtube] p1t-074cn38: Downloading webpage",
