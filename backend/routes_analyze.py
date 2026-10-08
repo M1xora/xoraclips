@@ -630,7 +630,7 @@ async def _analysis_events(request: AnalyzeRequest, gemini_key: Optional[str]):
     # Issue #34: never more clips than fit in the searched span.
     clip_range, capped_count = clip_lengths.clip_count_range(
         request.target_clip_count, is_long_video, end_bound - start_bound, request.duration)
-    prompt, n_lines = analysis.build_prompt(
+    prompt, n_lines, cut_at = analysis.build_prompt(
         enriched, heatmap=heatmap, title=title, channel=channel, start_bound=start_bound,
         end_bound=end_bound, duration=duration, clip_duration=request.duration, clip_range=clip_range,
         custom_prompt=request.custom_prompt, is_long_video=is_long_video)
@@ -639,6 +639,17 @@ async def _analysis_events(request: AnalyzeRequest, gemini_key: Optional[str]):
     yield _event(4, 10, 72, "Context Assembly",
                  f"Aligning {n_lines} dialogue segments with engagement data for {requested_model}...",
                  f"Assembling prompt and engagement context for {requested_model}...", model=requested_model)
+    if cut_at is not None:
+        # Issue #101: the transcript did not fit, so the end of the video never
+        # reached Gemini. Saying so beats letting the user believe otherwise.
+        lost_s = int(end_bound - cut_at)
+        yield _event(4, 11, 72, "Transcript Limit",
+                     (f"Too many subtitle lines to analyse at once: only up to "
+                      f"{int(cut_at) // 60}:{int(cut_at) % 60:02d} was sent to {requested_model}, "
+                      f"leaving the last {lost_s // 60}:{lost_s % 60:02d} unread. "
+                      f"Set a search range over that part to analyse it."),
+                     f"Only up to {int(cut_at) // 60}:{int(cut_at) % 60:02d} fit the analysis limit...",
+                     model=requested_model, transcript_cut_at=round(cut_at, 1))
     if capped_count is not None:
         span_s = int(end_bound - start_bound)
         yield _event(4, 12, 72, "Clip Count",

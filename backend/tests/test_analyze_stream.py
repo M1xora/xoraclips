@@ -240,6 +240,14 @@ SCENARIOS = {
     "three_minute_clips": {"transcript": lines(120), "metadata": meta(duration=600.0),
                            "body": {"duration": "180s"}, "answers": [{"summary": "s", "clips": [clip(30, 100)]}]},
     "long_transcript_truncated": {"transcript": lines(900, step=1.0), "metadata": meta(duration=900.0)},
+    # Issue #101: cut inside a search range — the warning counts the range's
+    # end, not the video's, and a range that fits is not reported at all.
+    "long_transcript_truncated_in_range": {"transcript": lines(1800, step=1.0),
+                                           "metadata": meta(duration=1800.0),
+                                           "body": {"range_start": 100, "range_end": 1500}},
+    "range_keeps_a_long_transcript_whole": {"transcript": lines(1800, step=1.0),
+                                            "metadata": meta(duration=1800.0),
+                                            "body": {"range_start": 100, "range_end": 700}},
     "long_video": {"transcript": lines(900, step=4.5), "metadata": meta(duration=4000.0)},
     "outdated_model_upgraded": {"body": {"model": "gemini-1.0-pro"}},
     # --- Gemini chain ---

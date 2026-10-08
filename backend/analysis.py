@@ -251,18 +251,30 @@ def enrich_transcript(transcript_lines: List[dict], heatmap: List[dict]) -> List
 
 def build_prompt(enriched_transcript: List[dict], *, heatmap: List[dict], title: str, channel: str,
                  start_bound: float, end_bound: float, duration: float, clip_duration: str,
-                 clip_range: str, custom_prompt: Optional[str], is_long_video: bool) -> Tuple[str, int]:
-    """The prompt for Gemini, and how many transcript lines it carries (long
-    transcripts are cut)."""
+                 clip_range: str, custom_prompt: Optional[str],
+                 is_long_video: bool) -> Tuple[str, int, Optional[float]]:
+    """The prompt for Gemini, how many transcript lines it carries, and the
+    second the transcript was cut at (issue #101).
+
+    A transcript over the line limit is cut from the back, so the end of the
+    video never reaches Gemini. The cut-off second is returned so the caller
+    can tell the user; it is None when the whole transcript fits.
+    """
     transcript_dump = []
     for line in enriched_transcript:
         eng = f"|{line['engagement']:.2f}" if heatmap and line['engagement'] > 0 else ""
         transcript_dump.append(f"{line['start']:.1f}|{line['end']:.1f}{eng} {line['text']}")
 
     MAX_LINES = 2500 if is_long_video else 800
+    cut_at: Optional[float] = None
     if len(transcript_dump) > MAX_LINES:
-        logger.warning(f"Transcript {len(transcript_dump)} lines — truncating to {MAX_LINES}.")
+        cut_at = float(enriched_transcript[MAX_LINES - 1].get("end", 0.0))
+        logger.warning(f"Transcript {len(transcript_dump)} lines — truncating to {MAX_LINES} "
+                       f"(cut at {cut_at:.0f}s of {end_bound:.0f}s).")
         transcript_dump = transcript_dump[:MAX_LINES]
+        # The prompt must not claim a range the transcript no longer covers:
+        # Gemini would place clips in seconds it was never shown.
+        end_bound = min(end_bound, cut_at)
 
     transcript_text = "\n".join(transcript_dump)
     dur_range   = clip_lengths.prompt_range(clip_duration)
@@ -293,7 +305,7 @@ def build_prompt(enriched_transcript: List[dict], *, heatmap: List[dict], title:
         f"Rules: use exact seconds from transcript; clips must start/end at sentence boundaries; do not overlap.\n"
         f"Return {clip_range} clips sorted by virality_score desc."
     )
-    return prompt, len(transcript_dump)
+    return prompt, len(transcript_dump), cut_at
 
 
 def pick_model(requested: Optional[str]) -> str:

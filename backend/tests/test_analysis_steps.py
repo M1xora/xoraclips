@@ -73,7 +73,7 @@ def prompt_for(lines, heatmap=(), channel="Kanal", custom_prompt=None, is_long_v
 
 
 def test_the_prompt_carries_the_video_the_rules_and_every_line():
-    prompt, n_lines = prompt_for(enriched(3))
+    prompt, n_lines, cut_at = prompt_for(enriched(3))
     assert n_lines == 3
     assert "- Video Title: Judul\n- Channel / Host / Creator: Kanal\n" in prompt
     assert "0.0|5.0 kalimat 0.\n5.0|10.0 kalimat 1.\n10.0|15.0 kalimat 2." in prompt
@@ -82,24 +82,47 @@ def test_the_prompt_carries_the_video_the_rules_and_every_line():
 
 
 def test_audience_interest_goes_in_a_column_only_when_there_is_a_heatmap():
-    prompt, _ = prompt_for(enriched(1, engagement=0.456), heatmap=[{"value": 1}])
+    prompt, _, _ = prompt_for(enriched(1, engagement=0.456), heatmap=[{"value": 1}])
     assert "0.0|5.0|0.46 kalimat 0." in prompt and "Prioritise high-interest peaks" in prompt
-    prompt, _ = prompt_for(enriched(1, engagement=0.0), heatmap=[{"value": 1}])
+    prompt, _, _ = prompt_for(enriched(1, engagement=0.0), heatmap=[{"value": 1}])
     assert "0.0|5.0 kalimat 0." in prompt
 
 
 def test_the_users_focus_and_a_missing_channel():
-    prompt, _ = prompt_for(enriched(1), channel="", custom_prompt="  bagian lucu  ")
+    prompt, _, _ = prompt_for(enriched(1), channel="", custom_prompt="  bagian lucu  ")
     assert 'matching the following query/theme: "bagian lucu"' in prompt
     assert "Channel / Host / Creator" not in prompt
 
 
 def test_a_long_transcript_is_cut(caplog):
     with caplog.at_level(logging.WARNING, logger="xoraclips"):
-        prompt, n_lines = prompt_for(enriched(900, step=1.0))
+        prompt, n_lines, cut_at = prompt_for(enriched(900, step=1.0))
     assert n_lines == 800 and "799.0|800.0 kalimat 799." in prompt and "kalimat 800." not in prompt
-    assert "Transcript 900 lines — truncating to 800." in caplog.text
+    assert "Transcript 900 lines — truncating to 800" in caplog.text
     assert prompt_for(enriched(900, step=1.0), is_long_video=True)[1] == 900
+    # Issue #101: the caller is told where the transcript ran out.
+    assert cut_at == 800.0
+
+
+def test_a_transcript_that_fits_reports_no_cut():
+    assert prompt_for(enriched(3))[2] is None
+    # Exactly at the limit is not a cut.
+    assert prompt_for(enriched(800, step=1.0))[2] is None
+    assert prompt_for(enriched(801, step=1.0))[2] == 800.0
+
+
+def test_a_cut_transcript_does_not_promise_gemini_the_whole_range():
+    """Issue #101: Gemini placed clips in seconds it was never shown."""
+    lines = enriched(900, step=1.0)       # 900 lines, the last ending at 900s
+    cut, _, cut_at = analysis.build_prompt(
+        lines, heatmap=[], title="Judul", channel="Kanal", start_bound=0.0, end_bound=900.0,
+        duration=900.0, clip_duration="30s", clip_range="3-5", custom_prompt=None,
+        is_long_video=False)
+    # The range stops where the transcript does, not where the video does.
+    assert cut_at == 800.0
+    assert "0s to 800s" in cut and "0s to 900s" not in cut
+    # The video's real length still shows, so Gemini knows there is more.
+    assert "(Total: 900s)" in cut
 
 
 def test_retired_models_become_the_current_flash():
