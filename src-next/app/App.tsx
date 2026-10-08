@@ -11,6 +11,7 @@ import { AnalyzeForm, API_KEY_INPUT_NAME } from '../features/analyze/AnalyzeForm
 import { analyzeErrorView, focusApiKeyField } from '../features/analyze/analyzeErrors';
 import { AI_STUDIO_KEY_URL, currentApiKey } from '../features/analyze/apiKeyStore';
 import { AnalyzeProgress } from '../features/analyze/AnalyzeProgress';
+import { AnalyzeNotices } from '../features/analyze/AnalyzeNotices';
 import { cacheKey, readCache, writeCache } from '../features/analyze/analysisCache';
 import { HistoryPanel } from '../features/analyze/HistoryPanel';
 import type { HistoryEntry } from '../features/analyze/analysisCache';
@@ -56,7 +57,7 @@ import type { AnalyzeResponse, ViralClip } from '../lib/types';
 export function App() {
   const { theme, toggle } = useTheme();
   const { language, setLanguage, t } = useLanguage();
-  const { analyze, status, progress, error, errorCode, errorRetryAt } = useAnalyze();
+  const { analyze, status, progress, notices, error, errorCode, errorRetryAt } = useAnalyze();
   const { toast, show, dismiss } = useToast();
 
   // The result lives here rather than in useAnalyze so a cache hit and a
@@ -403,6 +404,12 @@ export function App() {
                 </div>
               </div>
             </Panel>
+          </div>
+        )}
+
+        {result && notices.length > 0 && (
+          <div className="mt-4">
+            <AnalyzeNotices notices={notices} />
           </div>
         )}
 

@@ -11,6 +11,37 @@ export interface AnalyzeProgress {
   detail: string;
 }
 
+/**
+ * A warning the backend sent mid-analysis that still matters once it is over
+ * (issue #101): the transcript did not fit, so part of the video was never
+ * analysed. Progress events overwrite each other, so these are kept apart and
+ * survive until the next analysis starts.
+ */
+export interface AnalyzeNotice {
+  stage: string;
+  detail: string;
+}
+
+/** Progress stages that are warnings worth keeping, not passing status text. */
+const NOTICE_STAGES = new Set(['Transcript Limit', 'Clip Count']);
+
+/**
+ * The notice list after one progress event, or the list unchanged.
+ *
+ * Only the first notice per stage is kept: the backend sends each one once,
+ * but a retried Gemini call repeats the surrounding events, and the same
+ * warning twice reads like two separate problems.
+ */
+export function withNotice(
+  before: AnalyzeNotice[],
+  stage: string,
+  detail: string,
+): AnalyzeNotice[] {
+  if (!NOTICE_STAGES.has(stage) || !detail) return before;
+  if (before.some((n) => n.stage === stage)) return before;
+  return [...before, { stage, detail }];
+}
+
 export interface AnalyzeRequest {
   url: string;
   duration: ClipDuration;
@@ -77,6 +108,7 @@ const EMPTY_PROGRESS: AnalyzeProgress = {
 export function useAnalyze() {
   const [status, setStatus] = useState<Status>('idle');
   const [progress, setProgress] = useState<AnalyzeProgress>(EMPTY_PROGRESS);
+  const [notices, setNotices] = useState<AnalyzeNotice[]>([]);
   const [result, setResult] = useState<AnalyzeResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [errorCode, setErrorCode] = useState<string | null>(null);
@@ -97,6 +129,7 @@ export function useAnalyze() {
 
     setStatus('running');
     setProgress(EMPTY_PROGRESS);
+    setNotices([]);
     setResult(null);
     setError(null);
     setErrorCode(null);
@@ -158,12 +191,18 @@ export function useAnalyze() {
             continue;
           }
 
+          const stage = String(event.stage ?? '');
+          const detail = String(event.detail ?? event.message ?? '');
+          // Keep warnings: the next event would otherwise overwrite them in
+          // under a second, and these are things the user has to act on.
+          setNotices((before) => withNotice(before, stage, detail));
+
           setProgress({
             step: Number(event.step ?? 0),
             stepProgress: Number(event.step_progress ?? 0),
             overallProgress: Number(event.overall_progress ?? 0),
-            stage: String(event.stage ?? ''),
-            detail: String(event.detail ?? event.message ?? ''),
+            stage,
+            detail,
           });
         }
       }
@@ -187,5 +226,7 @@ export function useAnalyze() {
     }
   }, []);
 
-  return { analyze, cancel, status, progress, result, error, errorCode, errorRetryAt, setResult };
+  return {
+    analyze, cancel, status, progress, notices, result, error, errorCode, errorRetryAt, setResult,
+  };
 }
