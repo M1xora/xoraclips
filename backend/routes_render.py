@@ -490,6 +490,27 @@ async def start_batch_render(request: RenderBatchRequest, background_tasks: Back
     return {"batch_id": batch_id, "total_clips": len(request.clips)}
 
 
+@router.get("/api/render-status/{batch_id}")
+async def get_render_status(batch_id: str):
+    """One batch's state right now, as a plain reply rather than a stream.
+
+    Issue #107: a browser that was refreshed mid-render has the batch id in
+    storage but no way to tell three things apart, because EventSource cannot
+    read an HTTP status — a 404 and a backend that is not running look the
+    same to it. This endpoint answers with the batch (running or finished),
+    or 404 when the backend no longer knows it, so the caller can reattach,
+    show the result, or forget the id, instead of guessing from a failure.
+    """
+    # The id is looked up raw, like every other batch route: the store is a
+    # dict, so an unknown key is simply a miss. Trimming it with basename
+    # would be no protection and would make this route answer 200 for a
+    # string the progress stream next to it answers 404 for.
+    batch = RENDER_BATCHES.lookup(batch_id)
+    if batch is None:
+        raise HTTPException(status_code=404, detail="Batch not found")
+    return batch
+
+
 @router.get("/api/render-progress/{batch_id}")
 async def get_render_progress(batch_id: str):
     if RENDER_BATCHES.lookup(batch_id) is None:

@@ -939,6 +939,21 @@
     ]
    ]
   },
+  "GET /api/render-status/{batch_id}": {
+   "body": {},
+   "body_required": false,
+   "operationId": "get_render_status_api_render_status__batch_id__get",
+   "parameters": [
+    [
+     "path",
+     "batch_id",
+     true,
+     {
+      "type": "string"
+     }
+    ]
+   ]
+  },
   "GET /api/supadata-usage": {
    "body": {},
    "body_required": false,

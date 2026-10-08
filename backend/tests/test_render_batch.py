@@ -70,6 +70,49 @@ def progress(client, batch_id):
     return json.loads(line[5:])
 
 
+# --- picking a render back up after a refresh (#107) -------------------------------------
+
+def test_render_status_answers_with_the_batch(render):
+    """A reloaded browser has only the id; this is how it finds the render."""
+    batch_id = start(render)
+    res = render.get(f"/api/render-status/{batch_id}")
+    assert res.status_code == 200
+    body = res.json()
+    assert body["batch_id"] == batch_id
+    assert body["overall_status"] in ("running", "completed", "error")
+    assert "clips" in body
+
+
+def test_render_status_404s_for_a_batch_the_backend_does_not_know(render):
+    """The one answer that means the stored id is dead and may be dropped.
+
+    Anything else — a backend that is down, a network error — must not look
+    like this, or a browser would forget a render that is still going.
+    """
+    assert render.get("/api/render-status/batch_tidak_pernah_ada").status_code == 404
+
+
+@pytest.mark.parametrize("bad", ["../../etc/passwd", "..%2F..%2Fsecrets", "/etc/passwd"])
+def test_render_status_reads_nothing_but_its_own_store(render, bad):
+    """The id is a dict key, never a path, so a name like this is just a miss."""
+    assert render.get(f"/api/render-status/{bad}").status_code in (404, 405)
+
+
+def test_render_status_and_the_stream_agree_on_what_exists(render):
+    """Both look the id up the same way, so neither can claim a batch the
+    other denies — which would send a reattaching browser in circles."""
+    for unknown in ("batch_hantu", "../batch_hantu", "batch hantu"):
+        from_status = render.get(f"/api/render-status/{unknown}").status_code
+        from_stream = render.get(f"/api/render-progress/{unknown}").status_code
+        assert from_status == from_stream, unknown
+
+
+def test_render_status_matches_what_the_stream_reports(render):
+    """Both read the same batch, so a reattached browser sees no jump."""
+    batch_id = start(render)
+    assert render.get(f"/api/render-status/{batch_id}").json() == progress(render, batch_id)
+
+
 @pytest.mark.parametrize("settings", [
     {"bgm_enabled": True, "bgm_file_path": r"C:\Windows\win.ini"},
     {"watermark_enabled": True, "watermark_file_path": "/etc/passwd"},

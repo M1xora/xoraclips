@@ -419,6 +419,37 @@ export function App() {
           </div>
         )}
 
+        {/* Issue #107: a render picked up from a previous page load. This sits
+            OUTSIDE the `result` block on purpose: after a refresh there is no
+            analysis loaded, so anything inside it would never be drawn — which
+            is exactly the case this feature exists for. */}
+        {render.lostContact && !render.progress && (
+          <div
+            role="alert"
+            className="mt-4 flex items-start gap-2 rounded-[--radius-control] border-2 border-hairline bg-surface-2 p-3 text-sm"
+          >
+            <WarningCircleIcon size={16} className="mt-0.5 shrink-0 text-critical-text" />
+            <span>
+              <strong className="font-semibold">{t.render.unreachable}</strong>{' '}
+              <span className="text-ink-dim">{t.render.unreachableHint}</span>
+            </span>
+          </div>
+        )}
+
+        {!result && render.progress && (
+          <div className="mt-4">
+            <RenderQueue
+              progress={render.progress}
+              lostContact={render.lostContact}
+              fileNamePrefix={studio.fileNamePrefix}
+              fileNameSuffix={studio.fileNameSuffix}
+              onReconnect={() => render.reconnect()}
+              onDismiss={render.dismiss}
+              onRecover={recover}
+            />
+          </div>
+        )}
+
         {result && (
           <div className="mt-6 grid items-start gap-4 lg:grid-cols-[minmax(320px,400px)_1fr]">
             <div className="grid content-start gap-4">

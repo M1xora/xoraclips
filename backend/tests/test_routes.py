@@ -46,6 +46,7 @@ ROUTES = [
     ("GET", "/api/hardware-accel", "get_hardware_acceleration_status", ""),
     ("GET", "/api/health", "health_check", "query:refresh"),
     ("GET", "/api/models", "list_available_models", "header:x_gemini_api_key"),
+    ("GET", "/api/render-status/{batch_id}", "get_render_status", "path:batch_id"),
     ("GET", "/api/render-progress/{batch_id}", "get_render_progress", "path:batch_id"),
     ("GET", "/api/supadata-usage", "supadata_usage_endpoint", "query:refresh"),
     ("GET", "/api/temp-storage-info", "get_temp_storage_info", ""),

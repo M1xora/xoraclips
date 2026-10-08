@@ -6,6 +6,8 @@
  * checking and payload shapes live in exactly one place.
  */
 
+import type { BatchRenderProgress } from '../lib/types';
+
 /** Error carrying the HTTP status, the backend's message and, when given, an error code. */
 export class ApiError extends Error {
   readonly status: number;
@@ -253,6 +255,16 @@ export const api = {
     /** Server-sent events stream of batch progress. Caller must close it. */
     progressStream: (batchId: string) =>
       new EventSource(`/api/render-progress/${encodeURIComponent(batchId)}`),
+    /**
+     * One batch's state as a plain reply (#107). Throws with status 404 when
+     * the backend no longer knows the batch, which is what tells a forgotten
+     * batch apart from a backend that is not running.
+     */
+    status: (batchId: string, signal?: AbortSignal) =>
+      request<BatchRenderProgress>(
+        `/api/render-status/${encodeURIComponent(batchId)}`,
+        { signal },
+      ),
   },
 
   rawDownload: {

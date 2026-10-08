@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { api } from '../../api/client';
+import { api, ApiError } from '../../api/client';
 import type { BatchRenderProgress } from '../../lib/types';
 
 const LAST_BATCH_KEY = 'xoraclips_last_batch';
@@ -13,6 +13,30 @@ interface State {
   error: string | null;
   /** True when the stream dropped while the render was still going. */
   lostContact: boolean;
+}
+
+/**
+ * What to do with a stored batch id after asking the backend about it (#107).
+ *
+ * Pulled out of the effect so the rule can be tested on its own, because the
+ * dangerous case is silent: treating an unreachable backend like a 404 drops
+ * the id, and the render it pointed at is then lost for good even though it
+ * is still running.
+ */
+export function recoveryAction(
+  error: unknown,
+): 'forget' | 'keep' {
+  return error instanceof ApiError && error.status === 404 ? 'forget' : 'keep';
+}
+
+/** Drop the stored batch id. One place, so "when is it safe to forget?" has
+ *  one answer: only when the backend itself said the batch is gone (#107). */
+function forget(): void {
+  try {
+    localStorage.removeItem(LAST_BATCH_KEY);
+  } catch {
+    // Storage can be unavailable; nothing to clean up then.
+  }
 }
 
 const IDLE: State = {
@@ -42,6 +66,13 @@ export function useBatchRender(onFinished?: (p: BatchRenderProgress) => void) {
   const [state, setState] = useState<State>(IDLE);
   const sourceRef = useRef<EventSource | null>(null);
   const startingRef = useRef(false);
+  /**
+   * Set the moment the user starts a render, so the recovery check from the
+   * page load can never write over it (#107). Without this, a status reply
+   * that lands after the click would restore the OLD batch id and close the
+   * new render's stream.
+   */
+  const supersededRef = useRef(false);
   const finishedRef = useRef(onFinished);
 
   useEffect(() => {
@@ -82,11 +113,7 @@ export function useBatchRender(onFinished?: (p: BatchRenderProgress) => void) {
             error: data.error_message ?? null,
           }));
           finishedRef.current?.(data);
-          try {
-            localStorage.removeItem(LAST_BATCH_KEY);
-          } catch {
-            // Nothing to clean up if storage is unavailable.
-          }
+          forget();
         }
       };
 
@@ -107,6 +134,7 @@ export function useBatchRender(onFinished?: (p: BatchRenderProgress) => void) {
       // A second click would start a second batch with its own stream.
       if (startingRef.current) return null;
       startingRef.current = true;
+      supersededRef.current = true;   // Anything the page load was recovering is now stale.
 
       setState({ ...IDLE, status: 'starting' });
 
@@ -162,14 +190,71 @@ export function useBatchRender(onFinished?: (p: BatchRenderProgress) => void) {
     [listen, state.batchId],
   );
 
+  /**
+   * Picks up a render the browser was watching before it was reloaded (#107).
+   *
+   * Runs once. The backend keeps rendering whether or not anything is
+   * watching, so after a refresh the id in storage is the only thread back to
+   * it, and nothing used to pull that thread.
+   *
+   * The three answers are kept apart on purpose. A 404 means the backend is
+   * running and does not know this batch, so the id is dead and is dropped.
+   * Any other failure means the backend could not be reached, and the id is
+   * KEPT: the render may well still be there once it is back up, and throwing
+   * the id away would lose it for good.
+   */
+  useEffect(() => {
+    const id = readLastBatchId();
+    if (!id) return;
+
+    const controller = new AbortController();
+    let cancelled = false;
+
+    api.render
+      .status(id, controller.signal)
+      .then((batch) => {
+        if (cancelled || supersededRef.current) return;
+        if (batch.overall_status === 'running') {
+          setState({ status: 'running', batchId: id, progress: batch, error: null, lostContact: false });
+          listen(id);
+          return;
+        }
+        // Already finished while nobody was looking: show the result, with
+        // its download links, instead of an empty queue.
+        setState({
+          status: batch.overall_status === 'error' ? 'error' : 'done',
+          batchId: id,
+          progress: batch,
+          error: batch.error_message ?? null,
+          lostContact: false,
+        });
+        forget();
+      })
+      .catch((err: unknown) => {
+        if (cancelled || supersededRef.current) return;
+        if (recoveryAction(err) === 'forget') {
+          forget();   // The backend answered: this batch is gone.
+          return;
+        }
+        // Could not reach the backend. Say so, and keep the id — but leave
+        // status 'idle' and batchId null, so nothing downstream treats this
+        // as a render it can follow. The id stays in storage, and the next
+        // page load retries it; reconnect() would only spin on a dead id.
+        setState((st) => ({ ...st, lostContact: true }));
+      });
+
+    return () => {
+      cancelled = true;
+      controller.abort();
+    };
+    // Once, on mount: this is about what was left behind, not about state.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const dismiss = useCallback(() => {
     closeStream();
     setState(IDLE);
-    try {
-      localStorage.removeItem(LAST_BATCH_KEY);
-    } catch {
-      // Ignore.
-    }
+    forget();
   }, [closeStream]);
 
   return { ...state, start, reconnect, dismiss };
