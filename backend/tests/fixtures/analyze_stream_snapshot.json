@@ -5681,6 +5681,16 @@
     "step_progress": 10
    },
    {
+    "detail": "Too many subtitle lines to analyse at once: only up to 13:20 was sent to gemini-2.5-flash, leaving the last 1:40 unread. Set a search range over that part to analyse it.",
+    "message": "Only up to 13:20 fit the analysis limit...",
+    "model": "gemini-2.5-flash",
+    "overall_progress": 72,
+    "stage": "Transcript Limit",
+    "step": 4,
+    "step_progress": 11,
+    "transcript_cut_at": 800.0
+   },
+   {
     "detail": "Dispatched 800 lines to gemini-2.5-flash (attempt 1)...",
     "message": "Calling gemini-2.5-flash (attempt 1/2)...",
     "model": "gemini-2.5-flash",
@@ -5764,12 +5774,179 @@
    {
     "model": "gemini-2.5-flash",
     "prompt_chars": 27358,
-    "prompt_sha256": "7d027d48ce764a9d18ada750e0f075708880c9509d89c2ab4d7593d2b5050c0d"
+    "prompt_sha256": "70f80c305643f3d9c7d167799da0c457ae9e53881a4120be8bd4fd1c429e88da"
    }
   ],
   "logs": [
    "INFO xoraclips: Metadata fetched: title='Uji', duration=900.0s, heatmap_pts=0",
-   "WARNING xoraclips: Transcript 900 lines — truncating to 800.",
+   "WARNING xoraclips: Transcript 900 lines — truncating to 800 (cut at 800s of 900s).",
+   "INFO xoraclips: Flash fallback chain prepared: ['gemini-2.5-flash', 'gemini-2.5-flash-lite', 'gemini-2.0-flash', 'gemini-2.0-flash-lite', 'gemini-1.5-flash', 'gemini-1.5-flash-8b']",
+   "INFO xoraclips: Gemini analysis complete with gemini-2.5-flash. Found 2 clips.",
+   "INFO xoraclips: Clip bounds: 0/2 clip(s) moved to line/sentence edges."
+  ],
+  "sleeps": []
+ },
+ "long_transcript_truncated_in_range": {
+  "crash": null,
+  "events": [
+   {
+    "detail": "Connecting to YouTube & fetching video metadata...",
+    "message": "Connecting to YouTube — fetching video title and duration...",
+    "overall_progress": 8,
+    "stage": "Connecting to YouTube",
+    "step": 1,
+    "step_progress": 30
+   },
+   {
+    "detail": "Loaded metadata for \"Uji\" (1800s)",
+    "message": "Connected — \"Uji\" (1800s)",
+    "overall_progress": 25,
+    "stage": "Video Verified",
+    "step": 1,
+    "step_progress": 100
+   },
+   {
+    "detail": "Extracting viewer replay telemetry and retention curve...",
+    "message": "Scraping player viewer retention curve...",
+    "overall_progress": 35,
+    "stage": "Scraping Retention",
+    "step": 2,
+    "step_progress": 40
+   },
+   {
+    "detail": "No heatmap curve available — relying on full transcript dialogue analysis.",
+    "message": "No heatmap available for this video — will rely on transcript content analysis.",
+    "overall_progress": 50,
+    "stage": "Dialogue Fallback",
+    "step": 2,
+    "step_progress": 100
+   },
+   {
+    "detail": "Initializing multi-tier subtitle extraction pipeline...",
+    "message": "Initializing multi-tier subtitle extraction pipeline...",
+    "overall_progress": 55,
+    "stage": "Fetching Subtitles",
+    "step": 3,
+    "step_progress": 25
+   },
+   {
+    "detail": "Subtitles loaded — 1800 dialogue sentences with timestamps ready.",
+    "message": "Subtitles loaded — 1800 lines parsed successfully.",
+    "overall_progress": 70,
+    "stage": "Subtitles Ready",
+    "step": 3,
+    "step_progress": 100
+   },
+   {
+    "detail": "Aligning 800 dialogue segments with engagement data for gemini-2.5-flash...",
+    "message": "Assembling prompt and engagement context for gemini-2.5-flash...",
+    "model": "gemini-2.5-flash",
+    "overall_progress": 72,
+    "stage": "Context Assembly",
+    "step": 4,
+    "step_progress": 10
+   },
+   {
+    "detail": "Too many subtitle lines to analyse at once: only up to 15:00 was sent to gemini-2.5-flash, leaving the last 10:00 unread. Set a search range over that part to analyse it.",
+    "message": "Only up to 15:00 fit the analysis limit...",
+    "model": "gemini-2.5-flash",
+    "overall_progress": 72,
+    "stage": "Transcript Limit",
+    "step": 4,
+    "step_progress": 11,
+    "transcript_cut_at": 900.0
+   },
+   {
+    "detail": "Dispatched 800 lines to gemini-2.5-flash (attempt 1)...",
+    "message": "Calling gemini-2.5-flash (attempt 1/2)...",
+    "model": "gemini-2.5-flash",
+    "overall_progress": 74,
+    "stage": "Neural Model Dispatch",
+    "step": 4,
+    "step_progress": 18
+   },
+   {
+    "detail": "Verified 2 clip segments with precise video timestamps and key quotes.",
+    "message": "Found 2 viral clip candidates with gemini-2.5-flash — reconstructing transcripts...",
+    "model": "gemini-2.5-flash",
+    "overall_progress": 98,
+    "stage": "Clip Verification & Alignment",
+    "step": 4,
+    "step_progress": 98
+   },
+   {
+    "done": true,
+    "result": {
+     "channel": "Kanal",
+     "clip_range_preset": "30s",
+     "clip_range_seconds": [
+      20,
+      40
+     ],
+     "clips": [
+      {
+       "caption_suggestion": "Seru #viral #fyp",
+       "content_type": "edukasi",
+       "end_time": 40.0,
+       "hashtag_suggestion": "#podcast #kesehatan",
+       "hook_time": 11.0,
+       "key_quotes": [
+        "kutipan"
+       ],
+       "start_time": 10.0,
+       "title": "Ternyata Begini Cara Kerjanya",
+       "title_options": [
+        "Ternyata Begini Cara Kerjanya",
+        "Kok Bisa Sesederhana Itu?"
+       ],
+       "title_suggestion": "Ternyata Begini Cara Kerjanya",
+       "transcript": "",
+       "virality_score": 90
+      },
+      {
+       "caption_suggestion": "Seru #viral #fyp",
+       "content_type": "edukasi",
+       "end_time": 90.0,
+       "hashtag_suggestion": "#podcast #kesehatan",
+       "hook_time": 61.0,
+       "key_quotes": [
+        "kutipan"
+       ],
+       "start_time": 60.0,
+       "title": "Ternyata Begini Cara Kerjanya",
+       "title_options": [
+        "Ternyata Begini Cara Kerjanya",
+        "Kok Bisa Sesederhana Itu?"
+       ],
+       "title_suggestion": "Ternyata Begini Cara Kerjanya",
+       "transcript": "",
+       "virality_score": 80
+      }
+     ],
+     "duration": 1400.0,
+     "heatmap": [],
+     "model": "gemini-2.5-flash",
+     "summary": "Ringkasan video. #podcast #edukasi",
+     "title": "Uji",
+     "transcript": {
+      "lines": 1400,
+      "sha256": "4562f827ae55799289bde295df002ec3f74bb32c5c72d987223cd2fccddccb06"
+     },
+     "video_id": "dQw4w9WgXcQ"
+    }
+   }
+  ],
+  "gemini_calls": [
+   {
+    "model": "gemini-2.5-flash",
+    "prompt_chars": 27689,
+    "prompt_sha256": "2551070ee4a421edd3d8f57fab434170d22797ade631e036b079df5668c750a3"
+   }
+  ],
+  "logs": [
+   "INFO xoraclips: Metadata fetched: title='Uji', duration=1800.0s, heatmap_pts=0",
+   "INFO xoraclips: Filtered transcript to custom range: 100.0s to 1500.0s (duration: 1400.0s)",
+   "WARNING xoraclips: Transcript 1400 lines — truncating to 800 (cut at 900s of 1500s).",
    "INFO xoraclips: Flash fallback chain prepared: ['gemini-2.5-flash', 'gemini-2.5-flash-lite', 'gemini-2.0-flash', 'gemini-2.0-flash-lite', 'gemini-1.5-flash', 'gemini-1.5-flash-8b']",
    "INFO xoraclips: Gemini analysis complete with gemini-2.5-flash. Found 2 clips.",
    "INFO xoraclips: Clip bounds: 0/2 clip(s) moved to line/sentence edges."
@@ -9584,6 +9761,162 @@
   ],
   "sleeps": []
  },
+ "range_keeps_a_long_transcript_whole": {
+  "crash": null,
+  "events": [
+   {
+    "detail": "Connecting to YouTube & fetching video metadata...",
+    "message": "Connecting to YouTube — fetching video title and duration...",
+    "overall_progress": 8,
+    "stage": "Connecting to YouTube",
+    "step": 1,
+    "step_progress": 30
+   },
+   {
+    "detail": "Loaded metadata for \"Uji\" (1800s)",
+    "message": "Connected — \"Uji\" (1800s)",
+    "overall_progress": 25,
+    "stage": "Video Verified",
+    "step": 1,
+    "step_progress": 100
+   },
+   {
+    "detail": "Extracting viewer replay telemetry and retention curve...",
+    "message": "Scraping player viewer retention curve...",
+    "overall_progress": 35,
+    "stage": "Scraping Retention",
+    "step": 2,
+    "step_progress": 40
+   },
+   {
+    "detail": "No heatmap curve available — relying on full transcript dialogue analysis.",
+    "message": "No heatmap available for this video — will rely on transcript content analysis.",
+    "overall_progress": 50,
+    "stage": "Dialogue Fallback",
+    "step": 2,
+    "step_progress": 100
+   },
+   {
+    "detail": "Initializing multi-tier subtitle extraction pipeline...",
+    "message": "Initializing multi-tier subtitle extraction pipeline...",
+    "overall_progress": 55,
+    "stage": "Fetching Subtitles",
+    "step": 3,
+    "step_progress": 25
+   },
+   {
+    "detail": "Subtitles loaded — 1800 dialogue sentences with timestamps ready.",
+    "message": "Subtitles loaded — 1800 lines parsed successfully.",
+    "overall_progress": 70,
+    "stage": "Subtitles Ready",
+    "step": 3,
+    "step_progress": 100
+   },
+   {
+    "detail": "Aligning 600 dialogue segments with engagement data for gemini-2.5-flash...",
+    "message": "Assembling prompt and engagement context for gemini-2.5-flash...",
+    "model": "gemini-2.5-flash",
+    "overall_progress": 72,
+    "stage": "Context Assembly",
+    "step": 4,
+    "step_progress": 10
+   },
+   {
+    "detail": "Dispatched 600 lines to gemini-2.5-flash (attempt 1)...",
+    "message": "Calling gemini-2.5-flash (attempt 1/2)...",
+    "model": "gemini-2.5-flash",
+    "overall_progress": 74,
+    "stage": "Neural Model Dispatch",
+    "step": 4,
+    "step_progress": 18
+   },
+   {
+    "detail": "Verified 2 clip segments with precise video timestamps and key quotes.",
+    "message": "Found 2 viral clip candidates with gemini-2.5-flash — reconstructing transcripts...",
+    "model": "gemini-2.5-flash",
+    "overall_progress": 98,
+    "stage": "Clip Verification & Alignment",
+    "step": 4,
+    "step_progress": 98
+   },
+   {
+    "done": true,
+    "result": {
+     "channel": "Kanal",
+     "clip_range_preset": "30s",
+     "clip_range_seconds": [
+      20,
+      40
+     ],
+     "clips": [
+      {
+       "caption_suggestion": "Seru #viral #fyp",
+       "content_type": "edukasi",
+       "end_time": 40.0,
+       "hashtag_suggestion": "#podcast #kesehatan",
+       "hook_time": 11.0,
+       "key_quotes": [
+        "kutipan"
+       ],
+       "start_time": 10.0,
+       "title": "Ternyata Begini Cara Kerjanya",
+       "title_options": [
+        "Ternyata Begini Cara Kerjanya",
+        "Kok Bisa Sesederhana Itu?"
+       ],
+       "title_suggestion": "Ternyata Begini Cara Kerjanya",
+       "transcript": "",
+       "virality_score": 90
+      },
+      {
+       "caption_suggestion": "Seru #viral #fyp",
+       "content_type": "edukasi",
+       "end_time": 90.0,
+       "hashtag_suggestion": "#podcast #kesehatan",
+       "hook_time": 61.0,
+       "key_quotes": [
+        "kutipan"
+       ],
+       "start_time": 60.0,
+       "title": "Ternyata Begini Cara Kerjanya",
+       "title_options": [
+        "Ternyata Begini Cara Kerjanya",
+        "Kok Bisa Sesederhana Itu?"
+       ],
+       "title_suggestion": "Ternyata Begini Cara Kerjanya",
+       "transcript": "",
+       "virality_score": 80
+      }
+     ],
+     "duration": 600.0,
+     "heatmap": [],
+     "model": "gemini-2.5-flash",
+     "summary": "Ringkasan video. #podcast #edukasi",
+     "title": "Uji",
+     "transcript": {
+      "lines": 600,
+      "sha256": "3d5a4901f6364981a008a2f640eb3b585bfe1df29f892150e158e33c2cc7e10a"
+     },
+     "video_id": "dQw4w9WgXcQ"
+    }
+   }
+  ],
+  "gemini_calls": [
+   {
+    "model": "gemini-2.5-flash",
+    "prompt_chars": 21488,
+    "prompt_sha256": "ae1124ddc8910d16859f41bd8875842faa2822109521302522bdb9adc179e47e"
+   }
+  ],
+  "logs": [
+   "INFO xoraclips: Metadata fetched: title='Uji', duration=1800.0s, heatmap_pts=0",
+   "INFO xoraclips: Filtered transcript to custom range: 100.0s to 700.0s (duration: 600.0s)",
+   "INFO xoraclips: Flash fallback chain prepared: ['gemini-2.5-flash', 'gemini-2.5-flash-lite', 'gemini-2.0-flash', 'gemini-2.0-flash-lite', 'gemini-1.5-flash', 'gemini-1.5-flash-8b']",
+   "INFO xoraclips: Gemini analysis complete with gemini-2.5-flash. Found 2 clips.",
+   "INFO xoraclips: Clip bounds: 0/2 clip(s) moved to line/sentence edges."
+  ],
+  "sleeps": []
+ },
  "range_without_lines": {
   "crash": null,
   "events": [
@@ -11280,6 +11613,16 @@
     "step_progress": 10
    },
    {
+    "detail": "Too many subtitle lines to analyse at once: only up to 34:26 was sent to gemini-3.5-flash-lite, leaving the last 11:57 unread. Set a search range over that part to analyse it.",
+    "message": "Only up to 34:26 fit the analysis limit...",
+    "model": "gemini-3.5-flash-lite",
+    "overall_progress": 72,
+    "stage": "Transcript Limit",
+    "step": 4,
+    "step_progress": 11,
+    "transcript_cut_at": 2066.1
+   },
+   {
     "detail": "Dispatched 800 lines to gemini-3.5-flash-lite (attempt 1)...",
     "message": "Calling gemini-3.5-flash-lite (attempt 1/2)...",
     "model": "gemini-3.5-flash-lite",
@@ -12035,12 +12378,12 @@
    {
     "model": "gemini-3.5-flash-lite",
     "prompt_chars": 47046,
-    "prompt_sha256": "968e986ac1d9e77c5824784f46fd63d836a05e5f5b3460a49b91a32b0d0694ff"
+    "prompt_sha256": "db4b53062ca1615d5c9bdf4f763a6c38ed63e992e869b0cf4a39b0a57fe466e5"
    }
   ],
   "logs": [
    "INFO xoraclips: Metadata fetched: title='#ngopenk PEMBAHASAN LEBIH DALAM SEPUTAR GINJAL BERSAMA AHLINYA: dr. DECSA MEDIKA HERTANTO, Sp.PD-KGH', duration=2784.0s, heatmap_pts=100",
-   "WARNING xoraclips: Transcript 1077 lines — truncating to 800.",
+   "WARNING xoraclips: Transcript 1077 lines — truncating to 800 (cut at 2066s of 2784s).",
    "INFO xoraclips: Flash fallback chain prepared: ['gemini-3.5-flash-lite', 'gemini-2.5-flash', 'gemini-2.5-flash-lite', 'gemini-2.0-flash', 'gemini-2.0-flash-lite', 'gemini-1.5-flash', 'gemini-1.5-flash-8b']",
    "INFO xoraclips: Gemini analysis complete with gemini-3.5-flash-lite. Found 10 clips.",
    "INFO xoraclips: Clip bounds: 10/10 clip(s) moved to line/sentence edges.",
