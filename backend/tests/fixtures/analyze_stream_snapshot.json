@@ -77,8 +77,8 @@
   "gemini_calls": [
    {
     "model": "gemini-2.5-flash",
-    "prompt_chars": 3550,
-    "prompt_sha256": "0a7de10b32aed6f80ae975c4fb1e0a1d7088b0243bb1ba780529a6e4c96ff867"
+    "prompt_chars": 5617,
+    "prompt_sha256": "41c090c920971311becfb1399ff483f9437a187f8d7e84becd39c15293eff20a"
    }
   ],
   "logs": [
@@ -287,38 +287,38 @@
   "gemini_calls": [
    {
     "model": "gemini-2.5-flash",
-    "prompt_chars": 3550,
-    "prompt_sha256": "0a7de10b32aed6f80ae975c4fb1e0a1d7088b0243bb1ba780529a6e4c96ff867"
+    "prompt_chars": 5617,
+    "prompt_sha256": "41c090c920971311becfb1399ff483f9437a187f8d7e84becd39c15293eff20a"
    },
    {
     "model": "gemini-2.5-flash",
-    "prompt_chars": 3550,
-    "prompt_sha256": "0a7de10b32aed6f80ae975c4fb1e0a1d7088b0243bb1ba780529a6e4c96ff867"
+    "prompt_chars": 5617,
+    "prompt_sha256": "41c090c920971311becfb1399ff483f9437a187f8d7e84becd39c15293eff20a"
    },
    {
     "model": "gemini-2.5-flash-lite",
-    "prompt_chars": 3550,
-    "prompt_sha256": "0a7de10b32aed6f80ae975c4fb1e0a1d7088b0243bb1ba780529a6e4c96ff867"
+    "prompt_chars": 5617,
+    "prompt_sha256": "41c090c920971311becfb1399ff483f9437a187f8d7e84becd39c15293eff20a"
    },
    {
     "model": "gemini-2.0-flash",
-    "prompt_chars": 3550,
-    "prompt_sha256": "0a7de10b32aed6f80ae975c4fb1e0a1d7088b0243bb1ba780529a6e4c96ff867"
+    "prompt_chars": 5617,
+    "prompt_sha256": "41c090c920971311becfb1399ff483f9437a187f8d7e84becd39c15293eff20a"
    },
    {
     "model": "gemini-2.0-flash-lite",
-    "prompt_chars": 3550,
-    "prompt_sha256": "0a7de10b32aed6f80ae975c4fb1e0a1d7088b0243bb1ba780529a6e4c96ff867"
+    "prompt_chars": 5617,
+    "prompt_sha256": "41c090c920971311becfb1399ff483f9437a187f8d7e84becd39c15293eff20a"
    },
    {
     "model": "gemini-1.5-flash",
-    "prompt_chars": 3550,
-    "prompt_sha256": "0a7de10b32aed6f80ae975c4fb1e0a1d7088b0243bb1ba780529a6e4c96ff867"
+    "prompt_chars": 5617,
+    "prompt_sha256": "41c090c920971311becfb1399ff483f9437a187f8d7e84becd39c15293eff20a"
    },
    {
     "model": "gemini-1.5-flash-8b",
-    "prompt_chars": 3550,
-    "prompt_sha256": "0a7de10b32aed6f80ae975c4fb1e0a1d7088b0243bb1ba780529a6e4c96ff867"
+    "prompt_chars": 5617,
+    "prompt_sha256": "41c090c920971311becfb1399ff483f9437a187f8d7e84becd39c15293eff20a"
    }
   ],
   "logs": [
@@ -447,11 +447,16 @@
        "caption_suggestion": "Seru #viral #fyp",
        "content_type": "edukasi",
        "end_time": 40.0,
+       "ending_line": "",
        "hashtag_suggestion": "#podcast #kesehatan",
        "hook_time": 11.0,
        "key_quotes": [
         "kutipan"
        ],
+       "new_viewer_check": "",
+       "opening_line": "",
+       "payoff_line": "",
+       "scroll_stop_reason": "",
        "start_time": 10.0,
        "title": "Ternyata Begini Cara Kerjanya",
        "title_options": [
@@ -466,11 +471,16 @@
        "caption_suggestion": "Seru #viral #fyp",
        "content_type": "edukasi",
        "end_time": 90.0,
+       "ending_line": "",
        "hashtag_suggestion": "#podcast #kesehatan",
        "hook_time": 61.0,
        "key_quotes": [
         "kutipan"
        ],
+       "new_viewer_check": "",
+       "opening_line": "",
+       "payoff_line": "",
+       "scroll_stop_reason": "",
        "start_time": 60.0,
        "title": "Ternyata Begini Cara Kerjanya",
        "title_options": [
@@ -640,13 +650,13 @@
   "gemini_calls": [
    {
     "model": "gemini-2.5-flash",
-    "prompt_chars": 3550,
-    "prompt_sha256": "0a7de10b32aed6f80ae975c4fb1e0a1d7088b0243bb1ba780529a6e4c96ff867"
+    "prompt_chars": 5617,
+    "prompt_sha256": "41c090c920971311becfb1399ff483f9437a187f8d7e84becd39c15293eff20a"
    },
    {
     "model": "gemini-2.5-flash",
-    "prompt_chars": 3550,
-    "prompt_sha256": "0a7de10b32aed6f80ae975c4fb1e0a1d7088b0243bb1ba780529a6e4c96ff867"
+    "prompt_chars": 5617,
+    "prompt_sha256": "41c090c920971311becfb1399ff483f9437a187f8d7e84becd39c15293eff20a"
    }
   ],
   "logs": [
@@ -788,11 +798,16 @@
        "caption_suggestion": "Seru #viral #fyp",
        "content_type": "edukasi",
        "end_time": 40.0,
+       "ending_line": "",
        "hashtag_suggestion": "#podcast #kesehatan",
        "hook_time": 11.0,
        "key_quotes": [
         "kutipan"
        ],
+       "new_viewer_check": "",
+       "opening_line": "",
+       "payoff_line": "",
+       "scroll_stop_reason": "",
        "start_time": 10.0,
        "title": "Ternyata Begini Cara Kerjanya",
        "title_options": [
@@ -807,11 +822,16 @@
        "caption_suggestion": "Seru #viral #fyp",
        "content_type": "edukasi",
        "end_time": 90.0,
+       "ending_line": "",
        "hashtag_suggestion": "#podcast #kesehatan",
        "hook_time": 61.0,
        "key_quotes": [
         "kutipan"
        ],
+       "new_viewer_check": "",
+       "opening_line": "",
+       "payoff_line": "",
+       "scroll_stop_reason": "",
        "start_time": 60.0,
        "title": "Ternyata Begini Cara Kerjanya",
        "title_options": [
@@ -981,18 +1001,18 @@
   "gemini_calls": [
    {
     "model": "gemini-2.5-flash",
-    "prompt_chars": 3550,
-    "prompt_sha256": "0a7de10b32aed6f80ae975c4fb1e0a1d7088b0243bb1ba780529a6e4c96ff867"
+    "prompt_chars": 5617,
+    "prompt_sha256": "41c090c920971311becfb1399ff483f9437a187f8d7e84becd39c15293eff20a"
    },
    {
     "model": "gemini-2.5-flash",
-    "prompt_chars": 3550,
-    "prompt_sha256": "0a7de10b32aed6f80ae975c4fb1e0a1d7088b0243bb1ba780529a6e4c96ff867"
+    "prompt_chars": 5617,
+    "prompt_sha256": "41c090c920971311becfb1399ff483f9437a187f8d7e84becd39c15293eff20a"
    },
    {
     "model": "gemini-2.5-flash-lite",
-    "prompt_chars": 3550,
-    "prompt_sha256": "0a7de10b32aed6f80ae975c4fb1e0a1d7088b0243bb1ba780529a6e4c96ff867"
+    "prompt_chars": 5617,
+    "prompt_sha256": "41c090c920971311becfb1399ff483f9437a187f8d7e84becd39c15293eff20a"
    }
   ],
   "logs": [
@@ -1108,11 +1128,16 @@
        "caption_suggestion": "Seru #viral #fyp",
        "content_type": "edukasi",
        "end_time": 60.0,
+       "ending_line": "",
        "hashtag_suggestion": "#podcast #kesehatan",
        "hook_time": 11.0,
        "key_quotes": [
         "kutipan"
        ],
+       "new_viewer_check": "",
+       "opening_line": "",
+       "payoff_line": "",
+       "scroll_stop_reason": "",
        "start_time": 0.0,
        "title": "Ternyata Begini Cara Kerjanya",
        "title_options": [
@@ -1127,11 +1152,16 @@
        "caption_suggestion": "Seru #viral #fyp",
        "content_type": "edukasi",
        "end_time": 120.0,
+       "ending_line": "",
        "hashtag_suggestion": "#podcast #kesehatan",
        "hook_time": 61.0,
        "key_quotes": [
         "kutipan"
        ],
+       "new_viewer_check": "",
+       "opening_line": "",
+       "payoff_line": "",
+       "scroll_stop_reason": "",
        "start_time": 60.0,
        "title": "Ternyata Begini Cara Kerjanya",
        "title_options": [
@@ -1301,8 +1331,8 @@
   "gemini_calls": [
    {
     "model": "gemini-2.5-flash",
-    "prompt_chars": 3989,
-    "prompt_sha256": "cc46bd28ba5153162383f2fc735969d728d58f38f2d86f741eeede6eea2a7303"
+    "prompt_chars": 6056,
+    "prompt_sha256": "0c5e3db6fc938ced9a8a34538f79c6d45abcebc166e3bf51d55882a018d9224c"
    }
   ],
   "logs": [
@@ -1482,33 +1512,33 @@
   "gemini_calls": [
    {
     "model": "gemini-2.5-flash",
-    "prompt_chars": 3550,
-    "prompt_sha256": "0a7de10b32aed6f80ae975c4fb1e0a1d7088b0243bb1ba780529a6e4c96ff867"
+    "prompt_chars": 5617,
+    "prompt_sha256": "41c090c920971311becfb1399ff483f9437a187f8d7e84becd39c15293eff20a"
    },
    {
     "model": "gemini-2.5-flash-lite",
-    "prompt_chars": 3550,
-    "prompt_sha256": "0a7de10b32aed6f80ae975c4fb1e0a1d7088b0243bb1ba780529a6e4c96ff867"
+    "prompt_chars": 5617,
+    "prompt_sha256": "41c090c920971311becfb1399ff483f9437a187f8d7e84becd39c15293eff20a"
    },
    {
     "model": "gemini-2.0-flash",
-    "prompt_chars": 3550,
-    "prompt_sha256": "0a7de10b32aed6f80ae975c4fb1e0a1d7088b0243bb1ba780529a6e4c96ff867"
+    "prompt_chars": 5617,
+    "prompt_sha256": "41c090c920971311becfb1399ff483f9437a187f8d7e84becd39c15293eff20a"
    },
    {
     "model": "gemini-2.0-flash-lite",
-    "prompt_chars": 3550,
-    "prompt_sha256": "0a7de10b32aed6f80ae975c4fb1e0a1d7088b0243bb1ba780529a6e4c96ff867"
+    "prompt_chars": 5617,
+    "prompt_sha256": "41c090c920971311becfb1399ff483f9437a187f8d7e84becd39c15293eff20a"
    },
    {
     "model": "gemini-1.5-flash",
-    "prompt_chars": 3550,
-    "prompt_sha256": "0a7de10b32aed6f80ae975c4fb1e0a1d7088b0243bb1ba780529a6e4c96ff867"
+    "prompt_chars": 5617,
+    "prompt_sha256": "41c090c920971311becfb1399ff483f9437a187f8d7e84becd39c15293eff20a"
    },
    {
     "model": "gemini-1.5-flash-8b",
-    "prompt_chars": 3550,
-    "prompt_sha256": "0a7de10b32aed6f80ae975c4fb1e0a1d7088b0243bb1ba780529a6e4c96ff867"
+    "prompt_chars": 5617,
+    "prompt_sha256": "41c090c920971311becfb1399ff483f9437a187f8d7e84becd39c15293eff20a"
    }
   ],
   "logs": [
@@ -1728,43 +1758,43 @@
   "gemini_calls": [
    {
     "model": "gemini-2.5-flash",
-    "prompt_chars": 3550,
-    "prompt_sha256": "0a7de10b32aed6f80ae975c4fb1e0a1d7088b0243bb1ba780529a6e4c96ff867"
+    "prompt_chars": 5617,
+    "prompt_sha256": "41c090c920971311becfb1399ff483f9437a187f8d7e84becd39c15293eff20a"
    },
    {
     "model": "gemini-3.5-flash",
-    "prompt_chars": 3550,
-    "prompt_sha256": "0a7de10b32aed6f80ae975c4fb1e0a1d7088b0243bb1ba780529a6e4c96ff867"
+    "prompt_chars": 5617,
+    "prompt_sha256": "41c090c920971311becfb1399ff483f9437a187f8d7e84becd39c15293eff20a"
    },
    {
     "model": "gemini-3.5-flash-lite",
-    "prompt_chars": 3550,
-    "prompt_sha256": "0a7de10b32aed6f80ae975c4fb1e0a1d7088b0243bb1ba780529a6e4c96ff867"
+    "prompt_chars": 5617,
+    "prompt_sha256": "41c090c920971311becfb1399ff483f9437a187f8d7e84becd39c15293eff20a"
    },
    {
     "model": "gemini-2.5-flash-lite",
-    "prompt_chars": 3550,
-    "prompt_sha256": "0a7de10b32aed6f80ae975c4fb1e0a1d7088b0243bb1ba780529a6e4c96ff867"
+    "prompt_chars": 5617,
+    "prompt_sha256": "41c090c920971311becfb1399ff483f9437a187f8d7e84becd39c15293eff20a"
    },
    {
     "model": "gemini-2.0-flash",
-    "prompt_chars": 3550,
-    "prompt_sha256": "0a7de10b32aed6f80ae975c4fb1e0a1d7088b0243bb1ba780529a6e4c96ff867"
+    "prompt_chars": 5617,
+    "prompt_sha256": "41c090c920971311becfb1399ff483f9437a187f8d7e84becd39c15293eff20a"
    },
    {
     "model": "gemini-2.0-flash-lite",
-    "prompt_chars": 3550,
-    "prompt_sha256": "0a7de10b32aed6f80ae975c4fb1e0a1d7088b0243bb1ba780529a6e4c96ff867"
+    "prompt_chars": 5617,
+    "prompt_sha256": "41c090c920971311becfb1399ff483f9437a187f8d7e84becd39c15293eff20a"
    },
    {
     "model": "gemini-1.5-flash",
-    "prompt_chars": 3550,
-    "prompt_sha256": "0a7de10b32aed6f80ae975c4fb1e0a1d7088b0243bb1ba780529a6e4c96ff867"
+    "prompt_chars": 5617,
+    "prompt_sha256": "41c090c920971311becfb1399ff483f9437a187f8d7e84becd39c15293eff20a"
    },
    {
     "model": "gemini-1.5-flash-8b",
-    "prompt_chars": 3550,
-    "prompt_sha256": "0a7de10b32aed6f80ae975c4fb1e0a1d7088b0243bb1ba780529a6e4c96ff867"
+    "prompt_chars": 5617,
+    "prompt_sha256": "41c090c920971311becfb1399ff483f9437a187f8d7e84becd39c15293eff20a"
    }
   ],
   "logs": [
@@ -1874,11 +1904,16 @@
        "caption_suggestion": "Seru #viral #fyp",
        "content_type": "edukasi",
        "end_time": 40.0,
+       "ending_line": "",
        "hashtag_suggestion": "#podcast #kesehatan",
        "hook_time": 11.0,
        "key_quotes": [
         "kutipan"
        ],
+       "new_viewer_check": "",
+       "opening_line": "",
+       "payoff_line": "",
+       "scroll_stop_reason": "",
        "start_time": 10.0,
        "title": "Ternyata Begini Cara Kerjanya",
        "title_options": [
@@ -1893,11 +1928,16 @@
        "caption_suggestion": "Seru #viral #fyp",
        "content_type": "edukasi",
        "end_time": 90.0,
+       "ending_line": "",
        "hashtag_suggestion": "#podcast #kesehatan",
        "hook_time": 61.0,
        "key_quotes": [
         "kutipan"
        ],
+       "new_viewer_check": "",
+       "opening_line": "",
+       "payoff_line": "",
+       "scroll_stop_reason": "",
        "start_time": 60.0,
        "title": "Ternyata Begini Cara Kerjanya",
        "title_options": [
@@ -2067,8 +2107,8 @@
   "gemini_calls": [
    {
     "model": "gemini-2.5-flash",
-    "prompt_chars": 3550,
-    "prompt_sha256": "0a7de10b32aed6f80ae975c4fb1e0a1d7088b0243bb1ba780529a6e4c96ff867"
+    "prompt_chars": 5617,
+    "prompt_sha256": "41c090c920971311becfb1399ff483f9437a187f8d7e84becd39c15293eff20a"
    }
   ],
   "logs": [
@@ -2189,11 +2229,16 @@
        "caption_suggestion": "Seru #viral #fyp",
        "content_type": "edukasi",
        "end_time": 40.0,
+       "ending_line": "",
        "hashtag_suggestion": "#podcast #kesehatan",
        "hook_time": 11.0,
        "key_quotes": [
         "kutipan"
        ],
+       "new_viewer_check": "",
+       "opening_line": "",
+       "payoff_line": "",
+       "scroll_stop_reason": "",
        "start_time": 10.0,
        "title": "Ternyata Begini Cara Kerjanya",
        "title_options": [
@@ -2208,11 +2253,16 @@
        "caption_suggestion": "Seru #viral #fyp",
        "content_type": "edukasi",
        "end_time": 90.0,
+       "ending_line": "",
        "hashtag_suggestion": "#podcast #kesehatan",
        "hook_time": 61.0,
        "key_quotes": [
         "kutipan"
        ],
+       "new_viewer_check": "",
+       "opening_line": "",
+       "payoff_line": "",
+       "scroll_stop_reason": "",
        "start_time": 60.0,
        "title": "Ternyata Begini Cara Kerjanya",
        "title_options": [
@@ -2382,13 +2432,13 @@
   "gemini_calls": [
    {
     "model": "gemini-2.5-flash",
-    "prompt_chars": 3550,
-    "prompt_sha256": "0a7de10b32aed6f80ae975c4fb1e0a1d7088b0243bb1ba780529a6e4c96ff867"
+    "prompt_chars": 5617,
+    "prompt_sha256": "41c090c920971311becfb1399ff483f9437a187f8d7e84becd39c15293eff20a"
    },
    {
     "model": "gemini-2.5-flash-lite",
-    "prompt_chars": 3550,
-    "prompt_sha256": "0a7de10b32aed6f80ae975c4fb1e0a1d7088b0243bb1ba780529a6e4c96ff867"
+    "prompt_chars": 5617,
+    "prompt_sha256": "41c090c920971311becfb1399ff483f9437a187f8d7e84becd39c15293eff20a"
    }
   ],
   "logs": [
@@ -2491,11 +2541,16 @@
        "caption_suggestion": "Seru #viral #fyp",
        "content_type": "edukasi",
        "end_time": 40.0,
+       "ending_line": "",
        "hashtag_suggestion": "#podcast #kesehatan",
        "hook_time": 11.0,
        "key_quotes": [
         "kutipan"
        ],
+       "new_viewer_check": "",
+       "opening_line": "",
+       "payoff_line": "",
+       "scroll_stop_reason": "",
        "start_time": 10.0,
        "title": "Ternyata Begini Cara Kerjanya",
        "title_options": [
@@ -2510,11 +2565,16 @@
        "caption_suggestion": "Seru #viral #fyp",
        "content_type": "edukasi",
        "end_time": 90.0,
+       "ending_line": "",
        "hashtag_suggestion": "#podcast #kesehatan",
        "hook_time": 61.0,
        "key_quotes": [
         "kutipan"
        ],
+       "new_viewer_check": "",
+       "opening_line": "",
+       "payoff_line": "",
+       "scroll_stop_reason": "",
        "start_time": 60.0,
        "title": "Ternyata Begini Cara Kerjanya",
        "title_options": [
@@ -2684,8 +2744,8 @@
   "gemini_calls": [
    {
     "model": "gemini-2.5-flash",
-    "prompt_chars": 3550,
-    "prompt_sha256": "0a7de10b32aed6f80ae975c4fb1e0a1d7088b0243bb1ba780529a6e4c96ff867"
+    "prompt_chars": 5617,
+    "prompt_sha256": "41c090c920971311becfb1399ff483f9437a187f8d7e84becd39c15293eff20a"
    }
   ],
   "logs": [
@@ -2788,11 +2848,16 @@
        "caption_suggestion": "Seru #viral #fyp",
        "content_type": "edukasi",
        "end_time": 40.0,
+       "ending_line": "",
        "hashtag_suggestion": "#podcast #kesehatan",
        "hook_time": 11.0,
        "key_quotes": [
         "kutipan"
        ],
+       "new_viewer_check": "",
+       "opening_line": "",
+       "payoff_line": "",
+       "scroll_stop_reason": "",
        "start_time": 10.0,
        "title": "Kanal Mencoba Lari Tiap Hari",
        "title_options": [
@@ -2962,8 +3027,8 @@
   "gemini_calls": [
    {
     "model": "gemini-2.5-flash",
-    "prompt_chars": 3550,
-    "prompt_sha256": "0a7de10b32aed6f80ae975c4fb1e0a1d7088b0243bb1ba780529a6e4c96ff867"
+    "prompt_chars": 5617,
+    "prompt_sha256": "41c090c920971311becfb1399ff483f9437a187f8d7e84becd39c15293eff20a"
    }
   ],
   "logs": [
@@ -3066,11 +3131,16 @@
        "caption_suggestion": "Seru #viral #fyp",
        "content_type": "edukasi",
        "end_time": 40.0,
+       "ending_line": "",
        "hashtag_suggestion": "#podcast #kesehatan",
        "hook_time": 11.0,
        "key_quotes": [
         "kutipan"
        ],
+       "new_viewer_check": "",
+       "opening_line": "",
+       "payoff_line": "",
+       "scroll_stop_reason": "",
        "start_time": 10.0,
        "title": "Kanal Mencoba Lari Tiap Hari",
        "title_options": [
@@ -3239,8 +3309,8 @@
   "gemini_calls": [
    {
     "model": "gemini-2.5-flash",
-    "prompt_chars": 3550,
-    "prompt_sha256": "0a7de10b32aed6f80ae975c4fb1e0a1d7088b0243bb1ba780529a6e4c96ff867"
+    "prompt_chars": 5617,
+    "prompt_sha256": "41c090c920971311becfb1399ff483f9437a187f8d7e84becd39c15293eff20a"
    }
   ],
   "logs": [
@@ -3352,11 +3422,16 @@
        "caption_suggestion": "Seru #viral #fyp",
        "content_type": "edukasi",
        "end_time": 40.0,
+       "ending_line": "",
        "hashtag_suggestion": "#podcast #kesehatan",
        "hook_time": 11.0,
        "key_quotes": [
         "kutipan"
        ],
+       "new_viewer_check": "",
+       "opening_line": "",
+       "payoff_line": "",
+       "scroll_stop_reason": "",
        "start_time": 10.0,
        "title": "Ternyata Begini Cara Kerjanya",
        "title_options": [
@@ -3371,11 +3446,16 @@
        "caption_suggestion": "Seru #viral #fyp",
        "content_type": "edukasi",
        "end_time": 90.0,
+       "ending_line": "",
        "hashtag_suggestion": "#podcast #kesehatan",
        "hook_time": 61.0,
        "key_quotes": [
         "kutipan"
        ],
+       "new_viewer_check": "",
+       "opening_line": "",
+       "payoff_line": "",
+       "scroll_stop_reason": "",
        "start_time": 60.0,
        "title": "Ternyata Begini Cara Kerjanya",
        "title_options": [
@@ -3606,8 +3686,8 @@
   "gemini_calls": [
    {
     "model": "gemini-2.5-flash",
-    "prompt_chars": 3916,
-    "prompt_sha256": "fca7148be405a0fe5c761b225b5688c18aad857a5bc08c0fc52baa9f8f56ccd5"
+    "prompt_chars": 5983,
+    "prompt_sha256": "7f04fbb4da5c28bddfbfb7e4b36713af9b3085ce0f3dda6aaf1c5569f5027b3c"
    }
   ],
   "logs": [
@@ -3710,11 +3790,16 @@
        "caption_suggestion": "Seru #viral #fyp",
        "content_type": "edukasi",
        "end_time": 40.0,
+       "ending_line": "",
        "hashtag_suggestion": "#podcast #kesehatan",
        "hook_time": 12.0,
        "key_quotes": [
         "kutipan"
        ],
+       "new_viewer_check": "",
+       "opening_line": "",
+       "payoff_line": "",
+       "scroll_stop_reason": "",
        "start_time": 10.0,
        "title": "Ternyata Begini Cara Kerjanya",
        "title_options": [
@@ -3884,8 +3969,8 @@
   "gemini_calls": [
    {
     "model": "gemini-2.5-flash",
-    "prompt_chars": 3550,
-    "prompt_sha256": "0a7de10b32aed6f80ae975c4fb1e0a1d7088b0243bb1ba780529a6e4c96ff867"
+    "prompt_chars": 5617,
+    "prompt_sha256": "41c090c920971311becfb1399ff483f9437a187f8d7e84becd39c15293eff20a"
    }
   ],
   "logs": [
@@ -3988,11 +4073,16 @@
        "caption_suggestion": "Seru #viral #fyp",
        "content_type": "edukasi",
        "end_time": 40.0,
+       "ending_line": "",
        "hashtag_suggestion": "#podcast #kesehatan",
        "hook_time": 10.0,
        "key_quotes": [
         "kutipan"
        ],
+       "new_viewer_check": "",
+       "opening_line": "",
+       "payoff_line": "",
+       "scroll_stop_reason": "",
        "start_time": 10.0,
        "title": "Ternyata Begini Cara Kerjanya",
        "title_options": [
@@ -4162,8 +4252,8 @@
   "gemini_calls": [
    {
     "model": "gemini-2.5-flash",
-    "prompt_chars": 3550,
-    "prompt_sha256": "0a7de10b32aed6f80ae975c4fb1e0a1d7088b0243bb1ba780529a6e4c96ff867"
+    "prompt_chars": 5617,
+    "prompt_sha256": "41c090c920971311becfb1399ff483f9437a187f8d7e84becd39c15293eff20a"
    }
   ],
   "logs": [
@@ -4266,11 +4356,16 @@
        "caption_suggestion": "Seru #viral #fyp",
        "content_type": "edukasi",
        "end_time": 40.0,
+       "ending_line": "",
        "hashtag_suggestion": "#podcast #kesehatan",
        "hook_time": 10.0,
        "key_quotes": [
         "kutipan"
        ],
+       "new_viewer_check": "",
+       "opening_line": "",
+       "payoff_line": "",
+       "scroll_stop_reason": "",
        "start_time": 10.0,
        "title": "Ternyata Begini Cara Kerjanya",
        "title_options": [
@@ -4285,11 +4380,16 @@
        "caption_suggestion": "Seru #viral #fyp",
        "content_type": "edukasi",
        "end_time": 90.0,
+       "ending_line": "",
        "hashtag_suggestion": "#podcast #kesehatan",
        "hook_time": 61.0,
        "key_quotes": [
         "kutipan"
        ],
+       "new_viewer_check": "",
+       "opening_line": "",
+       "payoff_line": "",
+       "scroll_stop_reason": "",
        "start_time": 60.0,
        "title": "Ternyata Begini Cara Kerjanya",
        "title_options": [
@@ -4459,8 +4559,8 @@
   "gemini_calls": [
    {
     "model": "gemini-2.5-flash",
-    "prompt_chars": 3550,
-    "prompt_sha256": "0a7de10b32aed6f80ae975c4fb1e0a1d7088b0243bb1ba780529a6e4c96ff867"
+    "prompt_chars": 5617,
+    "prompt_sha256": "41c090c920971311becfb1399ff483f9437a187f8d7e84becd39c15293eff20a"
    }
   ],
   "logs": [
@@ -4581,11 +4681,16 @@
        "caption_suggestion": "Seru #viral #fyp",
        "content_type": "edukasi",
        "end_time": 40.0,
+       "ending_line": "",
        "hashtag_suggestion": "#podcast #kesehatan",
        "hook_time": 11.0,
        "key_quotes": [
         "kutipan"
        ],
+       "new_viewer_check": "",
+       "opening_line": "",
+       "payoff_line": "",
+       "scroll_stop_reason": "",
        "start_time": 10.0,
        "title": "Ternyata Begini Cara Kerjanya",
        "title_options": [
@@ -4600,11 +4705,16 @@
        "caption_suggestion": "Seru #viral #fyp",
        "content_type": "edukasi",
        "end_time": 90.0,
+       "ending_line": "",
        "hashtag_suggestion": "#podcast #kesehatan",
        "hook_time": 61.0,
        "key_quotes": [
         "kutipan"
        ],
+       "new_viewer_check": "",
+       "opening_line": "",
+       "payoff_line": "",
+       "scroll_stop_reason": "",
        "start_time": 60.0,
        "title": "Ternyata Begini Cara Kerjanya",
        "title_options": [
@@ -4774,13 +4884,13 @@
   "gemini_calls": [
    {
     "model": "gemini-2.5-flash",
-    "prompt_chars": 3550,
-    "prompt_sha256": "0a7de10b32aed6f80ae975c4fb1e0a1d7088b0243bb1ba780529a6e4c96ff867"
+    "prompt_chars": 5617,
+    "prompt_sha256": "41c090c920971311becfb1399ff483f9437a187f8d7e84becd39c15293eff20a"
    },
    {
     "model": "gemini-2.5-flash-lite",
-    "prompt_chars": 3550,
-    "prompt_sha256": "0a7de10b32aed6f80ae975c4fb1e0a1d7088b0243bb1ba780529a6e4c96ff867"
+    "prompt_chars": 5617,
+    "prompt_sha256": "41c090c920971311becfb1399ff483f9437a187f8d7e84becd39c15293eff20a"
    }
   ],
   "logs": [
@@ -4884,11 +4994,16 @@
        "caption_suggestion": "Seru #viral #fyp",
        "content_type": "edukasi",
        "end_time": 40.0,
+       "ending_line": "",
        "hashtag_suggestion": "#podcast #kesehatan",
        "hook_time": 11.0,
        "key_quotes": [
         "kutipan"
        ],
+       "new_viewer_check": "",
+       "opening_line": "",
+       "payoff_line": "",
+       "scroll_stop_reason": "",
        "start_time": 10.0,
        "title": "Ternyata Begini Cara Kerjanya",
        "title_options": [
@@ -4903,11 +5018,16 @@
        "caption_suggestion": "Seru #viral #fyp",
        "content_type": "edukasi",
        "end_time": 90.0,
+       "ending_line": "",
        "hashtag_suggestion": "#podcast #kesehatan",
        "hook_time": 61.0,
        "key_quotes": [
         "kutipan"
        ],
+       "new_viewer_check": "",
+       "opening_line": "",
+       "payoff_line": "",
+       "scroll_stop_reason": "",
        "start_time": 60.0,
        "title": "Ternyata Begini Cara Kerjanya",
        "title_options": [
@@ -5077,8 +5197,8 @@
   "gemini_calls": [
    {
     "model": "gemini-2.5-flash",
-    "prompt_chars": 3550,
-    "prompt_sha256": "0a7de10b32aed6f80ae975c4fb1e0a1d7088b0243bb1ba780529a6e4c96ff867"
+    "prompt_chars": 5617,
+    "prompt_sha256": "41c090c920971311becfb1399ff483f9437a187f8d7e84becd39c15293eff20a"
    }
   ],
   "logs": [
@@ -5224,11 +5344,16 @@
        "caption_suggestion": "Seru #viral #fyp",
        "content_type": "edukasi",
        "end_time": 40.0,
+       "ending_line": "",
        "hashtag_suggestion": "#podcast #kesehatan",
        "hook_time": 11.0,
        "key_quotes": [
         "Ternyata gula itu racun"
        ],
+       "new_viewer_check": "",
+       "opening_line": "",
+       "payoff_line": "",
+       "scroll_stop_reason": "",
        "start_time": 10.0,
        "title": "Ternyata Begini Cara Kerjanya",
        "title_options": [
@@ -5398,8 +5523,8 @@
   "gemini_calls": [
    {
     "model": "gemini-2.5-flash",
-    "prompt_chars": 3550,
-    "prompt_sha256": "0a7de10b32aed6f80ae975c4fb1e0a1d7088b0243bb1ba780529a6e4c96ff867"
+    "prompt_chars": 5617,
+    "prompt_sha256": "41c090c920971311becfb1399ff483f9437a187f8d7e84becd39c15293eff20a"
    }
   ],
   "logs": [
@@ -5578,33 +5703,33 @@
   "gemini_calls": [
    {
     "model": "gemini-2.5-flash",
-    "prompt_chars": 3550,
-    "prompt_sha256": "0a7de10b32aed6f80ae975c4fb1e0a1d7088b0243bb1ba780529a6e4c96ff867"
+    "prompt_chars": 5617,
+    "prompt_sha256": "41c090c920971311becfb1399ff483f9437a187f8d7e84becd39c15293eff20a"
    },
    {
     "model": "gemini-2.5-flash-lite",
-    "prompt_chars": 3550,
-    "prompt_sha256": "0a7de10b32aed6f80ae975c4fb1e0a1d7088b0243bb1ba780529a6e4c96ff867"
+    "prompt_chars": 5617,
+    "prompt_sha256": "41c090c920971311becfb1399ff483f9437a187f8d7e84becd39c15293eff20a"
    },
    {
     "model": "gemini-2.0-flash",
-    "prompt_chars": 3550,
-    "prompt_sha256": "0a7de10b32aed6f80ae975c4fb1e0a1d7088b0243bb1ba780529a6e4c96ff867"
+    "prompt_chars": 5617,
+    "prompt_sha256": "41c090c920971311becfb1399ff483f9437a187f8d7e84becd39c15293eff20a"
    },
    {
     "model": "gemini-2.0-flash-lite",
-    "prompt_chars": 3550,
-    "prompt_sha256": "0a7de10b32aed6f80ae975c4fb1e0a1d7088b0243bb1ba780529a6e4c96ff867"
+    "prompt_chars": 5617,
+    "prompt_sha256": "41c090c920971311becfb1399ff483f9437a187f8d7e84becd39c15293eff20a"
    },
    {
     "model": "gemini-1.5-flash",
-    "prompt_chars": 3550,
-    "prompt_sha256": "0a7de10b32aed6f80ae975c4fb1e0a1d7088b0243bb1ba780529a6e4c96ff867"
+    "prompt_chars": 5617,
+    "prompt_sha256": "41c090c920971311becfb1399ff483f9437a187f8d7e84becd39c15293eff20a"
    },
    {
     "model": "gemini-1.5-flash-8b",
-    "prompt_chars": 3550,
-    "prompt_sha256": "0a7de10b32aed6f80ae975c4fb1e0a1d7088b0243bb1ba780529a6e4c96ff867"
+    "prompt_chars": 5617,
+    "prompt_sha256": "41c090c920971311becfb1399ff483f9437a187f8d7e84becd39c15293eff20a"
    }
   ],
   "logs": [
@@ -5723,11 +5848,16 @@
        "caption_suggestion": "Seru #viral #fyp",
        "content_type": "edukasi",
        "end_time": 40.0,
+       "ending_line": "",
        "hashtag_suggestion": "#podcast #kesehatan",
        "hook_time": 11.0,
        "key_quotes": [
         "kutipan"
        ],
+       "new_viewer_check": "",
+       "opening_line": "",
+       "payoff_line": "",
+       "scroll_stop_reason": "",
        "start_time": 10.0,
        "title": "Ternyata Begini Cara Kerjanya",
        "title_options": [
@@ -5742,11 +5872,16 @@
        "caption_suggestion": "Seru #viral #fyp",
        "content_type": "edukasi",
        "end_time": 90.0,
+       "ending_line": "",
        "hashtag_suggestion": "#podcast #kesehatan",
        "hook_time": 61.0,
        "key_quotes": [
         "kutipan"
        ],
+       "new_viewer_check": "",
+       "opening_line": "",
+       "payoff_line": "",
+       "scroll_stop_reason": "",
        "start_time": 60.0,
        "title": "Ternyata Begini Cara Kerjanya",
        "title_options": [
@@ -5774,8 +5909,8 @@
   "gemini_calls": [
    {
     "model": "gemini-2.5-flash",
-    "prompt_chars": 27358,
-    "prompt_sha256": "55bbd78c6276920bd70403a17b3573fc65869d931c49a1b4bb7ba8a21a0adb44"
+    "prompt_chars": 29425,
+    "prompt_sha256": "8dfc52a9a6b96de744a47097fbe02a87605bf81f16582fe2787253426135616d"
    }
   ],
   "logs": [
@@ -5902,8 +6037,8 @@
   "gemini_calls": [
    {
     "model": "gemini-2.5-flash",
-    "prompt_chars": 27689,
-    "prompt_sha256": "36602fa46411c86b8cd36b880309fdc7f4de10c704c975f5a54662e080f3f5e7"
+    "prompt_chars": 29756,
+    "prompt_sha256": "b6c8dd561afab53043d4cca035bf05523b045ac5801252f3697f6f7272879f09"
    }
   ],
   "logs": [
@@ -6009,11 +6144,16 @@
        "caption_suggestion": "Seru #viral #fyp",
        "content_type": "edukasi",
        "end_time": 40.5,
+       "ending_line": "",
        "hashtag_suggestion": "#podcast #kesehatan",
        "hook_time": 11.0,
        "key_quotes": [
         "kutipan"
        ],
+       "new_viewer_check": "",
+       "opening_line": "",
+       "payoff_line": "",
+       "scroll_stop_reason": "",
        "start_time": 9.0,
        "title": "Ternyata Begini Cara Kerjanya",
        "title_options": [
@@ -6028,11 +6168,16 @@
        "caption_suggestion": "Seru #viral #fyp",
        "content_type": "edukasi",
        "end_time": 90.0,
+       "ending_line": "",
        "hashtag_suggestion": "#podcast #kesehatan",
        "hook_time": 61.0,
        "key_quotes": [
         "kutipan"
        ],
+       "new_viewer_check": "",
+       "opening_line": "",
+       "payoff_line": "",
+       "scroll_stop_reason": "",
        "start_time": 58.5,
        "title": "Ternyata Begini Cara Kerjanya",
        "title_options": [
@@ -6060,8 +6205,8 @@
   "gemini_calls": [
    {
     "model": "gemini-2.5-flash",
-    "prompt_chars": 31983,
-    "prompt_sha256": "67287cc3c259b10c5754a07f2c0b0398a3d7fcfae987e80883a500300ec36626"
+    "prompt_chars": 34050,
+    "prompt_sha256": "8c84b1ea52fbecd823174b3119b6c4fb07f325a28a62429503f3d9cad22873fb"
    }
   ],
   "logs": [
@@ -6164,11 +6309,16 @@
        "caption_suggestion": "Seru #viral #fyp",
        "content_type": "edukasi",
        "end_time": 40.0,
+       "ending_line": "",
        "hashtag_suggestion": "#podcast #kesehatan",
        "hook_time": 11.0,
        "key_quotes": [
         "kutipan"
        ],
+       "new_viewer_check": "",
+       "opening_line": "",
+       "payoff_line": "",
+       "scroll_stop_reason": "",
        "start_time": 10.0,
        "title": "Ternyata Begini Cara Kerjanya",
        "title_options": [
@@ -6183,11 +6333,16 @@
        "caption_suggestion": "Seru #viral #fyp",
        "content_type": "edukasi",
        "end_time": 90.0,
+       "ending_line": "",
        "hashtag_suggestion": "#podcast #kesehatan",
        "hook_time": 61.0,
        "key_quotes": [
         "kutipan"
        ],
+       "new_viewer_check": "",
+       "opening_line": "",
+       "payoff_line": "",
+       "scroll_stop_reason": "",
        "start_time": 60.0,
        "title": "Ternyata Begini Cara Kerjanya",
        "title_options": [
@@ -6225,8 +6380,8 @@
   "gemini_calls": [
    {
     "model": "gemini-2.5-flash",
-    "prompt_chars": 2929,
-    "prompt_sha256": "26f43215bbee0a295313086d628667ecbbb6818740636495c286ed99744a4fb8"
+    "prompt_chars": 4996,
+    "prompt_sha256": "b09ef36278ae76ae5b6e9b396d60b5f8e7fbc87b744426244aab4471ddd5593e"
    }
   ],
   "logs": [
@@ -6553,33 +6708,33 @@
   "gemini_calls": [
    {
     "model": "gemini-2.5-flash",
-    "prompt_chars": 3550,
-    "prompt_sha256": "0a7de10b32aed6f80ae975c4fb1e0a1d7088b0243bb1ba780529a6e4c96ff867"
+    "prompt_chars": 5617,
+    "prompt_sha256": "41c090c920971311becfb1399ff483f9437a187f8d7e84becd39c15293eff20a"
    },
    {
     "model": "gemini-2.5-flash-lite",
-    "prompt_chars": 3550,
-    "prompt_sha256": "0a7de10b32aed6f80ae975c4fb1e0a1d7088b0243bb1ba780529a6e4c96ff867"
+    "prompt_chars": 5617,
+    "prompt_sha256": "41c090c920971311becfb1399ff483f9437a187f8d7e84becd39c15293eff20a"
    },
    {
     "model": "gemini-2.0-flash",
-    "prompt_chars": 3550,
-    "prompt_sha256": "0a7de10b32aed6f80ae975c4fb1e0a1d7088b0243bb1ba780529a6e4c96ff867"
+    "prompt_chars": 5617,
+    "prompt_sha256": "41c090c920971311becfb1399ff483f9437a187f8d7e84becd39c15293eff20a"
    },
    {
     "model": "gemini-2.0-flash-lite",
-    "prompt_chars": 3550,
-    "prompt_sha256": "0a7de10b32aed6f80ae975c4fb1e0a1d7088b0243bb1ba780529a6e4c96ff867"
+    "prompt_chars": 5617,
+    "prompt_sha256": "41c090c920971311becfb1399ff483f9437a187f8d7e84becd39c15293eff20a"
    },
    {
     "model": "gemini-1.5-flash",
-    "prompt_chars": 3550,
-    "prompt_sha256": "0a7de10b32aed6f80ae975c4fb1e0a1d7088b0243bb1ba780529a6e4c96ff867"
+    "prompt_chars": 5617,
+    "prompt_sha256": "41c090c920971311becfb1399ff483f9437a187f8d7e84becd39c15293eff20a"
    },
    {
     "model": "gemini-1.5-flash-8b",
-    "prompt_chars": 3550,
-    "prompt_sha256": "0a7de10b32aed6f80ae975c4fb1e0a1d7088b0243bb1ba780529a6e4c96ff867"
+    "prompt_chars": 5617,
+    "prompt_sha256": "41c090c920971311becfb1399ff483f9437a187f8d7e84becd39c15293eff20a"
    }
   ],
   "logs": [
@@ -6705,11 +6860,16 @@
        "caption_suggestion": "Seru #viral #fyp",
        "content_type": "edukasi",
        "end_time": 40.0,
+       "ending_line": "",
        "hashtag_suggestion": "#podcast #kesehatan",
        "hook_time": 11.0,
        "key_quotes": [
         "kutipan"
        ],
+       "new_viewer_check": "",
+       "opening_line": "",
+       "payoff_line": "",
+       "scroll_stop_reason": "",
        "start_time": 10.0,
        "title": "Ternyata Begini Cara Kerjanya",
        "title_options": [
@@ -6724,11 +6884,16 @@
        "caption_suggestion": "Seru #viral #fyp",
        "content_type": "edukasi",
        "end_time": 90.0,
+       "ending_line": "",
        "hashtag_suggestion": "#podcast #kesehatan",
        "hook_time": 61.0,
        "key_quotes": [
         "kutipan"
        ],
+       "new_viewer_check": "",
+       "opening_line": "",
+       "payoff_line": "",
+       "scroll_stop_reason": "",
        "start_time": 60.0,
        "title": "Ternyata Begini Cara Kerjanya",
        "title_options": [
@@ -6898,13 +7063,13 @@
   "gemini_calls": [
    {
     "model": "gemini-2.5-flash",
-    "prompt_chars": 3550,
-    "prompt_sha256": "0a7de10b32aed6f80ae975c4fb1e0a1d7088b0243bb1ba780529a6e4c96ff867"
+    "prompt_chars": 5617,
+    "prompt_sha256": "41c090c920971311becfb1399ff483f9437a187f8d7e84becd39c15293eff20a"
    },
    {
     "model": "gemini-2.5-flash-lite",
-    "prompt_chars": 3550,
-    "prompt_sha256": "0a7de10b32aed6f80ae975c4fb1e0a1d7088b0243bb1ba780529a6e4c96ff867"
+    "prompt_chars": 5617,
+    "prompt_sha256": "41c090c920971311becfb1399ff483f9437a187f8d7e84becd39c15293eff20a"
    }
   ],
   "logs": [
@@ -7007,12 +7172,17 @@
        "caption_suggestion": "Stop guessing what works! Here's how to use heatmaps to find viral hotspots in seconds. 🔥",
        "content_type": "",
        "end_time": 22.0,
+       "ending_line": "",
        "hashtag_suggestion": "#viralclips #videoediting #heatmaps #aitools",
        "hook_time": 14.0,
        "key_quotes": [
         "Uses YouTube player heatmaps.",
         "Processes using Gemini AI."
        ],
+       "new_viewer_check": "",
+       "opening_line": "",
+       "payoff_line": "",
+       "scroll_stop_reason": "",
        "start_time": 11.0,
        "title": "Finding hotspots using heatmaps",
        "title_options": [],
@@ -7024,12 +7194,17 @@
        "caption_suggestion": "Want to scale your TikTok views? This tool will revolutionize your workflow. 🚀",
        "content_type": "",
        "end_time": 32.0,
+       "ending_line": "",
        "hashtag_suggestion": "#tiktokgrowth #reels #shorts #editingtips",
        "hook_time": 27.0,
        "key_quotes": [
         "Changing how editors crop videos.",
         "If you want to grow on TikTok, try it."
        ],
+       "new_viewer_check": "",
+       "opening_line": "",
+       "payoff_line": "",
+       "scroll_stop_reason": "",
        "start_time": 22.0,
        "title": "Grow on TikTok or Reels",
        "title_options": [],
@@ -7041,12 +7216,17 @@
        "caption_suggestion": "Say hello to your new AI co-editor. Find the absolute best parts of any video instantly.",
        "content_type": "",
        "end_time": 11.0,
+       "ending_line": "",
        "hashtag_suggestion": "#xoraclips #aiediting #growthmindset",
        "hook_time": 3.0,
        "key_quotes": [
         "Hello and welcome.",
         "Finds viral hotspots."
        ],
+       "new_viewer_check": "",
+       "opening_line": "",
+       "payoff_line": "",
+       "scroll_stop_reason": "",
        "start_time": 0.0,
        "title": "Introductory overview of the tool",
        "title_options": [],
@@ -7270,12 +7450,17 @@
        "caption_suggestion": "Stop guessing what works! Here's how to use heatmaps to find viral hotspots in seconds. 🔥",
        "content_type": "",
        "end_time": 22.0,
+       "ending_line": "",
        "hashtag_suggestion": "#viralclips #videoediting #heatmaps #aitools",
        "hook_time": 14.0,
        "key_quotes": [
         "Uses YouTube player heatmaps.",
         "Processes using Gemini AI."
        ],
+       "new_viewer_check": "",
+       "opening_line": "",
+       "payoff_line": "",
+       "scroll_stop_reason": "",
        "start_time": 11.0,
        "title": "Finding hotspots using heatmaps",
        "title_options": [],
@@ -7287,12 +7472,17 @@
        "caption_suggestion": "Want to scale your TikTok views? This tool will revolutionize your workflow. 🚀",
        "content_type": "",
        "end_time": 32.0,
+       "ending_line": "",
        "hashtag_suggestion": "#tiktokgrowth #reels #shorts #editingtips",
        "hook_time": 27.0,
        "key_quotes": [
         "Changing how editors crop videos.",
         "If you want to grow on TikTok, try it."
        ],
+       "new_viewer_check": "",
+       "opening_line": "",
+       "payoff_line": "",
+       "scroll_stop_reason": "",
        "start_time": 22.0,
        "title": "Grow on TikTok or Reels",
        "title_options": [],
@@ -7304,12 +7494,17 @@
        "caption_suggestion": "Say hello to your new AI co-editor. Find the absolute best parts of any video instantly.",
        "content_type": "",
        "end_time": 11.0,
+       "ending_line": "",
        "hashtag_suggestion": "#xoraclips #aiediting #growthmindset",
        "hook_time": 3.0,
        "key_quotes": [
         "Hello and welcome.",
         "Finds viral hotspots."
        ],
+       "new_viewer_check": "",
+       "opening_line": "",
+       "payoff_line": "",
+       "scroll_stop_reason": "",
        "start_time": 0.0,
        "title": "Introductory overview of the tool",
        "title_options": [],
@@ -7534,11 +7729,16 @@
        "caption_suggestion": "Seru #viral #fyp",
        "content_type": "edukasi",
        "end_time": 40.0,
+       "ending_line": "",
        "hashtag_suggestion": "#podcast #kesehatan",
        "hook_time": 11.0,
        "key_quotes": [
         "kutipan"
        ],
+       "new_viewer_check": "",
+       "opening_line": "",
+       "payoff_line": "",
+       "scroll_stop_reason": "",
        "start_time": 10.0,
        "title": "Ternyata Begini Cara Kerjanya",
        "title_options": [
@@ -7553,11 +7753,16 @@
        "caption_suggestion": "Seru #viral #fyp",
        "content_type": "edukasi",
        "end_time": 90.0,
+       "ending_line": "",
        "hashtag_suggestion": "#podcast #kesehatan",
        "hook_time": 61.0,
        "key_quotes": [
         "kutipan"
        ],
+       "new_viewer_check": "",
+       "opening_line": "",
+       "payoff_line": "",
+       "scroll_stop_reason": "",
        "start_time": 60.0,
        "title": "Ternyata Begini Cara Kerjanya",
        "title_options": [
@@ -7727,8 +7932,8 @@
   "gemini_calls": [
    {
     "model": "gemini-2.5-flash",
-    "prompt_chars": 3516,
-    "prompt_sha256": "3165f5ca7105a108a3fcada54a15e1de209313d97077a05e07afeb2d8a6ab9b0"
+    "prompt_chars": 5583,
+    "prompt_sha256": "6d89b6aa3607cc67167a62912f0c53107226264ccf68fa90598006f5c2de0568"
    }
   ],
   "logs": [
@@ -7831,11 +8036,16 @@
        "caption_suggestion": "Seru #viral #fyp",
        "content_type": "edukasi",
        "end_time": 40.0,
+       "ending_line": "",
        "hashtag_suggestion": "#podcast #kesehatan",
        "hook_time": 11.0,
        "key_quotes": [
         "kutipan"
        ],
+       "new_viewer_check": "",
+       "opening_line": "",
+       "payoff_line": "",
+       "scroll_stop_reason": "",
        "start_time": 10.0,
        "title": "Why Kanal Quit Sugar",
        "title_options": [
@@ -8004,8 +8214,8 @@
   "gemini_calls": [
    {
     "model": "gemini-2.5-flash",
-    "prompt_chars": 3550,
-    "prompt_sha256": "0a7de10b32aed6f80ae975c4fb1e0a1d7088b0243bb1ba780529a6e4c96ff867"
+    "prompt_chars": 5617,
+    "prompt_sha256": "41c090c920971311becfb1399ff483f9437a187f8d7e84becd39c15293eff20a"
    }
   ],
   "logs": [
@@ -8110,11 +8320,16 @@
        "caption_suggestion": "Seru #viral #fyp",
        "content_type": "edukasi",
        "end_time": 40.0,
+       "ending_line": "",
        "hashtag_suggestion": "#podcast #kesehatan",
        "hook_time": 11.0,
        "key_quotes": [
         "kutipan"
        ],
+       "new_viewer_check": "",
+       "opening_line": "",
+       "payoff_line": "",
+       "scroll_stop_reason": "",
        "start_time": 10.0,
        "title": "Ternyata Begini Cara Kerjanya",
        "title_options": [
@@ -8129,11 +8344,16 @@
        "caption_suggestion": "Seru #viral #fyp",
        "content_type": "edukasi",
        "end_time": 90.0,
+       "ending_line": "",
        "hashtag_suggestion": "#podcast #kesehatan",
        "hook_time": 61.0,
        "key_quotes": [
         "kutipan"
        ],
+       "new_viewer_check": "",
+       "opening_line": "",
+       "payoff_line": "",
+       "scroll_stop_reason": "",
        "start_time": 60.0,
        "title": "Ternyata Begini Cara Kerjanya",
        "title_options": [
@@ -8303,8 +8523,8 @@
   "gemini_calls": [
    {
     "model": "gemini-2.5-flash",
-    "prompt_chars": 3550,
-    "prompt_sha256": "0a7de10b32aed6f80ae975c4fb1e0a1d7088b0243bb1ba780529a6e4c96ff867"
+    "prompt_chars": 5617,
+    "prompt_sha256": "41c090c920971311becfb1399ff483f9437a187f8d7e84becd39c15293eff20a"
    }
   ],
   "logs": [
@@ -8408,11 +8628,16 @@
        "caption_suggestion": "Seru #viral #fyp",
        "content_type": "edukasi",
        "end_time": 50.0,
+       "ending_line": "",
        "hashtag_suggestion": "#podcast #kesehatan",
        "hook_time": 11.0,
        "key_quotes": [
         "kutipan"
        ],
+       "new_viewer_check": "",
+       "opening_line": "",
+       "payoff_line": "",
+       "scroll_stop_reason": "",
        "start_time": 10.0,
        "title": "Ternyata Begini Cara Kerjanya",
        "title_options": [
@@ -8427,11 +8652,16 @@
        "caption_suggestion": "Seru #viral #fyp",
        "content_type": "edukasi",
        "end_time": 70.0,
+       "ending_line": "",
        "hashtag_suggestion": "#podcast #kesehatan",
        "hook_time": 31.0,
        "key_quotes": [
         "kutipan"
        ],
+       "new_viewer_check": "",
+       "opening_line": "",
+       "payoff_line": "",
+       "scroll_stop_reason": "",
        "start_time": 30.0,
        "title": "Ternyata Begini Cara Kerjanya",
        "title_options": [
@@ -8446,11 +8676,16 @@
        "caption_suggestion": "Seru #viral #fyp",
        "content_type": "edukasi",
        "end_time": 50.0,
+       "ending_line": "",
        "hashtag_suggestion": "#podcast #kesehatan",
        "hook_time": 11.0,
        "key_quotes": [
         "kutipan"
        ],
+       "new_viewer_check": "",
+       "opening_line": "",
+       "payoff_line": "",
+       "scroll_stop_reason": "",
        "start_time": 10.0,
        "title": "Ternyata Begini Cara Kerjanya",
        "title_options": [
@@ -8620,8 +8855,8 @@
   "gemini_calls": [
    {
     "model": "gemini-2.5-flash",
-    "prompt_chars": 3550,
-    "prompt_sha256": "0a7de10b32aed6f80ae975c4fb1e0a1d7088b0243bb1ba780529a6e4c96ff867"
+    "prompt_chars": 5617,
+    "prompt_sha256": "41c090c920971311becfb1399ff483f9437a187f8d7e84becd39c15293eff20a"
    }
   ],
   "logs": [
@@ -8724,11 +8959,16 @@
        "caption_suggestion": "Seru #viral #fyp",
        "content_type": "edukasi",
        "end_time": 40.0,
+       "ending_line": "",
        "hashtag_suggestion": "#podcast #kesehatan",
        "hook_time": 11.0,
        "key_quotes": [
         "kutipan"
        ],
+       "new_viewer_check": "",
+       "opening_line": "",
+       "payoff_line": "",
+       "scroll_stop_reason": "",
        "start_time": 10.0,
        "title": "Ternyata Begini Cara Kerjanya",
        "title_options": [
@@ -8743,11 +8983,16 @@
        "caption_suggestion": "Seru #viral #fyp",
        "content_type": "edukasi",
        "end_time": 90.0,
+       "ending_line": "",
        "hashtag_suggestion": "#podcast #kesehatan",
        "hook_time": 61.0,
        "key_quotes": [
         "kutipan"
        ],
+       "new_viewer_check": "",
+       "opening_line": "",
+       "payoff_line": "",
+       "scroll_stop_reason": "",
        "start_time": 60.0,
        "title": "Ternyata Begini Cara Kerjanya",
        "title_options": [
@@ -8917,8 +9162,8 @@
   "gemini_calls": [
    {
     "model": "gemini-2.5-flash",
-    "prompt_chars": 3550,
-    "prompt_sha256": "0a7de10b32aed6f80ae975c4fb1e0a1d7088b0243bb1ba780529a6e4c96ff867"
+    "prompt_chars": 5617,
+    "prompt_sha256": "41c090c920971311becfb1399ff483f9437a187f8d7e84becd39c15293eff20a"
    }
   ],
   "logs": [
@@ -9097,33 +9342,33 @@
   "gemini_calls": [
    {
     "model": "gemini-2.5-flash",
-    "prompt_chars": 3550,
-    "prompt_sha256": "0a7de10b32aed6f80ae975c4fb1e0a1d7088b0243bb1ba780529a6e4c96ff867"
+    "prompt_chars": 5617,
+    "prompt_sha256": "41c090c920971311becfb1399ff483f9437a187f8d7e84becd39c15293eff20a"
    },
    {
     "model": "gemini-2.5-flash-lite",
-    "prompt_chars": 3550,
-    "prompt_sha256": "0a7de10b32aed6f80ae975c4fb1e0a1d7088b0243bb1ba780529a6e4c96ff867"
+    "prompt_chars": 5617,
+    "prompt_sha256": "41c090c920971311becfb1399ff483f9437a187f8d7e84becd39c15293eff20a"
    },
    {
     "model": "gemini-2.0-flash",
-    "prompt_chars": 3550,
-    "prompt_sha256": "0a7de10b32aed6f80ae975c4fb1e0a1d7088b0243bb1ba780529a6e4c96ff867"
+    "prompt_chars": 5617,
+    "prompt_sha256": "41c090c920971311becfb1399ff483f9437a187f8d7e84becd39c15293eff20a"
    },
    {
     "model": "gemini-2.0-flash-lite",
-    "prompt_chars": 3550,
-    "prompt_sha256": "0a7de10b32aed6f80ae975c4fb1e0a1d7088b0243bb1ba780529a6e4c96ff867"
+    "prompt_chars": 5617,
+    "prompt_sha256": "41c090c920971311becfb1399ff483f9437a187f8d7e84becd39c15293eff20a"
    },
    {
     "model": "gemini-1.5-flash",
-    "prompt_chars": 3550,
-    "prompt_sha256": "0a7de10b32aed6f80ae975c4fb1e0a1d7088b0243bb1ba780529a6e4c96ff867"
+    "prompt_chars": 5617,
+    "prompt_sha256": "41c090c920971311becfb1399ff483f9437a187f8d7e84becd39c15293eff20a"
    },
    {
     "model": "gemini-1.5-flash-8b",
-    "prompt_chars": 3550,
-    "prompt_sha256": "0a7de10b32aed6f80ae975c4fb1e0a1d7088b0243bb1ba780529a6e4c96ff867"
+    "prompt_chars": 5617,
+    "prompt_sha256": "41c090c920971311becfb1399ff483f9437a187f8d7e84becd39c15293eff20a"
    }
   ],
   "logs": [
@@ -9293,11 +9538,16 @@
        "caption_suggestion": "Seru #viral #fyp",
        "content_type": "edukasi",
        "end_time": 40.0,
+       "ending_line": "",
        "hashtag_suggestion": "#podcast #kesehatan",
        "hook_time": 11.0,
        "key_quotes": [
         "kutipan"
        ],
+       "new_viewer_check": "",
+       "opening_line": "",
+       "payoff_line": "",
+       "scroll_stop_reason": "",
        "start_time": 10.0,
        "title": "Ternyata Begini Cara Kerjanya",
        "title_options": [
@@ -9312,11 +9562,16 @@
        "caption_suggestion": "Seru #viral #fyp",
        "content_type": "edukasi",
        "end_time": 90.0,
+       "ending_line": "",
        "hashtag_suggestion": "#podcast #kesehatan",
        "hook_time": 61.0,
        "key_quotes": [
         "kutipan"
        ],
+       "new_viewer_check": "",
+       "opening_line": "",
+       "payoff_line": "",
+       "scroll_stop_reason": "",
        "start_time": 60.0,
        "title": "Ternyata Begini Cara Kerjanya",
        "title_options": [
@@ -9486,8 +9741,8 @@
   "gemini_calls": [
    {
     "model": "gemini-2.5-flash",
-    "prompt_chars": 3550,
-    "prompt_sha256": "0a7de10b32aed6f80ae975c4fb1e0a1d7088b0243bb1ba780529a6e4c96ff867"
+    "prompt_chars": 5617,
+    "prompt_sha256": "41c090c920971311becfb1399ff483f9437a187f8d7e84becd39c15293eff20a"
    }
   ],
   "logs": [
@@ -9591,11 +9846,16 @@
        "caption_suggestion": "Seru #viral #fyp",
        "content_type": "edukasi",
        "end_time": 40.0,
+       "ending_line": "",
        "hashtag_suggestion": "#podcast #kesehatan",
        "hook_time": 20.0,
        "key_quotes": [
         "kutipan"
        ],
+       "new_viewer_check": "",
+       "opening_line": "",
+       "payoff_line": "",
+       "scroll_stop_reason": "",
        "start_time": 20.0,
        "title": "Ternyata Begini Cara Kerjanya",
        "title_options": [
@@ -9610,11 +9870,16 @@
        "caption_suggestion": "Seru #viral #fyp",
        "content_type": "edukasi",
        "end_time": 80.0,
+       "ending_line": "",
        "hashtag_suggestion": "#podcast #kesehatan",
        "hook_time": 61.0,
        "key_quotes": [
         "kutipan"
        ],
+       "new_viewer_check": "",
+       "opening_line": "",
+       "payoff_line": "",
+       "scroll_stop_reason": "",
        "start_time": 60.0,
        "title": "Ternyata Begini Cara Kerjanya",
        "title_options": [
@@ -9712,8 +9977,8 @@
   "gemini_calls": [
    {
     "model": "gemini-2.5-flash",
-    "prompt_chars": 3211,
-    "prompt_sha256": "bb21b454b67f2e6b47f99e24a036191b23e904f177d6284cb3459614be59994f"
+    "prompt_chars": 5278,
+    "prompt_sha256": "c0e720b1c81911fff18568a6244aae06153a4afe848e8c6b9ccd4e5346fdfe8a"
    }
   ],
   "logs": [
@@ -9829,8 +10094,8 @@
   "gemini_calls": [
    {
     "model": "gemini-2.5-flash",
-    "prompt_chars": 21488,
-    "prompt_sha256": "ae1124ddc8910d16859f41bd8875842faa2822109521302522bdb9adc179e47e"
+    "prompt_chars": 23555,
+    "prompt_sha256": "0d5db7a90c2325ac0124b69de184844d8d2c6d5539ac5e6560b103fb24a09e2a"
    }
   ],
   "logs": [
@@ -9997,11 +10262,16 @@
        "caption_suggestion": "Seru #viral #fyp",
        "content_type": "edukasi",
        "end_time": 40.0,
+       "ending_line": "",
        "hashtag_suggestion": "#podcast #kesehatan",
        "hook_time": 11.0,
        "key_quotes": [
         "kutipan"
        ],
+       "new_viewer_check": "",
+       "opening_line": "",
+       "payoff_line": "",
+       "scroll_stop_reason": "",
        "start_time": 10.0,
        "title": "Ternyata Begini Cara Kerjanya",
        "title_options": [
@@ -10171,8 +10441,8 @@
   "gemini_calls": [
    {
     "model": "gemini-2.5-flash",
-    "prompt_chars": 3550,
-    "prompt_sha256": "0a7de10b32aed6f80ae975c4fb1e0a1d7088b0243bb1ba780529a6e4c96ff867"
+    "prompt_chars": 5617,
+    "prompt_sha256": "41c090c920971311becfb1399ff483f9437a187f8d7e84becd39c15293eff20a"
    }
   ],
   "logs": [
@@ -10550,11 +10820,16 @@
        "caption_suggestion": "Seru #viral #fyp",
        "content_type": "edukasi",
        "end_time": 40.0,
+       "ending_line": "",
        "hashtag_suggestion": "#podcast #kesehatan",
        "hook_time": 11.0,
        "key_quotes": [
         "kutipan"
        ],
+       "new_viewer_check": "",
+       "opening_line": "",
+       "payoff_line": "",
+       "scroll_stop_reason": "",
        "start_time": 10.0,
        "title": "Ternyata Begini Cara Kerjanya",
        "title_options": [
@@ -10569,11 +10844,16 @@
        "caption_suggestion": "Seru #viral #fyp",
        "content_type": "edukasi",
        "end_time": 90.0,
+       "ending_line": "",
        "hashtag_suggestion": "#podcast #kesehatan",
        "hook_time": 61.0,
        "key_quotes": [
         "kutipan"
        ],
+       "new_viewer_check": "",
+       "opening_line": "",
+       "payoff_line": "",
+       "scroll_stop_reason": "",
        "start_time": 60.0,
        "title": "Ternyata Begini Cara Kerjanya",
        "title_options": [
@@ -10743,8 +11023,8 @@
   "gemini_calls": [
    {
     "model": "gemini-2.5-flash",
-    "prompt_chars": 3550,
-    "prompt_sha256": "0a7de10b32aed6f80ae975c4fb1e0a1d7088b0243bb1ba780529a6e4c96ff867"
+    "prompt_chars": 5617,
+    "prompt_sha256": "41c090c920971311becfb1399ff483f9437a187f8d7e84becd39c15293eff20a"
    }
   ],
   "logs": [
@@ -10847,12 +11127,17 @@
        "caption_suggestion": "Ahok bongkar strategi tak terduga buat berantas barang impor ilegal demi selamatkan industri lokal dari kebangkrutan.",
        "content_type": "cerita",
        "end_time": 286.56,
+       "ending_line": "",
        "hashtag_suggestion": "#ahok #beacukai #bisnisindonesia",
        "hook_time": 173.5,
        "key_quotes": [
         "Saya jujur saya minta jadi Dirjen Bea Cukai.",
         "Kalau ini dijalankan, kita bicara sama asosiasi industri, saya jamin enggak ada yang ngemis-ngemis, demo-demo minta UMP."
        ],
+       "new_viewer_check": "",
+       "opening_line": "",
+       "payoff_line": "",
+       "scroll_stop_reason": "",
        "start_time": 133.6,
        "title": "Kenapa Ahok Ingin Urus Bea Cukai",
        "title_options": [
@@ -10867,12 +11152,17 @@
        "caption_suggestion": "Ahok cerita pengalaman pengusaha yang pindah ke Vietnam karena kemudahan izin dan minimnya gangguan.",
        "content_type": "kontroversi",
        "end_time": 553.84,
+       "ending_line": "",
        "hashtag_suggestion": "#investasi #pabrik #vietnam",
        "hook_time": 445.8,
        "key_quotes": [
         "Di Vietnam tuh aduh enak banget.",
         "Enggak ada preman-preman atau ormas gitu ya?"
        ],
+       "new_viewer_check": "",
+       "opening_line": "",
+       "payoff_line": "",
+       "scroll_stop_reason": "",
        "start_time": 410.52,
        "title": "Bongkar Alasan Pabrik Indonesia Kalah Telak",
        "title_options": [
@@ -10888,12 +11178,17 @@
        "caption_suggestion": "Fakta mengejutkan dari Ahok soal aset negara seperti Monas yang ternyata belum bersertifikat saat ditinggalkannya.",
        "content_type": "cerita",
        "end_time": 700.75,
+       "ending_line": "",
        "hashtag_suggestion": "#ahok #monas #sertifikat",
        "hook_time": 580.6,
        "key_quotes": [
         "Itu sertifikat Monas. Gu kasih tahu lu ya. Monas belum ada sertifikat tuh waktu saya tinggalkan.",
         "Jadi jangan mimpilah orang investor mau masuk sebetulnya."
        ],
+       "new_viewer_check": "",
+       "opening_line": "",
+       "payoff_line": "",
+       "scroll_stop_reason": "",
        "start_time": 553.84,
        "title": "Monas Belum Ada Sertifikat Ditinggal Ahok",
        "title_options": [
@@ -10909,12 +11204,17 @@
        "caption_suggestion": "Pesan menohok dari Ahok tentang pentingnya pengusaha ikut peduli kondisi negara dan tidak acuh tak acuh.",
        "content_type": "motivasi",
        "end_time": 1199.0,
+       "ending_line": "",
        "hashtag_suggestion": "#nasionalisme #pengusaha #politik",
        "hook_time": 1057.5,
        "key_quotes": [
         "Eh kalau ini negara hancur hancur juga kita, Bos. Sama jatuhnya.",
         "Never mix business with politics."
        ],
+       "new_viewer_check": "",
+       "opening_line": "",
+       "payoff_line": "",
+       "scroll_stop_reason": "",
        "start_time": 1050.8,
        "title": "Ahok: Kalau Negara Hancur Kita Ikut Hancur",
        "title_options": [
@@ -10930,12 +11230,17 @@
        "caption_suggestion": "Ahok membagikan pandangannya tentang pentingnya integritas dan mengapa manusia tidak boleh terlalu bergantung pada AI.",
        "content_type": "edukasi/kesehatan",
        "end_time": 1472.24,
+       "ending_line": "",
        "hashtag_suggestion": "#motivasi #integritas #ai",
        "hook_time": 1425.0,
        "key_quotes": [
         "Jadilah orang yang memang lurus. Enggak usah pakai drama-drama gitu loh.",
         "Jangan terlalu mengandalkan AI lah."
        ],
+       "new_viewer_check": "",
+       "opening_line": "",
+       "payoff_line": "",
+       "scroll_stop_reason": "",
        "start_time": 1322.56,
        "title": "Ahok Ungkap Rahasia Sukses Lewat Meditasi",
        "title_options": [
@@ -11465,8 +11770,8 @@
   "gemini_calls": [
    {
     "model": "gemini-3.5-flash-lite",
-    "prompt_chars": 39124,
-    "prompt_sha256": "57845f28ed25ecf1f27d4b87a4a868946ee1dbba86069953b6e87ffe5ec7a225"
+    "prompt_chars": 41191,
+    "prompt_sha256": "9f82b0b49c3165192662f069eac7347f81e9a51693c4ef7afb913abec31618c6"
    }
   ],
   "logs": [
@@ -11581,12 +11886,17 @@
        "caption_suggestion": "dr. Deksa mengungkapkan keterkejutan dokter asal Belanda saat melihat pasien cuci darah di Indonesia didominasi anak muda akibat pola makan dan gaya hidup.",
        "content_type": "edukasi/kesehatan",
        "end_time": 779.16,
+       "ending_line": "",
        "hashtag_suggestion": "#kesehatan #ginjal #tipsehat",
        "hook_time": 706.9,
        "key_quotes": [
         "pasienmu kok muda-muda",
         "makananmu jadi begitu dia datang di sana dia disambut dengan satu hari itu bisa empat kotakan ya dan tiga makan besar"
        ],
+       "new_viewer_check": "",
+       "opening_line": "",
+       "payoff_line": "",
+       "scroll_stop_reason": "",
        "start_time": 704.92,
        "title": "Kenapa Anak Muda Bisa Gagal Ginjal",
        "title_options": [
@@ -11601,12 +11911,17 @@
        "caption_suggestion": "dr. Deksa membeberkan fakta mengerikan di balik sindikat jual beli ginjal ilegal yang menyasar pasien transplantasi.",
        "content_type": "edukasi/kesehatan",
        "end_time": 140.6,
+       "ending_line": "",
        "hashtag_suggestion": "#fakta #kesehatan #edukasi",
        "hook_time": 86.7,
        "key_quotes": [
         "sebenarnya bisnis jual beli ginjang tu aduh itu ngeri Pak sebenarnya",
         "Beberapa pasien Saya tuh ditawarin mau enggak cangkok di luar negeri"
        ],
+       "new_viewer_check": "",
+       "opening_line": "",
+       "payoff_line": "",
+       "scroll_stop_reason": "",
        "start_time": 84.76,
        "title": "Bisnis Jual Beli Ginjal Ngeri Banget",
        "title_options": [
@@ -11622,12 +11937,17 @@
        "caption_suggestion": "dr. Deksa menjelaskan bahwa kopi sebenarnya aman dan protektif untuk ginjal asalkan tanpa tambahan gula.",
        "content_type": "edukasi/kesehatan",
        "end_time": 522.8,
+       "ending_line": "",
        "hashtag_suggestion": "#kopi #kesehatan #tipssehat",
        "hook_time": 458.1,
        "key_quotes": [
         "waktu di Belanda pasien cangkok ditawari minum teh atau kopi loh kok gitu",
         "Enggak ada masalah jika Satu No sugar enggak pakai gula"
        ],
+       "new_viewer_check": "",
+       "opening_line": "",
+       "payoff_line": "",
+       "scroll_stop_reason": "",
        "start_time": 451.36,
        "title": "dr. Deksa: Minum Kopi Aman Buat Ginjal",
        "title_options": [
@@ -11643,12 +11963,17 @@
        "caption_suggestion": "Penjelasan dr. Deksa mengenai alasan mengapa sel ginjal yang sudah rusak tidak dapat beregenerasi seperti organ tubuh lainnya.",
        "content_type": "edukasi/kesehatan",
        "end_time": 1245.48,
+       "ending_line": "",
        "hashtag_suggestion": "#ginjal #edukasi #dokter",
        "hook_time": 1174.1,
        "key_quotes": [
         "kalau misalnya penyakit ginjel kronis untuk saat ini tidak bisa sembuh",
         "Sel ginjal satu sel ginjal itu fungsinya yang saya Sebutkan tadi enam begitu rusak Ya sudah"
        ],
+       "new_viewer_check": "",
+       "opening_line": "",
+       "payoff_line": "",
+       "scroll_stop_reason": "",
        "start_time": 1171.4,
        "title": "Kenapa Ginjal Yang Rusak Tidak Bisa Sembuh",
        "title_options": [
@@ -11664,12 +11989,17 @@
        "caption_suggestion": "dr. Deksa menjelaskan dampak buruk konsumsi alkohol berlebihan terhadap kekakuan pembuluh darah dan organ ginjal.",
        "content_type": "edukasi/kesehatan",
        "end_time": 1812.04,
+       "ending_line": "",
        "hashtag_suggestion": "#kesehatan #edukasi #bahaya",
        "hook_time": 1759.2,
        "key_quotes": [
         "alkohol itu sifatnya adiktif kan makin lama makin banyak dosisnya",
         "ginjel itu terdiri dari kumparan pembuluh darah"
        ],
+       "new_viewer_check": "",
+       "opening_line": "",
+       "payoff_line": "",
+       "scroll_stop_reason": "",
        "start_time": 1755.4,
        "title": "Bahaya Minum Alkohol Untuk Pembuluh Darah",
        "title_options": [
@@ -11685,12 +12015,17 @@
        "caption_suggestion": "dr. Deksa memaparkan bagaimana ibadah puasa memberikan waktu istirahat bagi ginjal setelah bekerja nonstop.",
        "content_type": "edukasi/kesehatan",
        "end_time": 1507.92,
+       "ending_line": "",
        "hashtag_suggestion": "#puasa #kesehatan #islam",
        "hook_time": 1466.2,
        "key_quotes": [
         "puasa Ramadan itu jelas-jelas menyehatkan notut debat",
         "selama ini ginjel kita dipaksa kerja 20 jam nonstop"
        ],
+       "new_viewer_check": "",
+       "opening_line": "",
+       "payoff_line": "",
+       "scroll_stop_reason": "",
        "start_time": 1463.92,
        "title": "Puasa Ternyata Sangat Menyehatkan Ginjal",
        "title_options": [
@@ -11706,12 +12041,17 @@
        "caption_suggestion": "Peringatan dr. Deksa agar tidak langsung makan makanan berat dan es secara berlebihan saat membatalkan puasa.",
        "content_type": "edukasi/kesehatan",
        "end_time": 1665.72,
+       "ending_line": "",
        "hashtag_suggestion": "#puasa #tipssehat #ramadan",
        "hook_time": 1603.8,
        "key_quotes": [
         "kalau puasa itu kan dia sudah istirahat penuh ya Yoi begitu langsung tiba-tiba dibrekin",
         "Sama ginjalnya juga mukul bukan mukul lebih tepatnya protes"
        ],
+       "new_viewer_check": "",
+       "opening_line": "",
+       "payoff_line": "",
+       "scroll_stop_reason": "",
        "start_time": 1598.92,
        "title": "Jangan Langsung Kalap Saat Buka Puasa",
        "title_options": [
@@ -11727,12 +12067,17 @@
        "caption_suggestion": "dr. Deksa menjelaskan karakteristik kanker ginjal yang memiliki pelindung sehingga tidak mudah menyebar ke organ lain.",
        "content_type": "edukasi/kesehatan",
        "end_time": 1359.16,
+       "ending_line": "",
        "hashtag_suggestion": "#kanker #kesehatan #edukasi",
        "hook_time": 1317.2,
        "key_quotes": [
         "kankernya tetap Stay di situ kalau sudah keluar dari kapsula bomennya",
         "Ca ginjel itu enggak gampang untuk dia metastase atau nyebar karena ada cangkang"
        ],
+       "new_viewer_check": "",
+       "opening_line": "",
+       "payoff_line": "",
+       "scroll_stop_reason": "",
        "start_time": 1311.92,
        "title": "Kenapa Kanker Ginjal Jarang Menyebar Cepat",
        "title_options": [
@@ -11748,12 +12093,17 @@
        "caption_suggestion": "dr. Deksa memaparkan bahaya mematikan dari metanol atau alkohol oplosan yang bisa menyebabkan kebutaan hingga gagal napas.",
        "content_type": "edukasi/kesehatan",
        "end_time": 1872.44,
+       "ending_line": "",
        "hashtag_suggestion": "#bahaya #edukasi #kesehatan",
        "hook_time": 1821.7,
        "key_quotes": [
         "yang lebih bahaya adalah metanol metanol berarti alkohol Oplosan",
         "numpuk di dalam tubuh menyebabkan asidosis yang kalau sudah berat menyebabkan kondisi gagal nafas"
        ],
+       "new_viewer_check": "",
+       "opening_line": "",
+       "payoff_line": "",
+       "scroll_stop_reason": "",
        "start_time": 1818.8,
        "title": "Bahaya Fatal Minum Alkohol Oplosan Metanol",
        "title_options": [
@@ -11769,12 +12119,17 @@
        "caption_suggestion": "dr. Deksa merinci enam fungsi vital organ ginjal mulai dari menyaring racun hingga mengatur tekanan darah.",
        "content_type": "edukasi/kesehatan",
        "end_time": 1041.88,
+       "ending_line": "",
        "hashtag_suggestion": "#ginjal #edukasi #kesehatan",
        "hook_time": 980.4,
        "key_quotes": [
         "fungsi ginjel itu satu nyaring racun sampah metabolisme",
         "dia ngatur air jadi kalau kita kelebihan air itu dibuang"
        ],
+       "new_viewer_check": "",
+       "opening_line": "",
+       "payoff_line": "",
+       "scroll_stop_reason": "",
        "start_time": 976.4,
        "title": "6 Fungsi Utama Ginjal Manusia",
        "title_options": [
@@ -12304,8 +12659,8 @@
   "gemini_calls": [
    {
     "model": "gemini-3.5-flash-lite",
-    "prompt_chars": 47046,
-    "prompt_sha256": "f6876026ace0f0ee2aefc40debae1990809de7f08def3f8e5af7e0bf524918c5"
+    "prompt_chars": 49113,
+    "prompt_sha256": "39b13e0b28867335d1f65f0b0263d530604c746c18799864b04f6ff2575e7a80"
    }
   ],
   "logs": [
@@ -12410,12 +12765,17 @@
        "caption_suggestion": "Ridwan membahas filosofi perokok yang santai menghadapi kematian demi gaya hidup.",
        "content_type": "lucu",
        "end_time": 90.64,
+       "ending_line": "",
        "hashtag_suggestion": "#standupcomedy #rokok #lucu",
        "hook_time": 64.6,
        "key_quotes": [
         "kalau ada yang bilang roko membunuhmu gua enggak takut",
         "pemikiran gua agak filosofis ya"
        ],
+       "new_viewer_check": "",
+       "opening_line": "",
+       "payoff_line": "",
+       "scroll_stop_reason": "",
        "start_time": 60.08,
        "title": "Ternyata Rokok Nggak Sekadar Gaya Hidup",
        "title_options": [
@@ -12431,12 +12791,17 @@
        "caption_suggestion": "Cerita Ridwan tentang pengalaman apes kehilangan korek saat nongkrong.",
        "content_type": "lucu",
        "end_time": 137.6,
+       "ending_line": "",
        "hashtag_suggestion": "#standupcomedy #komedi #korek",
        "hook_time": 114.2,
        "key_quotes": [
         "saking seringnya gua sampai hafal modus operandinya",
         "Korek gua hilang ke mana ya Allah"
        ],
+       "new_viewer_check": "",
+       "opening_line": "",
+       "payoff_line": "",
+       "scroll_stop_reason": "",
        "start_time": 104.48,
        "title": "Satu Studio Heboh Bahas Maling Korek",
        "title_options": [
@@ -12452,12 +12817,17 @@
        "caption_suggestion": "Ridwan membongkar alasan kocak teman yang kedapatan mencuri koreknya.",
        "content_type": "lucu",
        "end_time": 221.8,
+       "ending_line": "",
        "hashtag_suggestion": "#standupcomedy #lucu #korek",
        "hook_time": 194.8,
        "key_quotes": [
         "alasan macam Apa itu kata gua",
         "ternyata rokok dan korek itu sama-sama berbahaya"
        ],
+       "new_viewer_check": "",
+       "opening_line": "",
+       "payoff_line": "",
+       "scroll_stop_reason": "",
        "start_time": 185.92,
        "title": "Alasan Nyeleneh Teman Ambil Korek Orang",
        "title_options": [
@@ -12473,12 +12843,17 @@
        "caption_suggestion": "Solusi absurd Ridwan agar korek tidak gampang dicuri teman nongkrong.",
        "content_type": "lucu",
        "end_time": 253.56,
+       "ending_line": "",
        "hashtag_suggestion": "#standupcomedy #komedi #kreatif",
        "hook_time": 225.8,
        "key_quotes": [
         "Bikinlah korek dengan sistem keamanan yang jelas",
         "minimal bikin korek dengan password"
        ],
+       "new_viewer_check": "",
+       "opening_line": "",
+       "payoff_line": "",
+       "scroll_stop_reason": "",
        "start_time": 221.8,
        "title": "Usul Bikin Password Untuk Korek Teman",
        "title_options": [
@@ -12494,12 +12869,17 @@
        "caption_suggestion": "Kelanjutan bit lucu Ridwan yang memlesetkan pencurian korek menjadi pencurian istri.",
        "content_type": "lucu",
        "end_time": 321.17,
+       "ending_line": "",
        "hashtag_suggestion": "#standupcomedy #istri #lucu",
        "hook_time": 274.0,
        "key_quotes": [
         "Pas udah mau balik gua baru sadar istri gua ke mana",
         "Masa cuman gara-gara istri kita berantem sih"
        ],
+       "new_viewer_check": "",
+       "opening_line": "",
+       "payoff_line": "",
+       "scroll_stop_reason": "",
        "start_time": 272.04,
        "title": "Kocak Parah Materi Plesetan Istri Orang",
        "title_options": [
@@ -12515,12 +12895,17 @@
        "caption_suggestion": "Panji Pragiwaksono memberikan komentar mendalam terhadap teknik penulisan materi Ridwan.",
        "content_type": "edukasi/kesehatan",
        "end_time": 400.48,
+       "ending_line": "",
        "hashtag_suggestion": "#panjipragiwaksono #standupcomedy #juri",
        "hook_time": 372.0,
        "key_quotes": [
         "kalau menurut gua ledakan tawanya sih enggak sekuat minggu-minggu sebelumnya",
         "tapi dari sisi penulisan sangat layak untuk dikagumi"
        ],
+       "new_viewer_check": "",
+       "opening_line": "",
+       "payoff_line": "",
+       "scroll_stop_reason": "",
        "start_time": 365.2,
        "title": "Panji Pragiwaksono Puji Penulisan Materi Ridwan",
        "title_options": [
@@ -12536,12 +12921,17 @@
        "caption_suggestion": "Para juri berdiskusi santai mengenai penggunaan callback dalam materi stand up.",
        "content_type": "edukasi/kesehatan",
        "end_time": 453.04,
+       "ending_line": "",
        "hashtag_suggestion": "#standupcomedy #juri #komedi",
        "hook_time": 419.8,
        "key_quotes": [
         "ketika lu mulai mengulang joke untuk subjek yang berbeda",
         "kita udah diskusi nih ini nutupnya nih"
        ],
+       "new_viewer_check": "",
+       "opening_line": "",
+       "payoff_line": "",
+       "scroll_stop_reason": "",
        "start_time": 414.0,
        "title": "Reaksi Juri Saat Bahas Teknik Callback",
        "title_options": [
@@ -12557,12 +12947,17 @@
        "caption_suggestion": "Juri mengingatkan pentingnya kesehatan sambil memuji keberanian Ridwan di atas panggung.",
        "content_type": "motivasi",
        "end_time": 490.44,
+       "ending_line": "",
        "hashtag_suggestion": "#standupcomedy #juri #motivasi",
        "hook_time": 465.7,
        "key_quotes": [
         "justru lu gak pernah memperhatikan kesehatan diri lu",
         "menghargai Remin Dan keberanian dan sikapnya"
        ],
+       "new_viewer_check": "",
+       "opening_line": "",
+       "payoff_line": "",
+       "scroll_stop_reason": "",
        "start_time": 461.28,
        "title": "Kritik Tajam Juri Soal Kesehatan Komika",
        "title_options": [
@@ -12578,12 +12973,17 @@
        "caption_suggestion": "Suasana berubah cair ketika juri saling protes nama panggilan di atas panggung.",
        "content_type": "lucu",
        "end_time": 514.04,
+       "ending_line": "",
        "hashtag_suggestion": "#standupcomedy #lucu #juri",
        "hook_time": 497.9,
        "key_quotes": [
         "kalau Bung ya Bung Kalau cak Jangan Cak Bung",
         "Bung Cak gitu aja"
        ],
+       "new_viewer_check": "",
+       "opening_line": "",
+       "payoff_line": "",
+       "scroll_stop_reason": "",
        "start_time": 494.92,
        "title": "Kocak Momen Juri Protes Nama Panggilan",
        "title_options": [
@@ -12599,12 +12999,17 @@
        "caption_suggestion": "Cak Lontong memberikan apresiasi tinggi atas konsistensi callback Ridwan yang sangat panjang.",
        "content_type": "edukasi/kesehatan",
        "end_time": 572.92,
+       "ending_line": "",
        "hashtag_suggestion": "#caklontong #standupcomedy #juri",
        "hook_time": 533.1,
        "key_quotes": [
         "biasanya yang namanya colback itu kan satu panchlinnya",
         "satu bit dan itu durasinya ada 1 setengah menit"
        ],
+       "new_viewer_check": "",
+       "opening_line": "",
+       "payoff_line": "",
+       "scroll_stop_reason": "",
        "start_time": 530.72,
        "title": "Cak Lontong Ungkap Kehebatan Materi Callback",
        "title_options": [
@@ -12620,12 +13025,17 @@
        "caption_suggestion": "Pesan mendalam dari juri mengenai norma dan prinsip hidup yang terselip dalam komedi.",
        "content_type": "motivasi",
        "end_time": 636.64,
+       "ending_line": "",
        "hashtag_suggestion": "#standupcomedy #motivasi #pesan",
        "hook_time": 604.5,
        "key_quotes": [
         "ini cara berpikir ketika kamu punya prinsip",
         "Tapi ini adalah norma umum"
        ],
+       "new_viewer_check": "",
+       "opening_line": "",
+       "payoff_line": "",
+       "scroll_stop_reason": "",
        "start_time": 600.04,
        "title": "Pesan Bermakna Di Balik Komedi Absurd Ridwan",
        "title_options": [
@@ -13155,8 +13565,8 @@
   "gemini_calls": [
    {
     "model": "gemini-3.5-flash-lite",
-    "prompt_chars": 15310,
-    "prompt_sha256": "c94e9de2321ffdc29dd6146db47f255669e5861d665e303de6aa7436bf2ef1c4"
+    "prompt_chars": 17377,
+    "prompt_sha256": "6b28f351208fb223ead69cadfc1ae56153ff0d35d6761b49f5527628fa67abc1"
    }
   ],
   "logs": [
@@ -13259,12 +13669,17 @@
        "caption_suggestion": "Ridwan membahas filosofi perokok yang santai menghadapi kematian demi gaya hidup.",
        "content_type": "lucu",
        "end_time": 90.64,
+       "ending_line": "",
        "hashtag_suggestion": "#standupcomedy #rokok #lucu",
        "hook_time": 64.6,
        "key_quotes": [
         "kalau ada yang bilang roko membunuhmu gua enggak takut",
         "pemikiran gua agak filosofis ya"
        ],
+       "new_viewer_check": "",
+       "opening_line": "",
+       "payoff_line": "",
+       "scroll_stop_reason": "",
        "start_time": 60.08,
        "title": "Ternyata Rokok Nggak Sekadar Gaya Hidup",
        "title_options": [
@@ -13280,12 +13695,17 @@
        "caption_suggestion": "Cerita Ridwan tentang pengalaman apes kehilangan korek saat nongkrong.",
        "content_type": "lucu",
        "end_time": 137.6,
+       "ending_line": "",
        "hashtag_suggestion": "#standupcomedy #komedi #korek",
        "hook_time": 114.2,
        "key_quotes": [
         "saking seringnya gua sampai hafal modus operandinya",
         "Korek gua hilang ke mana ya Allah"
        ],
+       "new_viewer_check": "",
+       "opening_line": "",
+       "payoff_line": "",
+       "scroll_stop_reason": "",
        "start_time": 104.48,
        "title": "Satu Studio Heboh Bahas Maling Korek",
        "title_options": [
@@ -13301,12 +13721,17 @@
        "caption_suggestion": "Ridwan membongkar alasan kocak teman yang kedapatan mencuri koreknya.",
        "content_type": "lucu",
        "end_time": 221.8,
+       "ending_line": "",
        "hashtag_suggestion": "#standupcomedy #lucu #korek",
        "hook_time": 194.8,
        "key_quotes": [
         "alasan macam Apa itu kata gua",
         "ternyata rokok dan korek itu sama-sama berbahaya"
        ],
+       "new_viewer_check": "",
+       "opening_line": "",
+       "payoff_line": "",
+       "scroll_stop_reason": "",
        "start_time": 185.92,
        "title": "Alasan Nyeleneh Teman Ambil Korek Orang",
        "title_options": [
@@ -13322,12 +13747,17 @@
        "caption_suggestion": "Solusi absurd Ridwan agar korek tidak gampang dicuri teman nongkrong.",
        "content_type": "lucu",
        "end_time": 253.56,
+       "ending_line": "",
        "hashtag_suggestion": "#standupcomedy #komedi #kreatif",
        "hook_time": 225.8,
        "key_quotes": [
         "Bikinlah korek dengan sistem keamanan yang jelas",
         "minimal bikin korek dengan password"
        ],
+       "new_viewer_check": "",
+       "opening_line": "",
+       "payoff_line": "",
+       "scroll_stop_reason": "",
        "start_time": 221.8,
        "title": "Usul Bikin Password Untuk Korek Teman",
        "title_options": [
@@ -13343,12 +13773,17 @@
        "caption_suggestion": "Kelanjutan bit lucu Ridwan yang memlesetkan pencurian korek menjadi pencurian istri.",
        "content_type": "lucu",
        "end_time": 321.17,
+       "ending_line": "",
        "hashtag_suggestion": "#standupcomedy #istri #lucu",
        "hook_time": 274.0,
        "key_quotes": [
         "Pas udah mau balik gua baru sadar istri gua ke mana",
         "Masa cuman gara-gara istri kita berantem sih"
        ],
+       "new_viewer_check": "",
+       "opening_line": "",
+       "payoff_line": "",
+       "scroll_stop_reason": "",
        "start_time": 272.04,
        "title": "Kocak Parah Materi Plesetan Istri Orang",
        "title_options": [
@@ -13364,12 +13799,17 @@
        "caption_suggestion": "Panji Pragiwaksono memberikan komentar mendalam terhadap teknik penulisan materi Ridwan.",
        "content_type": "edukasi/kesehatan",
        "end_time": 400.48,
+       "ending_line": "",
        "hashtag_suggestion": "#panjipragiwaksono #standupcomedy #juri",
        "hook_time": 372.0,
        "key_quotes": [
         "kalau menurut gua ledakan tawanya sih enggak sekuat minggu-minggu sebelumnya",
         "tapi dari sisi penulisan sangat layak untuk dikagumi"
        ],
+       "new_viewer_check": "",
+       "opening_line": "",
+       "payoff_line": "",
+       "scroll_stop_reason": "",
        "start_time": 365.2,
        "title": "Panji Pragiwaksono Puji Penulisan Materi Ridwan",
        "title_options": [
@@ -13385,12 +13825,17 @@
        "caption_suggestion": "Para juri berdiskusi santai mengenai penggunaan callback dalam materi stand up.",
        "content_type": "edukasi/kesehatan",
        "end_time": 453.04,
+       "ending_line": "",
        "hashtag_suggestion": "#standupcomedy #juri #komedi",
        "hook_time": 419.8,
        "key_quotes": [
         "ketika lu mulai mengulang joke untuk subjek yang berbeda",
         "kita udah diskusi nih ini nutupnya nih"
        ],
+       "new_viewer_check": "",
+       "opening_line": "",
+       "payoff_line": "",
+       "scroll_stop_reason": "",
        "start_time": 414.0,
        "title": "Reaksi Juri Saat Bahas Teknik Callback",
        "title_options": [
@@ -13406,12 +13851,17 @@
        "caption_suggestion": "Juri mengingatkan pentingnya kesehatan sambil memuji keberanian Ridwan di atas panggung.",
        "content_type": "motivasi",
        "end_time": 490.44,
+       "ending_line": "",
        "hashtag_suggestion": "#standupcomedy #juri #motivasi",
        "hook_time": 465.7,
        "key_quotes": [
         "justru lu gak pernah memperhatikan kesehatan diri lu",
         "menghargai Remin Dan keberanian dan sikapnya"
        ],
+       "new_viewer_check": "",
+       "opening_line": "",
+       "payoff_line": "",
+       "scroll_stop_reason": "",
        "start_time": 461.28,
        "title": "Kritik Tajam Juri Soal Kesehatan Komika",
        "title_options": [
@@ -13427,12 +13877,17 @@
        "caption_suggestion": "Suasana berubah cair ketika juri saling protes nama panggilan di atas panggung.",
        "content_type": "lucu",
        "end_time": 514.04,
+       "ending_line": "",
        "hashtag_suggestion": "#standupcomedy #lucu #juri",
        "hook_time": 497.9,
        "key_quotes": [
         "kalau Bung ya Bung Kalau cak Jangan Cak Bung",
         "Bung Cak gitu aja"
        ],
+       "new_viewer_check": "",
+       "opening_line": "",
+       "payoff_line": "",
+       "scroll_stop_reason": "",
        "start_time": 494.92,
        "title": "Kocak Momen Juri Protes Nama Panggilan",
        "title_options": [
@@ -13448,12 +13903,17 @@
        "caption_suggestion": "Cak Lontong memberikan apresiasi tinggi atas konsistensi callback Ridwan yang sangat panjang.",
        "content_type": "edukasi/kesehatan",
        "end_time": 572.92,
+       "ending_line": "",
        "hashtag_suggestion": "#caklontong #standupcomedy #juri",
        "hook_time": 533.1,
        "key_quotes": [
         "biasanya yang namanya colback itu kan satu panchlinnya",
         "satu bit dan itu durasinya ada 1 setengah menit"
        ],
+       "new_viewer_check": "",
+       "opening_line": "",
+       "payoff_line": "",
+       "scroll_stop_reason": "",
        "start_time": 530.72,
        "title": "Cak Lontong Ungkap Kehebatan Materi Callback",
        "title_options": [
@@ -13469,12 +13929,17 @@
        "caption_suggestion": "Pesan mendalam dari juri mengenai norma dan prinsip hidup yang terselip dalam komedi.",
        "content_type": "motivasi",
        "end_time": 636.64,
+       "ending_line": "",
        "hashtag_suggestion": "#standupcomedy #motivasi #pesan",
        "hook_time": 604.5,
        "key_quotes": [
         "ini cara berpikir ketika kamu punya prinsip",
         "Tapi ini adalah norma umum"
        ],
+       "new_viewer_check": "",
+       "opening_line": "",
+       "payoff_line": "",
+       "scroll_stop_reason": "",
        "start_time": 600.04,
        "title": "Pesan Bermakna Di Balik Komedi Absurd Ridwan",
        "title_options": [
@@ -14004,8 +14469,8 @@
   "gemini_calls": [
    {
     "model": "gemini-3.5-flash-lite",
-    "prompt_chars": 15310,
-    "prompt_sha256": "c94e9de2321ffdc29dd6146db47f255669e5861d665e303de6aa7436bf2ef1c4"
+    "prompt_chars": 17377,
+    "prompt_sha256": "6b28f351208fb223ead69cadfc1ae56153ff0d35d6761b49f5527628fa67abc1"
    }
   ],
   "logs": [
@@ -14108,11 +14573,16 @@
        "caption_suggestion": "Seru #viral #fyp",
        "content_type": "edukasi",
        "end_time": 40.0,
+       "ending_line": "",
        "hashtag_suggestion": "#podcast #kesehatan",
        "hook_time": 11.0,
        "key_quotes": [
         "kutipan"
        ],
+       "new_viewer_check": "",
+       "opening_line": "",
+       "payoff_line": "",
+       "scroll_stop_reason": "",
        "start_time": 10.0,
        "title": "Ternyata Begini Cara Kerjanya",
        "title_options": [
@@ -14127,11 +14597,16 @@
        "caption_suggestion": "Seru #viral #fyp",
        "content_type": "edukasi",
        "end_time": 90.0,
+       "ending_line": "",
        "hashtag_suggestion": "#podcast #kesehatan",
        "hook_time": 61.0,
        "key_quotes": [
         "kutipan"
        ],
+       "new_viewer_check": "",
+       "opening_line": "",
+       "payoff_line": "",
+       "scroll_stop_reason": "",
        "start_time": 60.0,
        "title": "Ternyata Begini Cara Kerjanya",
        "title_options": [
@@ -14301,8 +14776,8 @@
   "gemini_calls": [
    {
     "model": "gemini-2.5-flash",
-    "prompt_chars": 3550,
-    "prompt_sha256": "0a7de10b32aed6f80ae975c4fb1e0a1d7088b0243bb1ba780529a6e4c96ff867"
+    "prompt_chars": 5617,
+    "prompt_sha256": "41c090c920971311becfb1399ff483f9437a187f8d7e84becd39c15293eff20a"
    }
   ],
   "logs": [
@@ -14405,11 +14880,16 @@
        "caption_suggestion": "Seru #viral #fyp",
        "content_type": "edukasi",
        "end_time": 155.0,
+       "ending_line": "",
        "hashtag_suggestion": "#podcast #kesehatan",
        "hook_time": 31.0,
        "key_quotes": [
         "kutipan"
        ],
+       "new_viewer_check": "",
+       "opening_line": "",
+       "payoff_line": "",
+       "scroll_stop_reason": "",
        "start_time": 10.0,
        "title": "Ternyata Begini Cara Kerjanya",
        "title_options": [
@@ -14437,8 +14917,8 @@
   "gemini_calls": [
    {
     "model": "gemini-2.5-flash",
-    "prompt_chars": 6889,
-    "prompt_sha256": "c95bbbc29d8ac9c371a4f624c89465f2977551953a2bdf613b9dc11024ce4dd3"
+    "prompt_chars": 8956,
+    "prompt_sha256": "d41089b87f421d6fa772e6b08d01bc126fa39c92b9d0d5c772f380bc6048e2d1"
    }
   ],
   "logs": [
@@ -14542,11 +15022,16 @@
        "caption_suggestion": "Seru #viral #fyp",
        "content_type": "edukasi",
        "end_time": 40.0,
+       "ending_line": "",
        "hashtag_suggestion": "#podcast #kesehatan",
        "hook_time": 12.0,
        "key_quotes": [
         "kutipan"
        ],
+       "new_viewer_check": "",
+       "opening_line": "",
+       "payoff_line": "",
+       "scroll_stop_reason": "",
        "start_time": 10.0,
        "title": "Ternyata Begini Cara Kerjanya",
        "title_options": [
@@ -14716,8 +15201,8 @@
   "gemini_calls": [
    {
     "model": "gemini-2.5-flash",
-    "prompt_chars": 3550,
-    "prompt_sha256": "0a7de10b32aed6f80ae975c4fb1e0a1d7088b0243bb1ba780529a6e4c96ff867"
+    "prompt_chars": 5617,
+    "prompt_sha256": "41c090c920971311becfb1399ff483f9437a187f8d7e84becd39c15293eff20a"
    }
   ],
   "logs": [
@@ -14820,11 +15305,16 @@
        "caption_suggestion": "Seru #viral #fyp",
        "content_type": "edukasi",
        "end_time": 5.0,
+       "ending_line": "",
        "hashtag_suggestion": "#podcast #kesehatan",
        "hook_time": 0.0,
        "key_quotes": [
         "kutipan"
        ],
+       "new_viewer_check": "",
+       "opening_line": "",
+       "payoff_line": "",
+       "scroll_stop_reason": "",
        "start_time": 0.0,
        "title": "Ternyata Begini Cara Kerjanya",
        "title_options": [
@@ -14994,8 +15484,8 @@
   "gemini_calls": [
    {
     "model": "gemini-2.5-flash",
-    "prompt_chars": 3550,
-    "prompt_sha256": "0a7de10b32aed6f80ae975c4fb1e0a1d7088b0243bb1ba780529a6e4c96ff867"
+    "prompt_chars": 5617,
+    "prompt_sha256": "41c090c920971311becfb1399ff483f9437a187f8d7e84becd39c15293eff20a"
    }
   ],
   "logs": [
@@ -15280,11 +15770,16 @@
        "caption_suggestion": "Seru #viral #fyp",
        "content_type": "edukasi",
        "end_time": 40.0,
+       "ending_line": "",
        "hashtag_suggestion": "#podcast #kesehatan",
        "hook_time": 11.0,
        "key_quotes": [
         "kutipan"
        ],
+       "new_viewer_check": "",
+       "opening_line": "",
+       "payoff_line": "",
+       "scroll_stop_reason": "",
        "start_time": 10.0,
        "title": "Ternyata Begini Cara Kerjanya",
        "title_options": [
@@ -15299,11 +15794,16 @@
        "caption_suggestion": "Seru #viral #fyp",
        "content_type": "edukasi",
        "end_time": 90.0,
+       "ending_line": "",
        "hashtag_suggestion": "#podcast #kesehatan",
        "hook_time": 61.0,
        "key_quotes": [
         "kutipan"
        ],
+       "new_viewer_check": "",
+       "opening_line": "",
+       "payoff_line": "",
+       "scroll_stop_reason": "",
        "start_time": 60.0,
        "title": "Ternyata Begini Cara Kerjanya",
        "title_options": [
@@ -15473,8 +15973,8 @@
   "gemini_calls": [
    {
     "model": "gemini-2.5-flash",
-    "prompt_chars": 3550,
-    "prompt_sha256": "0a7de10b32aed6f80ae975c4fb1e0a1d7088b0243bb1ba780529a6e4c96ff867"
+    "prompt_chars": 5617,
+    "prompt_sha256": "41c090c920971311becfb1399ff483f9437a187f8d7e84becd39c15293eff20a"
    }
   ],
   "logs": [
@@ -15765,33 +16265,33 @@
   "gemini_calls": [
    {
     "model": "gemini-2.5-flash",
-    "prompt_chars": 3550,
-    "prompt_sha256": "0a7de10b32aed6f80ae975c4fb1e0a1d7088b0243bb1ba780529a6e4c96ff867"
+    "prompt_chars": 5617,
+    "prompt_sha256": "41c090c920971311becfb1399ff483f9437a187f8d7e84becd39c15293eff20a"
    },
    {
     "model": "gemini-2.5-flash-lite",
-    "prompt_chars": 3550,
-    "prompt_sha256": "0a7de10b32aed6f80ae975c4fb1e0a1d7088b0243bb1ba780529a6e4c96ff867"
+    "prompt_chars": 5617,
+    "prompt_sha256": "41c090c920971311becfb1399ff483f9437a187f8d7e84becd39c15293eff20a"
    },
    {
     "model": "gemini-2.0-flash",
-    "prompt_chars": 3550,
-    "prompt_sha256": "0a7de10b32aed6f80ae975c4fb1e0a1d7088b0243bb1ba780529a6e4c96ff867"
+    "prompt_chars": 5617,
+    "prompt_sha256": "41c090c920971311becfb1399ff483f9437a187f8d7e84becd39c15293eff20a"
    },
    {
     "model": "gemini-2.0-flash-lite",
-    "prompt_chars": 3550,
-    "prompt_sha256": "0a7de10b32aed6f80ae975c4fb1e0a1d7088b0243bb1ba780529a6e4c96ff867"
+    "prompt_chars": 5617,
+    "prompt_sha256": "41c090c920971311becfb1399ff483f9437a187f8d7e84becd39c15293eff20a"
    },
    {
     "model": "gemini-1.5-flash",
-    "prompt_chars": 3550,
-    "prompt_sha256": "0a7de10b32aed6f80ae975c4fb1e0a1d7088b0243bb1ba780529a6e4c96ff867"
+    "prompt_chars": 5617,
+    "prompt_sha256": "41c090c920971311becfb1399ff483f9437a187f8d7e84becd39c15293eff20a"
    },
    {
     "model": "gemini-1.5-flash-8b",
-    "prompt_chars": 3550,
-    "prompt_sha256": "0a7de10b32aed6f80ae975c4fb1e0a1d7088b0243bb1ba780529a6e4c96ff867"
+    "prompt_chars": 5617,
+    "prompt_sha256": "41c090c920971311becfb1399ff483f9437a187f8d7e84becd39c15293eff20a"
    }
   ],
   "logs": [
@@ -15917,11 +16417,16 @@
        "caption_suggestion": "Seru #viral #fyp",
        "content_type": "edukasi",
        "end_time": 40.0,
+       "ending_line": "",
        "hashtag_suggestion": "#podcast #kesehatan",
        "hook_time": 11.0,
        "key_quotes": [
         "kutipan"
        ],
+       "new_viewer_check": "",
+       "opening_line": "",
+       "payoff_line": "",
+       "scroll_stop_reason": "",
        "start_time": 10.0,
        "title": "Ternyata Begini Cara Kerjanya",
        "title_options": [
@@ -15936,11 +16441,16 @@
        "caption_suggestion": "Seru #viral #fyp",
        "content_type": "edukasi",
        "end_time": 90.0,
+       "ending_line": "",
        "hashtag_suggestion": "#podcast #kesehatan",
        "hook_time": 61.0,
        "key_quotes": [
         "kutipan"
        ],
+       "new_viewer_check": "",
+       "opening_line": "",
+       "payoff_line": "",
+       "scroll_stop_reason": "",
        "start_time": 60.0,
        "title": "Ternyata Begini Cara Kerjanya",
        "title_options": [
@@ -16110,13 +16620,13 @@
   "gemini_calls": [
    {
     "model": "gemini-2.5-flash",
-    "prompt_chars": 3550,
-    "prompt_sha256": "0a7de10b32aed6f80ae975c4fb1e0a1d7088b0243bb1ba780529a6e4c96ff867"
+    "prompt_chars": 5617,
+    "prompt_sha256": "41c090c920971311becfb1399ff483f9437a187f8d7e84becd39c15293eff20a"
    },
    {
     "model": "gemini-2.5-flash-lite",
-    "prompt_chars": 3550,
-    "prompt_sha256": "0a7de10b32aed6f80ae975c4fb1e0a1d7088b0243bb1ba780529a6e4c96ff867"
+    "prompt_chars": 5617,
+    "prompt_sha256": "41c090c920971311becfb1399ff483f9437a187f8d7e84becd39c15293eff20a"
    }
   ],
   "logs": [
@@ -16296,33 +16806,33 @@
   "gemini_calls": [
    {
     "model": "gemini-2.5-flash",
-    "prompt_chars": 3550,
-    "prompt_sha256": "0a7de10b32aed6f80ae975c4fb1e0a1d7088b0243bb1ba780529a6e4c96ff867"
+    "prompt_chars": 5617,
+    "prompt_sha256": "41c090c920971311becfb1399ff483f9437a187f8d7e84becd39c15293eff20a"
    },
    {
     "model": "gemini-2.5-flash-lite",
-    "prompt_chars": 3550,
-    "prompt_sha256": "0a7de10b32aed6f80ae975c4fb1e0a1d7088b0243bb1ba780529a6e4c96ff867"
+    "prompt_chars": 5617,
+    "prompt_sha256": "41c090c920971311becfb1399ff483f9437a187f8d7e84becd39c15293eff20a"
    },
    {
     "model": "gemini-2.0-flash",
-    "prompt_chars": 3550,
-    "prompt_sha256": "0a7de10b32aed6f80ae975c4fb1e0a1d7088b0243bb1ba780529a6e4c96ff867"
+    "prompt_chars": 5617,
+    "prompt_sha256": "41c090c920971311becfb1399ff483f9437a187f8d7e84becd39c15293eff20a"
    },
    {
     "model": "gemini-2.0-flash-lite",
-    "prompt_chars": 3550,
-    "prompt_sha256": "0a7de10b32aed6f80ae975c4fb1e0a1d7088b0243bb1ba780529a6e4c96ff867"
+    "prompt_chars": 5617,
+    "prompt_sha256": "41c090c920971311becfb1399ff483f9437a187f8d7e84becd39c15293eff20a"
    },
    {
     "model": "gemini-1.5-flash",
-    "prompt_chars": 3550,
-    "prompt_sha256": "0a7de10b32aed6f80ae975c4fb1e0a1d7088b0243bb1ba780529a6e4c96ff867"
+    "prompt_chars": 5617,
+    "prompt_sha256": "41c090c920971311becfb1399ff483f9437a187f8d7e84becd39c15293eff20a"
    },
    {
     "model": "gemini-1.5-flash-8b",
-    "prompt_chars": 3550,
-    "prompt_sha256": "0a7de10b32aed6f80ae975c4fb1e0a1d7088b0243bb1ba780529a6e4c96ff867"
+    "prompt_chars": 5617,
+    "prompt_sha256": "41c090c920971311becfb1399ff483f9437a187f8d7e84becd39c15293eff20a"
    }
   ],
   "logs": [
@@ -16506,33 +17016,33 @@
   "gemini_calls": [
    {
     "model": "gemini-2.5-flash",
-    "prompt_chars": 3550,
-    "prompt_sha256": "0a7de10b32aed6f80ae975c4fb1e0a1d7088b0243bb1ba780529a6e4c96ff867"
+    "prompt_chars": 5617,
+    "prompt_sha256": "41c090c920971311becfb1399ff483f9437a187f8d7e84becd39c15293eff20a"
    },
    {
     "model": "gemini-2.5-flash-lite",
-    "prompt_chars": 3550,
-    "prompt_sha256": "0a7de10b32aed6f80ae975c4fb1e0a1d7088b0243bb1ba780529a6e4c96ff867"
+    "prompt_chars": 5617,
+    "prompt_sha256": "41c090c920971311becfb1399ff483f9437a187f8d7e84becd39c15293eff20a"
    },
    {
     "model": "gemini-2.0-flash",
-    "prompt_chars": 3550,
-    "prompt_sha256": "0a7de10b32aed6f80ae975c4fb1e0a1d7088b0243bb1ba780529a6e4c96ff867"
+    "prompt_chars": 5617,
+    "prompt_sha256": "41c090c920971311becfb1399ff483f9437a187f8d7e84becd39c15293eff20a"
    },
    {
     "model": "gemini-2.0-flash-lite",
-    "prompt_chars": 3550,
-    "prompt_sha256": "0a7de10b32aed6f80ae975c4fb1e0a1d7088b0243bb1ba780529a6e4c96ff867"
+    "prompt_chars": 5617,
+    "prompt_sha256": "41c090c920971311becfb1399ff483f9437a187f8d7e84becd39c15293eff20a"
    },
    {
     "model": "gemini-1.5-flash",
-    "prompt_chars": 3550,
-    "prompt_sha256": "0a7de10b32aed6f80ae975c4fb1e0a1d7088b0243bb1ba780529a6e4c96ff867"
+    "prompt_chars": 5617,
+    "prompt_sha256": "41c090c920971311becfb1399ff483f9437a187f8d7e84becd39c15293eff20a"
    },
    {
     "model": "gemini-1.5-flash-8b",
-    "prompt_chars": 3550,
-    "prompt_sha256": "0a7de10b32aed6f80ae975c4fb1e0a1d7088b0243bb1ba780529a6e4c96ff867"
+    "prompt_chars": 5617,
+    "prompt_sha256": "41c090c920971311becfb1399ff483f9437a187f8d7e84becd39c15293eff20a"
    }
   ],
   "logs": [
@@ -16640,11 +17150,16 @@
        "caption_suggestion": "Seru #viral #fyp",
        "content_type": "edukasi",
        "end_time": 40.0,
+       "ending_line": "",
        "hashtag_suggestion": "#podcast #kesehatan",
        "hook_time": 11.0,
        "key_quotes": [
         "kutipan"
        ],
+       "new_viewer_check": "",
+       "opening_line": "",
+       "payoff_line": "",
+       "scroll_stop_reason": "",
        "start_time": 10.0,
        "title": "Ternyata Begini Cara Kerjanya",
        "title_options": [
@@ -16659,11 +17174,16 @@
        "caption_suggestion": "Seru #viral #fyp",
        "content_type": "edukasi",
        "end_time": 90.0,
+       "ending_line": "",
        "hashtag_suggestion": "#podcast #kesehatan",
        "hook_time": 61.0,
        "key_quotes": [
         "kutipan"
        ],
+       "new_viewer_check": "",
+       "opening_line": "",
+       "payoff_line": "",
+       "scroll_stop_reason": "",
        "start_time": 60.0,
        "title": "Ternyata Begini Cara Kerjanya",
        "title_options": [
@@ -16701,8 +17221,8 @@
   "gemini_calls": [
    {
     "model": "gemini-2.5-flash",
-    "prompt_chars": 2929,
-    "prompt_sha256": "26f43215bbee0a295313086d628667ecbbb6818740636495c286ed99744a4fb8"
+    "prompt_chars": 4996,
+    "prompt_sha256": "b09ef36278ae76ae5b6e9b396d60b5f8e7fbc87b744426244aab4471ddd5593e"
    }
   ],
   "logs": [
@@ -16909,11 +17429,16 @@
        "caption_suggestion": "Momen pilihan dari video: kalimat nomor 18. kalimat nomor 19. kalimat nomor 20. kalima... #viral #trending",
        "content_type": "",
        "end_time": 120.0,
+       "ending_line": "",
        "hashtag_suggestion": "#viral #shorts #trending",
        "hook_time": 110.0,
        "key_quotes": [
         "kalimat nomor 18. kalimat nomor 19. kalimat nomor 20. kalimat nomor 21. kalimat "
        ],
+       "new_viewer_check": "",
+       "opening_line": "",
+       "payoff_line": "",
+       "scroll_stop_reason": "",
        "start_time": 90.0,
        "title": "Momen Penting dari Video Ini 1",
        "title_options": [
@@ -16927,11 +17452,16 @@
        "caption_suggestion": "Momen pilihan dari video: kalimat nomor 10. kalimat nomor 11. kalimat nomor 12. kalima... #viral #trending",
        "content_type": "",
        "end_time": 85.0,
+       "ending_line": "",
        "hashtag_suggestion": "#viral #shorts #trending",
        "hook_time": 60.0,
        "key_quotes": [
         "kalimat nomor 10. kalimat nomor 11. kalimat nomor 12. kalimat nomor 13. kalimat "
        ],
+       "new_viewer_check": "",
+       "opening_line": "",
+       "payoff_line": "",
+       "scroll_stop_reason": "",
        "start_time": 52.5,
        "title": "Momen Penting dari Video Ini 2",
        "title_options": [
@@ -16945,11 +17475,16 @@
        "caption_suggestion": "Momen pilihan dari video: kalimat nomor 4. kalimat nomor 5. kalimat nomor 6. kalimat n... #viral #trending",
        "content_type": "",
        "end_time": 52.5,
+       "ending_line": "",
        "hashtag_suggestion": "#viral #shorts #trending",
        "hook_time": 30.0,
        "key_quotes": [
         "kalimat nomor 4. kalimat nomor 5. kalimat nomor 6. kalimat nomor 7. kalimat nomo"
        ],
+       "new_viewer_check": "",
+       "opening_line": "",
+       "payoff_line": "",
+       "scroll_stop_reason": "",
        "start_time": 20.0,
        "title": "Momen Penting dari Video Ini 3",
        "title_options": [
@@ -17179,33 +17714,33 @@
   "gemini_calls": [
    {
     "model": "gemini-2.5-flash",
-    "prompt_chars": 3675,
-    "prompt_sha256": "260c206509c82956ffbc365d6927afd83cf1adc15dac3a07b91e0e1de6d7c8d6"
+    "prompt_chars": 5742,
+    "prompt_sha256": "f4a3b891d00f9fefa3a9d41643b28938a193d571e0c32ee4fe707235c561a5d9"
    },
    {
     "model": "gemini-2.5-flash-lite",
-    "prompt_chars": 3675,
-    "prompt_sha256": "260c206509c82956ffbc365d6927afd83cf1adc15dac3a07b91e0e1de6d7c8d6"
+    "prompt_chars": 5742,
+    "prompt_sha256": "f4a3b891d00f9fefa3a9d41643b28938a193d571e0c32ee4fe707235c561a5d9"
    },
    {
     "model": "gemini-2.0-flash",
-    "prompt_chars": 3675,
-    "prompt_sha256": "260c206509c82956ffbc365d6927afd83cf1adc15dac3a07b91e0e1de6d7c8d6"
+    "prompt_chars": 5742,
+    "prompt_sha256": "f4a3b891d00f9fefa3a9d41643b28938a193d571e0c32ee4fe707235c561a5d9"
    },
    {
     "model": "gemini-2.0-flash-lite",
-    "prompt_chars": 3675,
-    "prompt_sha256": "260c206509c82956ffbc365d6927afd83cf1adc15dac3a07b91e0e1de6d7c8d6"
+    "prompt_chars": 5742,
+    "prompt_sha256": "f4a3b891d00f9fefa3a9d41643b28938a193d571e0c32ee4fe707235c561a5d9"
    },
    {
     "model": "gemini-1.5-flash",
-    "prompt_chars": 3675,
-    "prompt_sha256": "260c206509c82956ffbc365d6927afd83cf1adc15dac3a07b91e0e1de6d7c8d6"
+    "prompt_chars": 5742,
+    "prompt_sha256": "f4a3b891d00f9fefa3a9d41643b28938a193d571e0c32ee4fe707235c561a5d9"
    },
    {
     "model": "gemini-1.5-flash-8b",
-    "prompt_chars": 3675,
-    "prompt_sha256": "260c206509c82956ffbc365d6927afd83cf1adc15dac3a07b91e0e1de6d7c8d6"
+    "prompt_chars": 5742,
+    "prompt_sha256": "f4a3b891d00f9fefa3a9d41643b28938a193d571e0c32ee4fe707235c561a5d9"
    }
   ],
   "logs": [
@@ -17404,11 +17939,16 @@
        "caption_suggestion": "Momen pilihan dari video: kalimat nomor 0. kalimat nomor 1. kalimat nomor 2. kalimat n... #viral #trending",
        "content_type": "",
        "end_time": 60.0,
+       "ending_line": "",
        "hashtag_suggestion": "#viral #shorts #trending",
        "hook_time": 0.0,
        "key_quotes": [
         "kalimat nomor 0. kalimat nomor 1. kalimat nomor 2. kalimat nomor 3. kalimat nomo"
        ],
+       "new_viewer_check": "",
+       "opening_line": "",
+       "payoff_line": "",
+       "scroll_stop_reason": "",
        "start_time": 0.0,
        "title": "Momen Penting dari Video Ini 1",
        "title_options": [
@@ -17422,11 +17962,16 @@
        "caption_suggestion": "Momen pilihan dari video: kalimat nomor 12. kalimat nomor 13. kalimat nomor 14. kalima... #viral #trending",
        "content_type": "",
        "end_time": 120.0,
+       "ending_line": "",
        "hashtag_suggestion": "#viral #shorts #trending",
        "hook_time": 75.0,
        "key_quotes": [
         "kalimat nomor 12. kalimat nomor 13. kalimat nomor 14. kalimat nomor 15. kalimat "
        ],
+       "new_viewer_check": "",
+       "opening_line": "",
+       "payoff_line": "",
+       "scroll_stop_reason": "",
        "start_time": 60.0,
        "title": "Momen Penting dari Video Ini 2",
        "title_options": [
@@ -17595,33 +18140,33 @@
   "gemini_calls": [
    {
     "model": "gemini-2.5-flash",
-    "prompt_chars": 3550,
-    "prompt_sha256": "3b4c4cca530a9d8b141f71e97c649d7408475ec302b9294d7101c7d4c24782b8"
+    "prompt_chars": 5617,
+    "prompt_sha256": "260f8a9b018c17f6735a3a61689030587b0f582cc6f40f8f81aad532405b5251"
    },
    {
     "model": "gemini-2.5-flash-lite",
-    "prompt_chars": 3550,
-    "prompt_sha256": "3b4c4cca530a9d8b141f71e97c649d7408475ec302b9294d7101c7d4c24782b8"
+    "prompt_chars": 5617,
+    "prompt_sha256": "260f8a9b018c17f6735a3a61689030587b0f582cc6f40f8f81aad532405b5251"
    },
    {
     "model": "gemini-2.0-flash",
-    "prompt_chars": 3550,
-    "prompt_sha256": "3b4c4cca530a9d8b141f71e97c649d7408475ec302b9294d7101c7d4c24782b8"
+    "prompt_chars": 5617,
+    "prompt_sha256": "260f8a9b018c17f6735a3a61689030587b0f582cc6f40f8f81aad532405b5251"
    },
    {
     "model": "gemini-2.0-flash-lite",
-    "prompt_chars": 3550,
-    "prompt_sha256": "3b4c4cca530a9d8b141f71e97c649d7408475ec302b9294d7101c7d4c24782b8"
+    "prompt_chars": 5617,
+    "prompt_sha256": "260f8a9b018c17f6735a3a61689030587b0f582cc6f40f8f81aad532405b5251"
    },
    {
     "model": "gemini-1.5-flash",
-    "prompt_chars": 3550,
-    "prompt_sha256": "3b4c4cca530a9d8b141f71e97c649d7408475ec302b9294d7101c7d4c24782b8"
+    "prompt_chars": 5617,
+    "prompt_sha256": "260f8a9b018c17f6735a3a61689030587b0f582cc6f40f8f81aad532405b5251"
    },
    {
     "model": "gemini-1.5-flash-8b",
-    "prompt_chars": 3550,
-    "prompt_sha256": "3b4c4cca530a9d8b141f71e97c649d7408475ec302b9294d7101c7d4c24782b8"
+    "prompt_chars": 5617,
+    "prompt_sha256": "260f8a9b018c17f6735a3a61689030587b0f582cc6f40f8f81aad532405b5251"
    }
   ],
   "logs": [
@@ -17748,11 +18293,16 @@
        "caption_suggestion": "Seru #viral #fyp",
        "content_type": "edukasi",
        "end_time": 40.0,
+       "ending_line": "",
        "hashtag_suggestion": "#podcast #kesehatan",
        "hook_time": 11.0,
        "key_quotes": [
         "kutipan"
        ],
+       "new_viewer_check": "",
+       "opening_line": "",
+       "payoff_line": "",
+       "scroll_stop_reason": "",
        "start_time": 10.0,
        "title": "Ternyata Begini Cara Kerjanya",
        "title_options": [
@@ -17767,11 +18317,16 @@
        "caption_suggestion": "Seru #viral #fyp",
        "content_type": "edukasi",
        "end_time": 90.0,
+       "ending_line": "",
        "hashtag_suggestion": "#podcast #kesehatan",
        "hook_time": 61.0,
        "key_quotes": [
         "kutipan"
        ],
+       "new_viewer_check": "",
+       "opening_line": "",
+       "payoff_line": "",
+       "scroll_stop_reason": "",
        "start_time": 60.0,
        "title": "Ternyata Begini Cara Kerjanya",
        "title_options": [
@@ -17941,13 +18496,13 @@
   "gemini_calls": [
    {
     "model": "gemini-2.5-flash",
-    "prompt_chars": 3550,
-    "prompt_sha256": "0a7de10b32aed6f80ae975c4fb1e0a1d7088b0243bb1ba780529a6e4c96ff867"
+    "prompt_chars": 5617,
+    "prompt_sha256": "41c090c920971311becfb1399ff483f9437a187f8d7e84becd39c15293eff20a"
    },
    {
     "model": "gemini-2.5-flash-lite",
-    "prompt_chars": 3550,
-    "prompt_sha256": "0a7de10b32aed6f80ae975c4fb1e0a1d7088b0243bb1ba780529a6e4c96ff867"
+    "prompt_chars": 5617,
+    "prompt_sha256": "41c090c920971311becfb1399ff483f9437a187f8d7e84becd39c15293eff20a"
    }
   ],
   "logs": [
