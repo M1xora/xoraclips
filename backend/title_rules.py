@@ -86,6 +86,10 @@ def title_problem(title: str) -> Optional[str]:
     if not title:
         return "empty"
     words = title.split()
+    if not words:
+        # Whitespace only: clean_title() normally removes it before this,
+        # but the check is public and must not raise on its own.
+        return "empty"
     if len(words) > MAX_TITLE_WORDS:
         return f"{len(words)} words (max {MAX_TITLE_WORDS})"
     if len(title) > MAX_TITLE_CHARS:
@@ -136,11 +140,16 @@ def pick_titles(
     legacy_suggestion: object = "",
     sanitize: Callable[[str], str] = lambda t: t,
     label: str = "clip",
+    untitled: Optional[int] = None,
 ) -> Tuple[List[str], List[str]]:
     """
     Up to TITLE_OPTIONS valid titles, first = the active one, and the list of
     problems found (already logged). `sanitize` is the existing first-person
     fixer, applied before checking, as the old titles always were.
+
+    `untitled` marks a clip the backend made itself (issue #98): it carries no
+    title of its own by design, so the generic title is numbered with it and
+    the missing options are not reported as a fault in Gemini's answer.
     """
     problems: List[str] = []
     picked: List[str] = []
@@ -158,7 +167,7 @@ def pick_titles(
         picked.append(title)
 
     raw_options = _option_texts(options)
-    if not raw_options:
+    if not raw_options and untitled is None:
         problems.append(f"{label}: no title options in Gemini's answer")
     for i, raw in enumerate(raw_options, start=1):
         if len(picked) >= TITLE_OPTIONS:
@@ -166,7 +175,7 @@ def pick_titles(
             break
         consider(raw, f"option {i}")
 
-    if not picked:
+    if not picked and untitled is None:
         # Fallback 1: the old single-title fields, if they meet the rules.
         for raw, source in ((legacy_suggestion, "title_suggestion"), (legacy_title, "title")):
             consider(raw, f"fallback {source}")
@@ -175,23 +184,46 @@ def pick_titles(
 
     if not picked:
         # Fallback 2: the old title cut to fit, then a neutral generic title.
+        # A backup clip skips straight to the generic title: it has no old
+        # title, so reporting the empty fields as rejections would be noise.
         base = clean_title(sanitize(clean_title(legacy_suggestion) or clean_title(legacy_title)))
-        short = _shorten(base)
+        short = _shorten(base) if untitled is None else ""
         if short:
             problems.append(f"{label}: using the old title shortened to fit: {short!r}")
             picked.append(short)
         else:
-            problems.append(f"{label}: no usable title; using the generic fallback")
-            picked.append(generic_fallback())
+            if untitled is None:
+                problems.append(f"{label}: no usable title; using the generic fallback")
+            picked.append(generic_fallback(untitled))
 
     for p in problems:
         logger.warning(p)
     return picked, problems
 
 
-def generic_fallback() -> str:
-    """GENERIC_FALLBACK, cut to the configured limits if they are stricter."""
-    return _shorten(GENERIC_FALLBACK) or "Momen Penting"
+def generic_fallback(number: Optional[int] = None) -> str:
+    """GENERIC_FALLBACK, cut to the configured limits if they are stricter.
+
+    With `number`, it is numbered (issue #98): backup clips all land on this
+    title, and identical names in the Studio give the editor no way to tell
+    the clips apart. The number is appended only while it still fits the
+    rules, so stricter limits fall back to the plain title.
+    """
+    base = _shorten(GENERIC_FALLBACK) or "Momen Penting"
+    if number is None:
+        return base
+    # The number is what tells two backup clips apart, so it is kept and the
+    # words before it are dropped until the title fits. _shorten cuts from the
+    # end, which would drop the number first, so the text is cut here instead.
+    words = base.split()
+    while words:
+        # Never leave the text ending on a linking word ("Momen Penting dari 2").
+        if words[-1].lower().strip(",;:-") not in _DANGLING:
+            numbered = f"{' '.join(words)} {number}"
+            if title_problem(numbered) is None:
+                return numbered
+        words.pop()
+    return base
 
 
 def prompt_rules() -> str:

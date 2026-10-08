@@ -8,7 +8,7 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
-from backend import analysis, clip_lengths  # noqa: E402
+from backend import analysis, clip_lengths, title_rules  # noqa: E402
 from backend.analysis import AnalysisError  # noqa: E402
 
 
@@ -175,8 +175,11 @@ def test_backup_clips_sit_around_the_peaks_inside_the_range_without_overlapping(
     spans = sorted((c["start_time"], c["end_time"]) for c in clips)
     assert all(10.0 <= s < e <= 190.0 for s, e in spans)
     assert all(a[1] <= b[0] for a, b in zip(spans, spans[1:]))
-    assert clips[0]["title"] == "Key Highlight #1" and clips[0]["hook_time"] == 100.0
+    # Issue #98: no title of their own; finish_clips gives them a checked one.
+    assert "title" not in clips[0] and clips[0]["hook_time"] == 100.0
     assert clips[0]["key_quotes"] and clips[0]["caption_suggestion"].endswith("#viral #trending")
+    # The user-visible text is Indonesian, like the title the rules give them.
+    assert clips[0]["caption_suggestion"].startswith("Momen pilihan dari video:")
 
 
 def gemini_clip(start, end, **extra):
@@ -205,11 +208,48 @@ def test_a_first_person_title_is_credited_to_the_channel():
     assert clip.title == "dr. Tirta Mencoba Lari Tiap Hari"
 
 
-def test_backup_clips_keep_their_own_titles():
-    clip, = analysis.finish_clips([{**gemini_clip(10, 25), "is_fallback": True, "title": "Key Highlight #1",
-                                    "title_suggestion": "Must Watch Moment #1"}],
-                                  enriched(12), "30s", 0.0, 60.0, "Kanal")
-    assert (clip.title, clip.title_suggestion, clip.title_options) == ("Key Highlight #1", "Must Watch Moment #1", [])
+def real_backup_clips(n_lines=80, duration="30s", lo=0.0, hi=400.0):
+    """Backup clips from the real producer, so the tests cannot drift from it."""
+    lines = enriched(n_lines)
+    for i in (5, 20, 40):
+        if i < len(lines):
+            lines[i]["engagement"] = 0.9 - i / 100
+    return analysis.backup_clips(lines, duration, lo, hi), lines
+
+
+def test_backup_clip_titles_go_through_the_title_rules():
+    # Issue #98: with no options and no old title, the rules land on the
+    # Indonesian generic title instead of the old hardcoded English one.
+    raw, lines = real_backup_clips()
+    # The producer writes no title of its own: that is what sends these
+    # clips to the rules instead of straight to the Studio.
+    assert all("title" not in c and "title_suggestion" not in c for c in raw)
+    clips = analysis.finish_clips(raw, lines, "30s", 0.0, 400.0, "Kanal")
+    assert clips
+    for clip in clips:
+        assert title_rules.title_problem(clip.title) is None
+        assert clip.title == clip.title_suggestion
+        assert clip.title_options == [clip.title]
+        assert clip.title.startswith(title_rules.generic_fallback().split()[0])
+
+
+def test_every_backup_clip_gets_its_own_title():
+    """Issue #98: identical names give the editor no way to tell clips apart."""
+    raw, lines = real_backup_clips()
+    clips = analysis.finish_clips(raw, lines, "30s", 0.0, 400.0, "Kanal")
+    assert len(clips) > 1, "need more than one backup clip to test this"
+    titles = [c.title for c in clips]
+    assert len(set(titles)) == len(titles), titles
+    assert titles[0] == title_rules.generic_fallback(1) == f"{title_rules.generic_fallback()} 1"
+
+
+def test_backup_clips_are_not_blamed_on_gemini_in_the_log(caplog):
+    """Issue #98: they carry no title by design, so that is not a fault."""
+    raw, lines = real_backup_clips()
+    with caplog.at_level(logging.WARNING, logger="xoraclips.titles"):
+        analysis.finish_clips(raw, lines, "30s", 0.0, 400.0, "Kanal")
+    assert "Gemini" not in caplog.text
+    assert not [r for r in caplog.records if r.name == "xoraclips.titles"]
 
 
 def test_the_response_has_the_whole_transcript_and_a_lowercase_summary():
