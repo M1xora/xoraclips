@@ -5688,7 +5688,8 @@
     "stage": "Transcript Limit",
     "step": 4,
     "step_progress": 11,
-    "transcript_cut_at": 800.0
+    "transcript_cut_at": 800.0,
+    "transcript_unread_seconds": 100.0
    },
    {
     "detail": "Dispatched 800 lines to gemini-2.5-flash (attempt 1)...",
@@ -5774,12 +5775,12 @@
    {
     "model": "gemini-2.5-flash",
     "prompt_chars": 27358,
-    "prompt_sha256": "70f80c305643f3d9c7d167799da0c457ae9e53881a4120be8bd4fd1c429e88da"
+    "prompt_sha256": "55bbd78c6276920bd70403a17b3573fc65869d931c49a1b4bb7ba8a21a0adb44"
    }
   ],
   "logs": [
    "INFO xoraclips: Metadata fetched: title='Uji', duration=900.0s, heatmap_pts=0",
-   "WARNING xoraclips: Transcript 900 lines — truncating to 800 (cut at 800s of 900s).",
+   "WARNING xoraclips: Transcript 900 lines — truncating to 800 (cut at 800s of 800s).",
    "INFO xoraclips: Flash fallback chain prepared: ['gemini-2.5-flash', 'gemini-2.5-flash-lite', 'gemini-2.0-flash', 'gemini-2.0-flash-lite', 'gemini-1.5-flash', 'gemini-1.5-flash-8b']",
    "INFO xoraclips: Gemini analysis complete with gemini-2.5-flash. Found 2 clips.",
    "INFO xoraclips: Clip bounds: 0/2 clip(s) moved to line/sentence edges."
@@ -5854,7 +5855,8 @@
     "stage": "Transcript Limit",
     "step": 4,
     "step_progress": 11,
-    "transcript_cut_at": 900.0
+    "transcript_cut_at": 900.0,
+    "transcript_unread_seconds": 600.0
    },
    {
     "detail": "Dispatched 800 lines to gemini-2.5-flash (attempt 1)...",
@@ -5883,46 +5885,7 @@
       20,
       40
      ],
-     "clips": [
-      {
-       "caption_suggestion": "Seru #viral #fyp",
-       "content_type": "edukasi",
-       "end_time": 40.0,
-       "hashtag_suggestion": "#podcast #kesehatan",
-       "hook_time": 11.0,
-       "key_quotes": [
-        "kutipan"
-       ],
-       "start_time": 10.0,
-       "title": "Ternyata Begini Cara Kerjanya",
-       "title_options": [
-        "Ternyata Begini Cara Kerjanya",
-        "Kok Bisa Sesederhana Itu?"
-       ],
-       "title_suggestion": "Ternyata Begini Cara Kerjanya",
-       "transcript": "",
-       "virality_score": 90
-      },
-      {
-       "caption_suggestion": "Seru #viral #fyp",
-       "content_type": "edukasi",
-       "end_time": 90.0,
-       "hashtag_suggestion": "#podcast #kesehatan",
-       "hook_time": 61.0,
-       "key_quotes": [
-        "kutipan"
-       ],
-       "start_time": 60.0,
-       "title": "Ternyata Begini Cara Kerjanya",
-       "title_options": [
-        "Ternyata Begini Cara Kerjanya",
-        "Kok Bisa Sesederhana Itu?"
-       ],
-       "title_suggestion": "Ternyata Begini Cara Kerjanya",
-       "transcript": "",
-       "virality_score": 80
-      }
-     ],
+     "clips": [],
      "duration": 1400.0,
      "heatmap": [],
      "model": "gemini-2.5-flash",
@@ -5940,16 +5903,17 @@
    {
     "model": "gemini-2.5-flash",
     "prompt_chars": 27689,
-    "prompt_sha256": "2551070ee4a421edd3d8f57fab434170d22797ade631e036b079df5668c750a3"
+    "prompt_sha256": "36602fa46411c86b8cd36b880309fdc7f4de10c704c975f5a54662e080f3f5e7"
    }
   ],
   "logs": [
    "INFO xoraclips: Metadata fetched: title='Uji', duration=1800.0s, heatmap_pts=0",
    "INFO xoraclips: Filtered transcript to custom range: 100.0s to 1500.0s (duration: 1400.0s)",
-   "WARNING xoraclips: Transcript 1400 lines — truncating to 800 (cut at 900s of 1500s).",
+   "WARNING xoraclips: Transcript 1400 lines — truncating to 800 (cut at 900s of 900s).",
    "INFO xoraclips: Flash fallback chain prepared: ['gemini-2.5-flash', 'gemini-2.5-flash-lite', 'gemini-2.0-flash', 'gemini-2.0-flash-lite', 'gemini-1.5-flash', 'gemini-1.5-flash-8b']",
    "INFO xoraclips: Gemini analysis complete with gemini-2.5-flash. Found 2 clips.",
-   "INFO xoraclips: Clip bounds: 0/2 clip(s) moved to line/sentence edges."
+   "INFO xoraclips: Clip bounds: 0/2 clip(s) moved to line/sentence edges.",
+   "WARNING xoraclips: Dropped 2 clip(s) outside 100-900s."
   ],
   "sleeps": []
  },
@@ -9848,46 +9812,7 @@
       20,
       40
      ],
-     "clips": [
-      {
-       "caption_suggestion": "Seru #viral #fyp",
-       "content_type": "edukasi",
-       "end_time": 40.0,
-       "hashtag_suggestion": "#podcast #kesehatan",
-       "hook_time": 11.0,
-       "key_quotes": [
-        "kutipan"
-       ],
-       "start_time": 10.0,
-       "title": "Ternyata Begini Cara Kerjanya",
-       "title_options": [
-        "Ternyata Begini Cara Kerjanya",
-        "Kok Bisa Sesederhana Itu?"
-       ],
-       "title_suggestion": "Ternyata Begini Cara Kerjanya",
-       "transcript": "",
-       "virality_score": 90
-      },
-      {
-       "caption_suggestion": "Seru #viral #fyp",
-       "content_type": "edukasi",
-       "end_time": 90.0,
-       "hashtag_suggestion": "#podcast #kesehatan",
-       "hook_time": 61.0,
-       "key_quotes": [
-        "kutipan"
-       ],
-       "start_time": 60.0,
-       "title": "Ternyata Begini Cara Kerjanya",
-       "title_options": [
-        "Ternyata Begini Cara Kerjanya",
-        "Kok Bisa Sesederhana Itu?"
-       ],
-       "title_suggestion": "Ternyata Begini Cara Kerjanya",
-       "transcript": "",
-       "virality_score": 80
-      }
-     ],
+     "clips": [],
      "duration": 600.0,
      "heatmap": [],
      "model": "gemini-2.5-flash",
@@ -9913,7 +9838,8 @@
    "INFO xoraclips: Filtered transcript to custom range: 100.0s to 700.0s (duration: 600.0s)",
    "INFO xoraclips: Flash fallback chain prepared: ['gemini-2.5-flash', 'gemini-2.5-flash-lite', 'gemini-2.0-flash', 'gemini-2.0-flash-lite', 'gemini-1.5-flash', 'gemini-1.5-flash-8b']",
    "INFO xoraclips: Gemini analysis complete with gemini-2.5-flash. Found 2 clips.",
-   "INFO xoraclips: Clip bounds: 0/2 clip(s) moved to line/sentence edges."
+   "INFO xoraclips: Clip bounds: 0/2 clip(s) moved to line/sentence edges.",
+   "WARNING xoraclips: Dropped 2 clip(s) outside 100-700s."
   ],
   "sleeps": []
  },
@@ -11620,7 +11546,8 @@
     "stage": "Transcript Limit",
     "step": 4,
     "step_progress": 11,
-    "transcript_cut_at": 2066.1
+    "transcript_cut_at": 2066.1,
+    "transcript_unread_seconds": 717.9
    },
    {
     "detail": "Dispatched 800 lines to gemini-3.5-flash-lite (attempt 1)...",
@@ -12378,12 +12305,12 @@
    {
     "model": "gemini-3.5-flash-lite",
     "prompt_chars": 47046,
-    "prompt_sha256": "db4b53062ca1615d5c9bdf4f763a6c38ed63e992e869b0cf4a39b0a57fe466e5"
+    "prompt_sha256": "f6876026ace0f0ee2aefc40debae1990809de7f08def3f8e5af7e0bf524918c5"
    }
   ],
   "logs": [
    "INFO xoraclips: Metadata fetched: title='#ngopenk PEMBAHASAN LEBIH DALAM SEPUTAR GINJAL BERSAMA AHLINYA: dr. DECSA MEDIKA HERTANTO, Sp.PD-KGH', duration=2784.0s, heatmap_pts=100",
-   "WARNING xoraclips: Transcript 1077 lines — truncating to 800 (cut at 2066s of 2784s).",
+   "WARNING xoraclips: Transcript 1077 lines — truncating to 800 (cut at 2066s of 2066s).",
    "INFO xoraclips: Flash fallback chain prepared: ['gemini-3.5-flash-lite', 'gemini-2.5-flash', 'gemini-2.5-flash-lite', 'gemini-2.0-flash', 'gemini-2.0-flash-lite', 'gemini-1.5-flash', 'gemini-1.5-flash-8b']",
    "INFO xoraclips: Gemini analysis complete with gemini-3.5-flash-lite. Found 10 clips.",
    "INFO xoraclips: Clip bounds: 10/10 clip(s) moved to line/sentence edges.",
