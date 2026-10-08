@@ -16636,7 +16636,7 @@
      ],
      "clips": [
       {
-       "caption_suggestion": "Key highlight from video: kalimat nomor 18. kalimat nomor 19. kalimat nomor 20. kalima... #viral #trending",
+       "caption_suggestion": "Momen pilihan dari video: kalimat nomor 18. kalimat nomor 19. kalimat nomor 20. kalima... #viral #trending",
        "content_type": "",
        "end_time": 120.0,
        "hashtag_suggestion": "#viral #shorts #trending",
@@ -16645,16 +16645,16 @@
         "kalimat nomor 18. kalimat nomor 19. kalimat nomor 20. kalimat nomor 21. kalimat "
        ],
        "start_time": 90.0,
-       "title": "Momen Penting dari Video Ini",
+       "title": "Momen Penting dari Video Ini 1",
        "title_options": [
-        "Momen Penting dari Video Ini"
+        "Momen Penting dari Video Ini 1"
        ],
-       "title_suggestion": "Momen Penting dari Video Ini",
+       "title_suggestion": "Momen Penting dari Video Ini 1",
        "transcript": "kalimat nomor 18. kalimat nomor 19. kalimat nomor 20. kalimat nomor 21. kalimat nomor 22. kalimat nomor 23.",
        "virality_score": 95
       },
       {
-       "caption_suggestion": "Key highlight from video: kalimat nomor 10. kalimat nomor 11. kalimat nomor 12. kalima... #viral #trending",
+       "caption_suggestion": "Momen pilihan dari video: kalimat nomor 10. kalimat nomor 11. kalimat nomor 12. kalima... #viral #trending",
        "content_type": "",
        "end_time": 85.0,
        "hashtag_suggestion": "#viral #shorts #trending",
@@ -16663,16 +16663,16 @@
         "kalimat nomor 10. kalimat nomor 11. kalimat nomor 12. kalimat nomor 13. kalimat "
        ],
        "start_time": 52.5,
-       "title": "Momen Penting dari Video Ini",
+       "title": "Momen Penting dari Video Ini 2",
        "title_options": [
-        "Momen Penting dari Video Ini"
+        "Momen Penting dari Video Ini 2"
        ],
-       "title_suggestion": "Momen Penting dari Video Ini",
+       "title_suggestion": "Momen Penting dari Video Ini 2",
        "transcript": "kalimat nomor 10. kalimat nomor 11. kalimat nomor 12. kalimat nomor 13. kalimat nomor 14. kalimat nomor 15. kalimat nomor 16.",
        "virality_score": 90
       },
       {
-       "caption_suggestion": "Key highlight from video: kalimat nomor 4. kalimat nomor 5. kalimat nomor 6. kalimat n... #viral #trending",
+       "caption_suggestion": "Momen pilihan dari video: kalimat nomor 4. kalimat nomor 5. kalimat nomor 6. kalimat n... #viral #trending",
        "content_type": "",
        "end_time": 52.5,
        "hashtag_suggestion": "#viral #shorts #trending",
@@ -16681,11 +16681,11 @@
         "kalimat nomor 4. kalimat nomor 5. kalimat nomor 6. kalimat nomor 7. kalimat nomo"
        ],
        "start_time": 20.0,
-       "title": "Momen Penting dari Video Ini",
+       "title": "Momen Penting dari Video Ini 3",
        "title_options": [
-        "Momen Penting dari Video Ini"
+        "Momen Penting dari Video Ini 3"
        ],
-       "title_suggestion": "Momen Penting dari Video Ini",
+       "title_suggestion": "Momen Penting dari Video Ini 3",
        "transcript": "kalimat nomor 4. kalimat nomor 5. kalimat nomor 6. kalimat nomor 7. kalimat nomor 8. kalimat nomor 9. kalimat nomor 10.",
        "virality_score": 85
       }
@@ -16948,19 +16948,7 @@
    "WARNING xoraclips: gemini-1.5-flash returned 0 clips. Will try next flash model gemini-1.5-flash-8b...",
    "INFO xoraclips: Generating fallback clips from heatmap and transcript segments...",
    "INFO xoraclips: Gemini analysis complete with gemini-1.5-flash-8b. Found 3 clips.",
-   "INFO xoraclips: Clip bounds: 2/3 clip(s) moved to line/sentence edges.",
-   "WARNING xoraclips.titles: clip 1 (90.0-120.0s): no title options in Gemini's answer",
-   "WARNING xoraclips.titles: clip 1 (90.0-120.0s): fallback title_suggestion rejected (empty): ''",
-   "WARNING xoraclips.titles: clip 1 (90.0-120.0s): fallback title rejected (empty): ''",
-   "WARNING xoraclips.titles: clip 1 (90.0-120.0s): no usable title; using the generic fallback",
-   "WARNING xoraclips.titles: clip 2 (52.5-85.0s): no title options in Gemini's answer",
-   "WARNING xoraclips.titles: clip 2 (52.5-85.0s): fallback title_suggestion rejected (empty): ''",
-   "WARNING xoraclips.titles: clip 2 (52.5-85.0s): fallback title rejected (empty): ''",
-   "WARNING xoraclips.titles: clip 2 (52.5-85.0s): no usable title; using the generic fallback",
-   "WARNING xoraclips.titles: clip 3 (20.0-52.5s): no title options in Gemini's answer",
-   "WARNING xoraclips.titles: clip 3 (20.0-52.5s): fallback title_suggestion rejected (empty): ''",
-   "WARNING xoraclips.titles: clip 3 (20.0-52.5s): fallback title rejected (empty): ''",
-   "WARNING xoraclips.titles: clip 3 (20.0-52.5s): no usable title; using the generic fallback"
+   "INFO xoraclips: Clip bounds: 2/3 clip(s) moved to line/sentence edges."
   ],
   "sleeps": []
  },
@@ -17143,7 +17131,7 @@
      ],
      "clips": [
       {
-       "caption_suggestion": "Key highlight from video: kalimat nomor 0. kalimat nomor 1. kalimat nomor 2. kalimat n... #viral #trending",
+       "caption_suggestion": "Momen pilihan dari video: kalimat nomor 0. kalimat nomor 1. kalimat nomor 2. kalimat n... #viral #trending",
        "content_type": "",
        "end_time": 60.0,
        "hashtag_suggestion": "#viral #shorts #trending",
@@ -17152,16 +17140,16 @@
         "kalimat nomor 0. kalimat nomor 1. kalimat nomor 2. kalimat nomor 3. kalimat nomo"
        ],
        "start_time": 0.0,
-       "title": "Momen Penting dari Video Ini",
+       "title": "Momen Penting dari Video Ini 1",
        "title_options": [
-        "Momen Penting dari Video Ini"
+        "Momen Penting dari Video Ini 1"
        ],
-       "title_suggestion": "Momen Penting dari Video Ini",
+       "title_suggestion": "Momen Penting dari Video Ini 1",
        "transcript": "kalimat nomor 0. kalimat nomor 1. kalimat nomor 2. kalimat nomor 3. kalimat nomor 4. kalimat nomor 5. kalimat nomor 6. kalimat nomor 7. kalimat nomor 8. kalimat nomor 9. kalimat nomor 10. kalimat nomor 11.",
        "virality_score": 95
       },
       {
-       "caption_suggestion": "Key highlight from video: kalimat nomor 12. kalimat nomor 13. kalimat nomor 14. kalima... #viral #trending",
+       "caption_suggestion": "Momen pilihan dari video: kalimat nomor 12. kalimat nomor 13. kalimat nomor 14. kalima... #viral #trending",
        "content_type": "",
        "end_time": 120.0,
        "hashtag_suggestion": "#viral #shorts #trending",
@@ -17170,11 +17158,11 @@
         "kalimat nomor 12. kalimat nomor 13. kalimat nomor 14. kalimat nomor 15. kalimat "
        ],
        "start_time": 60.0,
-       "title": "Momen Penting dari Video Ini",
+       "title": "Momen Penting dari Video Ini 2",
        "title_options": [
-        "Momen Penting dari Video Ini"
+        "Momen Penting dari Video Ini 2"
        ],
-       "title_suggestion": "Momen Penting dari Video Ini",
+       "title_suggestion": "Momen Penting dari Video Ini 2",
        "transcript": "kalimat nomor 12. kalimat nomor 13. kalimat nomor 14. kalimat nomor 15. kalimat nomor 16. kalimat nomor 17. kalimat nomor 18. kalimat nomor 19. kalimat nomor 20. kalimat nomor 21. kalimat nomor 22. kalimat nomor 23.",
        "virality_score": 90
       }
@@ -17376,15 +17364,7 @@
    "WARNING xoraclips: gemini-1.5-flash returned 0 clips. Will try next flash model gemini-1.5-flash-8b...",
    "INFO xoraclips: Generating fallback clips from heatmap and transcript segments...",
    "INFO xoraclips: Gemini analysis complete with gemini-1.5-flash-8b. Found 2 clips.",
-   "INFO xoraclips: Clip bounds: 0/2 clip(s) moved to line/sentence edges.",
-   "WARNING xoraclips.titles: clip 1 (0.0-60.0s): no title options in Gemini's answer",
-   "WARNING xoraclips.titles: clip 1 (0.0-60.0s): fallback title_suggestion rejected (empty): ''",
-   "WARNING xoraclips.titles: clip 1 (0.0-60.0s): fallback title rejected (empty): ''",
-   "WARNING xoraclips.titles: clip 1 (0.0-60.0s): no usable title; using the generic fallback",
-   "WARNING xoraclips.titles: clip 2 (60.0-120.0s): no title options in Gemini's answer",
-   "WARNING xoraclips.titles: clip 2 (60.0-120.0s): fallback title_suggestion rejected (empty): ''",
-   "WARNING xoraclips.titles: clip 2 (60.0-120.0s): fallback title rejected (empty): ''",
-   "WARNING xoraclips.titles: clip 2 (60.0-120.0s): no usable title; using the generic fallback"
+   "INFO xoraclips: Clip bounds: 0/2 clip(s) moved to line/sentence edges."
   ],
   "sleeps": []
  },
