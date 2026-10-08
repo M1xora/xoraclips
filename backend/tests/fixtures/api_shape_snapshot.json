@@ -392,6 +392,36 @@
      ],
      "default": 25.0
     },
+    "cam_center_x": {
+     "anyOf": [
+      {
+       "type": "null"
+      },
+      {
+       "type": "number"
+      }
+     ]
+    },
+    "cam_center_y": {
+     "anyOf": [
+      {
+       "type": "null"
+      },
+      {
+       "type": "number"
+      }
+     ]
+    },
+    "cam_zoom": {
+     "anyOf": [
+      {
+       "type": "null"
+      },
+      {
+       "type": "number"
+      }
+     ]
+    },
     "caption_font": {
      "default": "Outfit",
      "type": "string"

@@ -7,6 +7,10 @@ import {
   PIP_POS,
   PIP_SIZE,
   SPLIT_LAYOUT,
+  SPLIT_CAM_BG_SIZE,
+  SPLIT_CAM_SOURCE_SHARE,
+  splitCamBgSize,
+  splitCamSourceShare,
   VIDEO_BOX,
 } from './canvas';
 import type { AspectRatioOption } from '../../lib/types';
@@ -132,6 +136,36 @@ describe('split_top_cam layout (#96)', () => {
 
   it('puts the feed directly under the cam, with no gap or overlap', () => {
     expect(SPLIT_LAYOUT.game.y).toBe(SPLIT_LAYOUT.cam.h);
+  });
+
+  // Issue #105: the crop follows the detected face so a small facecam does
+  // not drown in the room around it. These shares must match
+  // video_engine.split_cam_crop_share exactly, or the preview shows a framing
+  // the render will not produce.
+  it('matches the backend share for the three sample faces', () => {
+    expect(splitCamSourceShare(0.085)).toBeCloseTo(0.2125, 4);   // 163px face
+    expect(splitCamSourceShare(0.156)).toBeCloseTo(0.39, 4);     // 300px face
+    expect(splitCamSourceShare(0.26)).toBeCloseTo(0.4351, 4);    // 499px face
+  });
+
+  it('falls back to the fixed zoom when no face was found', () => {
+    expect(splitCamSourceShare(0)).toBeCloseTo(SPLIT_CAM_SOURCE_SHARE, 6);
+    expect(splitCamSourceShare(-1)).toBeCloseTo(SPLIT_CAM_SOURCE_SHARE, 6);
+  });
+
+  it('lets a manual zoom win over the face', () => {
+    expect(splitCamSourceShare(0.085, 0.5)).toBeCloseTo(0.3955, 4);
+  });
+
+  it('caps a large face so the crop still has room to move', () => {
+    // Past the cap the share stops growing, and stays under the full width.
+    expect(splitCamSourceShare(0.6)).toBeCloseTo(splitCamSourceShare(0.9), 6);
+    expect(splitCamSourceShare(0.9)).toBeLessThan(1);
+  });
+
+  it('turns a share into a CSS background-size', () => {
+    expect(splitCamBgSize(0)).toBe(SPLIT_CAM_BG_SIZE);
+    expect(splitCamBgSize(0.085)).toBe('471%');
   });
 
   it('gives the feed the larger share, where the action is', () => {

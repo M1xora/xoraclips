@@ -19,6 +19,7 @@ const BACKEND_SETTINGS_FIELDS = [
   'hook_sfx_volume', 'original_audio_volume', 'watermark_enabled', 'watermark_type',
   'watermark_file_path', 'watermark_text', 'watermark_size', 'watermark_opacity',
   'watermark_x', 'watermark_y', 'hardware_accel',
+  'cam_zoom', 'cam_center_x', 'cam_center_y',
 ] as const;
 
 function clip(over: Partial<ViralClip> = {}): ViralClip {

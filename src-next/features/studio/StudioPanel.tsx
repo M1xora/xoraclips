@@ -96,6 +96,8 @@ export function StudioPanel({
   // A split fills the canvas on its own (#96), so the ratio no longer shapes
   // anything while it is on: the cards stay visible but cannot be used.
   const splitOn = state.streamerPreset === 'split_top_cam';
+  const camManual =
+    state.camZoom != null || state.camCenterX != null || state.camCenterY != null;
   const max = getMaxPositions(state.aspectRatio, titleLines);
   const centre = getCenterBounds(state.aspectRatio);
 
@@ -251,6 +253,63 @@ export function StudioPanel({
               {splitOn ? t.studio.streamerSplitFills : t.studio.streamerHint}
             </p>
           </div>
+
+          {/* Issue #105: the crop follows the detected face, which is right
+              most of the time. When it is not — a facecam in a corner, or a
+              face the detector reads oddly — this is the only way out. */}
+          {splitOn && (
+            <div className="grid gap-3 border-t border-hairline pt-3">
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-xs font-medium text-ink-dim">{t.studio.camFraming}</span>
+                <Button
+                  variant="ghost"
+                  onClick={() =>
+                    dispatch({
+                      type: 'set',
+                      patch: camManual
+                        ? { camZoom: null, camCenterX: null, camCenterY: null }
+                        : { camZoom: 0.65, camCenterX: 0.5, camCenterY: 0.5 },
+                    })
+                  }
+                >
+                  {camManual ? t.studio.camAuto : t.studio.camTakeOver}
+                </Button>
+              </div>
+              <p className="text-[0.8rem] text-ink-faint">
+                {camManual ? t.studio.camManualHint : t.studio.camAutoHint}
+              </p>
+              <Slider
+                label={t.studio.camZoom}
+                disabled={!camManual}
+                value={Math.round((state.camZoom ?? 0.65) * 100)}
+                min={10}
+                max={100}
+                step={5}
+                unit="%"
+                onChange={(v) => dispatch({ type: 'set', patch: { camZoom: v / 100 } })}
+              />
+              <Slider
+                label={t.studio.camX}
+                disabled={!camManual}
+                value={Math.round((state.camCenterX ?? 0.5) * 100)}
+                min={0}
+                max={100}
+                step={1}
+                unit="%"
+                onChange={(v) => dispatch({ type: 'set', patch: { camCenterX: v / 100 } })}
+              />
+              <Slider
+                label={t.studio.camY}
+                disabled={!camManual}
+                value={Math.round((state.camCenterY ?? 0.5) * 100)}
+                min={0}
+                max={100}
+                step={1}
+                unit="%"
+                onChange={(v) => dispatch({ type: 'set', patch: { camCenterY: v / 100 } })}
+              />
+            </div>
+          )}
         </div>
       </Panel>
 

@@ -32,6 +32,14 @@ export interface StudioState {
   backgroundStyle: BackgroundStyle;
   enableFaceTracking: boolean;
   streamerPreset: StreamerPreset;
+  /**
+   * Manual facecam framing for the split layout (#105). null follows the
+   * detected face, which is right most of the time; a number takes over when
+   * the facecam sits somewhere the detector cannot frame well.
+   */
+  camZoom: number | null;
+  camCenterX: number | null;
+  camCenterY: number | null;
 
   // Title
   titlePosition: TitlePosition;
@@ -94,6 +102,9 @@ export const initialStudioState: StudioState = {
   // them with the clip's own blurred frames at no extra cost.
   backgroundStyle: 'blurred',
   enableFaceTracking: true,
+  camZoom: null,
+  camCenterX: null,
+  camCenterY: null,
   streamerPreset: 'none',
 
   titlePosition: 'auto',

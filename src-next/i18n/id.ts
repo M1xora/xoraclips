@@ -163,6 +163,14 @@ export const id = {
   },
 
   studio: {
+    camFraming: 'Bingkai facecam',
+    camTakeOver: 'Atur manual',
+    camAuto: 'Kembali ke otomatis',
+    camAutoHint: 'Mengikuti wajah yang terdeteksi. Atur di bawah kalau bingkainya meleset.',
+    camManualHint: 'Bingkai manual: wajah yang terdeteksi diabaikan.',
+    camZoom: 'Zoom kamera',
+    camX: 'Posisi kamera (kiri-kanan)',
+    camY: 'Posisi kamera (atas-bawah)',
     title: 'Clip Studio',
     frame: 'Bingkai',
     aspectRatio: 'Rasio',

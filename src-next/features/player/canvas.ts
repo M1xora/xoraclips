@@ -76,10 +76,43 @@ export const SPLIT_LAYOUT: SplitLayout = {
  * How much of the source width the cam crop keeps (video_engine.py
  * SPLIT_CAM_ZOOM, applied to the widest crop of the cam's shape). The preview
  * zooms its still by the inverse so it frames the face as the render does.
+ *
+ * Used when no face was detected, matching the backend's own fallback.
  */
 export const SPLIT_CAM_SOURCE_SHARE = (1080 / 768) * (9 / 16) * 0.65;
 
-/** The CSS background-size that matches that crop, e.g. "194%". */
+/** video_engine.py SPLIT_CAM_FACE_MARGIN / SPLIT_CAM_MAX_SHARE (issue #105). */
+const SPLIT_CAM_FACE_MARGIN = 2.5;
+const SPLIT_CAM_MAX_SHARE = 0.55;
+
+/**
+ * The share of the source width the cam crop keeps, given the detected face.
+ *
+ * Mirrors `video_engine.split_cam_crop_share`: the crop follows the face's own
+ * width so a small facecam does not drown in the room around it. The preview
+ * has to do the same arithmetic or it shows a framing the render will not
+ * produce — the bug the aspect-ratio preview had before #96.
+ *
+ * `faceW` is the face's width as a share of the frame, 0 when none was found.
+ * `zoom` is the Studio's manual override and wins over the face.
+ */
+export function splitCamSourceShare(faceW: number, zoom?: number | null): number {
+  if (zoom != null) return Math.max(0.05, Math.min(1, zoom)) * (1080 / 768) * (9 / 16);
+  if (faceW <= 0) return SPLIT_CAM_SOURCE_SHARE;
+  // The widest cam-shaped crop, as a share of the source width: the backend's
+  // min(iw, ih*1080/768) on a 16:9 source.
+  const widest = Math.min(1, (9 / 16) * (1080 / 768));
+  const share = Math.min((faceW / widest) * SPLIT_CAM_FACE_MARGIN,
+                         (SPLIT_CAM_MAX_SHARE * (9 / 16) * (1080 / 768)) / widest, 1);
+  return Math.max(0.05, share) * widest;
+}
+
+/** The CSS background-size for a cam crop of that share, e.g. "194%". */
+export function splitCamBgSize(faceW: number, zoom?: number | null): string {
+  return `${Math.round(100 / splitCamSourceShare(faceW, zoom))}%`;
+}
+
+/** The CSS background-size that matches the no-face crop, e.g. "194%". */
 export const SPLIT_CAM_BG_SIZE = `${Math.round(100 / SPLIT_CAM_SOURCE_SHARE)}%`;
 
 /**
