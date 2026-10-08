@@ -56,6 +56,11 @@ class RenderSettingsModel(BaseModel):
     background_style: str = "black"
     enable_face_tracking: bool = True
     streamer_preset: str = "none"
+    # Issue #105: manual facecam framing for the split layout. None means
+    # follow the detected face; a value overrides it.
+    cam_zoom: Optional[float] = None
+    cam_center_x: Optional[float] = None
+    cam_center_y: Optional[float] = None
     title_text: Optional[str] = None
     title_prefix: Optional[str] = ""
     title_suffix: Optional[str] = ""
@@ -370,6 +375,9 @@ async def _render_clips(batch_id: str, batch: Dict[str, Any], request: RenderBat
                 background_style=settings.background_style,
                 enable_face_tracking=settings.enable_face_tracking,
                 streamer_preset=settings.streamer_preset,
+                cam_zoom=settings.cam_zoom,
+                cam_center_x=settings.cam_center_x,
+                cam_center_y=settings.cam_center_y,
                 title_text=display_title if not skip_ass_title else None,
                 title_position=settings.title_position,
                 ass_subtitles_path=ass_path,

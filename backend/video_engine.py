@@ -283,7 +283,31 @@ SPLIT_GAME_H = 1152
 # The cam box is a close-up, not a second wide shot: it takes this share of
 # the largest crop that fits its shape. Without it the crop would be the full
 # source height, which also pins the face offsets to 0 and kills tracking.
+# Used when no face was detected, and as the ceiling below.
 SPLIT_CAM_ZOOM = 0.65
+
+# Issue #105: with a fixed zoom the crop ignores how big the face actually is,
+# so a small facecam drowns in the room around it. Measured on the three
+# sample videos, the detected face was 163px, 300px and 499px wide — three
+# times apart — and filled 17%, 30% and 51% of the cam box.
+#
+# The crop is therefore the face's own width times a margin, which keeps the
+# face the same size in the box whatever the source does. The numbers come
+# from trying the combinations against those three samples and scoring how
+# far the face ends up from the centre of the box (0.5 = dead centre):
+#
+#   factor 2.5, ceiling 0.55  ->  0.23   (chosen)
+#   factor 3.0, ceiling 0.55  ->  0.37
+#   factor 3.5, ceiling 0.70  ->  0.70
+#   the old fixed zoom        ->  0.94
+#
+# The ceiling matters as much as the factor: without it a large face gives a
+# crop nearly as tall as the frame, which then has no room to slide and
+# leaves the face wherever it was. At 0.55 of frame height there is always
+# room left to move, enough for the 110px the face was measured to wander
+# over a clip.
+SPLIT_CAM_FACE_MARGIN = 2.5
+SPLIT_CAM_MAX_SHARE = 0.55
 
 FRAME_FORMAT = "bv*/b"
 FRAME_SORT = "res:480,vcodec:h264,ext:mp4"
@@ -366,6 +390,31 @@ def probe_video(path) -> str:
         logger.warning(f"ffprobe could not read {path}: {(res.stderr or '').strip()[:200]}")
         return "unreadable"
     return "video" if streams_have_video(res.stdout) else "no_video"
+
+
+def probe_video_size(path) -> Optional[Tuple[float, float]]:
+    """A video's (width, height) in pixels, or None when it cannot be read.
+
+    Issue #105: the split layout's cam crop is sized against the source, and a
+    face measured as a share of a 1920x1080 frame means something different on
+    a 1280x720 one. None lets the caller fall back to its own default rather
+    than render with a wrong crop.
+    """
+    try:
+        res = subprocess.run(
+            ["ffprobe", "-v", "error", "-select_streams", "v:0",
+             "-show_entries", "stream=width,height", "-of", "json", str(path)],
+            capture_output=True, text=True, timeout=PROBE_TIMEOUT,
+        )
+        if res.returncode != 0:
+            return None
+        stream = (json.loads(res.stdout or "{}").get("streams") or [{}])[0]
+        w, h = float(stream.get("width") or 0), float(stream.get("height") or 0)
+        return (w, h) if w > 0 and h > 0 else None
+    except (FileNotFoundError, OSError, subprocess.TimeoutExpired,
+            json.JSONDecodeError, ValueError, IndexError) as e:
+        logger.warning(f"Could not read the size of {path} ({e}); using the default.")
+        return None
 
 
 def _remove(path: Path) -> None:
@@ -1488,6 +1537,41 @@ def detect_speaker_center_ratio(video_path: str) -> float:
     return float(box.get("cx", 0.5))
 
 
+def split_cam_crop_share(
+    face_w: float,
+    zoom: Optional[float] = None,
+    *,
+    source_w: float = 1920.0,
+    source_h: float = 1080.0,
+) -> float:
+    """How much of the cam-shaped crop the split layout keeps (issue #105).
+
+    `face_w` is the detected face's width as a share of the frame; 0 or less
+    means no face was found and the old fixed zoom is used, so a video the
+    detector cannot read behaves exactly as before.
+
+    `zoom` overrides everything, for the manual control in the Studio.
+
+    The result is a share of the *widest cam-shaped crop that fits the
+    source*, which is what SPLIT_CAM_ZOOM has always been — not a share of
+    the frame width. On a 1920x1080 source the two differ: the widest
+    cam-shaped crop is 1519px, not 1920px, so a face measured against the
+    frame has to be rebased before the margin is applied.
+    """
+    if zoom is not None:
+        return max(0.05, min(1.0, float(zoom)))
+    if face_w <= 0:
+        return SPLIT_CAM_ZOOM
+    widest = min(source_w, source_h * SPLIT_CAM_W / SPLIT_CAM_H) or source_w
+    # The face as a share of that crop, not of the frame.
+    face_of_crop = (face_w * source_w) / widest
+    share = face_of_crop * SPLIT_CAM_FACE_MARGIN
+    # The ceiling is on frame height. The crop's height is its width over the
+    # cam's aspect, so the same limit expressed against `widest` is:
+    ceiling = (SPLIT_CAM_MAX_SHARE * source_h * SPLIT_CAM_W / SPLIT_CAM_H) / widest
+    return max(0.05, min(ceiling, 1.0, share))
+
+
 def build_ffmpeg_filtergraph(
     aspect_ratio: str,
     background_style: str,
@@ -1496,7 +1580,13 @@ def build_ffmpeg_filtergraph(
     title_text: Optional[str] = None,
     title_position: str = "auto",
     ass_subtitles_path: Optional[str] = None,
-    face_box: Optional[Dict[str, Any]] = None
+    face_box: Optional[Dict[str, Any]] = None,
+    # Issue #105: the Studio's manual override. None means follow the
+    # detected face; a value here wins over it.
+    cam_zoom: Optional[float] = None,
+    cam_center_x: Optional[float] = None,
+    cam_center_y: Optional[float] = None,
+    source_size: Optional[Tuple[float, float]] = None,
 ) -> Tuple[str, str]:
     """
     Constructs the FFmpeg -filter_complex chain with proper aspect ratio center-cropping.
@@ -1506,6 +1596,16 @@ def build_ffmpeg_filtergraph(
 
     face_cx = float(face_box.get("cx", face_center_ratio)) if face_box else face_center_ratio
     face_cy = float(face_box.get("cy", 0.35)) if face_box else 0.35
+    # Issue #105: a manual centre from the Studio wins over the detector.
+    if cam_center_x is not None:
+        face_cx = max(0.0, min(1.0, float(cam_center_x)))
+    if cam_center_y is not None:
+        face_cy = max(0.0, min(1.0, float(cam_center_y)))
+    # And the cam crop follows the face's own width, so a small facecam does
+    # not drown in the room around it.
+    face_w = float(face_box.get("w", 0.0)) if face_box and face_box.get("found") else 0.0
+    src_w, src_h = source_size if source_size else (1920.0, 1080.0)
+    cam_share = split_cam_crop_share(face_w, cam_zoom, source_w=src_w, source_h=src_h)
 
     # 1. Base Layout & Scaling
     if streamer_preset == "split_top_cam":
@@ -1517,8 +1617,8 @@ def build_ffmpeg_filtergraph(
         # heights are multiples of 16 and add up to 1920 exactly.
         filters.append(
             f"[0:v]split=2[cam_raw][game_raw];"
-            f"[cam_raw]crop='min(iw,ih*{SPLIT_CAM_W}/{SPLIT_CAM_H})*{SPLIT_CAM_ZOOM}':"
-            f"'min(ih,iw*{SPLIT_CAM_H}/{SPLIT_CAM_W})*{SPLIT_CAM_ZOOM}':"
+            f"[cam_raw]crop='min(iw,ih*{SPLIT_CAM_W}/{SPLIT_CAM_H})*{cam_share:.4f}':"
+            f"'min(ih,iw*{SPLIT_CAM_H}/{SPLIT_CAM_W})*{cam_share:.4f}':"
             f"'max(0,min(iw-ow,iw*{face_cx:.3f}-ow/2))':'max(0,min(ih-oh,ih*{face_cy:.3f}-oh/2))',"
             f"scale={SPLIT_CAM_W}:{SPLIT_CAM_H}[cam_box];"
             f"[game_raw]crop='min(iw,ih*{SPLIT_CAM_W}/{SPLIT_GAME_H})':'min(ih,iw*{SPLIT_GAME_H}/{SPLIT_CAM_W})':"
@@ -1740,7 +1840,12 @@ def render_clip_to_mp4(
     # Raw voice / original audio boost (0.0 to 2.0)
     original_audio_volume: float = 1.0,
     # Hardware acceleration selection ('auto', 'nvenc', 'amf', 'qsv', 'cpu')
-    hardware_accel: Optional[str] = "auto"
+    hardware_accel: Optional[str] = "auto",
+    # Issue #105: manual facecam framing from the Studio, when the detected
+    # face is not where the user wants the cam box pointed.
+    cam_zoom: Optional[float] = None,
+    cam_center_x: Optional[float] = None,
+    cam_center_y: Optional[float] = None
 ) -> str:
     """
     Renders the final 1080x1920 short-form video with layout, aspect ratio, titles, subtitles,
@@ -1758,7 +1863,11 @@ def render_clip_to_mp4(
         title_text=title_text if not (title_overlay_path and os.path.exists(title_overlay_path)) else None,
         title_position=title_position,
         ass_subtitles_path=ass_subtitles_path,
-        face_box=face_box
+        face_box=face_box,
+        cam_zoom=cam_zoom,
+        cam_center_x=cam_center_x,
+        cam_center_y=cam_center_y,
+        source_size=probe_video_size(video_path),
     )
 
     filter_chains = [filter_complex]

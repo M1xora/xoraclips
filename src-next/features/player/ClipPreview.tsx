@@ -27,7 +27,7 @@ import {
   PIP_POS,
   PIP_SIZE,
   SPLIT_LAYOUT,
-  SPLIT_CAM_BG_SIZE,
+  splitCamBgSize,
   VIDEO_BOX,
 } from './canvas';
 import type {
@@ -75,6 +75,10 @@ interface ClipPreviewProps {
   replayLabel?: string;
   backgroundStyle?: BackgroundStyle;
   enableFaceTracking?: boolean;
+  /** Manual facecam framing for the split layout (#105); null follows the face. */
+  camZoom?: number | null;
+  camCenterX?: number | null;
+  camCenterY?: number | null;
 
   title?: string;
   titleYPercent?: number;
@@ -131,6 +135,9 @@ export function ClipPreview({
   replayLabel,
   backgroundStyle = 'black',
   enableFaceTracking = true,
+  camZoom = null,
+  camCenterX = null,
+  camCenterY = null,
   title,
   titleYPercent = 17,
   titleFontSize = 'medium',
@@ -328,10 +335,10 @@ export function ClipPreview({
               className="size-full bg-cover"
               style={{
                 backgroundImage: `url(${backdropUrl})`,
-                backgroundPosition: `${Math.round((box?.cx ?? 0.5) * 100)}% ${Math.round(
-                  (box?.cy ?? 0.35) * 100,
+                backgroundPosition: `${Math.round((camCenterX ?? box?.cx ?? 0.5) * 100)}% ${Math.round(
+                  (camCenterY ?? box?.cy ?? 0.35) * 100,
                 )}%`,
-                backgroundSize: SPLIT_CAM_BG_SIZE,
+                backgroundSize: splitCamBgSize(box?.found ? (box?.w ?? 0) : 0, camZoom),
               }}
               aria-hidden="true"
             />

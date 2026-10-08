@@ -43,6 +43,10 @@ export function buildRenderPayload(
       aspect_ratio: studio.aspectRatio,
       background_style: studio.backgroundStyle,
       enable_face_tracking: studio.enableFaceTracking,
+      // Issue #105: null means the backend follows the detected face.
+      cam_zoom: studio.camZoom,
+      cam_center_x: studio.camCenterX,
+      cam_center_y: studio.camCenterY,
       streamer_preset: studio.streamerPreset,
 
       title_text: selected.length === 1 ? effectiveTitle(selected[0], customTitles) : undefined,

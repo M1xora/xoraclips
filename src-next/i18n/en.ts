@@ -164,6 +164,13 @@ export const en: Translations = {
   },
 
   studio: {
+    camFraming: 'Facecam framing',
+    camAuto: 'Back to automatic',
+    camAutoHint: 'Following the detected face. Adjust below if the framing is off.',
+    camManualHint: 'Manual framing: the detected face is ignored.',
+    camZoom: 'Cam zoom',
+    camX: 'Cam position (left-right)',
+    camY: 'Cam position (up-down)',
     title: 'Clip Studio',
     frame: 'Frame',
     aspectRatio: 'Ratio',
