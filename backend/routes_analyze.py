@@ -255,6 +255,19 @@ def _error(message: str, status: int) -> str:
     return _sse({"error": message, "status": status})
 
 
+def _clock(seconds: float) -> str:
+    """Seconds as m:ss, or h:mm:ss past an hour, for text the user reads.
+
+    The analysis limit is mostly hit by videos over an hour (#101), where a
+    bare minute count ("103:20") cannot be typed into the h/m/s range inputs.
+    Negative values clamp to zero: cut_at comes from the transcript while the
+    bound comes from metadata, and the two can disagree by a line.
+    """
+    total = max(0, int(seconds))
+    h, m, s = total // 3600, (total % 3600) // 60, total % 60
+    return f"{h}:{m:02d}:{s:02d}" if h else f"{m}:{s:02d}"
+
+
 async def _transcript_events(video_id: str, proxy: Optional[str], got: dict):
     """Fetches the captions in a thread and passes its progress on as events.
     The lines end up in got["lines"]; a failure is raised."""
@@ -627,10 +640,18 @@ async def _analysis_events(request: AnalyzeRequest, gemini_key: Optional[str]):
 
     # ── Step 4: Gemini ──
     is_long_video = duration > 3600
+    # Issue #101: a transcript over the line limit is cut from the back, so
+    # everything after this second is invisible to Gemini. Narrowing the end
+    # bound here keeps the clip count, the clip bounds and the backup clips
+    # inside what Gemini actually saw, instead of only the prompt text.
+    cut_at = analysis.transcript_cut_at(enriched, is_long_video)
+    searched_end = end_bound
+    if cut_at is not None:
+        end_bound = min(end_bound, cut_at)
     # Issue #34: never more clips than fit in the searched span.
     clip_range, capped_count = clip_lengths.clip_count_range(
         request.target_clip_count, is_long_video, end_bound - start_bound, request.duration)
-    prompt, n_lines = analysis.build_prompt(
+    prompt, n_lines, _ = analysis.build_prompt(
         enriched, heatmap=heatmap, title=title, channel=channel, start_bound=start_bound,
         end_bound=end_bound, duration=duration, clip_duration=request.duration, clip_range=clip_range,
         custom_prompt=request.custom_prompt, is_long_video=is_long_video)
@@ -639,11 +660,23 @@ async def _analysis_events(request: AnalyzeRequest, gemini_key: Optional[str]):
     yield _event(4, 10, 72, "Context Assembly",
                  f"Aligning {n_lines} dialogue segments with engagement data for {requested_model}...",
                  f"Assembling prompt and engagement context for {requested_model}...", model=requested_model)
+    if cut_at is not None:
+        # Issue #101: the transcript did not fit, so the end of the video never
+        # reached Gemini. Saying so beats letting the user believe otherwise.
+        yield _event(4, 11, 72, "Transcript Limit",
+                     (f"Too many subtitle lines to analyse at once: only up to {_clock(cut_at)} "
+                      f"was sent to {requested_model}, leaving the last "
+                      f"{_clock(searched_end - cut_at)} unread. "
+                      f"Set a search range over that part to analyse it."),
+                     f"Only up to {_clock(cut_at)} fit the analysis limit...",
+                     model=requested_model, transcript_cut_at=round(cut_at, 1),
+                     transcript_unread_seconds=round(max(0.0, searched_end - cut_at), 1))
     if capped_count is not None:
-        span_s = int(end_bound - start_bound)
+        # end_bound is already narrowed to the cut, so this span agrees with
+        # the Transcript Limit notice instead of contradicting it.
         yield _event(4, 12, 72, "Clip Count",
                      (f"{request.target_clip_count} clips of {clip_lengths.label(request.duration)} do not fit in "
-                      f"{span_s // 60}:{span_s % 60:02d} of video: asking for at most {capped_count}."),
+                      f"{_clock(end_bound - start_bound)} of video: asking for at most {capped_count}."),
                      f"Asking for at most {capped_count} clip(s) so they do not overlap...", model=requested_model)
 
     client = genai.Client(api_key=gemini_key)

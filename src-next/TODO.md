@@ -5,9 +5,11 @@ terverifikasi dengan backend sungguhan.
 
 | Pemeriksaan | Hasil |
 |---|---|
-| Vitest | 282 lolos, 13 berkas |
+| Vitest | 466 lolos, 35 berkas |
+| Pytest (backend) | 691 lolos |
 | `tsc --strict` | 0 error |
 | Build | lolos |
+| Lint | 0 error |
 | Render sungguhan | MP4 1080x1920, 8 detik, 6,3 MB |
 
 ---

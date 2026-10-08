@@ -11,6 +11,7 @@ import { AnalyzeForm, API_KEY_INPUT_NAME } from '../features/analyze/AnalyzeForm
 import { analyzeErrorView, focusApiKeyField } from '../features/analyze/analyzeErrors';
 import { AI_STUDIO_KEY_URL, currentApiKey } from '../features/analyze/apiKeyStore';
 import { AnalyzeProgress } from '../features/analyze/AnalyzeProgress';
+import { AnalyzeNotices } from '../features/analyze/AnalyzeNotices';
 import { cacheKey, readCache, writeCache } from '../features/analyze/analysisCache';
 import { HistoryPanel } from '../features/analyze/HistoryPanel';
 import type { HistoryEntry } from '../features/analyze/analysisCache';
@@ -56,7 +57,8 @@ import type { AnalyzeResponse, ViralClip } from '../lib/types';
 export function App() {
   const { theme, toggle } = useTheme();
   const { language, setLanguage, t } = useLanguage();
-  const { analyze, status, progress, error, errorCode, errorRetryAt } = useAnalyze();
+  const { analyze, status, progress, notices, clearNotices, error, errorCode, errorRetryAt } =
+    useAnalyze();
   const { toast, show, dismiss } = useToast();
 
   // The result lives here rather than in useAnalyze so a cache hit and a
@@ -146,6 +148,8 @@ export function App() {
 
       const cached = readCache(key);
       if (cached) {
+        // No analysis runs, so nothing would clear the previous one's warnings.
+        clearNotices();
         setResult(cached);
         setHistoryToken((n) => n + 1);
         show(t.results.clipsFound(cached.clips.length));
@@ -161,7 +165,7 @@ export function App() {
       writeCache(key, withIds);
       setHistoryToken((n) => n + 1);
     },
-    [analyze, show, t.results],
+    [analyze, clearNotices, show, t.results],
   );
 
   // Reopening a cached analysis. The clips already carry their ids, so marks
@@ -172,10 +176,11 @@ export function App() {
       if (!cached) return;
       activeCacheKey.current = entry.key;
       setActiveId(null);
+      clearNotices();
       setResult(cached);
       show(t.results.historyRestored);
     },
-    [show, t.results.historyRestored],
+    [clearNotices, show, t.results.historyRestored],
   );
 
   // Closing a result is the only route back to the history list, so without
@@ -403,6 +408,14 @@ export function App() {
                 </div>
               </div>
             </Panel>
+          </div>
+        )}
+
+        {/* Also shown when the run failed: the warning is sent before Gemini
+            is called, so a failed retry would cover the same partial video. */}
+        {!busy && notices.length > 0 && (
+          <div className="mt-4">
+            <AnalyzeNotices notices={notices} />
           </div>
         )}
 

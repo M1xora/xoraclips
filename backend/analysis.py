@@ -249,20 +249,46 @@ def enrich_transcript(transcript_lines: List[dict], heatmap: List[dict]) -> List
 
 # --- prompt -------------------------------------------------------------------------------
 
+def transcript_cut_at(enriched_transcript: List[dict], is_long_video: bool) -> Optional[float]:
+    """The second a too-long transcript runs out at, or None when it all fits.
+
+    Issue #101: the prompt carries at most MAX_LINES lines, cut from the back,
+    so the end of the video never reaches Gemini. Callers narrow their end
+    bound to this before choosing a clip count or fitting clips, otherwise
+    clips land in seconds Gemini was never shown.
+    """
+    max_lines = 2500 if is_long_video else 800
+    if len(enriched_transcript) <= max_lines:
+        return None
+    return float(enriched_transcript[max_lines - 1].get("end", 0.0))
+
+
 def build_prompt(enriched_transcript: List[dict], *, heatmap: List[dict], title: str, channel: str,
                  start_bound: float, end_bound: float, duration: float, clip_duration: str,
-                 clip_range: str, custom_prompt: Optional[str], is_long_video: bool) -> Tuple[str, int]:
-    """The prompt for Gemini, and how many transcript lines it carries (long
-    transcripts are cut)."""
+                 clip_range: str, custom_prompt: Optional[str],
+                 is_long_video: bool) -> Tuple[str, int, Optional[float]]:
+    """The prompt for Gemini, how many transcript lines it carries, and the
+    second the transcript was cut at (issue #101).
+
+    A transcript over the line limit is cut from the back, so the end of the
+    video never reaches Gemini. The cut-off second is returned so the caller
+    can tell the user; it is None when the whole transcript fits.
+    """
     transcript_dump = []
     for line in enriched_transcript:
         eng = f"|{line['engagement']:.2f}" if heatmap and line['engagement'] > 0 else ""
         transcript_dump.append(f"{line['start']:.1f}|{line['end']:.1f}{eng} {line['text']}")
 
-    MAX_LINES = 2500 if is_long_video else 800
-    if len(transcript_dump) > MAX_LINES:
-        logger.warning(f"Transcript {len(transcript_dump)} lines — truncating to {MAX_LINES}.")
-        transcript_dump = transcript_dump[:MAX_LINES]
+    max_lines = 2500 if is_long_video else 800
+    cut_at = transcript_cut_at(enriched_transcript, is_long_video)
+    if cut_at is not None:
+        logger.warning(f"Transcript {len(transcript_dump)} lines — truncating to {max_lines} "
+                       f"(cut at {cut_at:.0f}s of {end_bound:.0f}s).")
+        transcript_dump = transcript_dump[:max_lines]
+        # The prompt must not claim a range the transcript no longer covers.
+        # The caller narrows its own end_bound the same way, so clip counts
+        # and clip bounds stay inside what Gemini actually saw.
+        end_bound = min(end_bound, cut_at)
 
     transcript_text = "\n".join(transcript_dump)
     dur_range   = clip_lengths.prompt_range(clip_duration)
@@ -293,7 +319,7 @@ def build_prompt(enriched_transcript: List[dict], *, heatmap: List[dict], title:
         f"Rules: use exact seconds from transcript; clips must start/end at sentence boundaries; do not overlap.\n"
         f"Return {clip_range} clips sorted by virality_score desc."
     )
-    return prompt, len(transcript_dump)
+    return prompt, len(transcript_dump), cut_at
 
 
 def pick_model(requested: Optional[str]) -> str:
@@ -496,10 +522,19 @@ def finish_clips(raw_clips: List[dict], enriched_transcript: List[dict], clip_du
     """Gemini's clips (or backup clips) as ViralClips: fitted bounds, the hook
     inside the clip, the clip's own transcript, checked titles, lowercase
     hashtags."""
+    # Issue #101: a clip entirely outside the searched range is one Gemini
+    # invented — most often past the second a cut transcript ran out at, where
+    # it was shown nothing. Its "transcript" would be rebuilt from lines the
+    # model never saw, so it is dropped rather than shown as a real find.
     bounds = fit_bounds(raw_clips, enriched_transcript, clip_duration, start_bound, end_bound)
+    kept = [(raw, (s, e)) for raw, (s, e) in zip(raw_clips, bounds)
+            if max(s, start_bound) < min(e, end_bound)]
+    if len(kept) < len(raw_clips):
+        logger.warning(f"Dropped {len(raw_clips) - len(kept)} clip(s) outside "
+                       f"{start_bound:.0f}-{end_bound:.0f}s.")
+
     final_clips = []
-    for clip_no, raw_clip in enumerate(raw_clips, start=1):
-        start, end = bounds[clip_no - 1]
+    for clip_no, (raw_clip, (start, end)) in enumerate(kept, start=1):
         hook  = raw_clip.get('hook_time')
         if hook is None or not (start <= hook <= end):
             hook = start
