@@ -75,6 +75,53 @@ def prompt_for(lines, heatmap=(), channel="Kanal", custom_prompt=None, is_long_v
         is_long_video=is_long_video)
 
 
+@pytest.mark.parametrize("duration", ["15s", "30s", "60s", "120s", "180s"])
+def test_every_preset_is_told_how_to_pick_a_clip(duration):
+    """Issue #99: the hook comes first for short clips too, not only long ones."""
+    prompt, _, _ = analysis.build_prompt(
+        enriched(3), heatmap=[], title="J", channel="K", start_bound=0.0, end_bound=100.0,
+        duration=100.0, clip_duration=duration, clip_range="3-5", custom_prompt=None,
+        is_long_video=False)
+    assert "HOW TO PICK EACH CLIP" in prompt
+    # The order is the point: the hook is chosen before the timestamps.
+    assert prompt.index("Find the hook first") < prompt.index("Only then write start_time")
+
+
+def test_the_prompt_forbids_tidying_up_the_quotes():
+    """Two of the three stored transcripts have no punctuation at all, so a
+    quote Gemini "corrects" can no longer be matched (#99)."""
+    prompt, _, _ = prompt_for(enriched(3))
+    for rule in ("Do not translate them", "do not correct spelling",
+                 "do not add punctuation", "cannot be matched"):
+        assert rule in prompt, rule
+
+
+def test_gemini_writes_the_hook_before_the_times_and_the_title():
+    """Issue #99: field order is how the model is steered, so it is pinned."""
+    names = list(analysis.ViralClipGemini.model_fields)
+    for quote in ("scroll_stop_reason", "opening_line", "new_viewer_check",
+                  "payoff_line", "ending_line"):
+        assert names.index(quote) < names.index("title"), quote
+        assert names.index(quote) < names.index("start_time"), quote
+
+
+def test_the_new_fields_are_optional_so_an_old_answer_still_parses():
+    clip, = analysis.finish_clips([gemini_clip(10, 25)], enriched(12), "30s", 0.0, 60.0, "Kanal")
+    assert clip.opening_line == "" and clip.ending_line == ""
+
+
+def test_the_quotes_reach_the_frontend_exactly_as_gemini_wrote_them():
+    """They are evidence to match against the transcript, not prose to clean."""
+    messy = "ada bisnis cangkok ginjel"      # a real mishearing, kept as is
+    clip, = analysis.finish_clips(
+        [gemini_clip(10, 25, opening_line=messy, payoff_line="p", ending_line="e",
+                     scroll_stop_reason="r", new_viewer_check="c")],
+        enriched(12), "30s", 0.0, 60.0, "Kanal")
+    assert clip.opening_line == messy
+    assert (clip.payoff_line, clip.ending_line) == ("p", "e")
+    assert (clip.scroll_stop_reason, clip.new_viewer_check) == ("r", "c")
+
+
 def test_the_prompt_carries_the_video_the_rules_and_every_line():
     prompt, n_lines, cut_at = prompt_for(enriched(3))
     assert n_lines == 3
@@ -226,7 +273,10 @@ def test_the_sdks_parsed_object_becomes_the_same_plain_data():
     assert data["clips"][0] == {
         "title": "t", "start_time": 1.0, "end_time": 2.0, "hook_time": 1.5, "virality_score": 9,
         "key_quotes": ["q"], "title_suggestion": "", "caption_suggestion": "", "hashtag_suggestion": "",
-        "title_options": [{"text": "a", "angle": "b"}], "content_type": ""}
+        "title_options": [{"text": "a", "angle": "b"}], "content_type": "",
+        # Issue #99: optional, so an answer without them still parses.
+        "scroll_stop_reason": "", "opening_line": "", "new_viewer_check": "",
+        "payoff_line": "", "ending_line": ""}
 
 
 # --- backup clips and finishing ---------------------------------------------------------

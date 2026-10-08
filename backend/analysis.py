@@ -37,7 +37,14 @@ class ViralClip(BaseModel):
     # Issue #31: the checked hook titles, first = active (also in title and
     # title_suggestion). Empty for analyses made before this change.
     title_options: List[str] = Field(default_factory=list, description="Up to 3 hook titles; the first is the active one")
-    content_type: str = Field(default="", description="Kind of content Gemini saw, e.g. lucu, edukasi, motivasi")
+    content_type: str = Field(default="", description="Kind of content Gemini saw, e.g. lucu, edukasi, motivasi, gaming")
+    # Issue #99: why this clip opens where it does. Empty for analyses made
+    # before this change, and for the backend's own backup clips.
+    scroll_stop_reason: str = Field(default="", description="Why a stranger scrolling past would stop on this opening")
+    opening_line: str = Field(default="", description="The clip's first sentence, quoted from the transcript")
+    new_viewer_check: str = Field(default="", description="What a viewer who never saw the video understands after 5 seconds")
+    payoff_line: str = Field(default="", description="The sentence where the payoff happens, quoted from the transcript")
+    ending_line: str = Field(default="", description="The clip's last sentence, quoted from the transcript")
 
 
 class TitleOption(BaseModel):
@@ -46,17 +53,27 @@ class TitleOption(BaseModel):
 
 
 class ViralClipGemini(BaseModel):
+    # Issue #99: the quote fields come first, and opening_line before title,
+    # because the model writes them in this order: the hook is chosen, then
+    # the times are made to match it, then the title is written about it.
+    # The three *_line fields are matched back against the transcript, so a
+    # tidied-up or translated copy of them is worse than none.
+    scroll_stop_reason: str = Field(default="", description="One sentence, at most 15 words: why a stranger scrolling past would stop on this opening.")
+    opening_line: str = Field(default="", description="Exact quote, copied word for word from the transcript above, of the first sentence of the clip. This sentence is the hook. Copy it in the transcript's own language; do not translate it, do not fix its spelling, do not add punctuation, do not tidy the grammar.")
+    new_viewer_check: str = Field(default="", description="At most 15 words: what a viewer who never saw the video understands after 5 seconds - who is speaking or what the situation is, and what the clip is about.")
+    payoff_line: str = Field(default="", description="Exact quote, copied word for word from the transcript above, of the sentence where the payoff (answer, punchline, result or climax) happens. Same copying rules as opening_line.")
+    ending_line: str = Field(default="", description="Exact quote, copied word for word from the transcript above, of the last sentence of the clip. Same copying rules as opening_line.")
     title: str = Field(description="Same text as the first entry of title_options (a hook title in casual Indonesian). NEVER first-person ('I', 'me', 'my', 'saya', 'aku', 'gue').")
-    start_time: float = Field(description="Clip start in seconds, aligned to a sentence boundary")
-    end_time: float = Field(description="Clip end in seconds, aligned to a sentence boundary")
+    start_time: float = Field(description="Clip start in seconds, aligned to a sentence boundary. It must be where opening_line is spoken.")
+    end_time: float = Field(description="Clip end in seconds, aligned to a sentence boundary. It must be where ending_line finishes.")
     hook_time: float = Field(description="Absolute timestamp in seconds from video start where the potential hook occurs inside this clip range (must be >= start_time and <= end_time)")
-    virality_score: int = Field(description="Virality score 1-100")
+    virality_score: int = Field(description="Virality score 1-100. Score high only when opening_line is a strong hook, new_viewer_check shows the clip stands alone, and payoff_line lands inside the clip.")
     key_quotes: List[str] = Field(description="1-2 key quotes from the clip")
     title_suggestion: str = Field(default="", description="Leave empty: alternative titles go in title_options.")
     caption_suggestion: str = Field(default="", description="Engaging social media caption suggestion attributing insights or story to the speaker.")
     hashtag_suggestion: str = Field(default="", description="Relevant hashtags suggestion (e.g. #hashtag1 #hashtag2)")
     title_options: List[TitleOption] = Field(description="Exactly the number of hook titles the HOOK TITLE RULES ask for, strongest first, each with a different angle")
-    content_type: str = Field(default="", description="Kind of content in this clip, e.g. lucu, edukasi/kesehatan, motivasi, kontroversi, cerita")
+    content_type: str = Field(default="", description="Kind of content in this clip, e.g. lucu, edukasi/kesehatan, motivasi, kontroversi, cerita, gaming")
 
 
 class VideoAnalysis(BaseModel):
@@ -263,6 +280,40 @@ def transcript_cut_at(enriched_transcript: List[dict], is_long_video: bool) -> O
     return float(enriched_transcript[max_lines - 1].get("end", 0.0))
 
 
+# Issue #99: how a clip is chosen, for every preset. The hook is picked
+# first and the timestamps are made to fit it, instead of the other way
+# round. The quotes are copied out of the transcript so the backend can find
+# them again and anchor the clip's bounds to them.
+HOW_TO_PICK = (
+    "HOW TO PICK EACH CLIP (fill the fields in this order):\n"
+    "1. Find the hook first: a sentence a stranger would stop scrolling for (a surprising claim, "
+    "a specific question, a conflict, a strong reaction, or the middle of a story). That sentence "
+    "becomes opening_line and the clip starts there.\n"
+    "2. Check it stands alone: the opening must not depend on earlier parts of the video. If it "
+    "refers to something not inside the clip (\"dia\", \"itu tadi\", \"seperti yang saya bilang\"), "
+    "pick another opening or another clip.\n"
+    "3. Find the payoff that answers the hook, then end right after it (ending_line).\n"
+    "4. Only then write start_time and end_time to match opening_line and ending_line.\n"
+    "5. Skip segments with no real substance, even when audience interest is high.\n"
+    "COPY THE QUOTES EXACTLY: opening_line, payoff_line and ending_line are matched back against "
+    "the transcript above, word for word. Copy them in the transcript's own language even when the "
+    "titles are Indonesian. Do not translate them, do not correct spelling or mishearings, do not "
+    "add punctuation the transcript does not have, do not tidy the grammar. A cleaned-up quote "
+    "cannot be matched and the clip loses its anchor.\n"
+    "Opening examples (use the idea, never copy the wording):\n"
+    "- Bad: \"Oke jadi tadi kan kita udah bahas soal itu ya...\" (filler + depends on earlier part)\n"
+    "- Good: \"Lari tiap hari itu bisa ngerusak lutut kalau caranya kayak gini.\"\n"
+    "- Bad (gaming): \"Oke guys kita lanjut ronde berikutnya.\"\n"
+    "- Good (gaming): \"Tinggal gue sendiri, mereka berempat.\"\n"
+    "- Bad (funny): starting on the punchline without its setup.\n"
+    "- Good (funny): starting on the short setup, so the punchline lands.\n"
+    "By content type: podcast/interview: open on a sharp question or a surprising answer. "
+    "Education: open on the misconception being corrected. Story: open at the conflict, not the "
+    "chronology. Funny banter: keep the setup, avoid inside jokes. Gaming: prefer high-interest "
+    "peaks and spontaneous reactions, open just before the decisive moment.\n\n"
+)
+
+
 def build_prompt(enriched_transcript: List[dict], *, heatmap: List[dict], title: str, channel: str,
                  start_bound: float, end_bound: float, duration: float, clip_duration: str,
                  clip_range: str, custom_prompt: Optional[str],
@@ -312,6 +363,7 @@ def build_prompt(enriched_transcript: List[dict], *, heatmap: List[dict], title:
         f"- Video Duration: {int(start_bound)}s to {int(end_bound)}s (Total: {int(duration)}s) | Target clip length: {dur_range}\n"
         f"- Heatmap: {heatmap_note}\n\n"
         f"{focus_instruction}"
+        f"{HOW_TO_PICK}"
         f"{clip_lengths.prompt_rules(clip_duration)}"
         f"{title_rules.prompt_rules()}"
         f"Write caption_suggestion, key_quotes and hashtag_suggestion in the language of the transcript.\n\n"
@@ -577,6 +629,13 @@ def finish_clips(raw_clips: List[dict], enriched_transcript: List[dict], clip_du
             hashtag_suggestion=hashtag_sug,
             title_options=titles,
             content_type=str(raw_clip.get('content_type') or ''),
+            # Issue #99: kept as Gemini wrote them. The quotes are what the
+            # clip's bounds are anchored to, so they are evidence, not prose.
+            scroll_stop_reason=str(raw_clip.get('scroll_stop_reason') or ''),
+            opening_line=str(raw_clip.get('opening_line') or ''),
+            new_viewer_check=str(raw_clip.get('new_viewer_check') or ''),
+            payoff_line=str(raw_clip.get('payoff_line') or ''),
+            ending_line=str(raw_clip.get('ending_line') or ''),
         ))
     return final_clips
 
