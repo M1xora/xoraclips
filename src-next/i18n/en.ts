@@ -95,6 +95,12 @@ export const en: Translations = {
     step4: 'Finding viral moments',
     overall: 'Overall analysis progress',
   },
+  notices: {
+    transcriptLimit: 'Transcript limit',
+    transcriptLimitDetail: (upTo: string, unread: string) =>
+      `Too many subtitle lines to analyse at once: only up to ${upTo} was analysed, leaving the last ${unread} unread. Set a search range over that part to analyse it.`,
+    clipCount: 'Clip count',
+  },
 
   results: {
     historyBack: 'History & new analysis',

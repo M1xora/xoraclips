@@ -94,6 +94,12 @@ export const id = {
     step4: 'Mencari momen viral',
     overall: 'Kemajuan keseluruhan',
   },
+  notices: {
+    transcriptLimit: 'Batas transkrip',
+    transcriptLimitDetail: (upTo: string, unread: string) =>
+      `Baris subtitle terlalu banyak untuk dianalisis sekaligus: hanya sampai ${upTo} yang dianalisis, ${unread} terakhir tidak terbaca. Setel rentang pencarian ke bagian itu untuk menganalisisnya.`,
+    clipCount: 'Jumlah klip',
+  },
 
   results: {
     historyBack: 'Riwayat & analisis baru',

@@ -19,7 +19,12 @@ export interface AnalyzeProgress {
  */
 export interface AnalyzeNotice {
   stage: string;
+  /** The backend's own English sentence, used when nothing structured came with it. */
   detail: string;
+  /** Second the transcript ran out at, when the backend sent one. */
+  cutAt?: number;
+  /** Seconds of the searched range that never reached Gemini. */
+  unreadSeconds?: number;
 }
 
 /** Progress stages that are warnings worth keeping, not passing status text. */
@@ -36,10 +41,21 @@ export function withNotice(
   before: AnalyzeNotice[],
   stage: string,
   detail: string,
+  event: Record<string, unknown> = {},
 ): AnalyzeNotice[] {
   if (!NOTICE_STAGES.has(stage) || !detail) return before;
   if (before.some((n) => n.stage === stage)) return before;
-  return [...before, { stage, detail }];
+  const num = (key: string) =>
+    typeof event[key] === 'number' ? (event[key] as number) : undefined;
+  return [
+    ...before,
+    {
+      stage,
+      detail,
+      cutAt: num('transcript_cut_at'),
+      unreadSeconds: num('transcript_unread_seconds'),
+    },
+  ];
 }
 
 export interface AnalyzeRequest {
@@ -120,7 +136,15 @@ export function useAnalyze() {
     abortRef.current?.abort();
     abortRef.current = null;
     setStatus('idle');
+    setNotices([]);
   }, []);
+
+  /**
+   * Drop the warnings. Showing another analysis without running one — a cache
+   * hit or a history entry — must clear them, or the previous video's warning
+   * is read as belonging to this result.
+   */
+  const clearNotices = useCallback(() => setNotices([]), []);
 
   const analyze = useCallback(async (payload: AnalyzeRequest, apiKey?: string) => {
     abortRef.current?.abort();
@@ -195,7 +219,7 @@ export function useAnalyze() {
           const detail = String(event.detail ?? event.message ?? '');
           // Keep warnings: the next event would otherwise overwrite them in
           // under a second, and these are things the user has to act on.
-          setNotices((before) => withNotice(before, stage, detail));
+          setNotices((before) => withNotice(before, stage, detail, event));
 
           setProgress({
             step: Number(event.step ?? 0),
@@ -227,6 +251,7 @@ export function useAnalyze() {
   }, []);
 
   return {
-    analyze, cancel, status, progress, notices, result, error, errorCode, errorRetryAt, setResult,
+    analyze, cancel, status, progress, notices, clearNotices, result, error, errorCode,
+    errorRetryAt, setResult,
   };
 }

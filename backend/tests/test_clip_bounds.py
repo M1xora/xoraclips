@@ -205,7 +205,10 @@ def test_backup_clips_are_snapped_too(api, monkeypatch):
 def test_a_time_gemini_did_not_give_as_a_number_does_not_break_the_analysis(api):
     FakeGemini.payload = {"summary": "s", "clips": [gemini_clip(None, "1:05", 1.0), gemini_clip(10.0, 27.0, 11.0)]}
     clips = analyze(api)["clips"]
-    assert (clips[1]["start_time"], clips[1]["end_time"]) == (10.0, 29.4)
+    # Issue #101: unreadable times collapse to 0-0, an empty span outside the
+    # searched range, so that clip is dropped and the good one still lands.
+    assert len(clips) == 1
+    assert (clips[0]["start_time"], clips[0]["end_time"]) == (10.0, 29.4)
 
 
 # --- rounding in the prompt ---------------------------------------------------------------

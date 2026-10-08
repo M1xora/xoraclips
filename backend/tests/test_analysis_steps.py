@@ -66,9 +66,12 @@ def test_each_line_gets_the_audience_interest_of_its_moment():
 # --- prompt -----------------------------------------------------------------------------
 
 def prompt_for(lines, heatmap=(), channel="Kanal", custom_prompt=None, is_long_video=False):
+    # The bounds follow the lines, so a cut transcript really is shorter than
+    # the range: with a fixed end_bound the #101 clamp would be a no-op.
+    end = max((l["end"] for l in lines), default=100.0)
     return analysis.build_prompt(
-        lines, heatmap=list(heatmap), title="Judul", channel=channel, start_bound=0.0, end_bound=100.0,
-        duration=100.0, clip_duration="30s", clip_range="3-5", custom_prompt=custom_prompt,
+        lines, heatmap=list(heatmap), title="Judul", channel=channel, start_bound=0.0, end_bound=end,
+        duration=end, clip_duration="30s", clip_range="3-5", custom_prompt=custom_prompt,
         is_long_video=is_long_video)
 
 
@@ -98,9 +101,9 @@ def test_a_long_transcript_is_cut(caplog):
     with caplog.at_level(logging.WARNING, logger="xoraclips"):
         prompt, n_lines, cut_at = prompt_for(enriched(900, step=1.0))
     assert n_lines == 800 and "799.0|800.0 kalimat 799." in prompt and "kalimat 800." not in prompt
-    assert "Transcript 900 lines — truncating to 800" in caplog.text
+    # Issue #101: the log says where it ran out, not just that it did.
+    assert "Transcript 900 lines — truncating to 800 (cut at 800s of 900s)." in caplog.text
     assert prompt_for(enriched(900, step=1.0), is_long_video=True)[1] == 900
-    # Issue #101: the caller is told where the transcript ran out.
     assert cut_at == 800.0
 
 
@@ -109,6 +112,45 @@ def test_a_transcript_that_fits_reports_no_cut():
     # Exactly at the limit is not a cut.
     assert prompt_for(enriched(800, step=1.0))[2] is None
     assert prompt_for(enriched(801, step=1.0))[2] == 800.0
+
+
+@pytest.mark.parametrize("seconds,shown", [
+    (0, "0:00"), (65, "1:05"), (2066.1, "34:26"),
+    # Past an hour the minutes roll over: "103:20" cannot be typed into the
+    # h/m/s range inputs the message tells the user to set.
+    (3600, "1:00:00"), (6200, "1:43:20"),
+    # cut_at comes from the transcript, the bound from metadata: they can
+    # disagree by a line, and a negative must not print as "-2:20".
+    (-100, "0:00"),
+])
+def test_the_clock_in_user_facing_messages(seconds, shown):
+    from backend import routes_analyze
+    assert routes_analyze._clock(seconds) == shown
+
+
+def test_transcript_cut_at_reports_where_the_prompt_runs_out():
+    assert analysis.transcript_cut_at(enriched(3), False) is None
+    assert analysis.transcript_cut_at(enriched(800, step=1.0), False) is None
+    assert analysis.transcript_cut_at(enriched(801, step=1.0), False) == 800.0
+    # A long video carries more lines before it is cut.
+    assert analysis.transcript_cut_at(enriched(900, step=1.0), True) is None
+    assert analysis.transcript_cut_at(enriched(2501, step=1.0), True) == 2500.0
+
+
+def test_clips_outside_the_searched_range_are_dropped():
+    """Issue #101: past the cut Gemini was shown nothing, so it invented them."""
+    lines = enriched(900, step=1.0)
+    inside, outside = gemini_clip(100, 130), gemini_clip(860, 890)
+    clips = analysis.finish_clips([inside, outside], lines, "30s", 0.0, 800.0, "Kanal")
+    assert [(c.start_time, c.end_time) for c in clips] == [(100.0, 130.0)]
+
+
+def test_a_dropped_clip_does_not_leave_a_gap_in_the_numbering():
+    lines = enriched(900, step=1.0)
+    clips = analysis.finish_clips(
+        [gemini_clip(860, 890), gemini_clip(100, 130), gemini_clip(200, 230)],
+        lines, "30s", 0.0, 800.0, "Kanal")
+    assert len(clips) == 2 and all(c.title_options for c in clips)
 
 
 def test_a_cut_transcript_does_not_promise_gemini_the_whole_range():

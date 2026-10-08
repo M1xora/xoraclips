@@ -32,4 +32,24 @@ describe('withNotice', () => {
   it('ignores a warning stage with no text to show', () => {
     expect(withNotice([], 'Transcript Limit', '')).toEqual([]);
   });
+
+  it('keeps the numbers behind the sentence, so it can be said in any language', () => {
+    const [notice] = withNotice([], 'Transcript Limit', CUT, {
+      transcript_cut_at: 2066.1,
+      transcript_unread_seconds: 717.9,
+    });
+    expect(notice.cutAt).toBe(2066.1);
+    expect(notice.unreadSeconds).toBe(717.9);
+  });
+
+  it('leaves the numbers undefined when the event carries none', () => {
+    const [notice] = withNotice([], 'Clip Count', CAPPED);
+    expect(notice.cutAt).toBeUndefined();
+    expect(notice.unreadSeconds).toBeUndefined();
+  });
+
+  it('ignores non-numeric values rather than trusting the wire', () => {
+    const [notice] = withNotice([], 'Transcript Limit', CUT, { transcript_cut_at: '2066.1' });
+    expect(notice.cutAt).toBeUndefined();
+  });
 });
