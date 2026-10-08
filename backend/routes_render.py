@@ -501,7 +501,11 @@ async def get_render_status(batch_id: str):
     or 404 when the backend no longer knows it, so the caller can reattach,
     show the result, or forget the id, instead of guessing from a failure.
     """
-    batch = RENDER_BATCHES.lookup(os.path.basename(batch_id))
+    # The id is looked up raw, like every other batch route: the store is a
+    # dict, so an unknown key is simply a miss. Trimming it with basename
+    # would be no protection and would make this route answer 200 for a
+    # string the progress stream next to it answers 404 for.
+    batch = RENDER_BATCHES.lookup(batch_id)
     if batch is None:
         raise HTTPException(status_code=404, detail="Batch not found")
     return batch

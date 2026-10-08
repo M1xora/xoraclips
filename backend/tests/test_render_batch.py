@@ -93,8 +93,18 @@ def test_render_status_404s_for_a_batch_the_backend_does_not_know(render):
 
 
 @pytest.mark.parametrize("bad", ["../../etc/passwd", "..%2F..%2Fsecrets", "/etc/passwd"])
-def test_render_status_does_not_follow_a_name_out_of_its_own_store(render, bad):
+def test_render_status_reads_nothing_but_its_own_store(render, bad):
+    """The id is a dict key, never a path, so a name like this is just a miss."""
     assert render.get(f"/api/render-status/{bad}").status_code in (404, 405)
+
+
+def test_render_status_and_the_stream_agree_on_what_exists(render):
+    """Both look the id up the same way, so neither can claim a batch the
+    other denies — which would send a reattaching browser in circles."""
+    for unknown in ("batch_hantu", "../batch_hantu", "batch hantu"):
+        from_status = render.get(f"/api/render-status/{unknown}").status_code
+        from_stream = render.get(f"/api/render-progress/{unknown}").status_code
+        assert from_status == from_stream, unknown
 
 
 def test_render_status_matches_what_the_stream_reports(render):

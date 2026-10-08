@@ -66,6 +66,13 @@ export function useBatchRender(onFinished?: (p: BatchRenderProgress) => void) {
   const [state, setState] = useState<State>(IDLE);
   const sourceRef = useRef<EventSource | null>(null);
   const startingRef = useRef(false);
+  /**
+   * Set the moment the user starts a render, so the recovery check from the
+   * page load can never write over it (#107). Without this, a status reply
+   * that lands after the click would restore the OLD batch id and close the
+   * new render's stream.
+   */
+  const supersededRef = useRef(false);
   const finishedRef = useRef(onFinished);
 
   useEffect(() => {
@@ -127,6 +134,7 @@ export function useBatchRender(onFinished?: (p: BatchRenderProgress) => void) {
       // A second click would start a second batch with its own stream.
       if (startingRef.current) return null;
       startingRef.current = true;
+      supersededRef.current = true;   // Anything the page load was recovering is now stale.
 
       setState({ ...IDLE, status: 'starting' });
 
@@ -205,7 +213,7 @@ export function useBatchRender(onFinished?: (p: BatchRenderProgress) => void) {
     api.render
       .status(id, controller.signal)
       .then((batch) => {
-        if (cancelled) return;
+        if (cancelled || supersededRef.current) return;
         if (batch.overall_status === 'running') {
           setState({ status: 'running', batchId: id, progress: batch, error: null, lostContact: false });
           listen(id);
@@ -223,13 +231,16 @@ export function useBatchRender(onFinished?: (p: BatchRenderProgress) => void) {
         forget();
       })
       .catch((err: unknown) => {
-        if (cancelled) return;
+        if (cancelled || supersededRef.current) return;
         if (recoveryAction(err) === 'forget') {
           forget();   // The backend answered: this batch is gone.
           return;
         }
-        // Could not reach the backend. Say so, and keep the id.
-        setState((st) => ({ ...st, batchId: id, lostContact: true }));
+        // Could not reach the backend. Say so, and keep the id — but leave
+        // status 'idle' and batchId null, so nothing downstream treats this
+        // as a render it can follow. The id stays in storage, and the next
+        // page load retries it; reconnect() would only spin on a dead id.
+        setState((st) => ({ ...st, lostContact: true }));
       });
 
     return () => {
