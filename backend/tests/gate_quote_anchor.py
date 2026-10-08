@@ -74,11 +74,11 @@ def load_clips(answers: Path, name: str, duration: str):
     return answer.get("clips", [])
 
 
-def score(quote, index, near, *, tail=False):
+def score(quote, index, near, *, tail=False, window=WINDOW_SECONDS):
     """'window', 'elsewhere' or 'missing'."""
-    if not quote or len(str(quote).split()) < 3:
+    if not quote:
         return None
-    if find_quote(quote, index, near=near, tail=tail):
+    if find_quote(quote, index, near=near, tail=tail, window=window):
         return "window"
     return "elsewhere" if find_quote_anywhere(quote, index, tail=tail) else "missing"
 
@@ -106,10 +106,15 @@ def main() -> int:
         counts = {k: {} for k in totals}
         for clip in clips:
             start, end = clip.get("start_time", 0.0), clip.get("end_time", 0.0)
-            for field, near, tail in (("opening", start, False),
-                                      ("payoff", (start + end) / 2, False),
-                                      ("ending", end, True)):
-                verdict = score(clip.get(f"{field}_line"), index, near, tail=tail)
+            # The payoff is scored against the whole clip, not a point in it:
+            # the prompt only requires it to land inside the clip, so judging
+            # it by the ±10s window would count a good payoff as missing.
+            for field, near, tail, window in (
+                ("opening", start, False, WINDOW_SECONDS),
+                ("payoff", (start + end) / 2, False, (end - start) / 2 + WINDOW_SECONDS),
+                ("ending", end, True, WINDOW_SECONDS),
+            ):
+                verdict = score(clip.get(f"{field}_line"), index, near, tail=tail, window=window)
                 if verdict:
                     have_real_fields = True
                     counts[field][verdict] = counts[field].get(verdict, 0) + 1
@@ -157,15 +162,22 @@ def main() -> int:
 
     opening_ok = share.get("opening", (0, 1))[0] >= GATE_OPENING
     ending_ok = share.get("ending", (0, 1))[0] >= GATE_ENDING
-    invented_ok = max(s[1] for s in share.values()) < GATE_INVENTED
+    # Only the fields the prompt tells Gemini to copy exactly count towards
+    # the invented-quote threshold. key_quotes is governed by no such rule and
+    # may be paraphrased; `simulated` is the transcript's own words and can
+    # never be invented. Letting either in would fail the gate on a metric
+    # the issue never set.
+    GRADED = ("opening", "ending", "payoff")
+    invented_ok = max((share[f][1] for f in GRADED if f in share), default=0.0) < GATE_INVENTED
     for label, ok, got, want in (
         ("opening_line in window", opening_ok, share.get("opening", (0,))[0], GATE_OPENING),
         ("ending_line in window", ending_ok, share.get("ending", (0,))[0], GATE_ENDING),
     ):
         print(f"   {'PASS' if ok else 'FAIL'}  {label:24} {got * 100:5.1f}%  (need {want * 100:.0f}%)")
-    worst = max(s[1] for s in share.values())
+    worst_field = max((f for f in GRADED if f in share), key=lambda f: share[f][1], default=None)
+    worst = share[worst_field][1] if worst_field else 0.0
     print(f"   {'PASS' if invented_ok else 'FAIL'}  {'invented quotes':24} {worst * 100:5.1f}%"
-          f"  (need <{GATE_INVENTED * 100:.0f}%)")
+          f"  (need <{GATE_INVENTED * 100:.0f}%, worst: {worst_field})")
 
     passed = opening_ok and ending_ok and invented_ok
     print(f"\n   -> stage 4 {'GOES AHEAD' if passed else 'IS DROPPED'}")

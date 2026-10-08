@@ -101,6 +101,39 @@ def test_a_quote_outside_the_window_is_not_trusted(index):
     assert find_quote(quote, index, near=300.0) is None
 
 
+def test_the_window_holds_even_where_the_transcript_is_sparse():
+    """A window shorter than the quote must not reach past itself.
+
+    Found in review: the sliding window read `words[at:at + n]` without a
+    ceiling, so in a thinly captioned stretch it scored against words minutes
+    away and anchored the clip there.
+    """
+    sparse = WordIndex([
+        {"start": 0.0, "end": 4.0, "text": "oke"},
+        {"start": 300.0, "end": 306.0, "text": "lari tiap hari bisa ngerusak lutut kalau caranya begini"},
+    ])
+    assert find_quote("lari tiap hari bisa ngerusak lutut kalau caranya", sparse, near=1.0) is None
+    # The same quote, looked for where it is actually spoken.
+    assert find_quote("lari tiap hari bisa ngerusak lutut kalau caranya", sparse, near=301.0) is not None
+
+
+@pytest.mark.parametrize("filler", ["ya ya ya", "oke oke oke oke", "iya iya"])
+def test_filler_is_never_an_anchor(filler):
+    """Indonesian captions are full of it, and it matches other filler."""
+    index = WordIndex([{"start": 0.0, "end": 3.0, "text": "ya ya ya oke oke iya iya"}])
+    assert find_quote(filler, index, near=1.0) is None
+    assert find_quote_anywhere(filler, index) is None
+
+
+def test_lines_sharing_a_timestamp_keep_their_order():
+    """Sorting fell through to the text, reordering the words alphabetically."""
+    index = WordIndex([
+        {"start": 10.0, "end": 12.0, "text": "zulu kedua"},
+        {"start": 10.0, "end": 12.0, "text": "alfa pertama"},
+    ])
+    assert index.words == ["zulu", "kedua", "alfa", "pertama"]
+
+
 def test_searching_anywhere_tells_a_drifted_timestamp_from_an_invented_quote(index):
     """Issue #99 stage 3: the two must not be read as the same failure."""
     drifted = "Jadi mereka itu kayak sindikat"

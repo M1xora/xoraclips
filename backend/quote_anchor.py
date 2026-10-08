@@ -47,6 +47,11 @@ MIN_SCORE = 0.7
 # in itself, and far narrower than the whole video.
 WINDOW_SECONDS = 10.0
 
+# Shortest quote worth trusting. Indonesian captions are full of filler
+# ("ya ya ya", "oke oke"), which matches perfectly against other filler and
+# would anchor a clip to nothing in particular.
+MIN_NEEDLE_WORDS = 3
+
 _PUNCTUATION = re.compile(r"[^\w\s]", re.UNICODE)
 
 
@@ -88,9 +93,12 @@ class WordIndex:
     """
 
     def __init__(self, transcript: Sequence[dict]):
+        # Sorted on the times only: falling through to the text would reorder
+        # two lines sharing a timestamp alphabetically, scrambling the words.
         spans = sorted(
-            (float(l.get("start", 0.0)), float(l.get("end", 0.0)), str(l.get("text", "")))
-            for l in transcript
+            ((float(l.get("start", 0.0)), float(l.get("end", 0.0)), str(l.get("text", "")))
+             for l in transcript),
+            key=lambda span: (span[0], span[1]),
         )
         self.starts: List[float] = [s for s, _, _ in spans]
         self.ends: List[float] = []
@@ -124,18 +132,26 @@ class WordIndex:
         return first, last
 
     def _best_window(self, needle: Sequence[str], lo: int, hi: int) -> Optional[Match]:
-        """The best place for `needle` among words [lo, hi), or None."""
+        """The best place for `needle` among words [lo, hi), or None.
+
+        Every window stays inside [lo, hi): reaching past it would score a
+        quote against words outside the caller's search window, and anchor a
+        clip to a sentence spoken minutes away.
+        """
         n = len(needle)
-        if n == 0 or hi - lo < 1:
+        if n == 0 or hi - lo < MIN_NEEDLE_WORDS:
             return None
         best: Optional[Match] = None
         matcher = SequenceMatcher(autojunk=False)
         matcher.set_seq2(list(needle))
-        # A window the length of the needle, slid one word at a time. The last
-        # window may be short, which is fine: a clip's final quote can run past
-        # the searched range and still be scored on what is there.
-        for at in range(lo, max(lo + 1, hi - n + 1)):
-            window = self.words[at:at + n]
+        # A window the length of the needle, slid one word at a time. Near the
+        # end of the range the window is short rather than overrunning: a
+        # quote may legitimately run past the range and still be scored on the
+        # part that is inside it.
+        for at in range(lo, hi):
+            window = self.words[at:min(at + n, hi)]
+            if len(window) < MIN_NEEDLE_WORDS:
+                break
             matcher.set_seq1(window)
             # A cheap upper bound first: most windows share almost no words.
             if matcher.real_quick_ratio() < MIN_SCORE or matcher.quick_ratio() < MIN_SCORE:
@@ -143,7 +159,7 @@ class WordIndex:
             score = matcher.ratio()
             if best is not None and score <= best.score:
                 continue
-            last = min(at + n, len(self.words)) - 1
+            last = at + len(window) - 1
             first_line, last_line = self.line_of[at], self.line_of[last]
             best = Match(
                 score=round(score, 3),
@@ -156,8 +172,16 @@ class WordIndex:
 
 
 def _edge(quote: object, *, tail: bool) -> List[str]:
-    """The first or last EDGE_WORDS words of a quote."""
+    """The first or last EDGE_WORDS words of a quote, or [] if it is too short.
+
+    A quote with fewer than MIN_NEEDLE_WORDS *distinct* words is rejected here
+    rather than by each caller. Counting distinct words is what rules out
+    filler like "ya ya ya", which is long enough but matches every other run
+    of filler in the transcript just as well.
+    """
     words = words_of(quote)
+    if len(set(words)) < MIN_NEEDLE_WORDS:
+        return []
     return words[-EDGE_WORDS:] if tail else words[:EDGE_WORDS]
 
 
