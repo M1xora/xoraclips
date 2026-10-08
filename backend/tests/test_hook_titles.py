@@ -237,6 +237,39 @@ def test_the_generic_fallback_obeys_stricter_settings(monkeypatch):
         importlib.reload(title_rules)
 
 
+def test_a_numbered_generic_fallback_still_follows_the_rules():
+    """Issue #98: backup clips are numbered so they stay distinguishable."""
+    numbered = [title_rules.generic_fallback(n) for n in range(1, 6)]
+    assert len(set(numbered)) == 5
+    for n, title in enumerate(numbered, start=1):
+        assert title_problem(title) is None
+        assert title == f"{title_rules.generic_fallback()} {n}"
+
+
+@pytest.mark.parametrize("limit", ["3", "4", "5"])
+def test_numbers_survive_stricter_limits_so_clips_stay_distinct(monkeypatch, limit):
+    """The text gives way to the number, not the other way round."""
+    monkeypatch.setenv("XORACLIPS_MAX_TITLE_WORDS", limit)
+    reloaded = importlib.reload(title_rules)
+    try:
+        numbered = [reloaded.generic_fallback(n) for n in range(1, 6)]
+        assert len(set(numbered)) == 5, numbered
+        for n, title in enumerate(numbered, start=1):
+            assert reloaded.title_problem(title) is None, title
+            assert title.endswith(f" {n}")
+            # Cutting words must not leave a linking word before the number.
+            assert title.split()[-2].lower() not in reloaded._DANGLING, title
+    finally:
+        monkeypatch.delenv("XORACLIPS_MAX_TITLE_WORDS")
+        importlib.reload(title_rules)
+
+
+@pytest.mark.parametrize("blank", ["   ", "\xa0", "　", "\t\n"])
+def test_a_whitespace_only_title_is_empty_not_a_crash(blank):
+    """title_problem is public: it reports a problem, it does not raise."""
+    assert title_problem(blank) == "empty"
+
+
 def test_title_options_are_required_in_the_structured_output():
     schema = routes_analyze.ViralClipGemini.model_json_schema()
     assert "title_options" in schema["required"]
@@ -257,7 +290,10 @@ def test_backup_clip_titles_follow_the_rules(api):
         assert title_problem(clip["title"]) is None
         assert clip["title_options"] == [clip["title"]]
         assert clip["title_suggestion"] == clip["title"]
-    assert clips[0]["title"] == title_rules.generic_fallback()
+    # Numbered, so the editor can tell the clips apart in the Studio.
+    titles = [c["title"] for c in clips]
+    assert len(set(titles)) == len(titles), titles
+    assert titles[0] == title_rules.generic_fallback(1)
 
 
 def test_a_shortened_title_never_ends_on_a_linking_word():
