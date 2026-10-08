@@ -1563,12 +1563,18 @@ def split_cam_crop_share(
     if face_w <= 0:
         return SPLIT_CAM_ZOOM
     widest = min(source_w, source_h * SPLIT_CAM_W / SPLIT_CAM_H) or source_w
+    tallest = min(source_h, source_w * SPLIT_CAM_H / SPLIT_CAM_W) or source_h
     # The face as a share of that crop, not of the frame.
     face_of_crop = (face_w * source_w) / widest
     share = face_of_crop * SPLIT_CAM_FACE_MARGIN
-    # The ceiling is on frame height. The crop's height is its width over the
-    # cam's aspect, so the same limit expressed against `widest` is:
-    ceiling = (SPLIT_CAM_MAX_SHARE * source_h * SPLIT_CAM_W / SPLIT_CAM_H) / widest
+    # The ceiling keeps room to slide the crop, and has to hold on BOTH axes:
+    # on a portrait source the height limit alone leaves a crop as wide as the
+    # frame, with nowhere to move sideways — the very failure it exists to
+    # prevent. Each axis is capped against its own side of the source.
+    ceiling = min(
+        (SPLIT_CAM_MAX_SHARE * source_h) / tallest,
+        (SPLIT_CAM_MAX_SHARE * source_w) / widest,
+    )
     return max(0.05, min(ceiling, 1.0, share))
 
 
@@ -1596,11 +1602,15 @@ def build_ffmpeg_filtergraph(
 
     face_cx = float(face_box.get("cx", face_center_ratio)) if face_box else face_center_ratio
     face_cy = float(face_box.get("cy", 0.35)) if face_box else 0.35
-    # Issue #105: a manual centre from the Studio wins over the detector.
-    if cam_center_x is not None:
-        face_cx = max(0.0, min(1.0, float(cam_center_x)))
-    if cam_center_y is not None:
-        face_cy = max(0.0, min(1.0, float(cam_center_y)))
+    # Issue #105: a manual centre from the Studio wins over the detector, but
+    # only for the layout whose control the user can actually see. The Studio
+    # shows these sliders under the split preset alone, so letting them reach
+    # pip_corner or a plain crop would move those with nothing to undo it.
+    if streamer_preset == "split_top_cam":
+        if cam_center_x is not None:
+            face_cx = max(0.0, min(1.0, float(cam_center_x)))
+        if cam_center_y is not None:
+            face_cy = max(0.0, min(1.0, float(cam_center_y)))
     # And the cam crop follows the face's own width, so a small facecam does
     # not drown in the room around it.
     face_w = float(face_box.get("w", 0.0)) if face_box and face_box.get("found") else 0.0
@@ -1867,7 +1877,9 @@ def render_clip_to_mp4(
         cam_zoom=cam_zoom,
         cam_center_x=cam_center_x,
         cam_center_y=cam_center_y,
-        source_size=probe_video_size(video_path),
+        # Only the split layout sizes its crop against the source, so no
+        # other preset pays for an ffprobe it will not read.
+        source_size=probe_video_size(video_path) if streamer_preset == "split_top_cam" else None,
     )
 
     filter_chains = [filter_complex]

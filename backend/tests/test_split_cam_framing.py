@@ -146,6 +146,30 @@ def test_a_manual_zoom_out_of_range_is_clamped(zoom, expected):
     assert split_cam_crop_share(0.085, zoom=zoom) == expected
 
 
+@pytest.mark.parametrize("preset", ["pip_corner", "none"])
+def test_a_manual_centre_does_not_reach_other_presets(preset):
+    """The sliders live under the split preset, so moving pip_corner or a
+    plain crop with them would leave no visible way to undo it."""
+    graph, _ = build_ffmpeg_filtergraph(
+        "9:16", "black", streamer_preset=preset, cam_center_x=0.1, cam_center_y=0.9)
+    assert "0.100" not in graph and "0.900" not in graph
+
+
+@pytest.mark.parametrize("w,h", [(1920, 1080), (1280, 720), (1080, 1920), (1080, 1080), (1440, 1080)])
+def test_every_source_shape_leaves_room_to_move_the_crop(w, h):
+    """The ceiling has to hold on both axes.
+
+    Found in review: capping only the height left a portrait source with a
+    crop as wide as the frame and nowhere to slide sideways — the very
+    failure the ceiling exists to prevent.
+    """
+    share = split_cam_crop_share(0.5, source_w=w, source_h=h)
+    crop_w = min(w, h * SPLIT_CAM_W / SPLIT_CAM_H) * share
+    crop_h = min(h, w * SPLIT_CAM_H / SPLIT_CAM_W) * share
+    assert crop_w < w - 1, f"{w}x{h}: no room sideways"
+    assert crop_h < h - 1, f"{w}x{h}: no room vertically"
+
+
 def test_a_manual_centre_out_of_range_is_clamped():
     graph, _ = build_ffmpeg_filtergraph(
         "9:16", "black", streamer_preset="split_top_cam", cam_center_x=9.0, cam_center_y=-9.0)

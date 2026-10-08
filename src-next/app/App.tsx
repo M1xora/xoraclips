@@ -576,6 +576,9 @@ export function App() {
                         replayLabel={t.player.replay}
                         backgroundStyle={studio.backgroundStyle}
                         enableFaceTracking={studio.enableFaceTracking}
+                        camZoom={studio.camZoom}
+                        camCenterX={studio.camCenterX}
+                        camCenterY={studio.camCenterY}
                         title={studio.titlePosition === 'none' ? undefined : titleRender.formatted}
                         titleYPercent={safePos.titleY}
                         titleFontSize={studio.titleFontSize}

@@ -164,6 +164,7 @@ export const id = {
 
   studio: {
     camFraming: 'Bingkai facecam',
+    camTakeOver: 'Atur manual',
     camAuto: 'Kembali ke otomatis',
     camAutoHint: 'Mengikuti wajah yang terdeteksi. Atur di bawah kalau bingkainya meleset.',
     camManualHint: 'Bingkai manual: wajah yang terdeteksi diabaikan.',

@@ -158,8 +158,9 @@ describe('split_top_cam layout (#96)', () => {
   });
 
   it('caps a large face so the crop still has room to move', () => {
-    expect(splitCamSourceShare(0.6)).toBeLessThan(splitCamSourceShare(0.6) + 1);
+    // Past the cap the share stops growing, and stays under the full width.
     expect(splitCamSourceShare(0.6)).toBeCloseTo(splitCamSourceShare(0.9), 6);
+    expect(splitCamSourceShare(0.9)).toBeLessThan(1);
   });
 
   it('turns a share into a CSS background-size', () => {

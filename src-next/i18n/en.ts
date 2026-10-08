@@ -165,6 +165,7 @@ export const en: Translations = {
 
   studio: {
     camFraming: 'Facecam framing',
+    camTakeOver: 'Adjust manually',
     camAuto: 'Back to automatic',
     camAutoHint: 'Following the detected face. Adjust below if the framing is off.',
     camManualHint: 'Manual framing: the detected face is ignored.',

@@ -261,25 +261,26 @@ export function StudioPanel({
             <div className="grid gap-3 border-t border-hairline pt-3">
               <div className="flex items-center justify-between gap-2">
                 <span className="text-xs font-medium text-ink-dim">{t.studio.camFraming}</span>
-                {camManual && (
-                  <Button
-                    variant="ghost"
-                    onClick={() =>
-                      dispatch({
-                        type: 'set',
-                        patch: { camZoom: null, camCenterX: null, camCenterY: null },
-                      })
-                    }
-                  >
-                    {t.studio.camAuto}
-                  </Button>
-                )}
+                <Button
+                  variant="ghost"
+                  onClick={() =>
+                    dispatch({
+                      type: 'set',
+                      patch: camManual
+                        ? { camZoom: null, camCenterX: null, camCenterY: null }
+                        : { camZoom: 0.65, camCenterX: 0.5, camCenterY: 0.5 },
+                    })
+                  }
+                >
+                  {camManual ? t.studio.camAuto : t.studio.camTakeOver}
+                </Button>
               </div>
               <p className="text-[0.8rem] text-ink-faint">
                 {camManual ? t.studio.camManualHint : t.studio.camAutoHint}
               </p>
               <Slider
                 label={t.studio.camZoom}
+                disabled={!camManual}
                 value={Math.round((state.camZoom ?? 0.65) * 100)}
                 min={10}
                 max={100}
@@ -289,6 +290,7 @@ export function StudioPanel({
               />
               <Slider
                 label={t.studio.camX}
+                disabled={!camManual}
                 value={Math.round((state.camCenterX ?? 0.5) * 100)}
                 min={0}
                 max={100}
@@ -298,6 +300,7 @@ export function StudioPanel({
               />
               <Slider
                 label={t.studio.camY}
+                disabled={!camManual}
                 value={Math.round((state.camCenterY ?? 0.5) * 100)}
                 min={0}
                 max={100}
