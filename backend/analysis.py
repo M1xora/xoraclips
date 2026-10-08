@@ -361,8 +361,8 @@ OPTIONAL_NUMBERS = ("hook_time",)   # None when missing: the clip's start is use
 
 
 def _clean_clip(raw: dict) -> dict:
-    # is_fallback marks the backend's own backup clips (their titles skip the
-    # title rules); Gemini never gets to set it.
+    # is_fallback marks the backend's own backup clips; Gemini never gets to
+    # set it, and it is dropped before the clip reaches the frontend.
     clip = {k: v for k, v in raw.items() if k != "is_fallback"}
     for name in NUMBER_FIELDS:
         number = _number(raw.get(name), None if name in OPTIONAL_NUMBERS else 0.0)
@@ -441,13 +441,14 @@ def backup_clips(enriched_transcript: List[dict], clip_duration: str, start_boun
         seg_text = " ".join(seg_lines).strip()
         preview = seg_text[:60] + "..." if len(seg_text) > 60 else seg_text or f"Viral Highlight #{i+1}"
         fallback_clips_list.append({
-            "title": f"Key Highlight #{i+1}",
+            # Issue #98: no title here. These clips go through the same
+            # title_rules check as Gemini's, which has no options and no old
+            # title to fall back on and so uses the Indonesian generic title.
             "start_time": st,
             "end_time": et,
             "hook_time": peak,
             "virality_score": max(70, int(95 - i * 5)),
             "key_quotes": [seg_text[:80]] if seg_text else [],
-            "title_suggestion": f"Must Watch Moment #{i+1}",
             "caption_suggestion": f"Key highlight from video: {preview} #viral #trending",
             "hashtag_suggestion": "#viral #shorts #trending",
             "is_fallback": True,
@@ -509,24 +510,18 @@ def finish_clips(raw_clips: List[dict], enriched_transcript: List[dict], clip_du
         caption_sug = lowercase_hashtags_in_string(raw_clip.get('caption_suggestion', ''))
         hashtag_sug = lowercase_hashtags_in_string(raw_clip.get('hashtag_suggestion', ''))
 
-        if raw_clip.get('is_fallback'):
-            # Backup clips made above when Gemini returned none: their
-            # titles ("Must Watch Moment #1") stay exactly as before.
-            clip_title = raw_clip.get('title', '')
-            clip_suggestion = raw_clip.get('title_suggestion', '')
-            titles = []
-        else:
-            # Issue #31: every title Gemini wrote is checked against the
-            # rules; rejections are logged and a safe fallback keeps the
-            # clip usable.
-            titles, _ = title_rules.pick_titles(
-                raw_clip.get('title_options'),
-                legacy_title=raw_clip.get('title', ''),
-                legacy_suggestion=raw_clip.get('title_suggestion', ''),
-                sanitize=lambda t: sanitize_first_person_title(t, channel),
-                label=f"clip {clip_no} ({start:.1f}-{end:.1f}s)",
-            )
-            clip_title = clip_suggestion = titles[0]
+        # Issue #31: every title Gemini wrote is checked against the rules;
+        # rejections are logged and a safe fallback keeps the clip usable.
+        # Issue #98: the backend's own backup clips go through this too, so
+        # no clip can reach the Studio with an unchecked title.
+        titles, _ = title_rules.pick_titles(
+            raw_clip.get('title_options'),
+            legacy_title=raw_clip.get('title', ''),
+            legacy_suggestion=raw_clip.get('title_suggestion', ''),
+            sanitize=lambda t: sanitize_first_person_title(t, channel),
+            label=f"clip {clip_no} ({start:.1f}-{end:.1f}s)",
+        )
+        clip_title = clip_suggestion = titles[0]
 
         final_clips.append(ViralClip(
             title=clip_title,

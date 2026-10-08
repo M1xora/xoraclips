@@ -8,7 +8,7 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
-from backend import analysis, clip_lengths  # noqa: E402
+from backend import analysis, clip_lengths, title_rules  # noqa: E402
 from backend.analysis import AnalysisError  # noqa: E402
 
 
@@ -175,7 +175,8 @@ def test_backup_clips_sit_around_the_peaks_inside_the_range_without_overlapping(
     spans = sorted((c["start_time"], c["end_time"]) for c in clips)
     assert all(10.0 <= s < e <= 190.0 for s, e in spans)
     assert all(a[1] <= b[0] for a, b in zip(spans, spans[1:]))
-    assert clips[0]["title"] == "Key Highlight #1" and clips[0]["hook_time"] == 100.0
+    # Issue #98: no title of their own; finish_clips gives them a checked one.
+    assert "title" not in clips[0] and clips[0]["hook_time"] == 100.0
     assert clips[0]["key_quotes"] and clips[0]["caption_suggestion"].endswith("#viral #trending")
 
 
@@ -205,11 +206,28 @@ def test_a_first_person_title_is_credited_to_the_channel():
     assert clip.title == "dr. Tirta Mencoba Lari Tiap Hari"
 
 
-def test_backup_clips_keep_their_own_titles():
-    clip, = analysis.finish_clips([{**gemini_clip(10, 25), "is_fallback": True, "title": "Key Highlight #1",
-                                    "title_suggestion": "Must Watch Moment #1"}],
-                                  enriched(12), "30s", 0.0, 60.0, "Kanal")
-    assert (clip.title, clip.title_suggestion, clip.title_options) == ("Key Highlight #1", "Must Watch Moment #1", [])
+def backup_clip(start, end, **extra):
+    """A backup clip as backup_clips() makes it: no title of its own."""
+    return {"start_time": start, "end_time": end, "hook_time": start + 1, "virality_score": 80,
+            "key_quotes": ["q"], "caption_suggestion": "Seru #FYP",
+            "hashtag_suggestion": "#viral #shorts #trending", "is_fallback": True, **extra}
+
+
+def test_backup_clip_titles_go_through_the_title_rules():
+    # Issue #98: with no options and no old title, the rules land on the
+    # Indonesian generic title instead of the old hardcoded English one.
+    clip, = analysis.finish_clips([backup_clip(10, 25)], enriched(12), "30s", 0.0, 60.0, "Kanal")
+    assert clip.title == clip.title_suggestion == title_rules.generic_fallback()
+    assert clip.title_options == [clip.title]
+    assert title_rules.title_problem(clip.title) is None
+    assert "Key Highlight" not in clip.title and "Must Watch" not in clip.title
+
+
+def test_a_backup_clip_title_that_breaks_the_rules_is_replaced():
+    clip, = analysis.finish_clips(
+        [backup_clip(10, 25, title="Must Watch Moment Yang Kepanjangan Banget Sampai Lewat Batas")],
+        enriched(12), "30s", 0.0, 60.0, "Kanal")
+    assert title_rules.title_problem(clip.title) is None
 
 
 def test_the_response_has_the_whole_transcript_and_a_lowercase_summary():

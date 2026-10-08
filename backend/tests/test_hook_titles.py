@@ -248,12 +248,16 @@ def test_captions_keep_following_the_transcripts_language(api):
     assert "caption_suggestion, key_quotes and hashtag_suggestion in the language of the transcript" in FakeGemini.prompts[-1]
 
 
-def test_backup_clips_keep_their_old_titles(api):
+def test_backup_clip_titles_follow_the_rules(api):
+    """Issue #98: the backend's own backup clips are checked like Gemini's."""
     FakeGemini.payload = {"summary": "", "clips": []}  # every model: no clips
     clips = analyze(api)["clips"]
-    assert clips and clips[0]["title"] == "Key Highlight #1"
-    assert clips[0]["title_suggestion"] == "Must Watch Moment #1"
-    assert clips[0]["title_options"] == []
+    assert clips
+    for clip in clips:
+        assert title_problem(clip["title"]) is None
+        assert clip["title_options"] == [clip["title"]]
+        assert clip["title_suggestion"] == clip["title"]
+    assert clips[0]["title"] == title_rules.generic_fallback()
 
 
 def test_a_shortened_title_never_ends_on_a_linking_word():
