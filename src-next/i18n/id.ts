@@ -315,6 +315,8 @@ export const id = {
   },
 
   render: {
+    unreachable: 'Backend tidak terjangkau',
+    unreachableHint: 'Masih ada render tersimpan dari sebelumnya. Nyalakan backend lalu muat ulang untuk menyambungnya.',
     queue: 'Antrean render',
     start: 'Render klip terpilih',
     starting: 'Memulai',

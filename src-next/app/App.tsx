@@ -529,6 +529,23 @@ export function App() {
                     </span>
                   </div>
 
+                  {/* Issue #107: a render picked up from a previous page load
+                      has an id but no progress yet when the backend cannot be
+                      reached. RenderQueue needs progress to draw, so the one
+                      thing worth saying is said here instead of nowhere. */}
+                  {!render.progress && render.lostContact && (
+                    <div
+                      role="alert"
+                      className="mt-4 flex items-start gap-2 rounded-[--radius-control] border-2 border-hairline bg-surface-2 p-3 text-sm"
+                    >
+                      <WarningCircleIcon size={16} className="mt-0.5 shrink-0 text-critical-text" />
+                      <span>
+                        <strong className="font-semibold">{t.render.unreachable}</strong>{' '}
+                        <span className="text-ink-dim">{t.render.unreachableHint}</span>
+                      </span>
+                    </div>
+                  )}
+
                   {render.progress && (
                     <div className="mt-4">
                       <RenderQueue

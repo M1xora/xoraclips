@@ -316,6 +316,8 @@ export const en: Translations = {
   },
 
   render: {
+    unreachable: 'Backend not reachable',
+    unreachableHint: 'A render from before is still stored. Start the backend and reload to pick it up again.',
     queue: 'Render queue',
     start: 'Render selected clips',
     starting: 'Starting',
