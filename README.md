@@ -1,5 +1,13 @@
 # Xoraclips
 
+[![Versi](https://img.shields.io/badge/versi-0.9.0--beta-orange)](https://github.com/M1xora/xoraclips/releases)
+[![Lisensi](https://img.shields.io/badge/lisensi-MIT-blue)](LICENSE)
+
+> **Status: beta.** Alur intinya sudah berjalan penuh dan dipakai merender
+> video sungguhan, tapi pemasangannya belum diuji di banyak komputer. Kalau
+> ada yang tidak jalan, [laporkan lewat Issues](https://github.com/M1xora/xoraclips/issues)
+> — itu justru yang paling membantu sekarang.
+
 Xoraclips mengubah video YouTube panjang jadi klip vertikal 1080x1920 yang siap diunggah ke TikTok, Shorts, atau Reels. Tempel link YouTube, AI Gemini memilih bagian yang paling menarik, lalu klip itu bisa diatur di Clip Studio sebelum dirender jadi MP4.
 
 Aplikasi berjalan lokal di komputer sendiri: backend FastAPI mengurus unduhan, transkrip, dan render ffmpeg; frontend React jadi tempat mengatur dan melihat pratinjau.
@@ -10,7 +18,7 @@ Aplikasi berjalan lokal di komputer sendiri: backend FastAPI mengurus unduhan, t
 - Pilihan target durasi klip: 15s, 30s, 60s, 2 menit, atau 3 menit.
 - Clip Studio: rasio dan crop, latar buram, tata letak split facecam dan PiP, judul, awalan/akhiran nama berkas.
 - Face tracking: crop mengikuti posisi wajah pembicara.
-- Subtitle per kata dengan beberapa gaya dan pilihan font.
+- Subtitle per kata dengan beberapa gaya dan pilihan font, diambil dari caption YouTube.
 - Audio: musik latar dan SFX dengan atur volume serta offset, bisa didengar di pratinjau.
 - Watermark berupa gambar atau teks dengan preset posisi.
 - Trimmer untuk memotong ulang awal/akhir klip.
@@ -22,7 +30,9 @@ Aplikasi berjalan lokal di komputer sendiri: backend FastAPI mengurus unduhan, t
 
 **Frontend** — React 19, TypeScript, Vite, Tailwind CSS v4, Vitest, ESLint.
 
-**Backend** — Python + FastAPI, yt-dlp, ffmpeg, OpenAI Whisper, OpenCV, google-genai (Gemini), youtube-transcript-api.
+**Backend** — Python + FastAPI, yt-dlp, ffmpeg, OpenCV, google-genai (Gemini), youtube-transcript-api.
+
+Subtitle otomatis (OpenAI Whisper) opsional, tidak ikut terpasang secara default. Lihat [Subtitle otomatis (opsional)](#subtitle-otomatis-opsional).
 
 ## Instalasi
 
