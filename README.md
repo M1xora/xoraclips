@@ -62,6 +62,30 @@ python -m pip install -r backend/requirements.txt
 
 Di macOS pakai `python3` sebagai ganti `python`.
 
+### Subtitle otomatis (opsional)
+
+Pemasangan di atas **tidak** menyertakan Whisper, pembuat subtitle otomatis.
+Alasannya ukuran: Whisper menarik `torch` dan paket pendukungnya, sekitar
+**737 MB dari total 1 GB** pemasangan.
+
+Tanpa Whisper, aplikasi tetap berjalan penuh:
+
+| Video YouTube | Subtitle |
+|---|---|
+| Punya caption (paling banyak) | Tetap ada, diambil dari caption YouTube |
+| Tidak punya caption | Klip tetap jadi, tapi **tanpa subtitle** |
+
+Studio akan memberi tahu kalau Whisper belum terpasang, jadi Anda tidak perlu
+menebak.
+
+Kalau Anda sering memotong video yang tidak punya caption, pasang dengan:
+
+```bash
+python -m pip install -r backend/requirements-whisper.txt
+```
+
+Saat pertama dipakai, Whisper juga mengunduh modelnya sendiri (sekitar 145 MB).
+
 ### Update
 
 ```bash

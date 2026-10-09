@@ -1,0 +1,15 @@
+# Subtitle otomatis, opsional (#112).
+#
+# Pasang ini kalau Anda sering memotong video YouTube yang TIDAK punya
+# transkrip. Tanpa berkas ini, klip dari video semacam itu tetap jadi, hanya
+# tanpa subtitle.
+#
+# Cara memasang, dari folder proyek:
+#     venv\Scripts\pip install -r backend/requirements-whisper.txt   (Windows)
+#     venv/bin/pip install -r backend/requirements-whisper.txt       (Linux/macOS)
+#
+# Ukuran: ~737 MB. Sebagian besar dari torch, yang ditarik openai-whisper.
+# Saat pertama dipakai, Whisper juga mengunduh modelnya sendiri (~145 MB).
+
+openai-whisper>=20231117
+torch>=2.0.0

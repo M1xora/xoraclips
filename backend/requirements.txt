@@ -7,7 +7,19 @@ python-dotenv>=1.0.0
 pydantic>=2.0.0
 requests>=2.31.0
 opencv-python>=4.8.0,<5
-openai-whisper>=20231117
-torch>=2.0.0
 python-multipart>=0.0.9
 Pillow>=10.0.0
+
+# Subtitle otomatis (Whisper) TIDAK dipasang di sini: openai-whisper menarik
+# torch, numba, llvmlite dan sympy, yang bersama-sama berukuran ~737 MB dari
+# ~1.029 MB total pemasangan (#112). Itu penghalang terbesar buat orang yang
+# baru mau mencoba (#111).
+#
+# Whisper hanya dipakai sebagai cadangan, saat sebuah video YouTube tidak
+# punya transkrip sama sekali (video_engine.py:780). Tanpa Whisper, klip dari
+# video semacam itu tetap ter-render, hanya tanpa subtitle; aplikasi
+# memberitahu lewat /api/health (whisper_available) dan Studio menampilkan
+# catatannya.
+#
+# Untuk memasangnya:
+#     pip install -r backend/requirements-whisper.txt

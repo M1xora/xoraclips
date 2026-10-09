@@ -1,11 +1,26 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { aiStatusFromHealth } from './serverStatus';
+import { aiStatusFromHealth, whisperMissing } from './serverStatus';
 import { analyzeErrorView } from './analyzeErrors';
 import { api, ApiError, GEMINI_KEY_HEADER } from '../../api/client';
 import { buildAnalyzeInit } from '../../hooks/useAnalyze';
 import { id } from '../../i18n/id';
 
 const KEY = 'AIzaSyFAKE_USER_KEY_0123456789abcdefgh';
+
+describe('whisperMissing (#112)', () => {
+  it('warns only when the backend says Whisper is absent', () => {
+    expect(whisperMissing({ whisper_available: false })).toBe(true);
+    expect(whisperMissing({ whisper_available: true })).toBe(false);
+  });
+
+  it('stays quiet when the answer is not known', () => {
+    // An unreachable backend and an older one that does not send the field
+    // are both guesses; a warning shown on a guess is worse than none.
+    expect(whisperMissing(null)).toBe(false);
+    expect(whisperMissing({})).toBe(false);
+    expect(whisperMissing({ mock_mode: true })).toBe(false);
+  });
+});
 
 describe('aiStatusFromHealth', () => {
   it('only mock mode changes the form', () => {

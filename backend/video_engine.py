@@ -83,6 +83,45 @@ ensure_ffmpeg_in_path()
 _WHISPER_MODEL = None
 
 
+def whisper_available() -> bool:
+    """Whether automatic subtitles can run at all, without loading the model.
+
+    Whisper is optional (#112): it pulls torch and friends, ~762 MB, and is
+    only ever a fallback for videos with no transcript. The frontend asks this
+    through /api/health so it can say so in the Studio instead of quietly
+    rendering a clip with no subtitles.
+
+    `torch` is checked as well as `whisper`. Since #112 took torch out of
+    requirements.txt, rebuilding a venv against the new file can leave
+    `whisper/` installed with torch gone. find_spec("whisper") still succeeds
+    there, because it never executes the package, but `whisper/__init__.py`
+    imports torch at module level and would fail on first use. Reporting that
+    as available would suppress the Studio's warning and hand the user a
+    subtitle-less clip with no explanation, which is the case this exists to
+    prevent.
+
+    A model already loaded in this process is proof enough on its own. A
+    *failed* load is not consulted: that sentinel also covers a dropped model
+    download, and telling someone who has Whisper installed to go install it
+    would be worse than one wasted retry.
+
+    Only specs are looked up. Loading the model takes seconds and hundreds of
+    megabytes of memory, which a status check must not do. find_spec() raises
+    rather than returning None when a package is present but broken, or when
+    an import hook rejects it; a status check must never take the server down,
+    so anything that goes wrong here reads as "not available".
+    """
+    if _WHISPER_MODEL is not None and _WHISPER_MODEL is not False:
+        return True
+    try:
+        return all(
+            importlib.util.find_spec(name) is not None
+            for name in ("whisper", "torch")
+        )
+    except Exception:
+        return False
+
+
 def get_whisper_model():
     global _WHISPER_MODEL
     if _WHISPER_MODEL is None:

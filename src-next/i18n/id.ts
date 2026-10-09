@@ -238,6 +238,9 @@ export const id = {
 
     captions: 'Subtitle',
     captionsOn: 'Tampilkan subtitle',
+    whisperMissing:
+      'Subtitle otomatis belum terpasang. Klip dari video yang tidak punya caption YouTube akan jadi tanpa subtitle.',
+    whisperMissingHow: 'Cara memasang: pip install -r backend/requirements-whisper.txt',
     captionsRenderOnly: 'Tidak ada caption YouTube di bagian ini. Subtitle dibuat saat render.',
     captionsUnavailable: 'Subtitle tidak bisa dimuat. Pastikan backend menyala.',
     captionStyle: 'Gaya',
