@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import {
   ImageIcon,
+  InfoIcon,
   MusicNotesIcon,
   SpeakerHighIcon,
   TrashIcon,
@@ -16,6 +17,7 @@ import { getCenterBounds, getMaxPositions } from './derive';
 import { outputFileName } from '../render/renderPayload';
 import { api, UploadTooLargeError } from '../../api/client';
 import { useLanguage } from '../../i18n';
+import { useWhisperMissing } from '../../hooks/useWhisperMissing';
 import type { StudioAction, StudioState } from './studioReducer';
 import type {
   CaptionFont,
@@ -92,6 +94,9 @@ export function StudioPanel({
   onError,
 }: StudioPanelProps) {
   const { t } = useLanguage();
+  // Automatic subtitles are an optional install (#112); say so rather than
+  // letting a clip come back without subtitles and no explanation.
+  const noWhisper = useWhisperMissing();
   const choices = titleChoices(titleOptions, customTitle);
   // A split fills the canvas on its own (#96), so the ratio no longer shapes
   // anything while it is on: the cards stay visible but cannot be used.
@@ -448,6 +453,23 @@ export function StudioPanel({
             />
             {t.studio.captionsOn}
           </label>
+
+          {/* Only when subtitles are on: with them off, Whisper is irrelevant. */}
+          {state.captionStyle !== 'none' && noWhisper && (
+            <div
+              role="status"
+              className="flex items-start gap-2 rounded-[--radius-control] border-2
+                border-hairline bg-surface-2 p-3 text-[0.8rem]"
+            >
+              <InfoIcon size={16} className="mt-0.5 shrink-0 text-ink-faint" />
+              <span className="min-w-0">
+                <span className="text-ink-dim">{t.studio.whisperMissing}</span>{' '}
+                <code className="break-all font-mono text-[0.76rem] text-ink">
+                  {t.studio.whisperMissingHow}
+                </code>
+              </span>
+            </div>
+          )}
 
           {state.captionStyle !== 'none' && (
             <>

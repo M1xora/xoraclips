@@ -45,6 +45,10 @@ def health_check(refresh: bool = False):
         "is_vercel": is_vercel,
         "proxy_configured": bool(proxy),
         "mock_mode": is_mock_mode(),
+        # Automatic subtitles are an optional install (#112). The Studio shows
+        # a note when this is false, so a clip from a video with no transcript
+        # does not come back without subtitles and no explanation.
+        "whisper_available": video_engine.whisper_available(),
         "supadata_keys_count": len(keys),
         "supadata": supadata_info
     }

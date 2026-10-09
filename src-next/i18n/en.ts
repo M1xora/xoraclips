@@ -239,6 +239,9 @@ export const en: Translations = {
 
     captions: 'Captions',
     captionsOn: 'Show captions',
+    whisperMissing:
+      'Automatic subtitles are not installed. Clips from videos without YouTube captions will render without subtitles.',
+    whisperMissingHow: 'To install: pip install -r backend/requirements-whisper.txt',
     captionsRenderOnly: 'No YouTube captions for this part. Captions are made during render.',
     captionsUnavailable: 'Captions could not load. Check that the backend is running.',
     captionStyle: 'Style',
