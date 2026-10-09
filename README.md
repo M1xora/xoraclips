@@ -1,7 +1,6 @@
 # Xoraclips
 
 [![Versi](https://img.shields.io/badge/versi-0.9.0--beta-orange)](https://github.com/M1xora/xoraclips/releases)
-[![Lisensi](https://img.shields.io/badge/lisensi-MIT-blue)](LICENSE)
 
 > **Status: beta.** Alur intinya sudah berjalan penuh dan dipakai merender
 > video sungguhan, tapi pemasangannya belum diuji di banyak komputer. Kalau
@@ -152,4 +151,7 @@ Di `src-next/`: `api/` klien HTTP ke backend, `features/` satu folder per fitur 
 - **"Sign in to confirm you're not a bot".** YouTube minta login. Ekspor cookies YouTube dari browser (misalnya dengan ekstensi *Get cookies.txt locally*), lalu tempel di panel Cookies di aplikasi.
 - **CORS.** Backend hanya menerima `http://localhost:5174` dan `http://127.0.0.1:5174`. Ubah lewat env `ALLOWED_ORIGINS` kalau pakai port lain.
 - **Frontend lama** (`npm run dev`, port 5173) masih bisa dijalankan, tapi tidak dikembangkan lagi.
-- Lisensi: MIT (lihat `LICENSE`).
+- **Hak cipta.** Kode ini belum punya lisensi terbuka. Hak cipta ada pada
+  pemiliknya, dan hak pemakaian belum diberikan ke siapa pun. Kalau Anda ingin
+  memakai, mengubah, atau menyebarkannya, hubungi dulu lewat
+  [Issues](https://github.com/M1xora/xoraclips/issues).
