@@ -15541,7 +15541,7 @@
    },
    {
     "code": "youtube_blocked",
-    "error": "YouTube is limiting access from this network. Try again later, or upload subtitles manually.",
+    "error": "YouTube is refusing subtitle requests. Try again later, or upload subtitles manually.",
     "retry_after": 600,
     "status": 429
    }
@@ -17238,7 +17238,7 @@
   "events": [
    {
     "code": "youtube_blocked",
-    "error": "YouTube is limiting access from this network. Try again later, or upload subtitles manually.",
+    "error": "YouTube is refusing subtitle requests. Try again later, or upload subtitles manually.",
     "retry_after": 600,
     "status": 429
    }

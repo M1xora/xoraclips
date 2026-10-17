@@ -24,7 +24,7 @@ CAPTIONS_UNAVAILABLE = "captions_unavailable"
 
 # English fallbacks; the frontend shows its own translation per code.
 MESSAGES = {
-    YOUTUBE_BLOCKED: "YouTube is limiting access from this network. Try again later, or upload subtitles manually.",
+    YOUTUBE_BLOCKED: "YouTube is refusing subtitle requests. Try again later, or upload subtitles manually.",
     CAPTIONS_DISABLED: "The creator turned subtitles off for this video. Upload subtitles manually to analyze it.",
     VIDEO_UNAVAILABLE: "This video is private or unavailable.",
     AGE_RESTRICTED: "This video is age-restricted, so its subtitles cannot be fetched. Upload subtitles manually.",
