@@ -5797,7 +5797,7 @@
     "step_progress": 100
    },
    {
-    "detail": "Aligning 800 dialogue segments with engagement data for gemini-2.5-flash...",
+    "detail": "Aligning 900 dialogue segments with engagement data for gemini-2.5-flash...",
     "message": "Assembling prompt and engagement context for gemini-2.5-flash...",
     "model": "gemini-2.5-flash",
     "overall_progress": 72,
@@ -5806,18 +5806,7 @@
     "step_progress": 10
    },
    {
-    "detail": "Too many subtitle lines to analyse at once: only up to 13:20 was sent to gemini-2.5-flash, leaving the last 1:40 unread. Set a search range over that part to analyse it.",
-    "message": "Only up to 13:20 fit the analysis limit...",
-    "model": "gemini-2.5-flash",
-    "overall_progress": 72,
-    "stage": "Transcript Limit",
-    "step": 4,
-    "step_progress": 11,
-    "transcript_cut_at": 800.0,
-    "transcript_unread_seconds": 100.0
-   },
-   {
-    "detail": "Dispatched 800 lines to gemini-2.5-flash (attempt 1)...",
+    "detail": "Dispatched 900 lines to gemini-2.5-flash (attempt 1)...",
     "message": "Calling gemini-2.5-flash (attempt 1/2)...",
     "model": "gemini-2.5-flash",
     "overall_progress": 74,
@@ -5909,13 +5898,12 @@
   "gemini_calls": [
    {
     "model": "gemini-2.5-flash",
-    "prompt_chars": 29425,
-    "prompt_sha256": "8dfc52a9a6b96de744a47097fbe02a87605bf81f16582fe2787253426135616d"
+    "prompt_chars": 32525,
+    "prompt_sha256": "f37f04f5526a59ef9b83c72e27b8db1ab80e8e1061e195c44c078cc2682fb37a"
    }
   ],
   "logs": [
    "INFO xoraclips: Metadata fetched: title='Uji', duration=900.0s, heatmap_pts=0",
-   "WARNING xoraclips: Transcript 900 lines — truncating to 800 (cut at 800s of 800s).",
    "INFO xoraclips: Flash fallback chain prepared: ['gemini-2.5-flash', 'gemini-2.5-flash-lite', 'gemini-2.0-flash', 'gemini-2.0-flash-lite', 'gemini-1.5-flash', 'gemini-1.5-flash-8b']",
    "INFO xoraclips: Gemini analysis complete with gemini-2.5-flash. Found 2 clips.",
    "INFO xoraclips: Clip bounds: 0/2 clip(s) moved to line/sentence edges."
@@ -5974,7 +5962,7 @@
     "step_progress": 100
    },
    {
-    "detail": "Aligning 800 dialogue segments with engagement data for gemini-2.5-flash...",
+    "detail": "Aligning 1400 dialogue segments with engagement data for gemini-2.5-flash...",
     "message": "Assembling prompt and engagement context for gemini-2.5-flash...",
     "model": "gemini-2.5-flash",
     "overall_progress": 72,
@@ -5983,18 +5971,7 @@
     "step_progress": 10
    },
    {
-    "detail": "Too many subtitle lines to analyse at once: only up to 15:00 was sent to gemini-2.5-flash, leaving the last 10:00 unread. Set a search range over that part to analyse it.",
-    "message": "Only up to 15:00 fit the analysis limit...",
-    "model": "gemini-2.5-flash",
-    "overall_progress": 72,
-    "stage": "Transcript Limit",
-    "step": 4,
-    "step_progress": 11,
-    "transcript_cut_at": 900.0,
-    "transcript_unread_seconds": 600.0
-   },
-   {
-    "detail": "Dispatched 800 lines to gemini-2.5-flash (attempt 1)...",
+    "detail": "Dispatched 1400 lines to gemini-2.5-flash (attempt 1)...",
     "message": "Calling gemini-2.5-flash (attempt 1/2)...",
     "model": "gemini-2.5-flash",
     "overall_progress": 74,
@@ -6037,18 +6014,17 @@
   "gemini_calls": [
    {
     "model": "gemini-2.5-flash",
-    "prompt_chars": 29756,
-    "prompt_sha256": "b6c8dd561afab53043d4cca035bf05523b045ac5801252f3697f6f7272879f09"
+    "prompt_chars": 49858,
+    "prompt_sha256": "5e02420b3fcf62b700527bdec1a5112e07175d9113986b6bcfa048672764cb71"
    }
   ],
   "logs": [
    "INFO xoraclips: Metadata fetched: title='Uji', duration=1800.0s, heatmap_pts=0",
    "INFO xoraclips: Filtered transcript to custom range: 100.0s to 1500.0s (duration: 1400.0s)",
-   "WARNING xoraclips: Transcript 1400 lines — truncating to 800 (cut at 900s of 900s).",
    "INFO xoraclips: Flash fallback chain prepared: ['gemini-2.5-flash', 'gemini-2.5-flash-lite', 'gemini-2.0-flash', 'gemini-2.0-flash-lite', 'gemini-1.5-flash', 'gemini-1.5-flash-8b']",
    "INFO xoraclips: Gemini analysis complete with gemini-2.5-flash. Found 2 clips.",
    "INFO xoraclips: Clip bounds: 0/2 clip(s) moved to line/sentence edges.",
-   "WARNING xoraclips: Dropped 2 clip(s) outside 100-900s."
+   "WARNING xoraclips: Dropped 2 clip(s) outside 100-1500s."
   ],
   "sleeps": []
  },
@@ -11835,7 +11811,7 @@
     "step_progress": 100
    },
    {
-    "detail": "Aligning 800 dialogue segments with engagement data for gemini-3.5-flash-lite...",
+    "detail": "Aligning 1077 dialogue segments with engagement data for gemini-3.5-flash-lite...",
     "message": "Assembling prompt and engagement context for gemini-3.5-flash-lite...",
     "model": "gemini-3.5-flash-lite",
     "overall_progress": 72,
@@ -11844,18 +11820,7 @@
     "step_progress": 10
    },
    {
-    "detail": "Too many subtitle lines to analyse at once: only up to 34:26 was sent to gemini-3.5-flash-lite, leaving the last 11:57 unread. Set a search range over that part to analyse it.",
-    "message": "Only up to 34:26 fit the analysis limit...",
-    "model": "gemini-3.5-flash-lite",
-    "overall_progress": 72,
-    "stage": "Transcript Limit",
-    "step": 4,
-    "step_progress": 11,
-    "transcript_cut_at": 2066.1,
-    "transcript_unread_seconds": 717.9
-   },
-   {
-    "detail": "Dispatched 800 lines to gemini-3.5-flash-lite (attempt 1)...",
+    "detail": "Dispatched 1077 lines to gemini-3.5-flash-lite (attempt 1)...",
     "message": "Calling gemini-3.5-flash-lite (attempt 1/2)...",
     "model": "gemini-3.5-flash-lite",
     "overall_progress": 74,
@@ -12659,13 +12624,12 @@
   "gemini_calls": [
    {
     "model": "gemini-3.5-flash-lite",
-    "prompt_chars": 49113,
-    "prompt_sha256": "39b13e0b28867335d1f65f0b0263d530604c746c18799864b04f6ff2575e7a80"
+    "prompt_chars": 64700,
+    "prompt_sha256": "f83cb1d613d2ddaa1864c0a69b90f3508261798b4f93e5b222fa17bc27935d81"
    }
   ],
   "logs": [
    "INFO xoraclips: Metadata fetched: title='#ngopenk PEMBAHASAN LEBIH DALAM SEPUTAR GINJAL BERSAMA AHLINYA: dr. DECSA MEDIKA HERTANTO, Sp.PD-KGH', duration=2784.0s, heatmap_pts=100",
-   "WARNING xoraclips: Transcript 1077 lines — truncating to 800 (cut at 2066s of 2066s).",
    "INFO xoraclips: Flash fallback chain prepared: ['gemini-3.5-flash-lite', 'gemini-2.5-flash', 'gemini-2.5-flash-lite', 'gemini-2.0-flash', 'gemini-2.0-flash-lite', 'gemini-1.5-flash', 'gemini-1.5-flash-8b']",
    "INFO xoraclips: Gemini analysis complete with gemini-3.5-flash-lite. Found 10 clips.",
    "INFO xoraclips: Clip bounds: 10/10 clip(s) moved to line/sentence edges.",
