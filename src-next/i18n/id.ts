@@ -416,9 +416,9 @@ export const id = {
     aiBusy: 'Layanan AI Google sedang sibuk. Kunci kamu tidak bermasalah, coba lagi sebentar lagi.',
     aiFailed: 'Analisis AI gagal. Coba lagi sebentar lagi.',
     youtubeBlocked: (time: string, minutes: number) =>
-      `YouTube sedang membatasi akses dari jaringan ini. Coba lagi setelah pukul ${time} (sekitar ${minutes} menit lagi), atau upload subtitle manual.`,
+      `YouTube sedang menolak permintaan subtitle. Coba lagi setelah pukul ${time} (sekitar ${minutes} menit lagi), atau upload subtitle manual.`,
     youtubeBlockedLater:
-      'YouTube sedang membatasi akses dari jaringan ini. Coba lagi beberapa saat lagi, atau upload subtitle manual.',
+      'YouTube sedang menolak permintaan subtitle. Coba lagi beberapa saat lagi, atau upload subtitle manual.',
     captionsDisabled: 'Pembuat video mematikan subtitle untuk video ini. Upload subtitle manual untuk menganalisisnya.',
     videoUnavailable: 'Video ini private atau tidak tersedia.',
     ageRestricted: 'Video ini dibatasi usia, jadi subtitlenya tidak bisa diambil. Upload subtitle manual.',

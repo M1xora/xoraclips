@@ -745,6 +745,45 @@ def get_supadata_usage_data(force: bool = False) -> dict:
     return res
 
 
+# Issue #117: captions used to be fetched with an 8 second timeout. Measured
+# on a 4.4 hour video whose caption track is 3.3 MB, a healthy request takes
+# anywhere from 0.6 to 30.5 seconds, so 8 seconds cut off requests that were
+# going to succeed. Each cut-off made us ask for the next candidate, and the
+# repeated asking is what earned a real 429 from YouTube: every tier then
+# stopped and the user was told their network was being limited, which it
+# was not. 60 seconds clears the slowest success measured, and sits above the
+# ~40 seconds a 502 takes, without hanging forever.
+CAPTION_TIMEOUT_SECONDS = 60
+
+# A 502 from YouTube is random rather than a refusal: in the same test run the
+# identical URL answered 502 once and 200 the next time. One retry is worth it.
+CAPTION_RETRY_PAUSE_SECONDS = 2
+
+
+def _request_caption(url: str, proxies, lang: str):
+    """One caption track, retried once on a 502. Returns the response, or None
+    when it could not be fetched; a timeout is a slow request, not a block, so
+    it never raises YouTubeBlocked (issue #117)."""
+    for attempt in (1, 2):
+        try:
+            r = requests.get(url, proxies=proxies, timeout=CAPTION_TIMEOUT_SECONDS)
+        except requests.Timeout:
+            logger.warning(
+                f"yt-dlp caption {lang} timed out after {CAPTION_TIMEOUT_SECONDS}s"
+            )
+            return None
+        except Exception as e:
+            logger.warning(f"yt-dlp caption request failed (lang={lang}): {e}")
+            return None
+        # 502 only; 429 is a genuine refusal and the caller must see it.
+        if r.status_code == 502 and attempt == 1:
+            logger.warning(f"yt-dlp caption {lang} answered HTTP 502, retrying once")
+            time.sleep(CAPTION_RETRY_PAUSE_SECONDS)
+            continue
+        return r
+    return None
+
+
 def fetch_transcript_ytdlp(video_id: str, proxy: Optional[str] = None) -> List[dict]:
     """Attempts to extract captions using yt-dlp's player response directly (free, no quota used).
     Can be run direct (proxy=None) or routed through a proxy."""
@@ -773,12 +812,18 @@ def fetch_transcript_ytdlp(video_id: str, proxy: Optional[str] = None) -> List[d
     candidates = ytdlp_caption_candidates(info.get('subtitles') or {}, info.get('automatic_captions') or {})
     proxies_dict = {'http': proxy, 'https': proxy} if proxy else None
     attempts = [proxies_dict, None] if proxy else [None]
+    first_request = True
     for lang, is_auto, url in candidates:
         for p in attempts:
-            try:
-                r = requests.get(url, proxies=p, timeout=8)
-            except Exception as e:
-                logger.warning(f"yt-dlp caption request failed (lang={lang}): {e}")
+            # Issue #117: a pause before every request but the first. Each
+            # failed caption makes us ask again, and asking back to back is
+            # what earns the real 429 that stops all the remaining tiers.
+            if not first_request:
+                time.sleep(CAPTION_RETRY_PAUSE_SECONDS)
+            first_request = False
+
+            r = _request_caption(url, p, lang)
+            if r is None:
                 continue
             content_type = r.headers.get('content-type', '')
             body = r.text if 'html' in content_type.lower() else ''

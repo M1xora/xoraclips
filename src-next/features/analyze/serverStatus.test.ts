@@ -122,7 +122,7 @@ describe('analyzeErrorView', () => {
       locale: 'id-ID',
     });
     expect(view.keyProblem).toBe(false);
-    expect(view.message).toMatch(/membatasi akses/);
+    expect(view.message).toMatch(/menolak permintaan subtitle/);
     expect(view.message).toMatch(/14[.:]35/);
     expect(view.message).toMatch(/sekitar 10 menit lagi/);
     expect(view.message).toMatch(/upload subtitle manual/);
