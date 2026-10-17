@@ -146,19 +146,20 @@ def test_the_users_focus_and_a_missing_channel():
 
 def test_a_long_transcript_is_cut(caplog):
     with caplog.at_level(logging.WARNING, logger="xoraclips"):
-        prompt, n_lines, cut_at = prompt_for(enriched(900, step=1.0))
-    assert n_lines == 800 and "799.0|800.0 kalimat 799." in prompt and "kalimat 800." not in prompt
+        prompt, n_lines, cut_at = prompt_for(enriched(2600, step=1.0))
+    assert n_lines == 2500 and "2499.0|2500.0 kalimat 2499." in prompt and "kalimat 2500." not in prompt
     # Issue #101: the log says where it ran out, not just that it did.
-    assert "Transcript 900 lines — truncating to 800 (cut at 800s of 900s)." in caplog.text
-    assert prompt_for(enriched(900, step=1.0), is_long_video=True)[1] == 900
-    assert cut_at == 800.0
+    assert "Transcript 2600 lines — truncating to 2500 (cut at 2500s of 2600s)." in caplog.text
+    # Issue #120: the budget no longer depends on the video's length.
+    assert prompt_for(enriched(2600, step=1.0), is_long_video=True)[1] == 2500
+    assert cut_at == 2500.0
 
 
 def test_a_transcript_that_fits_reports_no_cut():
     assert prompt_for(enriched(3))[2] is None
     # Exactly at the limit is not a cut.
-    assert prompt_for(enriched(800, step=1.0))[2] is None
-    assert prompt_for(enriched(801, step=1.0))[2] == 800.0
+    assert prompt_for(enriched(2500, step=1.0))[2] is None
+    assert prompt_for(enriched(2501, step=1.0))[2] == 2500.0
 
 
 @pytest.mark.parametrize("seconds,shown", [
@@ -176,12 +177,33 @@ def test_the_clock_in_user_facing_messages(seconds, shown):
 
 
 def test_transcript_cut_at_reports_where_the_prompt_runs_out():
-    assert analysis.transcript_cut_at(enriched(3), False) is None
-    assert analysis.transcript_cut_at(enriched(800, step=1.0), False) is None
-    assert analysis.transcript_cut_at(enriched(801, step=1.0), False) == 800.0
-    # A long video carries more lines before it is cut.
-    assert analysis.transcript_cut_at(enriched(900, step=1.0), True) is None
-    assert analysis.transcript_cut_at(enriched(2501, step=1.0), True) == 2500.0
+    assert analysis.transcript_cut_at(enriched(3)) is None
+    assert analysis.transcript_cut_at(enriched(2500, step=1.0)) is None
+    assert analysis.transcript_cut_at(enriched(2501, step=1.0)) == 2500.0
+
+
+def test_a_video_under_an_hour_keeps_its_transcript():
+    """Issue #120: 800 lines used to be the budget at or below an hour, so a
+    59 minute video (~1657 lines at the measured 0.468 lines/second) lost more
+    than half of its transcript while a 61 minute one lost nothing."""
+    assert analysis.transcript_cut_at(enriched(1657, step=1.0)) is None
+
+
+def test_a_longer_video_never_gets_a_bigger_budget():
+    """The cliff itself, locked shut: whatever the line counts, a longer video
+    must never be allowed more lines than a shorter one."""
+    budgets = [
+        len(analysis.build_prompt(
+            enriched(n, step=1.0), heatmap=False, title="t", channel="c",
+            start_bound=0.0, end_bound=float(n), duration=float(n),
+            clip_duration="30s", clip_range="1-3", custom_prompt=None,
+            is_long_video=n > 3600,
+        )[0].splitlines())
+        for n in (500, 1000, 1657, 2000, 3000, 4000)
+    ]
+    # Prompt length may plateau once the cut kicks in, but it must never fall
+    # as the video gets longer -- that fall was the cliff.
+    assert budgets == sorted(budgets), budgets
 
 
 def test_clips_outside_the_searched_range_are_dropped():
@@ -202,16 +224,16 @@ def test_a_dropped_clip_does_not_leave_a_gap_in_the_numbering():
 
 def test_a_cut_transcript_does_not_promise_gemini_the_whole_range():
     """Issue #101: Gemini placed clips in seconds it was never shown."""
-    lines = enriched(900, step=1.0)       # 900 lines, the last ending at 900s
+    lines = enriched(2600, step=1.0)      # 2600 lines, the last ending at 2600s
     cut, _, cut_at = analysis.build_prompt(
-        lines, heatmap=[], title="Judul", channel="Kanal", start_bound=0.0, end_bound=900.0,
-        duration=900.0, clip_duration="30s", clip_range="3-5", custom_prompt=None,
+        lines, heatmap=[], title="Judul", channel="Kanal", start_bound=0.0, end_bound=2600.0,
+        duration=2600.0, clip_duration="30s", clip_range="3-5", custom_prompt=None,
         is_long_video=False)
     # The range stops where the transcript does, not where the video does.
-    assert cut_at == 800.0
-    assert "0s to 800s" in cut and "0s to 900s" not in cut
+    assert cut_at == 2500.0
+    assert "0s to 2500s" in cut and "0s to 2600s" not in cut
     # The video's real length still shows, so Gemini knows there is more.
-    assert "(Total: 900s)" in cut
+    assert "(Total: 2600s)" in cut
 
 
 def test_retired_models_become_the_current_flash():
