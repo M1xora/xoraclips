@@ -266,18 +266,31 @@ def enrich_transcript(transcript_lines: List[dict], heatmap: List[dict]) -> List
 
 # --- prompt -------------------------------------------------------------------------------
 
-def transcript_cut_at(enriched_transcript: List[dict], is_long_video: bool) -> Optional[float]:
+# Issue #120: one line budget for every duration. It used to be 800 lines for
+# a video of an hour or less and 2500 above that, which made the shorter video
+# the one that lost more: at 0.468 lines/second a 59 minute video kept 48% of
+# its transcript while a 61 minute one kept all of it. Both numbers date from
+# the first commit with no stated reason, and the model's context is not what
+# forces them -- gemini-2.5-flash takes 1,048,576 input tokens and 2500 lines
+# is roughly 47k. 2500 is the figure long videos already run on today, so
+# using it everywhere adds no untried territory.
+MAX_PROMPT_LINES = 2500
+
+
+def transcript_cut_at(enriched_transcript: List[dict]) -> Optional[float]:
     """The second a too-long transcript runs out at, or None when it all fits.
 
-    Issue #101: the prompt carries at most MAX_LINES lines, cut from the back,
-    so the end of the video never reaches Gemini. Callers narrow their end
+    Issue #101: the prompt carries at most MAX_PROMPT_LINES lines, cut from the
+    back, so the end of the video never reaches Gemini. Callers narrow their end
     bound to this before choosing a clip count or fitting clips, otherwise
     clips land in seconds Gemini was never shown.
+
+    Issue #120: the budget no longer depends on the video's length, so this no
+    longer takes is_long_video.
     """
-    max_lines = 2500 if is_long_video else 800
-    if len(enriched_transcript) <= max_lines:
+    if len(enriched_transcript) <= MAX_PROMPT_LINES:
         return None
-    return float(enriched_transcript[max_lines - 1].get("end", 0.0))
+    return float(enriched_transcript[MAX_PROMPT_LINES - 1].get("end", 0.0))
 
 
 # Issue #99: how a clip is chosen, for every preset. The hook is picked
@@ -317,7 +330,7 @@ HOW_TO_PICK = (
 def build_prompt(enriched_transcript: List[dict], *, heatmap: List[dict], title: str, channel: str,
                  start_bound: float, end_bound: float, duration: float, clip_duration: str,
                  clip_range: str, custom_prompt: Optional[str],
-                 is_long_video: bool) -> Tuple[str, int, Optional[float]]:
+                 ) -> Tuple[str, int, Optional[float]]:
     """The prompt for Gemini, how many transcript lines it carries, and the
     second the transcript was cut at (issue #101).
 
@@ -330,12 +343,11 @@ def build_prompt(enriched_transcript: List[dict], *, heatmap: List[dict], title:
         eng = f"|{line['engagement']:.2f}" if heatmap and line['engagement'] > 0 else ""
         transcript_dump.append(f"{line['start']:.1f}|{line['end']:.1f}{eng} {line['text']}")
 
-    max_lines = 2500 if is_long_video else 800
-    cut_at = transcript_cut_at(enriched_transcript, is_long_video)
+    cut_at = transcript_cut_at(enriched_transcript)
     if cut_at is not None:
-        logger.warning(f"Transcript {len(transcript_dump)} lines — truncating to {max_lines} "
+        logger.warning(f"Transcript {len(transcript_dump)} lines — truncating to {MAX_PROMPT_LINES} "
                        f"(cut at {cut_at:.0f}s of {end_bound:.0f}s).")
-        transcript_dump = transcript_dump[:max_lines]
+        transcript_dump = transcript_dump[:MAX_PROMPT_LINES]
         # The prompt must not claim a range the transcript no longer covers.
         # The caller narrows its own end_bound the same way, so clip counts
         # and clip bounds stay inside what Gemini actually saw.
