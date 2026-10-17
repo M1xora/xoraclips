@@ -654,7 +654,7 @@ async def _analysis_events(request: AnalyzeRequest, gemini_key: Optional[str]):
     prompt, n_lines, _ = analysis.build_prompt(
         enriched, heatmap=heatmap, title=title, channel=channel, start_bound=start_bound,
         end_bound=end_bound, duration=duration, clip_duration=request.duration, clip_range=clip_range,
-        custom_prompt=request.custom_prompt, is_long_video=is_long_video)
+        custom_prompt=request.custom_prompt)
     requested_model = analysis.pick_model(request.model)
 
     yield _event(4, 10, 72, "Context Assembly",

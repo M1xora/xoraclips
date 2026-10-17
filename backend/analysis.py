@@ -330,7 +330,7 @@ HOW_TO_PICK = (
 def build_prompt(enriched_transcript: List[dict], *, heatmap: List[dict], title: str, channel: str,
                  start_bound: float, end_bound: float, duration: float, clip_duration: str,
                  clip_range: str, custom_prompt: Optional[str],
-                 is_long_video: bool) -> Tuple[str, int, Optional[float]]:
+                 ) -> Tuple[str, int, Optional[float]]:
     """The prompt for Gemini, how many transcript lines it carries, and the
     second the transcript was cut at (issue #101).
 
@@ -343,12 +343,11 @@ def build_prompt(enriched_transcript: List[dict], *, heatmap: List[dict], title:
         eng = f"|{line['engagement']:.2f}" if heatmap and line['engagement'] > 0 else ""
         transcript_dump.append(f"{line['start']:.1f}|{line['end']:.1f}{eng} {line['text']}")
 
-    max_lines = MAX_PROMPT_LINES
     cut_at = transcript_cut_at(enriched_transcript)
     if cut_at is not None:
-        logger.warning(f"Transcript {len(transcript_dump)} lines — truncating to {max_lines} "
+        logger.warning(f"Transcript {len(transcript_dump)} lines — truncating to {MAX_PROMPT_LINES} "
                        f"(cut at {cut_at:.0f}s of {end_bound:.0f}s).")
-        transcript_dump = transcript_dump[:max_lines]
+        transcript_dump = transcript_dump[:MAX_PROMPT_LINES]
         # The prompt must not claim a range the transcript no longer covers.
         # The caller narrows its own end_bound the same way, so clip counts
         # and clip bounds stay inside what Gemini actually saw.
