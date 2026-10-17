@@ -74,24 +74,10 @@ def test_timeout_is_not_treated_as_a_block(monkeypatch):
     assert youtube_source._request_caption(CAPTION_URL, None, "id") is None
 
 
-def test_502_is_retried_once_then_succeeds(monkeypatch):
-    """A 502 from YouTube is random: the same URL answered 502 then 200 in one
-    test run, so one retry is worth it."""
-    calls = []
-
-    def fake_get(url, **kwargs):
-        calls.append(url)
-        if len(calls) == 1:
-            return FakeResponse(status_code=502, content_type="text/html")
-        return FakeResponse()
-
-    monkeypatch.setattr(youtube_source.requests, "get", fake_get)
-    r = youtube_source._request_caption(CAPTION_URL, None, "id")
-    assert len(calls) == 2
-    assert r.status_code == 200
-
-
-def test_502_twice_gives_up_without_blocking(monkeypatch):
+def test_502_is_handed_back_not_retried(monkeypatch):
+    """A 502 is random, but retrying inside _request_caption would double the
+    requests and slip past YTDLP_MAX_CAPTION_REQUESTS (issue #9). One request
+    per call; the caller falls through to the next proxy and candidate."""
     calls = []
 
     def fake_get(url, **kwargs):
@@ -100,8 +86,76 @@ def test_502_twice_gives_up_without_blocking(monkeypatch):
 
     monkeypatch.setattr(youtube_source.requests, "get", fake_get)
     r = youtube_source._request_caption(CAPTION_URL, None, "id")
-    assert len(calls) == 2
+    assert len(calls) == 1
     assert r.status_code == 502
+
+
+def test_requests_stay_within_the_issue_9_cap(monkeypatch):
+    """The caption requests of one call must not exceed candidates x attempts;
+    nothing may multiply them behind the cap's back."""
+    calls = []
+
+    class FakeYDL:
+        def __init__(self, opts):
+            pass
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *a):
+            return False
+
+        def extract_info(self, url, download=False):
+            return {
+                "subtitles": {},
+                "automatic_captions": {
+                    "id": [{"ext": "json3", "url": CAPTION_URL}],
+                    "en": [{"ext": "json3", "url": CAPTION_URL + "&lang=en"}],
+                },
+            }
+
+    def fake_get(url, **kwargs):
+        calls.append(url)
+        return FakeResponse(status_code=502, content_type="text/html")
+
+    monkeypatch.setattr(youtube_source.yt_dlp, "YoutubeDL", FakeYDL)
+    monkeypatch.setattr(youtube_source.requests, "get", fake_get)
+    assert youtube_source.fetch_transcript_ytdlp("abcdefghijk") == []
+    assert len(calls) <= youtube_source.YTDLP_MAX_CAPTION_REQUESTS
+
+
+def test_progress_is_reported_for_each_candidate(monkeypatch):
+    """A 60s timeout per request can keep this running for minutes; without a
+    sign of life the SSE stream goes quiet long enough to be dropped."""
+    seen = []
+
+    class FakeYDL:
+        def __init__(self, opts):
+            pass
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *a):
+            return False
+
+        def extract_info(self, url, download=False):
+            return {
+                "subtitles": {},
+                "automatic_captions": {
+                    "id": [{"ext": "json3", "url": CAPTION_URL}],
+                    "en": [{"ext": "json3", "url": CAPTION_URL + "&lang=en"}],
+                },
+            }
+
+    monkeypatch.setattr(youtube_source.yt_dlp, "YoutubeDL", FakeYDL)
+    monkeypatch.setattr(
+        youtube_source.requests, "get",
+        lambda url, **kw: FakeResponse(status_code=502, content_type="text/html"),
+    )
+    youtube_source.fetch_transcript_ytdlp("abcdefghijk", notify=seen.append)
+    assert len(seen) >= 2
+    assert all("Fetching subtitles" in line for line in seen)
 
 
 def test_429_still_counts_as_a_block(monkeypatch):

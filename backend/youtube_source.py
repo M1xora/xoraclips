@@ -755,38 +755,48 @@ def get_supadata_usage_data(force: bool = False) -> dict:
 # ~40 seconds a 502 takes, without hanging forever.
 CAPTION_TIMEOUT_SECONDS = 60
 
-# A 502 from YouTube is random rather than a refusal: in the same test run the
-# identical URL answered 502 once and 200 the next time. One retry is worth it.
-CAPTION_RETRY_PAUSE_SECONDS = 2
+# A pause before asking again. YouTube's 429 is earned by asking back to back,
+# so a second between candidates costs little and is what the repeated asking
+# needed all along.
+CAPTION_RETRY_PAUSE_SECONDS = 1
 
 
 def _request_caption(url: str, proxies, lang: str):
-    """One caption track, retried once on a 502. Returns the response, or None
-    when it could not be fetched; a timeout is a slow request, not a block, so
-    it never raises YouTubeBlocked (issue #117)."""
-    for attempt in (1, 2):
-        try:
-            r = requests.get(url, proxies=proxies, timeout=CAPTION_TIMEOUT_SECONDS)
-        except requests.Timeout:
-            logger.warning(
-                f"yt-dlp caption {lang} timed out after {CAPTION_TIMEOUT_SECONDS}s"
-            )
-            return None
-        except Exception as e:
-            logger.warning(f"yt-dlp caption request failed (lang={lang}): {e}")
-            return None
-        # 502 only; 429 is a genuine refusal and the caller must see it.
-        if r.status_code == 502 and attempt == 1:
-            logger.warning(f"yt-dlp caption {lang} answered HTTP 502, retrying once")
-            time.sleep(CAPTION_RETRY_PAUSE_SECONDS)
-            continue
-        return r
-    return None
+    """One caption track. Returns the response, or None when the request could
+    not be made; a timeout is a slow request, not a refusal, so it never raises
+    YouTubeBlocked (issue #117).
+
+    A 502 is handed back rather than retried here. It is random -- the same URL
+    answered 502 then 200 in one test run -- but retrying inside this function
+    doubles the number of requests and so slips past
+    YTDLP_MAX_CAPTION_REQUESTS, the cap issue #9 added to keep request volume
+    down. The caller already falls through to the next proxy and the next
+    candidate, which covers the same ground within the cap.
+    """
+    try:
+        return requests.get(url, proxies=proxies, timeout=CAPTION_TIMEOUT_SECONDS)
+    except requests.Timeout:
+        logger.warning(
+            f"yt-dlp caption {lang} timed out after {CAPTION_TIMEOUT_SECONDS}s"
+        )
+        return None
+    except Exception as e:
+        logger.warning(f"yt-dlp caption request failed (lang={lang}): {e}")
+        return None
 
 
-def fetch_transcript_ytdlp(video_id: str, proxy: Optional[str] = None) -> List[dict]:
+def fetch_transcript_ytdlp(
+    video_id: str,
+    proxy: Optional[str] = None,
+    notify: Optional[Callable[[str], None]] = None,
+) -> List[dict]:
     """Attempts to extract captions using yt-dlp's player response directly (free, no quota used).
-    Can be run direct (proxy=None) or routed through a proxy."""
+    Can be run direct (proxy=None) or routed through a proxy.
+
+    `notify` is called before each caption candidate. Issue #117: with a 60
+    second timeout per request this can run for minutes, and without a sign of
+    life the SSE stream goes quiet long enough for an intermediary to drop it
+    before the user ever sees the error."""
     ydl_opts = {
         'skip_download': True,
         'quiet': True,
@@ -812,16 +822,20 @@ def fetch_transcript_ytdlp(video_id: str, proxy: Optional[str] = None) -> List[d
     candidates = ytdlp_caption_candidates(info.get('subtitles') or {}, info.get('automatic_captions') or {})
     proxies_dict = {'http': proxy, 'https': proxy} if proxy else None
     attempts = [proxies_dict, None] if proxy else [None]
-    first_request = True
-    for lang, is_auto, url in candidates:
-        for p in attempts:
-            # Issue #117: a pause before every request but the first. Each
-            # failed caption makes us ask again, and asking back to back is
-            # what earns the real 429 that stops all the remaining tiers.
-            if not first_request:
-                time.sleep(CAPTION_RETRY_PAUSE_SECONDS)
-            first_request = False
+    first_candidate = True
+    for index, (lang, is_auto, url) in enumerate(candidates, start=1):
+        if notify:
+            notify(f"Fetching subtitles ({lang}, {index}/{len(candidates)})...")
+        # Issue #117: a pause before each new candidate, but not between the
+        # proxy and direct attempts on the same one. Asking YouTube back to
+        # back is what earns the real 429 that stops all the remaining tiers;
+        # a proxy that fails fast never reached YouTube, so delaying the
+        # direct attempt after it only slows down the retry that should work.
+        if not first_candidate:
+            time.sleep(CAPTION_RETRY_PAUSE_SECONDS)
+        first_candidate = False
 
+        for p in attempts:
             r = _request_caption(url, p, lang)
             if r is None:
                 continue
@@ -1066,7 +1080,11 @@ def _fetch_transcript_tiers(
         _stop_if_remembered()
         notify("Tier 4/7: Proxy yt-dlp Native", "Trying Method 4/7: yt-dlp native caption extraction via proxy...", 70)
         try:
-            ytdlp_proxy_data = fetch_transcript_ytdlp(video_id, proxy=proxy_url)
+            ytdlp_proxy_data = fetch_transcript_ytdlp(
+                video_id,
+                proxy=proxy_url,
+                notify=lambda detail: notify("Tier 4/7: Proxy yt-dlp Native", detail, 70),
+            )
             if ytdlp_proxy_data:
                 res = normalize_transcript(ytdlp_proxy_data)
                 if res:
@@ -1159,7 +1177,11 @@ def _fetch_transcript_tiers(
     _stop_if_remembered()
     notify("Tier 7/7: Direct yt-dlp Native", "Trying Method 7/7: Direct yt-dlp native caption extraction...", 94)
     try:
-        direct_ytdlp_data = fetch_transcript_ytdlp(video_id, proxy=None)
+        direct_ytdlp_data = fetch_transcript_ytdlp(
+            video_id,
+            proxy=None,
+            notify=lambda detail: notify("Tier 7/7: Direct yt-dlp Native", detail, 94),
+        )
         if direct_ytdlp_data:
             res = normalize_transcript(direct_ytdlp_data)
             if res:
