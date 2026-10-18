@@ -53,21 +53,25 @@ class TitleOption(BaseModel):
 
 
 class ViralClipGemini(BaseModel):
-    # Issue #99: the quote fields come first, and opening_line before title,
-    # because the model writes them in this order: the hook is chosen, then
-    # the times are made to match it, then the title is written about it.
-    # The three *_line fields are matched back against the transcript, so a
-    # tidied-up or translated copy of them is worse than none.
+    # Field order is how the model is steered, because google-genai turns it
+    # into the schema's property_ordering (verified on google-genai 2.24.0).
+    # Whether the model then writes strictly in that order is its own
+    # behaviour, not a guarantee the API makes.
+    #
+    # Issue #99: the quote fields come first -- the hook is chosen from the
+    # transcript, then everything else is written about it. The three *_line
+    # fields are matched back against the transcript, so a tidied-up or
+    # translated copy of them is worse than none.
+    # Issue #123: then title_options, then title, then the times.
     scroll_stop_reason: str = Field(default="", description="One sentence, at most 15 words: why a stranger scrolling past would stop on this opening.")
     opening_line: str = Field(default="", description="Exact quote, copied word for word from the transcript above, of the first sentence of the clip. This sentence is the hook. Copy it in the transcript's own language; do not translate it, do not fix its spelling, do not add punctuation, do not tidy the grammar.")
     new_viewer_check: str = Field(default="", description="At most 15 words: what a viewer who never saw the video understands after 5 seconds - who is speaking or what the situation is, and what the clip is about.")
     payoff_line: str = Field(default="", description="Exact quote, copied word for word from the transcript above, of the sentence where the payoff (answer, punchline, result or climax) happens. Same copying rules as opening_line.")
     ending_line: str = Field(default="", description="Exact quote, copied word for word from the transcript above, of the last sentence of the clip. Same copying rules as opening_line.")
-    # Issue #123: the options are written before `title`, because `title` is
-    # told to copy the first of them. A model writes JSON in field order, so
-    # while this sat nine fields later the instruction was impossible: the
-    # model had to invent a title first and could only echo it afterwards.
-    # The quote fields still come first, as issue #99 requires.
+    # Issue #123: before `title`, which is told to copy the first of them.
+    # While this sat nine fields later, that instruction asked the model to
+    # copy something it had not written yet, so it had to invent a title
+    # first and could only echo it afterwards.
     title_options: List[TitleOption] = Field(description="Exactly the number of hook titles the HOOK TITLE RULES ask for, strongest first, each with a different angle")
     title: str = Field(description="Copy the text of the first entry of title_options above, word for word (a hook title in casual Indonesian). NEVER first-person ('I', 'me', 'my', 'saya', 'aku', 'gue').")
     start_time: float = Field(description="Clip start in seconds, aligned to a sentence boundary. It must be where opening_line is spoken.")

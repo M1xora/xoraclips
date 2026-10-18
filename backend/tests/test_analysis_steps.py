@@ -96,29 +96,38 @@ def test_the_prompt_forbids_tidying_up_the_quotes():
 
 
 def test_gemini_writes_the_hook_before_the_times_and_the_title():
-    """Issue #99: field order is how the model is steered, so it is pinned."""
+    """The whole steering order in one place, so three partial assertions
+    cannot drift apart.
+
+    Issue #99: the quotes come first, because the hook is picked from the
+    transcript before anything is written about it. Issue #123: then
+    title_options, then the `title` that copies the first of them, then the
+    times. The tail is not pinned: only this prefix carries meaning.
+    """
     names = list(analysis.ViralClipGemini.model_fields)
-    for quote in ("scroll_stop_reason", "opening_line", "new_viewer_check",
-                  "payoff_line", "ending_line"):
-        assert names.index(quote) < names.index("title"), quote
-        assert names.index(quote) < names.index("start_time"), quote
+    assert names[:8] == [
+        "scroll_stop_reason", "opening_line", "new_viewer_check",
+        "payoff_line", "ending_line",
+        "title_options", "title",
+        "start_time",
+    ]
 
 
-def test_the_title_options_are_written_before_the_title_that_copies_them():
-    """Issue #123: `title` is told to copy the first option, and a model
-    writes JSON in field order. While the options came nine fields later the
-    instruction was impossible to follow: the model had to invent a title
-    first, then echo it, so the three angles were never really chosen."""
-    names = list(analysis.ViralClipGemini.model_fields)
-    assert names.index("title_options") < names.index("title")
+def test_the_field_order_actually_reaches_gemini():
+    """Issue #123 only works if the order is transmitted, not merely declared.
 
+    google-genai derives property_ordering from the pydantic field order. If
+    an upgrade stopped doing that, the reorder above would quietly become a
+    no-op while every order assertion stayed green.
+    """
+    from google.genai import _transformers
 
-def test_the_quotes_still_come_before_the_options():
-    """Issue #99 outranks #123: the hook is picked from the transcript before
-    any title is written about it."""
-    names = list(analysis.ViralClipGemini.model_fields)
-    for quote in ("opening_line", "payoff_line", "ending_line"):
-        assert names.index(quote) < names.index("title_options"), quote
+    schema = _transformers.t_schema(None, analysis.VideoAnalysis)
+    dumped = schema.model_dump(exclude_none=True)
+    clip = dumped["properties"]["clips"]["items"]
+    order = clip.get("property_ordering") or clip.get("propertyOrdering")
+    assert order, "google-genai no longer sends property_ordering"
+    assert order.index("title_options") < order.index("title")
 
 
 def test_the_new_fields_are_optional_so_an_old_answer_still_parses():
