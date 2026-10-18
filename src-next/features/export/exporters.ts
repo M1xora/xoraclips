@@ -101,10 +101,23 @@ export function buildJson(result: AnalyzeResponse): string {
         .sort((a, b) => a.start_time - b.start_time)
         .map((c) => ({
           title: clipTitle(c),
+          // Issue #128: the AI's other titles and the sentences it anchored
+          // the clip to are what say *why* a clip was picked, so an export
+          // without them cannot be compared against another one. Absent
+          // fields are written as null rather than left out, so every clip
+          // has the same shape whichever analysis it came from.
+          title_options: c.title_options ?? null,
           start_time: c.start_time,
           end_time: c.end_time,
           duration: Number((c.end_time - c.start_time).toFixed(2)),
+          hook_time: c.hook_time ?? null,
           virality_score: c.virality_score,
+          content_type: c.content_type || null,
+          scroll_stop_reason: c.scroll_stop_reason || null,
+          opening_line: c.opening_line || null,
+          new_viewer_check: c.new_viewer_check || null,
+          payoff_line: c.payoff_line || null,
+          ending_line: c.ending_line || null,
           key_quotes: c.key_quotes,
           caption_suggestion: c.caption_suggestion ?? null,
           hashtag_suggestion: c.hashtag_suggestion ?? null,

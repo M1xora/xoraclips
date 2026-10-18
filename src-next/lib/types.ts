@@ -34,6 +34,14 @@ export interface ViralClip {
   /** Up to 3 checked hook titles, first = the AI's active one (#31). */
   title_options?: string[];
   content_type?: string;
+  /* Issue #99: why the clip opens where it does, and the sentences its
+     bounds are anchored to. Absent on analyses made before #99 and on the
+     backend's own backup clips, so every one of them is optional. */
+  scroll_stop_reason?: string | null;
+  opening_line?: string | null;
+  new_viewer_check?: string | null;
+  payoff_line?: string | null;
+  ending_line?: string | null;
 }
 
 export interface AnalyzeResponse {

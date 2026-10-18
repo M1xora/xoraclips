@@ -190,6 +190,50 @@ describe('buildJson', () => {
     );
     expect(j.clips[0].start_time).toBeLessThan(j.clips[1].start_time);
   });
+
+  it('carries the analysis, not only the timings (#128)', () => {
+    const j = JSON.parse(
+      buildJson(
+        response({
+          clips: [
+            clip({
+              title_options: ['Judul A', 'Judul B', 'Judul C'],
+              content_type: 'edukasi',
+              hook_time: 12,
+              scroll_stop_reason: 'Klaim mengejutkan di kalimat pertama',
+              opening_line: 'Dari zaman Hindia Belanda kita udah punya kereta listrik.',
+              new_viewer_check: 'Pembicara membahas sejarah kereta Indonesia',
+              payoff_line: 'Ironisnya sampai sekarang masih mentok di situ juga.',
+              ending_line: 'Itu yang bikin kita ketinggalan.',
+            }),
+          ],
+        }),
+      ),
+    );
+    const c = j.clips[0];
+    expect(c.title_options).toEqual(['Judul A', 'Judul B', 'Judul C']);
+    expect(c.hook_time).toBe(12);
+    expect(c.content_type).toBe('edukasi');
+    expect(c.scroll_stop_reason).toBe('Klaim mengejutkan di kalimat pertama');
+    expect(c.opening_line).toContain('Hindia Belanda');
+    expect(c.new_viewer_check).toContain('sejarah kereta');
+    expect(c.payoff_line).toContain('Ironisnya');
+    expect(c.ending_line).toContain('ketinggalan');
+  });
+
+  it('gives an older analysis the same shape, with nulls', () => {
+    // Two exports can only be compared when every clip has the same keys,
+    // whichever analysis produced it: #31 added title_options and #99 the
+    // quotes, so anything older carries neither.
+    const now = JSON.parse(buildJson(response({ clips: [clip({ opening_line: 'x' })] })));
+    const old = JSON.parse(buildJson(response()));
+    expect(Object.keys(old.clips[0])).toEqual(Object.keys(now.clips[0]));
+    for (const key of ['title_options', 'opening_line', 'payoff_line',
+                       'ending_line', 'scroll_stop_reason', 'new_viewer_check',
+                       'content_type', 'hook_time']) {
+      expect(old.clips[0][key]).toBeNull();
+    }
+  });
 });
 
 describe('buildMarkdown', () => {
