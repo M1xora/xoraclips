@@ -104,6 +104,23 @@ def test_gemini_writes_the_hook_before_the_times_and_the_title():
         assert names.index(quote) < names.index("start_time"), quote
 
 
+def test_the_title_options_are_written_before_the_title_that_copies_them():
+    """Issue #123: `title` is told to copy the first option, and a model
+    writes JSON in field order. While the options came nine fields later the
+    instruction was impossible to follow: the model had to invent a title
+    first, then echo it, so the three angles were never really chosen."""
+    names = list(analysis.ViralClipGemini.model_fields)
+    assert names.index("title_options") < names.index("title")
+
+
+def test_the_quotes_still_come_before_the_options():
+    """Issue #99 outranks #123: the hook is picked from the transcript before
+    any title is written about it."""
+    names = list(analysis.ViralClipGemini.model_fields)
+    for quote in ("opening_line", "payoff_line", "ending_line"):
+        assert names.index(quote) < names.index("title_options"), quote
+
+
 def test_the_new_fields_are_optional_so_an_old_answer_still_parses():
     clip, = analysis.finish_clips([gemini_clip(10, 25)], enriched(12), "30s", 0.0, 60.0, "Kanal")
     assert clip.opening_line == "" and clip.ending_line == ""

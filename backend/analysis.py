@@ -63,7 +63,13 @@ class ViralClipGemini(BaseModel):
     new_viewer_check: str = Field(default="", description="At most 15 words: what a viewer who never saw the video understands after 5 seconds - who is speaking or what the situation is, and what the clip is about.")
     payoff_line: str = Field(default="", description="Exact quote, copied word for word from the transcript above, of the sentence where the payoff (answer, punchline, result or climax) happens. Same copying rules as opening_line.")
     ending_line: str = Field(default="", description="Exact quote, copied word for word from the transcript above, of the last sentence of the clip. Same copying rules as opening_line.")
-    title: str = Field(description="Same text as the first entry of title_options (a hook title in casual Indonesian). NEVER first-person ('I', 'me', 'my', 'saya', 'aku', 'gue').")
+    # Issue #123: the options are written before `title`, because `title` is
+    # told to copy the first of them. A model writes JSON in field order, so
+    # while this sat nine fields later the instruction was impossible: the
+    # model had to invent a title first and could only echo it afterwards.
+    # The quote fields still come first, as issue #99 requires.
+    title_options: List[TitleOption] = Field(description="Exactly the number of hook titles the HOOK TITLE RULES ask for, strongest first, each with a different angle")
+    title: str = Field(description="Copy the text of the first entry of title_options above, word for word (a hook title in casual Indonesian). NEVER first-person ('I', 'me', 'my', 'saya', 'aku', 'gue').")
     start_time: float = Field(description="Clip start in seconds, aligned to a sentence boundary. It must be where opening_line is spoken.")
     end_time: float = Field(description="Clip end in seconds, aligned to a sentence boundary. It must be where ending_line finishes.")
     hook_time: float = Field(description="Absolute timestamp in seconds from video start where the potential hook occurs inside this clip range (must be >= start_time and <= end_time)")
@@ -72,7 +78,6 @@ class ViralClipGemini(BaseModel):
     title_suggestion: str = Field(default="", description="Leave empty: alternative titles go in title_options.")
     caption_suggestion: str = Field(default="", description="Engaging social media caption suggestion attributing insights or story to the speaker.")
     hashtag_suggestion: str = Field(default="", description="Relevant hashtags suggestion (e.g. #hashtag1 #hashtag2)")
-    title_options: List[TitleOption] = Field(description="Exactly the number of hook titles the HOOK TITLE RULES ask for, strongest first, each with a different angle")
     content_type: str = Field(default="", description="Kind of content in this clip, e.g. lucu, edukasi/kesehatan, motivasi, kontroversi, cerita, gaming")
 
 
