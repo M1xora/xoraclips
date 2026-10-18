@@ -361,6 +361,13 @@ async def _mock_events(video_id: str, title: str, channel: str, duration: float,
 GEMINI_TRIES = 2        # per model, only when it is busy
 RETRY_WAIT_SECONDS = 2
 
+# Issue #124: a per-minute limit heals itself in tens of seconds, so waiting it
+# out keeps the better model instead of dropping to the weakest one in the
+# chain. A daily quota does not heal in time -- those have been reported as
+# hours -- so anything past this ceiling falls through to the next model as
+# before. 90s sits above the per-minute window and far below a daily one.
+QUOTA_WAIT_MAX_SECONDS = 90
+
 
 def _models_to_try(requested_model: str, discovered_flash: List[str]) -> List[str]:
     """The requested model first, then every discovered and known Flash model,
@@ -406,8 +413,13 @@ async def _gemini_events(client, models_to_try: List[str], prompt: str, n_lines:
     for idx, model_name in enumerate(models_to_try):
         next_model_hint = models_to_try[idx + 1] if idx + 1 < len(models_to_try) else None
         switch_announced = False
+        # Issue #124: waiting out a per-minute limit is not a failed attempt,
+        # so it gets its own flag and does not spend a GEMINI_TRIES slot.
+        quota_waited = False
 
-        for attempt in range(GEMINI_TRIES):
+        attempt = -1
+        while attempt + 1 < GEMINI_TRIES:
+            attempt += 1
             if attempt > 0:
                 wait = RETRY_WAIT_SECONDS
                 yield _event(4, 25, 75, "Transient Retry",
@@ -478,6 +490,25 @@ async def _gemini_events(client, models_to_try: List[str], prompt: str, n_lines:
                     break
                 if last_code == ai_errors.KEY_QUOTA:
                     encountered_quota_error = e
+                    # Issue #124: the server says how long to wait. A short
+                    # wait means a per-minute limit, which is worth sitting
+                    # out to keep this model; a long one means a daily quota,
+                    # which is not. Once per model, so the chain cannot stall.
+                    wait = ai_errors.retry_after_seconds(e)
+                    if (wait is not None and wait <= QUOTA_WAIT_MAX_SECONDS
+                            and not quota_waited):
+                        quota_waited = True
+                        logger.info(f"{model_name} hit a per-minute limit; "
+                                    f"waiting {wait:.0f}s as the server asked.")
+                        yield _event(4, 22, 75, "Quota Wait",
+                                     (f"{model_name} reached its per-minute limit — "
+                                      f"waiting {wait:.0f}s to keep using it instead of "
+                                      f"dropping to a weaker model..."),
+                                     f"{model_name} rate-limited — waiting {wait:.0f}s...",
+                                     model=model_name)
+                        await asyncio.sleep(wait)
+                        attempt -= 1   # the wait is not an attempt
+                        continue
                     break
                 # Only a busy server is worth retrying on the same model.
                 if last_code != ai_errors.AI_BUSY:

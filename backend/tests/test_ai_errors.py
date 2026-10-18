@@ -72,3 +72,68 @@ def test_a_plain_403_does_not_stop_the_other_models():
 ])
 def test_most_relevant_error_wins(codes, expected):
     assert e.most_relevant(codes) == expected
+
+
+# ── Issue #124: the server's own retry hint ──────────────────────────────
+
+
+class _Err(Exception):
+    """Stands in for google-genai's APIError, which carries the response JSON."""
+
+    def __init__(self, details):
+        super().__init__("429 RESOURCE_EXHAUSTED")
+        self.details = details
+
+
+def _retry_info(delay):
+    return {"error": {"code": 429, "details": [
+        {"@type": "type.googleapis.com/google.rpc.RetryInfo", "retryDelay": delay},
+    ]}}
+
+
+@pytest.mark.parametrize("text,seconds", [
+    ("53s", 53.0),
+    ("46.13s", 46.13),
+    ("1m30s", 90.0),
+    # A daily quota: reported as hours, and far past any sensible wait.
+    ("10h17m5.72s", 37025.72),
+    ("", None),
+    ("soon", None),
+    (None, None),
+    (5, None),
+])
+def test_parse_retry_duration(text, seconds):
+    got = e.parse_retry_duration(text)
+    if seconds is None:
+        assert got is None
+    else:
+        assert got == pytest.approx(seconds)
+
+
+def test_retry_after_seconds_reads_the_servers_hint():
+    assert e.retry_after_seconds(_Err(_retry_info("53s"))) == pytest.approx(53.0)
+    # Works without the "error" wrapper too, as some responses come.
+    bare = {"details": [{"@type": "google.rpc.RetryInfo", "retryDelay": "7s"}]}
+    assert e.retry_after_seconds(_Err(bare)) == pytest.approx(7.0)
+
+
+def test_a_daily_quota_is_reported_as_its_real_length():
+    """It must not be mistaken for a per-minute limit: the caller compares it
+    against its own ceiling and falls through to the next model."""
+    assert e.retry_after_seconds(_Err(_retry_info("10h17m5.72s"))) > 3600
+
+
+@pytest.mark.parametrize("details", [
+    {"error": {"code": 429}},                                   # no details
+    {"error": {"details": [{"@type": "google.rpc.QuotaFailure"}]}},  # other type
+    {"error": {"details": [{"@type": "google.rpc.RetryInfo"}]}},     # no delay
+    {"error": {"details": "not a list"}},
+    "not a dict",
+    None,
+])
+def test_no_hint_means_none_so_the_caller_keeps_its_old_behaviour(details):
+    assert e.retry_after_seconds(_Err(details)) is None
+
+
+def test_a_plain_exception_has_no_hint():
+    assert e.retry_after_seconds(Exception("boom")) is None

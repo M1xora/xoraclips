@@ -53,6 +53,53 @@ _QUOTA = ("resource_exhausted", "resource exhausted", "quota", "rate limit")
 _REGION = ("location is not supported", "user location")
 _BUSY = ("unavailable", "overloaded", "internal error", "deadline exceeded", "try again later")
 
+# Issue #124: a 429 from Gemini carries google.rpc.RetryInfo with a retryDelay
+# such as "53s". The SDK ignores it and backs off on its own schedule
+# (googleapis/python-genai#1875), so it is read here. The value also tells a
+# per-minute limit apart from a daily one: per-minute delays are tens of
+# seconds, daily ones have been reported as hours ("10h17m5.72s").
+_RETRY_INFO_TYPE = "google.rpc.RetryInfo"
+_DURATION = re.compile(r"^(?:(\d+)h)?(?:(\d+)m)?(?:(\d+(?:\.\d+)?)s)?$")
+
+
+def parse_retry_duration(text: object) -> Optional[float]:
+    """Seconds in a protobuf duration string, or None when it is not one.
+
+    Accepts "53s", "46.13s" and "10h17m5.72s". A bare float() would choke on
+    every form but the first.
+    """
+    if not isinstance(text, str):
+        return None
+    m = _DURATION.match(text.strip())
+    if not m or not any(m.groups()):
+        return None
+    hours, minutes, seconds = m.groups()
+    return int(hours or 0) * 3600 + int(minutes or 0) * 60 + float(seconds or 0)
+
+
+def retry_after_seconds(error: BaseException) -> Optional[float]:
+    """How long the server asked us to wait, or None when it did not say.
+
+    google-genai puts the response JSON on APIError.details. Anything else
+    (a plain exception, a details that is not a dict, no RetryInfo entry)
+    means no answer, and the caller keeps its existing behaviour.
+    """
+    details = getattr(error, "details", None)
+    if not isinstance(details, dict):
+        return None
+    body = details.get("error")
+    if not isinstance(body, dict):
+        body = details
+    for entry in body.get("details") or ():
+        if not isinstance(entry, dict):
+            continue
+        if _RETRY_INFO_TYPE in str(entry.get("@type", "")):
+            seconds = parse_retry_duration(entry.get("retryDelay"))
+            if seconds is not None:
+                return seconds
+    return None
+
+
 
 def _status(text: str) -> Optional[int]:
     m = _LEADING_STATUS.match(text)
