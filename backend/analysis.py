@@ -53,17 +53,27 @@ class TitleOption(BaseModel):
 
 
 class ViralClipGemini(BaseModel):
-    # Issue #99: the quote fields come first, and opening_line before title,
-    # because the model writes them in this order: the hook is chosen, then
-    # the times are made to match it, then the title is written about it.
-    # The three *_line fields are matched back against the transcript, so a
-    # tidied-up or translated copy of them is worse than none.
+    # Field order is how the model is steered, because google-genai turns it
+    # into the schema's property_ordering (verified on google-genai 2.24.0).
+    # Whether the model then writes strictly in that order is its own
+    # behaviour, not a guarantee the API makes.
+    #
+    # Issue #99: the quote fields come first -- the hook is chosen from the
+    # transcript, then everything else is written about it. The three *_line
+    # fields are matched back against the transcript, so a tidied-up or
+    # translated copy of them is worse than none.
+    # Issue #123: then title_options, then title, then the times.
     scroll_stop_reason: str = Field(default="", description="One sentence, at most 15 words: why a stranger scrolling past would stop on this opening.")
     opening_line: str = Field(default="", description="Exact quote, copied word for word from the transcript above, of the first sentence of the clip. This sentence is the hook. Copy it in the transcript's own language; do not translate it, do not fix its spelling, do not add punctuation, do not tidy the grammar.")
     new_viewer_check: str = Field(default="", description="At most 15 words: what a viewer who never saw the video understands after 5 seconds - who is speaking or what the situation is, and what the clip is about.")
     payoff_line: str = Field(default="", description="Exact quote, copied word for word from the transcript above, of the sentence where the payoff (answer, punchline, result or climax) happens. Same copying rules as opening_line.")
     ending_line: str = Field(default="", description="Exact quote, copied word for word from the transcript above, of the last sentence of the clip. Same copying rules as opening_line.")
-    title: str = Field(description="Same text as the first entry of title_options (a hook title in casual Indonesian). NEVER first-person ('I', 'me', 'my', 'saya', 'aku', 'gue').")
+    # Issue #123: before `title`, which is told to copy the first of them.
+    # While this sat nine fields later, that instruction asked the model to
+    # copy something it had not written yet, so it had to invent a title
+    # first and could only echo it afterwards.
+    title_options: List[TitleOption] = Field(description="Exactly the number of hook titles the HOOK TITLE RULES ask for, strongest first, each with a different angle")
+    title: str = Field(description="Copy the text of the first entry of title_options above, word for word (a hook title in casual Indonesian). NEVER first-person ('I', 'me', 'my', 'saya', 'aku', 'gue').")
     start_time: float = Field(description="Clip start in seconds, aligned to a sentence boundary. It must be where opening_line is spoken.")
     end_time: float = Field(description="Clip end in seconds, aligned to a sentence boundary. It must be where ending_line finishes.")
     hook_time: float = Field(description="Absolute timestamp in seconds from video start where the potential hook occurs inside this clip range (must be >= start_time and <= end_time)")
@@ -72,7 +82,6 @@ class ViralClipGemini(BaseModel):
     title_suggestion: str = Field(default="", description="Leave empty: alternative titles go in title_options.")
     caption_suggestion: str = Field(default="", description="Engaging social media caption suggestion attributing insights or story to the speaker.")
     hashtag_suggestion: str = Field(default="", description="Relevant hashtags suggestion (e.g. #hashtag1 #hashtag2)")
-    title_options: List[TitleOption] = Field(description="Exactly the number of hook titles the HOOK TITLE RULES ask for, strongest first, each with a different angle")
     content_type: str = Field(default="", description="Kind of content in this clip, e.g. lucu, edukasi/kesehatan, motivasi, kontroversi, cerita, gaming")
 
 
