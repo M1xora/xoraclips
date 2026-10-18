@@ -34,6 +34,14 @@ export interface ViralClip {
   /** Up to 3 checked hook titles, first = the AI's active one (#31). */
   title_options?: string[];
   content_type?: string;
+  /* Issue #99: why the clip opens where it does, and the sentences its
+     bounds are anchored to. The backend sends "" rather than leaving them
+     out, on analyses made before #99 and on its own backup clips. */
+  scroll_stop_reason?: string;
+  opening_line?: string;
+  new_viewer_check?: string;
+  payoff_line?: string;
+  ending_line?: string;
 }
 
 export interface AnalyzeResponse {

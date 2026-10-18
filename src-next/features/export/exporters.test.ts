@@ -190,6 +190,86 @@ describe('buildJson', () => {
     );
     expect(j.clips[0].start_time).toBeLessThan(j.clips[1].start_time);
   });
+
+  it('carries the analysis, not only the timings (#128)', () => {
+    const j = JSON.parse(
+      buildJson(
+        response({
+          clips: [
+            clip({
+              title_options: ['Judul A', 'Judul B', 'Judul C'],
+              content_type: 'edukasi',
+              hook_time: 12,
+              scroll_stop_reason: 'Klaim mengejutkan di kalimat pertama',
+              opening_line: 'Dari zaman Hindia Belanda kita udah punya kereta listrik.',
+              new_viewer_check: 'Pembicara membahas sejarah kereta Indonesia',
+              payoff_line: 'Ironisnya sampai sekarang masih mentok di situ juga.',
+              ending_line: 'Itu yang bikin kita ketinggalan.',
+            }),
+          ],
+        }),
+      ),
+    );
+    const c = j.clips[0];
+    expect(c.title_options).toEqual(['Judul A', 'Judul B', 'Judul C']);
+    expect(c.hook_time).toBe(12);
+    expect(c.content_type).toBe('edukasi');
+    expect(c.scroll_stop_reason).toBe('Klaim mengejutkan di kalimat pertama');
+    expect(c.opening_line).toContain('Hindia Belanda');
+    expect(c.new_viewer_check).toContain('sejarah kereta');
+    expect(c.payoff_line).toContain('Ironisnya');
+    expect(c.ending_line).toContain('ketinggalan');
+  });
+
+  it('writes what the AI left empty as null, in the shape the backend sends', () => {
+    // The backend never leaves these out: analysis.py gives every one a
+    // default, so an older analysis or a backup clip arrives as "" and [],
+    // not as a missing key. Guarding only for a missing key would pass this
+    // test while leaking [] and 0 into every real export.
+    const asBackendSends = clip({
+      title_options: [],
+      content_type: '',
+      scroll_stop_reason: '',
+      opening_line: '',
+      new_viewer_check: '',
+      payoff_line: '',
+      ending_line: '',
+      key_quotes: [],
+      caption_suggestion: '',
+      hashtag_suggestion: '',
+    });
+    const c = JSON.parse(buildJson(response({ clips: [asBackendSends] }))).clips[0];
+    for (const key of ['title_options', 'opening_line', 'payoff_line',
+                       'ending_line', 'scroll_stop_reason', 'new_viewer_check',
+                       'content_type', 'key_quotes', 'caption_suggestion',
+                       'hashtag_suggestion']) {
+      expect(c[key], key).toBeNull();
+    }
+  });
+
+  it('keeps the AI title apart from a title the user renamed', () => {
+    // A renamed clip would otherwise lose the title being compared, and the
+    // renamed ones are the clips the user cared enough to rename.
+    const c = JSON.parse(
+      buildJson(
+        response({
+          clips: [clip({ title: 'Judul AI', custom_title: 'Final cut v2' })],
+        }),
+      ),
+    ).clips[0];
+    expect(c.title).toBe('Final cut v2');
+    expect(c.ai_title).toBe('Judul AI');
+  });
+
+  it('records which model and clip length produced the analysis', () => {
+    // Two exports of one video are otherwise indistinguishable, and the
+    // fallback chain means the model is not always the one requested.
+    const j = JSON.parse(
+      buildJson(response({ model: 'gemini-3.7-flash', clip_range_preset: '60s' })),
+    );
+    expect(j.model).toBe('gemini-3.7-flash');
+    expect(j.clip_range_preset).toBe('60s');
+  });
 });
 
 describe('buildMarkdown', () => {
