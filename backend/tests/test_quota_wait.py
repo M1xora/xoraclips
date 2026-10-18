@@ -78,7 +78,8 @@ def test_a_per_minute_limit_is_waited_out_on_the_same_model(monkeypatch):
     slept, _, _ = drive(client, ["gemini-3.8-flash", "gemini-3.5-flash-lite"], monkeypatch)
 
     assert client.calls == ["gemini-3.8-flash", "gemini-3.8-flash"]
-    assert 53.0 in slept
+    # The wait is split into keepalive ticks, so the total is what matters.
+    assert sum(slept) == pytest.approx(53.0)
 
 
 def test_a_daily_quota_drops_to_the_next_model_without_waiting(monkeypatch):
@@ -87,7 +88,9 @@ def test_a_daily_quota_drops_to_the_next_model_without_waiting(monkeypatch):
     slept, _, _ = drive(client, ["gemini-3.8-flash", "gemini-3.5-flash-lite"], monkeypatch)
 
     assert client.calls == ["gemini-3.8-flash", "gemini-3.5-flash-lite"]
-    assert not any(s > routes_analyze.QUOTA_WAIT_MAX_SECONDS for s in slept)
+    # Nothing at all is slept: asserting only "nothing longer than the
+    # ceiling" would also pass with the quota wait deleted entirely.
+    assert slept == []
 
 
 def test_no_retry_hint_keeps_the_old_behaviour(monkeypatch):
@@ -101,10 +104,12 @@ def test_no_retry_hint_keeps_the_old_behaviour(monkeypatch):
 def test_one_model_is_waited_for_only_once(monkeypatch):
     """A model that keeps answering 429 must not hold the chain for ever."""
     client = FakeClient([quota_error("50s"), quota_error("50s"), ANSWER])
-    _, _, _ = drive(client, ["gemini-3.8-flash", "gemini-3.5-flash-lite"], monkeypatch)
+    slept, _, _ = drive(client, ["gemini-3.8-flash", "gemini-3.5-flash-lite"], monkeypatch)
 
     assert client.calls.count("gemini-3.8-flash") == 2
     assert client.calls[-1] == "gemini-3.5-flash-lite"
+    # Exactly one wait happened, not one per 429.
+    assert sum(slept) == pytest.approx(50.0)
 
 
 def test_the_wait_is_announced_so_the_stream_is_not_silent(monkeypatch):
@@ -117,3 +122,48 @@ def test_the_wait_is_announced_so_the_stream_is_not_silent(monkeypatch):
 
 def test_the_ceiling_is_above_a_minute_and_well_below_a_day():
     assert 60 < routes_analyze.QUOTA_WAIT_MAX_SECONDS < 600
+
+
+def test_the_whole_chain_cannot_wait_for_ever(monkeypatch):
+    """A per-minute limit belongs to the key, so every model in the chain
+    answers 429. Without a chain-wide budget the ceiling would be
+    QUOTA_WAIT_MAX_SECONDS times the chain length, not the ceiling itself."""
+    chain = [f"m{i}" for i in range(8)]
+    client = FakeClient([quota_error("80s")] * 20)
+    slept, _, outcome = drive(client, chain, monkeypatch)
+
+    assert sum(slept) <= routes_analyze.QUOTA_WAIT_BUDGET_SECONDS
+    assert outcome["code"] == ai_errors.KEY_QUOTA
+
+
+def test_a_zero_delay_is_not_worth_waiting_for(monkeypatch):
+    """"0s" would burn the one wait this model gets and retry with no backoff,
+    almost certainly hitting the same 429."""
+    client = FakeClient([quota_error("0s"), ANSWER])
+    slept, _, _ = drive(client, ["gemini-3.8-flash", "gemini-3.5-flash-lite"], monkeypatch)
+
+    assert client.calls == ["gemini-3.8-flash", "gemini-3.5-flash-lite"]
+    assert slept == []
+
+
+def test_the_wait_keeps_ticking_so_a_proxy_does_not_drop_the_stream(monkeypatch):
+    """One announcement up front still leaves the stream silent for a minute;
+    an idle proxy would close it mid-analysis."""
+    client = FakeClient([quota_error("53s"), ANSWER])
+    slept, stages, _ = drive(client, ["gemini-3.8-flash", "gemini-3.5-flash-lite"], monkeypatch)
+
+    assert all(s <= routes_analyze.QUOTA_WAIT_TICK_SECONDS for s in slept)
+    ticks = [s for s in stages if "Quota Wait" in str(s)]
+    assert len(ticks) >= 10
+    assert all("keepalive" in str(t) for t in ticks)
+
+
+def test_a_model_is_called_at_most_gemini_tries_times_per_turn(monkeypatch):
+    """The wait must not buy a model extra calls: GEMINI_TRIES still bounds
+    them, and the retry after a wait is a fresh turn, not a third attempt."""
+    busy = Exception("503 UNAVAILABLE. The model is overloaded.")
+    client = FakeClient([quota_error("40s"), busy, busy, ANSWER])
+    _, _, _ = drive(client, ["gemini-3.8-flash", "gemini-3.5-flash-lite"], monkeypatch)
+
+    # 1 quota call + GEMINI_TRIES busy calls after the wait.
+    assert client.calls.count("gemini-3.8-flash") == 1 + routes_analyze.GEMINI_TRIES

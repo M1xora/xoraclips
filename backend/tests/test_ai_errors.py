@@ -137,3 +137,20 @@ def test_no_hint_means_none_so_the_caller_keeps_its_old_behaviour(details):
 
 def test_a_plain_exception_has_no_hint():
     assert e.retry_after_seconds(Exception("boom")) is None
+
+
+def test_retry_info_is_found_beside_a_populated_error_key():
+    """The envelope varies; RetryInfo at the top level must not be missed
+    just because an "error" dict sits next to it."""
+    both = {"error": {"code": 429, "message": "quota"},
+            "details": [{"@type": "type.googleapis.com/google.rpc.RetryInfo",
+                         "retryDelay": "47s"}]}
+    assert e.retry_after_seconds(_Err(both)) == pytest.approx(47.0)
+
+
+def test_a_look_alike_type_is_not_mistaken_for_retry_info():
+    """The name is matched as the type's last segment, not as a substring."""
+    fake = {"error": {"details": [
+        {"@type": "type.googleapis.com/google.rpc.RetryInfoV2", "retryDelay": "900s"},
+    ]}}
+    assert e.retry_after_seconds(_Err(fake)) is None

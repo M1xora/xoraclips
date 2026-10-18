@@ -368,6 +368,15 @@ RETRY_WAIT_SECONDS = 2
 # before. 90s sits above the per-minute window and far below a daily one.
 QUOTA_WAIT_MAX_SECONDS = 90
 
+# A per-minute limit belongs to the key, not to one model, so when it is hit
+# every model in the chain answers 429. Without a budget spanning the whole
+# chain the real ceiling would be QUOTA_WAIT_MAX_SECONDS times its length.
+QUOTA_WAIT_BUDGET_SECONDS = 120
+
+# The wait is long enough that a silent stream looks like a hang, and long
+# enough for an idle proxy to drop it, so it ticks the way _heartbeat does.
+QUOTA_WAIT_TICK_SECONDS = 2
+
 
 def _models_to_try(requested_model: str, discovered_flash: List[str]) -> List[str]:
     """The requested model first, then every discovered and known Flash model,
@@ -380,6 +389,26 @@ def _models_to_try(requested_model: str, discovered_flash: List[str]) -> List[st
         if km not in models_to_try:
             models_to_try.append(km)
     return models_to_try
+
+
+async def _quota_wait_events(model_name: str, seconds: float):
+    """Sleeps `seconds`, ticking throughout so the stream is never silent.
+
+    Issue #124: the wait can run to QUOTA_WAIT_MAX_SECONDS, long enough for an
+    idle proxy to drop the connection and long enough to look like a hang, so
+    it keeps the stream alive exactly as _heartbeat does for a model call.
+    """
+    left = seconds
+    while left > 0:
+        step = min(QUOTA_WAIT_TICK_SECONDS, left)
+        await asyncio.sleep(step)
+        left -= step
+        yield _event(4, 22, 75, "Quota Wait",
+                     (f"{model_name} reached its per-minute limit - waiting "
+                      f"{left:.0f}s more to keep using it instead of dropping "
+                      f"to a weaker model..."),
+                     f"{model_name} rate-limited - {left:.0f}s left...",
+                     keepalive=True, model=model_name)
 
 
 async def _heartbeat(task: asyncio.Task, model_name: str, n_lines: int, clip_range: str):
@@ -409,17 +438,21 @@ async def _gemini_events(client, models_to_try: List[str], prompt: str, n_lines:
     last_code = ai_errors.AI_FAILED
     analysis_data = None
     successful_model = None
+    # Issue #124: a queue rather than a plain list, so a model whose
+    # per-minute limit was waited out goes back to the front and is tried
+    # again. The budget is chain-wide because the limit belongs to the key:
+    # left per-model, every model in the chain would ask for its own wait.
+    queue = list(models_to_try)
+    quota_budget_left = float(QUOTA_WAIT_BUDGET_SECONDS)
+    waited_models = set()
 
-    for idx, model_name in enumerate(models_to_try):
-        next_model_hint = models_to_try[idx + 1] if idx + 1 < len(models_to_try) else None
+    while queue:
+        model_name = queue.pop(0)
+        next_model_hint = queue[0] if queue else None
         switch_announced = False
-        # Issue #124: waiting out a per-minute limit is not a failed attempt,
-        # so it gets its own flag and does not spend a GEMINI_TRIES slot.
-        quota_waited = False
+        quota_wait = 0.0
 
-        attempt = -1
-        while attempt + 1 < GEMINI_TRIES:
-            attempt += 1
+        for attempt in range(GEMINI_TRIES):
             if attempt > 0:
                 wait = RETRY_WAIT_SECONDS
                 yield _event(4, 25, 75, "Transient Retry",
@@ -490,25 +523,16 @@ async def _gemini_events(client, models_to_try: List[str], prompt: str, n_lines:
                     break
                 if last_code == ai_errors.KEY_QUOTA:
                     encountered_quota_error = e
-                    # Issue #124: the server says how long to wait. A short
-                    # wait means a per-minute limit, which is worth sitting
-                    # out to keep this model; a long one means a daily quota,
-                    # which is not. Once per model, so the chain cannot stall.
-                    wait = ai_errors.retry_after_seconds(e)
-                    if (wait is not None and wait <= QUOTA_WAIT_MAX_SECONDS
-                            and not quota_waited):
-                        quota_waited = True
-                        logger.info(f"{model_name} hit a per-minute limit; "
-                                    f"waiting {wait:.0f}s as the server asked.")
-                        yield _event(4, 22, 75, "Quota Wait",
-                                     (f"{model_name} reached its per-minute limit — "
-                                      f"waiting {wait:.0f}s to keep using it instead of "
-                                      f"dropping to a weaker model..."),
-                                     f"{model_name} rate-limited — waiting {wait:.0f}s...",
-                                     model=model_name)
-                        await asyncio.sleep(wait)
-                        attempt -= 1   # the wait is not an attempt
-                        continue
+                    # Issue #124: the server says how long to wait. Tens of
+                    # seconds is a per-minute limit, worth sitting out to keep
+                    # this model; hours are a daily quota, which is not. The
+                    # retry is scheduled below rather than here, so it costs
+                    # no GEMINI_TRIES slot and the call budget stays honest.
+                    hint = ai_errors.retry_after_seconds(e)
+                    if (hint is not None and 0 < hint <= QUOTA_WAIT_MAX_SECONDS
+                            and hint <= quota_budget_left
+                            and model_name not in waited_models):
+                        quota_wait = hint
                     break
                 # Only a busy server is worth retrying on the same model.
                 if last_code != ai_errors.AI_BUSY:
@@ -516,6 +540,21 @@ async def _gemini_events(client, models_to_try: List[str], prompt: str, n_lines:
 
         if analysis_data is not None or key_rejected:
             break
+
+        if quota_wait:
+            # Issue #124: a per-minute limit heals itself, so wait it out and
+            # put this model back at the front rather than dropping to a
+            # weaker one. Once per model and within the chain-wide budget,
+            # both checked where quota_wait was set.
+            waited_models.add(model_name)
+            quota_budget_left -= quota_wait
+            logger.info(f"{model_name} hit a per-minute limit; waiting "
+                        f"{quota_wait:.0f}s as the server asked "
+                        f"({quota_budget_left:.0f}s of budget left).")
+            async for event in _quota_wait_events(model_name, quota_wait):
+                yield event
+            queue.insert(0, model_name)
+            continue
 
         if next_model_hint is not None and not switch_announced:
             err_summary = {

@@ -87,16 +87,24 @@ def retry_after_seconds(error: BaseException) -> Optional[float]:
     details = getattr(error, "details", None)
     if not isinstance(details, dict):
         return None
-    body = details.get("error")
-    if not isinstance(body, dict):
-        body = details
-    for entry in body.get("details") or ():
-        if not isinstance(entry, dict):
-            continue
-        if _RETRY_INFO_TYPE in str(entry.get("@type", "")):
-            seconds = parse_retry_duration(entry.get("retryDelay"))
-            if seconds is not None:
-                return seconds
+    # The envelope is not the same on every path, and APIError unwraps a
+    # single-element list before storing it, so both shapes are scanned
+    # rather than only the one that happens to carry an "error" key.
+    bodies = [details]
+    inner = details.get("error")
+    if isinstance(inner, dict):
+        bodies.append(inner)
+    for body in bodies:
+        for entry in body.get("details") or ():
+            if not isinstance(entry, dict):
+                continue
+            # The type is a URL; match its last segment, so a different type
+            # that merely contains this name is not mistaken for it.
+            kind = str(entry.get("@type", "")).rsplit("/", 1)[-1]
+            if kind == _RETRY_INFO_TYPE:
+                seconds = parse_retry_duration(entry.get("retryDelay"))
+                if seconds is not None:
+                    return seconds
     return None
 
 
