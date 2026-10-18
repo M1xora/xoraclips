@@ -221,18 +221,54 @@ describe('buildJson', () => {
     expect(c.ending_line).toContain('ketinggalan');
   });
 
-  it('gives an older analysis the same shape, with nulls', () => {
-    // Two exports can only be compared when every clip has the same keys,
-    // whichever analysis produced it: #31 added title_options and #99 the
-    // quotes, so anything older carries neither.
-    const now = JSON.parse(buildJson(response({ clips: [clip({ opening_line: 'x' })] })));
-    const old = JSON.parse(buildJson(response()));
-    expect(Object.keys(old.clips[0])).toEqual(Object.keys(now.clips[0]));
+  it('writes what the AI left empty as null, in the shape the backend sends', () => {
+    // The backend never leaves these out: analysis.py gives every one a
+    // default, so an older analysis or a backup clip arrives as "" and [],
+    // not as a missing key. Guarding only for a missing key would pass this
+    // test while leaking [] and 0 into every real export.
+    const asBackendSends = clip({
+      title_options: [],
+      content_type: '',
+      scroll_stop_reason: '',
+      opening_line: '',
+      new_viewer_check: '',
+      payoff_line: '',
+      ending_line: '',
+      key_quotes: [],
+      caption_suggestion: '',
+      hashtag_suggestion: '',
+    });
+    const c = JSON.parse(buildJson(response({ clips: [asBackendSends] }))).clips[0];
     for (const key of ['title_options', 'opening_line', 'payoff_line',
                        'ending_line', 'scroll_stop_reason', 'new_viewer_check',
-                       'content_type', 'hook_time']) {
-      expect(old.clips[0][key]).toBeNull();
+                       'content_type', 'key_quotes', 'caption_suggestion',
+                       'hashtag_suggestion']) {
+      expect(c[key], key).toBeNull();
     }
+  });
+
+  it('keeps the AI title apart from a title the user renamed', () => {
+    // A renamed clip would otherwise lose the title being compared, and the
+    // renamed ones are the clips the user cared enough to rename.
+    const c = JSON.parse(
+      buildJson(
+        response({
+          clips: [clip({ title: 'Judul AI', custom_title: 'Final cut v2' })],
+        }),
+      ),
+    ).clips[0];
+    expect(c.title).toBe('Final cut v2');
+    expect(c.ai_title).toBe('Judul AI');
+  });
+
+  it('records which model and clip length produced the analysis', () => {
+    // Two exports of one video are otherwise indistinguishable, and the
+    // fallback chain means the model is not always the one requested.
+    const j = JSON.parse(
+      buildJson(response({ model: 'gemini-3.7-flash', clip_range_preset: '60s' })),
+    );
+    expect(j.model).toBe('gemini-3.7-flash');
+    expect(j.clip_range_preset).toBe('60s');
   });
 });
 

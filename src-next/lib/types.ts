@@ -35,13 +35,13 @@ export interface ViralClip {
   title_options?: string[];
   content_type?: string;
   /* Issue #99: why the clip opens where it does, and the sentences its
-     bounds are anchored to. Absent on analyses made before #99 and on the
-     backend's own backup clips, so every one of them is optional. */
-  scroll_stop_reason?: string | null;
-  opening_line?: string | null;
-  new_viewer_check?: string | null;
-  payoff_line?: string | null;
-  ending_line?: string | null;
+     bounds are anchored to. The backend sends "" rather than leaving them
+     out, on analyses made before #99 and on its own backup clips. */
+  scroll_stop_reason?: string;
+  opening_line?: string;
+  new_viewer_check?: string;
+  payoff_line?: string;
+  ending_line?: string;
 }
 
 export interface AnalyzeResponse {

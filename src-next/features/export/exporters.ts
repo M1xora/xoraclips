@@ -87,7 +87,24 @@ export function buildSrt(transcript: TranscriptLine[], clip?: ViralClip): string
     .join('\n');
 }
 
-/** The whole analysis as JSON, formatted to be read as well as parsed. */
+/**
+ * Nothing, as null. The backend never leaves these fields out -- every one
+ * has a default, so "the AI gave nothing" arrives as `""` or `[]`, not as a
+ * missing key. Writing all three as null is what lets two exports be
+ * compared: a reader can test one value instead of three empty shapes.
+ */
+function orNull<T>(value: T | null | undefined): T | null {
+  if (value === null || value === undefined || value === '') return null;
+  if (Array.isArray(value) && value.length === 0) return null;
+  return value;
+}
+
+/**
+ * The whole analysis as JSON, formatted to be read as well as parsed.
+ *
+ * Every clip has the same keys whichever analysis produced it, and anything
+ * the AI did not give is null (issue #128), so two exports can be diffed.
+ */
 export function buildJson(result: AnalyzeResponse): string {
   return JSON.stringify(
     {
@@ -95,32 +112,41 @@ export function buildJson(result: AnalyzeResponse): string {
       title: result.title,
       channel: result.channel ?? null,
       duration: result.duration,
+      // Issue #128: which model and which clip length produced this. Two
+      // exports of the same video are otherwise indistinguishable, and the
+      // fallback chain means the model is not always the one requested.
+      model: orNull(result.model),
+      clip_range_preset: orNull(result.clip_range_preset),
+      clip_range_seconds: orNull(result.clip_range_seconds),
+      summary: orNull(result.summary),
       exported_at: new Date().toISOString(),
       clip_count: result.clips.length,
       clips: [...result.clips]
         .sort((a, b) => a.start_time - b.start_time)
         .map((c) => ({
+          // What is shown: the user's rename when there is one.
           title: clipTitle(c),
-          // Issue #128: the AI's other titles and the sentences it anchored
-          // the clip to are what say *why* a clip was picked, so an export
-          // without them cannot be compared against another one. Absent
-          // fields are written as null rather than left out, so every clip
-          // has the same shape whichever analysis it came from.
-          title_options: c.title_options ?? null,
+          // What the AI wrote, kept apart from it: a renamed clip would
+          // otherwise lose the title being compared.
+          ai_title: orNull(c.title),
+          title_options: orNull(c.title_options),
           start_time: c.start_time,
           end_time: c.end_time,
           duration: Number((c.end_time - c.start_time).toFixed(2)),
-          hook_time: c.hook_time ?? null,
+          hook_time: orNull(c.hook_time),
           virality_score: c.virality_score,
-          content_type: c.content_type || null,
-          scroll_stop_reason: c.scroll_stop_reason || null,
-          opening_line: c.opening_line || null,
-          new_viewer_check: c.new_viewer_check || null,
-          payoff_line: c.payoff_line || null,
-          ending_line: c.ending_line || null,
-          key_quotes: c.key_quotes,
-          caption_suggestion: c.caption_suggestion ?? null,
-          hashtag_suggestion: c.hashtag_suggestion ?? null,
+          content_type: orNull(c.content_type),
+          // Issue #99: why the clip opens where it does, and the sentences
+          // its bounds are anchored to. This is what says *why* a clip was
+          // picked, so an export without it cannot be compared to another.
+          scroll_stop_reason: orNull(c.scroll_stop_reason),
+          opening_line: orNull(c.opening_line),
+          new_viewer_check: orNull(c.new_viewer_check),
+          payoff_line: orNull(c.payoff_line),
+          ending_line: orNull(c.ending_line),
+          key_quotes: orNull(c.key_quotes),
+          caption_suggestion: orNull(c.caption_suggestion),
+          hashtag_suggestion: orNull(c.hashtag_suggestion),
         })),
     },
     null,
