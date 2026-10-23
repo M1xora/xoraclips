@@ -128,12 +128,11 @@ npm run build-next                    # production build
 ```
 backend/          FastAPI, ffmpeg, yt-dlp. Endpoints in routes_*.py, rendering in video_engine.py
 backend/tests/    pytest suite, with real transcript and Gemini fixtures
-src-next/         Active frontend
+src-next/         Frontend
   api/            HTTP client for the backend
   features/       One folder per feature: analyze, studio, render, trimmer, player, export, …
   components/     Shared UI components
   hooks/ lib/     Shared hooks and helpers
-src/              Old frontend, kept for reference only
 ```
 
 ## What I learned

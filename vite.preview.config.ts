@@ -3,8 +3,7 @@ import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
 
 /**
- * Build/serve config for the src-next rewrite only.
- * Kept separate so the existing src/ app and its config stay untouched.
+ * Build/serve config for the frontend in src-next/.
  */
 export default defineConfig({
   plugins: [react(), tailwindcss()],
