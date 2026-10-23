@@ -2,6 +2,13 @@
 
 [English](README.md) | [Bahasa Indonesia](README.id.md)
 
+[![Versi](https://img.shields.io/badge/versi-0.9.0--beta-orange)](https://github.com/M1xora/xoraclips/releases)
+
+> **Beta.** Alur intinya sudah berjalan dan dipakai merender video sungguhan,
+> tapi pemasangannya baru diuji di komputer saya sendiri. Kalau ada yang tidak
+> jalan, [laporkan lewat Issues](https://github.com/M1xora/xoraclips/issues) —
+> itu yang paling membantu sekarang.
+
 Mengubah video YouTube yang panjang jadi klip vertikal 1080x1920 siap unggah ke TikTok, Shorts, dan Reels. Tempel link, Gemini memilih bagian yang menarik, lalu tiap klip diatur di Studio sebelum dirender jadi MP4.
 
 Dibuat untuk kreator solo dan channel kecil yang selama ini memotong klip manual dan ingin pass pertamanya dikerjakan otomatis. Aplikasi berjalan lokal di komputer sendiri.
@@ -134,7 +141,7 @@ src/              Frontend lama, hanya untuk referensi
 - **Render video itu soal kasus pinggiran.** Jalur normalnya cepat selesai; waktunya habis di klip yang terpotong di tengah kalimat, video tanpa transkrip, dan YouTube yang tiba-tiba minta login. Sebagian besar dari 815 test backend lahir dari salah satu masalah itu.
 - **Bergantung pada API luar berarti harus siap saat API-nya down.** Gemini mengembalikan 503 saat ramai, jadi backend mencoba ulang dan turun ke rantai model cadangan, bukan menggagalkan seluruh analisis.
 - **Test yang bikin saya berani refactor.** Logika murni — batas klip, timing caption, aturan judul — ditaruh di file sendiri tanpa React atau ffmpeg, jadi bisa dites langsung dan diubah tanpa was-was.
-- **Mengukur lebih baik daripada menebak.** Ukuran install ternyata penghalang terbesar buat pengguna baru, jadi saya ukur lalu bikin Whisper opsional: dari ~1030 MB jadi ~268 MB.
+- **Mengukur lebih baik daripada menebak.** Ukuran install ternyata penghalang terbesar buat pengguna baru, jadi saya ukur lalu bikin Whisper opsional: ~737 MB dari total ~1029 MB pemasangan tidak lagi ikut terpasang.
 
 ## Keterbatasan
 

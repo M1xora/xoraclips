@@ -1,6 +1,8 @@
 # Xoraclips — Panduan Pemakaian
 
-[← Kembali ke README](../README.id.md)
+[← README (English)](../README.md) | [← README (Bahasa Indonesia)](../README.id.md)
+
+> Halaman ini berbahasa Indonesia.
 
 [![Versi](https://img.shields.io/badge/versi-0.9.0--beta-orange)](https://github.com/M1xora/xoraclips/releases)
 

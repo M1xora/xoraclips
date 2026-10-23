@@ -2,6 +2,13 @@
 
 [English](README.md) | [Bahasa Indonesia](README.id.md)
 
+[![Version](https://img.shields.io/badge/version-0.9.0--beta-orange)](https://github.com/M1xora/xoraclips/releases)
+
+> **Beta.** The core flow works and has rendered real videos, but installation
+> has only been tested on my own machine. If something breaks,
+> [open an issue](https://github.com/M1xora/xoraclips/issues) — that helps most
+> right now.
+
 Turn long YouTube videos into vertical 1080x1920 clips ready for TikTok, Shorts, and Reels. Paste a link, Gemini picks the interesting parts, then you adjust each clip in the Studio and render it to MP4.
 
 Built for solo creators and small channels who cut clips by hand and want the first pass done for them. The app runs locally on your own machine.
@@ -134,7 +141,7 @@ src/              Old frontend, kept for reference only
 - **Rendering video is mostly about edge cases.** The happy path was quick; the work went into clips cut mid-sentence, videos with no transcript, and YouTube asking for a login. Most of the 815 backend tests exist because of one of those.
 - **Depending on an external API means planning for it being down.** Gemini returns 503 under load, so the backend retries and falls back through a chain of models instead of failing the whole analysis.
 - **Tests are what let me refactor.** Pure logic — clip bounds, caption timing, title rules — lives in its own files with no React or ffmpeg around it, so it can be tested directly and changed without fear.
-- **Measuring beats guessing.** Install size turned out to be the biggest barrier for new users, so I measured it and made Whisper optional: ~1030 MB down to ~268 MB.
+- **Measuring beats guessing.** Install size turned out to be the biggest barrier for new users, so I measured it and made Whisper optional: Whisper's ~737 MB of a ~1029 MB install is no longer pulled in by default.
 
 ## Limitations
 
