@@ -30,6 +30,7 @@ Setiap perubahan, sekecil apa pun, lewat alur ini. Tidak ada commit langsung ke 
 ## Aturan lain
 
 - Author commit adalah M1xora (git config). Claude hanya menambah baris `Co-Authored-By`.
+- **Jangan pernah menulis email pribadi user** (`muhammadzulfahmi2022@gmail.com`) di mana pun: commit, isi issue, body PR, komentar, dokumentasi, atau kode. Repo ini akan dipublikkan. Email untuk git adalah `116782961+M1xora@users.noreply.github.com`; kalau `git config user.email` ternyata bukan itu, perbaiki dulu sebelum commit, jangan commit apa adanya.
 - Jangan mengarang hasil test, benchmark, atau fitur. Kalau tidak bisa diverifikasi, bilang begitu.
 - User berbahasa Indonesia dan suka jawaban singkat.
 - Status fitur dan catatan teknis ada di `src-next/TODO.md`.
