@@ -151,7 +151,8 @@ What it did not have was a safety net: no tests, no CI, and nothing separating t
 
 | Area | What was added |
 |---|---|
-| **A test suite, from zero** | 815 backend and 481 frontend tests, run by CI on every pull request. The upstream project has none. Getting there meant pulling the decision-making out of the pipeline first — clip bounds, caption timing, title rules now live in their own files with no React or ffmpeg around them, so they can be tested directly. |
+| **The monolith, broken up** | Upstream keeps the analysis in one 1,764-line router; here it is 807 lines, with the decisions moved out into small files that stand on their own — where a clip starts and ends, which quotes anchor it, how a title is shaped, how many clips fit the span searched. The backend is 8,527 lines against upstream's 11,088, doing more. |
+| **A test suite, from zero** | 815 backend and 481 frontend tests, run by CI on every pull request. Upstream has no tests and no CI. The split above is what made them possible: logic tangled with ffmpeg and HTTP cannot be tested, so it had to come out first. |
 | **Clips that end on a sentence** | Clip boundaries snap to the nearest sentence end, and each clip records the lines that anchor it, so a clip no longer stops mid-word. |
 | **Bring-your-own API key** | The Gemini key is taken from a request header only — never from a file on the server, never stored, and redacted before anything reaches a log. |
 | **Errors that say what to do** | Gemini rate limits, exhausted quota, and YouTube refusing a transcript each produce a specific message instead of a failed request. |

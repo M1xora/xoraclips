@@ -151,7 +151,8 @@ Yang belum ada di sana adalah jaring pengaman: tidak ada test, tidak ada CI, dan
 
 | Bagian | Yang ditambahkan |
 |---|---|
-| **Test suite, dari nol** | 815 test backend dan 481 test frontend, dijalankan CI di tiap pull request. Proyek asalnya tidak punya satu pun. Untuk sampai ke sana, logika pengambil keputusan harus dikeluarkan dulu dari pipeline — batas klip, timing caption, dan aturan judul kini ada di file sendiri tanpa React atau ffmpeg di sekitarnya, jadi bisa dites langsung. |
+| **Monolith yang dipecah** | Proyek asal menaruh analisisnya di satu router 1.764 baris; di sini 807 baris, dengan keputusan-keputusannya dipindah ke file kecil yang berdiri sendiri — di mana klip dimulai dan berakhir, kalimat mana yang jadi jangkarnya, bagaimana judul dibentuk, berapa klip yang muat di rentang yang dicari. Backend-nya 8.527 baris berbanding 11.088 baris di proyek asal, dengan fitur yang lebih banyak. |
+| **Test suite, dari nol** | 815 test backend dan 481 test frontend, dijalankan CI di tiap pull request. Proyek asalnya tidak punya test maupun CI. Pemecahan di atas yang membuatnya mungkin: logika yang masih menyatu dengan ffmpeg dan HTTP tidak bisa dites, jadi harus dikeluarkan dulu. |
 | **Klip yang berhenti di akhir kalimat** | Batas klip ditarik ke akhir kalimat terdekat, dan tiap klip menyimpan kalimat yang jadi jangkarnya, jadi klip tidak lagi terpotong di tengah kata. |
 | **Kunci API milik pengguna sendiri** | Kunci Gemini hanya diambil dari header request — tidak pernah dari berkas di server, tidak disimpan, dan disensor sebelum apa pun sampai ke log. |
 | **Error yang memberi tahu harus apa** | Limit Gemini, kuota habis, dan YouTube yang menolak transkrip masing-masing menghasilkan pesan khusus, bukan sekadar request gagal. |
