@@ -5,6 +5,54 @@ Semua perubahan penting dicatat di sini.
 Format mengikuti [Keep a Changelog](https://keepachangelog.com/id/1.1.0/),
 dan versinya mengikuti [Semantic Versioning](https://semver.org/lang/id/).
 
+## [0.9.5] - 2026-10-29
+
+Rilis perapian menjelang repo dibuka ke publik. Empat perbaikan yang semuanya
+berangkat dari pengukuran, satu penambahan pada ekspor, dan pembersihan sisa
+frontend lama.
+
+**Masih beta.** Keterbatasan di v0.9.0 belum berubah: pemasangan baru diuji di
+komputer pengembang, dan timing subtitle masih bisa meleset.
+
+### Ditambahkan
+
+- Ekspor JSON ikut memuat data analisis, bukan hanya waktu klip: ketiga pilihan
+  judul dari AI, alasan sebuah klip dibuka di titik itu, dan kalimat yang jadi
+  jangkar batas klip. (#129)
+- README dua bahasa dengan tangkapan layar, bagian kontribusi, dan kredit ke
+  proyek yang jadi titik awal. (#131, #135)
+
+### Diperbaiki
+
+- Transkrip video panjang: satu batas baris untuk semua durasi. Sebelumnya
+  batasnya 800 baris untuk video satu jam ke bawah dan 2500 di atasnya,
+  sehingga video 59 menit hanya menyimpan 48% transkripnya sementara video 61
+  menit menyimpan seluruhnya — selisih dua menit durasi, tiga kali lipat
+  jatah. (#122)
+- Unduhan caption diberi waktu yang cukup. Timeout 8 detik memotong request
+  yang sebenarnya akan berhasil; pada video 4,4 jam dengan trek caption 3,3 MB,
+  request yang sehat butuh 0,6 sampai 30,5 detik. Pemotongan itu memicu
+  permintaan beruntun, dan permintaan beruntun itulah yang memancing 429 asli
+  dari YouTube. (#118)
+- Saat kuota per menit habis, analisis menunggu alih-alih langsung jatuh ke
+  model terlemah di rantai cadangan. (#125)
+- `title_options` ditulis sebelum `title` yang menyalinnya. Model menulis JSON
+  berurutan, jadi saat mengisi `title` di posisi 6, `title_options` di posisi
+  15 belum ada: instruksinya mustahil dipenuhi. (#127)
+
+### Dihapus
+
+- **Lisensi MIT dicabut.** Berkas `LICENSE` dihapus dan semua hak ditahan
+  pemilik. MIT tidak pernah dibahas di issue mana pun dan kemungkinan terpilih
+  sebagai bawaan saat repo dibuat, bukan keputusan sadar. Pemakaian,
+  penyalinan, atau penyebaran ulang perlu izin lebih dulu lewat GitHub Issues.
+  Hak yang sudah diberikan MIT pada v0.9.0 tidak bisa ditarik untuk salinan
+  yang sudah terlanjur diterima, tapi rilis ini dan seterusnya tidak lagi
+  memberikannya. (#116)
+- Frontend lama `src/` beserta perkakas yang melayaninya. Tidak ada yang
+  mengimpornya dari `src-next/`, backend, maupun test, dan CI tidak pernah
+  menjalankannya. Isinya tetap tersimpan di riwayat git. (#133)
+
 ## [0.9.0] - 2026-10-09
 
 Rilis beta pertama. Alur inti sudah berjalan penuh dan terbukti: analisis
@@ -94,4 +142,5 @@ pengembang. Kalau Anda menemukan masalah, laporkan lewat GitHub Issues.
 - Untuk video panjang, bagian akhir bisa tidak ikut dianalisis. (#103)
 - Pemasangan belum diuji di komputer selain milik pengembang. (#111)
 
+[0.9.5]: https://github.com/M1xora/xoraclips/compare/v0.9.0...v0.9.5
 [0.9.0]: https://github.com/M1xora/xoraclips/releases/tag/v0.9.0

@@ -2,7 +2,7 @@
 
 [English](README.md) | [Bahasa Indonesia](README.id.md)
 
-[![Version](https://img.shields.io/badge/version-0.9.0--beta-orange)](https://github.com/M1xora/xoraclips/releases)
+[![Version](https://img.shields.io/badge/version-0.9.5--beta-orange)](https://github.com/M1xora/xoraclips/releases)
 ![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript&logoColor=white)
 ![Python](https://img.shields.io/badge/Python-3.10+-3776AB?logo=python&logoColor=white)
@@ -169,7 +169,7 @@ Worked as a single-maintainer repo on a full Issue → Plan → Code → Review 
 - **Not packaged.** You need Node, Python, ffmpeg, and yt-dlp installed yourself. Installation has only been tested on the developer's own machine.
 - **Subtitle timing can drift.** Measured drift goes both ways (-1.8s to +1.4s) against YouTube captions, so a single offset setting would not fix it. Still unsolved.
 - **Face tracking needs help sometimes.** Corner facecams and dark gameplay footage fall back to the manual controls.
-- **Beta quality.** Version 0.9.0. The core flow works and has rendered real videos, but it has not been run at scale.
+- **Beta quality.** Version 0.9.5. The core flow works and has rendered real videos, but it has not been run at scale.
 
 ## Roadmap
 

@@ -2,7 +2,7 @@
 
 [English](README.md) | [Bahasa Indonesia](README.id.md)
 
-[![Versi](https://img.shields.io/badge/versi-0.9.0--beta-orange)](https://github.com/M1xora/xoraclips/releases)
+[![Versi](https://img.shields.io/badge/versi-0.9.5--beta-orange)](https://github.com/M1xora/xoraclips/releases)
 ![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript&logoColor=white)
 ![Python](https://img.shields.io/badge/Python-3.10+-3776AB?logo=python&logoColor=white)
@@ -169,7 +169,7 @@ Dikerjakan sebagai repo satu maintainer dengan alur penuh Issue → Plan → Cod
 - **Belum dipaketkan.** Node, Python, ffmpeg, dan yt-dlp harus dipasang sendiri. Instalasinya baru diuji di komputer pengembang.
 - **Timing subtitle masih bisa meleset.** Pergeseran yang terukur ke dua arah (-1,8 detik sampai +1,4 detik) dibanding caption YouTube, jadi satu setelan offset saja tidak akan menyelesaikannya. Belum terpecahkan.
 - **Face tracking kadang perlu dibantu.** Facecam di pojok dan footage game yang gelap masih mengandalkan kontrol manual.
-- **Masih beta.** Versi 0.9.0. Alur intinya jalan dan sudah merender video sungguhan, tapi belum dipakai dalam skala besar.
+- **Masih beta.** Versi 0.9.5. Alur intinya jalan dan sudah merender video sungguhan, tapi belum dipakai dalam skala besar.
 
 ## Rencana pengembangan
 
