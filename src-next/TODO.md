@@ -193,5 +193,3 @@ npx vite --config vite.preview.config.ts     # http://127.0.0.1:5174/preview.htm
 npx vitest run
 npx tsc -p tsconfig.next.json --noEmit
 ```
-
-Aplikasi lama tetap utuh: `npx vite` di port 5173.

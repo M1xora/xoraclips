@@ -274,7 +274,6 @@ if "!NEED_DEPS!"=="1" (
 :: their own windows, skips what is already running, and opens the browser
 :: once both are ready. The current folder is the repository here (it may be
 :: a fresh clone), so the file is called by its full path in this folder.
-:: The old UI (port 5173) can still be started by hand with: npm run dev
 :: -------------------------------------------------------------------------
 echo.
 echo [STEP 4/4] Starting Xoraclips...

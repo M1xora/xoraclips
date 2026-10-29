@@ -128,12 +128,11 @@ Totalnya 1.296 test. CI menjalankan semuanya di tiap pull request.
 ```
 backend/          FastAPI, ffmpeg, yt-dlp. Endpoint di routes_*.py, render di video_engine.py
 backend/tests/    Suite pytest, dengan fixture transkrip dan jawaban Gemini sungguhan
-src-next/         Frontend aktif
+src-next/         Frontend
   api/            Klien HTTP ke backend
   features/       Satu folder per fitur: analyze, studio, render, trimmer, player, export, …
   components/     Komponen UI bersama
   hooks/ lib/     Hook dan helper bersama
-src/              Frontend lama, hanya untuk referensi
 ```
 
 ## Yang saya pelajari

@@ -2,8 +2,7 @@
 
 Auto-clipper: analisis video YouTube dengan Gemini, pilih klip viral, edit di Studio, render ke MP4 vertikal 1080x1920.
 
-- `src-next/`: frontend aktif (React 19, TS strict, Vite, Tailwind v4). Semua pekerjaan frontend di sini.
-- `src/`: frontend lama, hanya referensi. Jangan diubah.
+- `src-next/`: frontend (React 19, TS strict, Vite, Tailwind v4). Semua pekerjaan frontend di sini.
 - `backend/`: FastAPI + ffmpeg + yt-dlp + Whisper. **Jangan diubah tanpa persetujuan eksplisit di issue.**
 
 ## Perintah
