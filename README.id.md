@@ -143,17 +143,20 @@ src-next/         Frontend
 
 ## Kontribusi saya
 
-Proyek ini berangkat dari [cheat-clip-pro](https://github.com/galihjuansaputra/cheat-clip-pro) (lihat [Kredit](#kredit)): struktur proyek dan sebagian pipeline video di backend jadi titik awalnya. Semua yang ada di bawah ini dirancang dan dibangun untuk proyek ini.
+Proyek ini berangkat dari [cheat-clip-pro](https://github.com/galihjuansaputra/cheat-clip-pro) (lihat [Kredit](#kredit)). Proyek itu sudah mengerjakan tugas intinya — Gemini membaca transkrip untuk memilih klip, progress yang mengalir ke browser, crop yang mengikuti wajah, render batch — dan sampai sekarang masih jadi tulang punggungnya di sini.
 
-| Bagian | Yang dibangun |
+Yang belum ada di sana adalah jaring pengaman: tidak ada test, tidak ada CI, dan logika yang menentukan di mana sebuah klip dimulai masih menyatu dengan kode yang berbicara ke ffmpeg. Ke situlah sebagian besar pekerjaan di fork ini pergi.
+
+**Yang ditambahkan di sini:**
+
+| Bagian | Yang ditambahkan |
 |---|---|
-| **Pemilihan klip oleh AI** | Seluruh jalur analisis: transkrip dan heatmap digabung jadi satu prompt, JSON dari Gemini divalidasi dan diperbaiki, rantai model Flash cadangan untuk error 503 dan batas kuota, serta klip cadangan dari puncak heatmap saat Gemini tidak mengembalikan apa pun. |
-| **Progress real-time** | `/api/analyze` adalah satu stream SSE yang melaporkan tiap tahap saat terjadi, jadi analisis 90 detik tidak pernah jadi layar kosong. Kunci API divalidasi lebih dulu, sehingga kunci salah gagal di bawah satu detik tanpa membuang kuota transkrip. |
-| **Clip Studio** | Rasio keluaran, margin blur atau hitam, layout split-facecam dan PiP, judul dengan tiga pilihan hasil generate, watermark, dan preview yang sesuai dengan hasil render. |
-| **Face tracking** | Deteksi OpenCV yang menggerakkan crop, dengan ukuran wajah terdeteksi menentukan zoom, plus kontrol manual untuk facecam di pojok dan footage game yang gelap. |
-| **Subtitle** | Timing per kata dalam 7 gaya dan 8 font, dibangun dari caption YouTube dengan Whisper sebagai cadangan opsional — yang membuat ~737 MB tidak ikut terpasang secara default. |
-| **Render batch** | Background task dengan status per klip, deteksi encoder hardware (NVENC, AMF, QSV), penanganan gagal sebagian supaya satu klip rusak tidak menjatuhkan seluruh batch, dan ZIP yang baru dibentuk saat pertama diunduh. |
-| **Test suite** | 815 test backend dan 481 test frontend, dengan logika murni — batas klip, timing caption, aturan judul — dipisahkan dari React dan ffmpeg supaya bisa dites langsung. |
+| **Test suite, dari nol** | 815 test backend dan 481 test frontend, dijalankan CI di tiap pull request. Proyek asalnya tidak punya satu pun. Untuk sampai ke sana, logika pengambil keputusan harus dikeluarkan dulu dari pipeline — batas klip, timing caption, dan aturan judul kini ada di file sendiri tanpa React atau ffmpeg di sekitarnya, jadi bisa dites langsung. |
+| **Klip yang berhenti di akhir kalimat** | Batas klip ditarik ke akhir kalimat terdekat, dan tiap klip menyimpan kalimat yang jadi jangkarnya, jadi klip tidak lagi terpotong di tengah kata. |
+| **Kunci API milik pengguna sendiri** | Kunci Gemini hanya diambil dari header request — tidak pernah dari berkas di server, tidak disimpan, dan disensor sebelum apa pun sampai ke log. |
+| **Error yang memberi tahu harus apa** | Limit Gemini, kuota habis, dan YouTube yang menolak transkrip masing-masing menghasilkan pesan khusus, bukan sekadar request gagal. |
+| **Jumlah klip yang muat di videonya** | Proyek asal sudah punya cadangan dari bagian video paling ramai saat Gemini tidak mengembalikan apa pun. Yang ditambahkan di sini: tidak pernah meminta klip lebih banyak daripada yang muat di rentang yang benar-benar dicari, jadi klip cadangannya tidak bisa saling tumpang tindih. |
+| **Tampilan yang ditulis ulang** | `src-next/` adalah build baru React 19 + TypeScript (strict): Studio, trimmer, player, dan format ekspornya. |
 
 Dikerjakan sebagai repo satu maintainer dengan alur penuh Issue → Plan → Code → Review → Test → Merge: 70 issue ditutup lewat 60 pull request yang direview, dengan CI hijau di setiap merge.
 
