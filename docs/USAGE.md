@@ -4,7 +4,7 @@
 
 > Halaman ini berbahasa Indonesia.
 
-[![Versi](https://img.shields.io/badge/versi-0.9.0--beta-orange)](https://github.com/M1xora/xoraclips/releases)
+[![Versi](https://img.shields.io/badge/versi-0.9.5--beta-orange)](https://github.com/M1xora/xoraclips/releases)
 
 > **Status: beta.** Alur intinya sudah berjalan penuh dan dipakai merender
 > video sungguhan, tapi pemasangannya belum diuji di banyak komputer. Kalau
