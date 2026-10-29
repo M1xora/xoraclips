@@ -143,19 +143,24 @@ src-next/         Frontend
 
 ## My contribution
 
-The project started from [cheat-clip-pro](https://github.com/galihjuansaputra/cheat-clip-pro) (see [Credits](#credits)): its project layout and parts of the backend video pipeline were the starting point. Everything below was designed and built for this project.
+The project started from [cheat-clip-pro](https://github.com/galihjuansaputra/cheat-clip-pro) (see [Credits](#credits)). That project already did the core job — Gemini reading a transcript to pick clips, progress streamed to the browser, face-driven cropping, batch rendering — and it is still the backbone here.
 
-| Area | What was built |
+What it did not have was a safety net: no tests, no CI, and nothing separating the logic that decides where a clip starts from the code that talks to ffmpeg. That is where most of the work on this fork went.
+
+**Added here:**
+
+| Area | What was added |
 |---|---|
-| **AI clip selection** | The whole analysis path: transcript and heatmap fused into one prompt, Gemini's JSON validated and repaired, a fallback chain across Flash models for 503s and quota limits, and backup clips picked from heatmap peaks when Gemini returns none. |
-| **Streaming progress** | `/api/analyze` is one SSE stream that reports each stage as it happens, so a 90-second analysis is never a blank screen. The API key is validated first, so a wrong key fails in under a second instead of spending transcript quota. |
-| **Clip Studio** | Output ratios, blurred or black margins, split-facecam and PiP layouts, titles with three generated options, watermarks, and a preview that matches the render. |
-| **Face tracking** | OpenCV detection driving the crop, with the detected face size setting the zoom, plus manual controls for corner facecams and dark gameplay footage. |
-| **Subtitles** | Word-level timing in 7 styles and 8 fonts, built from YouTube captions with Whisper as an optional fallback — which keeps ~737 MB out of a default install. |
-| **Batch rendering** | Background tasks with per-clip status, hardware encoder detection (NVENC, AMF, QSV), partial-failure handling so one bad clip does not sink the batch, and a ZIP built only when it is first downloaded. |
-| **Test suite** | 815 backend tests and 481 frontend tests, with the pure logic — clip bounds, caption timing, title rules — isolated from React and ffmpeg so it can be tested directly. |
+| **The monolith, broken up** | Upstream keeps the analysis in one 1,764-line router; here it is 807 lines, with the decisions moved out into small files that stand on their own — where a clip starts and ends, which quotes anchor it, how a title is shaped, how many clips fit the span searched. The backend is 8,527 lines against upstream's 11,088, doing more. |
+| **A test suite, from zero** | 815 backend and 481 frontend tests, run by CI on every pull request. Upstream has no tests and no CI. The split above is what made them possible: logic tangled with ffmpeg and HTTP cannot be tested, so it had to come out first. |
+| **A pipeline tuned on measurements** | Every constant that was guessed got measured and replaced. Transcript budget: upstream cut at 2,000 lines under an hour and 3,500 above, so a 59-minute video kept 48% of its transcript while a 61-minute one kept all of it — now one budget for every length. Caption fetches: an 8-second timeout was cutting off healthy requests that measured 0.6 to 30.5 seconds, and the retries it triggered were what drew YouTube's rate limiting. Gemini quota: a per-minute limit heals in tens of seconds, so the chain waits within a budget instead of dropping to its weakest model. |
+| **Clips that end on a sentence** | Clip boundaries snap to the nearest sentence end, and each clip records the lines that anchor it, so a clip no longer stops mid-word. |
+| **Bring-your-own API key** | The Gemini key is taken from a request header only — never from a file on the server, never stored, and redacted before anything reaches a log. |
+| **Errors that say what to do** | Gemini rate limits, exhausted quota, and YouTube refusing a transcript each produce a specific message instead of a failed request. |
+| **Clip counts that fit the video** | Upstream already fell back to the busiest parts of a video when Gemini returned nothing. Added here: never asking for more clips than fit in the span actually searched, so the fallback cannot hand back clips that overlap. |
+| **A rewritten frontend** | `src-next/` is a fresh React 19 + TypeScript (strict) build: the Studio, the trimmer, the player, the export formats. |
 
-Worked as a single-maintainer repo on a full Issue → Plan → Code → Review → Test → Merge flow: 70 issues closed across 60 reviewed pull requests, with CI green on every merge.
+Run as a single-maintainer repo on a full Issue → Plan → Code → Review → Test → Merge flow: 70 issues closed across 60 reviewed pull requests, with CI green on every merge.
 
 ## What I learned
 
