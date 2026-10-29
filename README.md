@@ -3,6 +3,10 @@
 [English](README.md) | [Bahasa Indonesia](README.id.md)
 
 [![Version](https://img.shields.io/badge/version-0.9.0--beta-orange)](https://github.com/M1xora/xoraclips/releases)
+![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript&logoColor=white)
+![Python](https://img.shields.io/badge/Python-3.10+-3776AB?logo=python&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-009688?logo=fastapi&logoColor=white)
 
 > **Beta.** The core flow works and has rendered real videos, but installation
 > has only been tested on my own machine. If something breaks,
@@ -12,6 +16,8 @@
 Turn long YouTube videos into vertical 1080x1920 clips ready for TikTok, Shorts, and Reels. Paste a link, Gemini picks the interesting parts, then you adjust each clip in the Studio and render it to MP4.
 
 Built for solo creators and small channels who cut clips by hand and want the first pass done for them. The app runs locally on your own machine.
+
+**1,296 tests** · **78 clips rendered** for real · **install cut 74%** (1029 → 268 MB) · **60 pull requests** reviewed and merged
 
 ## Demo
 
@@ -135,6 +141,22 @@ src-next/         Frontend
   hooks/ lib/     Shared hooks and helpers
 ```
 
+## My contribution
+
+The project started from [cheat-clip-pro](https://github.com/galihjuansaputra/cheat-clip-pro) (see [Credits](#credits)): its project layout and parts of the backend video pipeline were the starting point. Everything below was designed and built for this project.
+
+| Area | What was built |
+|---|---|
+| **AI clip selection** | The whole analysis path: transcript and heatmap fused into one prompt, Gemini's JSON validated and repaired, a fallback chain across Flash models for 503s and quota limits, and backup clips picked from heatmap peaks when Gemini returns none. |
+| **Streaming progress** | `/api/analyze` is one SSE stream that reports each stage as it happens, so a 90-second analysis is never a blank screen. The API key is validated first, so a wrong key fails in under a second instead of spending transcript quota. |
+| **Clip Studio** | Output ratios, blurred or black margins, split-facecam and PiP layouts, titles with three generated options, watermarks, and a preview that matches the render. |
+| **Face tracking** | OpenCV detection driving the crop, with the detected face size setting the zoom, plus manual controls for corner facecams and dark gameplay footage. |
+| **Subtitles** | Word-level timing in 7 styles and 8 fonts, built from YouTube captions with Whisper as an optional fallback — which keeps ~737 MB out of a default install. |
+| **Batch rendering** | Background tasks with per-clip status, hardware encoder detection (NVENC, AMF, QSV), partial-failure handling so one bad clip does not sink the batch, and a ZIP built only when it is first downloaded. |
+| **Test suite** | 815 backend tests and 481 frontend tests, with the pure logic — clip bounds, caption timing, title rules — isolated from React and ffmpeg so it can be tested directly. |
+
+Worked as a single-maintainer repo on a full Issue → Plan → Code → Review → Test → Merge flow: 70 issues closed across 60 reviewed pull requests, with CI green on every merge.
+
 ## What I learned
 
 - **Rendering video is mostly about edge cases.** The happy path was quick; the work went into clips cut mid-sentence, videos with no transcript, and YouTube asking for a login. Most of the 815 backend tests exist because of one of those.
@@ -153,6 +175,12 @@ src-next/         Frontend
 
 - Make the app easier to install for people who do not develop software.
 - Fix subtitle drift, which needs more sample videos to diagnose.
+
+## Credits
+
+Built on top of **[cheat-clip-pro](https://github.com/galihjuansaputra/cheat-clip-pro)** by **[galihjuansaputra](https://github.com/galihjuansaputra)**, which its README distributes under the MIT License. The initial project structure and parts of the backend video pipeline come from that work; what was built on top of it is listed under [My contribution](#my-contribution).
+
+Also built on: [yt-dlp](https://github.com/yt-dlp/yt-dlp), [FFmpeg](https://ffmpeg.org/), [youtube-transcript-api](https://github.com/jdepoix/youtube-transcript-api), [OpenCV](https://opencv.org/), and [Whisper](https://github.com/openai/whisper).
 
 ## Author
 

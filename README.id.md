@@ -3,6 +3,10 @@
 [English](README.md) | [Bahasa Indonesia](README.id.md)
 
 [![Versi](https://img.shields.io/badge/versi-0.9.0--beta-orange)](https://github.com/M1xora/xoraclips/releases)
+![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript&logoColor=white)
+![Python](https://img.shields.io/badge/Python-3.10+-3776AB?logo=python&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-009688?logo=fastapi&logoColor=white)
 
 > **Beta.** Alur intinya sudah berjalan dan dipakai merender video sungguhan,
 > tapi pemasangannya baru diuji di komputer saya sendiri. Kalau ada yang tidak
@@ -12,6 +16,8 @@
 Mengubah video YouTube yang panjang jadi klip vertikal 1080x1920 siap unggah ke TikTok, Shorts, dan Reels. Tempel link, Gemini memilih bagian yang menarik, lalu tiap klip diatur di Studio sebelum dirender jadi MP4.
 
 Dibuat untuk kreator solo dan channel kecil yang selama ini memotong klip manual dan ingin pass pertamanya dikerjakan otomatis. Aplikasi berjalan lokal di komputer sendiri.
+
+**1.296 test** · **78 klip** dirender sungguhan · **ukuran install turun 74%** (1029 → 268 MB) · **60 pull request** direview dan di-merge
 
 ## Demo
 
@@ -135,6 +141,22 @@ src-next/         Frontend
   hooks/ lib/     Hook dan helper bersama
 ```
 
+## Kontribusi saya
+
+Proyek ini berangkat dari [cheat-clip-pro](https://github.com/galihjuansaputra/cheat-clip-pro) (lihat [Kredit](#kredit)): struktur proyek dan sebagian pipeline video di backend jadi titik awalnya. Semua yang ada di bawah ini dirancang dan dibangun untuk proyek ini.
+
+| Bagian | Yang dibangun |
+|---|---|
+| **Pemilihan klip oleh AI** | Seluruh jalur analisis: transkrip dan heatmap digabung jadi satu prompt, JSON dari Gemini divalidasi dan diperbaiki, rantai model Flash cadangan untuk error 503 dan batas kuota, serta klip cadangan dari puncak heatmap saat Gemini tidak mengembalikan apa pun. |
+| **Progress real-time** | `/api/analyze` adalah satu stream SSE yang melaporkan tiap tahap saat terjadi, jadi analisis 90 detik tidak pernah jadi layar kosong. Kunci API divalidasi lebih dulu, sehingga kunci salah gagal di bawah satu detik tanpa membuang kuota transkrip. |
+| **Clip Studio** | Rasio keluaran, margin blur atau hitam, layout split-facecam dan PiP, judul dengan tiga pilihan hasil generate, watermark, dan preview yang sesuai dengan hasil render. |
+| **Face tracking** | Deteksi OpenCV yang menggerakkan crop, dengan ukuran wajah terdeteksi menentukan zoom, plus kontrol manual untuk facecam di pojok dan footage game yang gelap. |
+| **Subtitle** | Timing per kata dalam 7 gaya dan 8 font, dibangun dari caption YouTube dengan Whisper sebagai cadangan opsional — yang membuat ~737 MB tidak ikut terpasang secara default. |
+| **Render batch** | Background task dengan status per klip, deteksi encoder hardware (NVENC, AMF, QSV), penanganan gagal sebagian supaya satu klip rusak tidak menjatuhkan seluruh batch, dan ZIP yang baru dibentuk saat pertama diunduh. |
+| **Test suite** | 815 test backend dan 481 test frontend, dengan logika murni — batas klip, timing caption, aturan judul — dipisahkan dari React dan ffmpeg supaya bisa dites langsung. |
+
+Dikerjakan sebagai repo satu maintainer dengan alur penuh Issue → Plan → Code → Review → Test → Merge: 70 issue ditutup lewat 60 pull request yang direview, dengan CI hijau di setiap merge.
+
 ## Yang saya pelajari
 
 - **Render video itu soal kasus pinggiran.** Jalur normalnya cepat selesai; waktunya habis di klip yang terpotong di tengah kalimat, video tanpa transkrip, dan YouTube yang tiba-tiba minta login. Sebagian besar dari 815 test backend lahir dari salah satu masalah itu.
@@ -153,6 +175,12 @@ src-next/         Frontend
 
 - Membuat aplikasi lebih mudah dipasang untuk orang yang bukan developer.
 - Memperbaiki pergeseran subtitle, yang masih butuh lebih banyak sample video untuk didiagnosis.
+
+## Kredit
+
+Dibangun di atas **[cheat-clip-pro](https://github.com/galihjuansaputra/cheat-clip-pro)** karya **[galihjuansaputra](https://github.com/galihjuansaputra)**, yang menurut README-nya dirilis dengan Lisensi MIT. Struktur awal proyek dan sebagian pipeline video di backend berasal dari sana; yang dibangun di atasnya ada di [Kontribusi saya](#kontribusi-saya).
+
+Juga dibangun di atas: [yt-dlp](https://github.com/yt-dlp/yt-dlp), [FFmpeg](https://ffmpeg.org/), [youtube-transcript-api](https://github.com/jdepoix/youtube-transcript-api), [OpenCV](https://opencv.org/), dan [Whisper](https://github.com/openai/whisper).
 
 ## Author
 
